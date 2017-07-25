@@ -10,6 +10,7 @@
     <RuntimeFrameworkVersion>1.1.2</RuntimeFrameworkVersion>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,9 +20,6 @@
     <Compile Remove="Assets\**" />
     <Content Remove="Assets\**" />
     <None Remove="Assets\**" />
-	<None Update="dockerfile">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
