@@ -6,6 +6,9 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# check working directory (debug dotnet restore)
+RUN pwd; ls; find .
+
 # Test Backend
 RUN dotnet restore \
  && dotnet test tests/Squidex.Infrastructure.Tests/Squidex.Infrastructure.Tests.csproj \
