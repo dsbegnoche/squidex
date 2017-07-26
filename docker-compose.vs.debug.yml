@@ -15,7 +15,10 @@ services:
     entrypoint: tail -f /dev/null
     labels:
       - "com.microsoft.visualstudio.targetoperatingsystem=linux"
+    external_links:
+      - dependencies_squidex_mongo_1
+    networks:
+      - dependencies_default
 networks:
-  default:
-    external:
-      name: dependencies_default
+    dependencies_default:
+      external: true
