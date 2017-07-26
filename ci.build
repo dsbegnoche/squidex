@@ -7,7 +7,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # check working directory (debug dotnet restore)
-RUN pwd; ls; find .
+RUN pwd; ls
 
 # Test Backend
 RUN dotnet restore \
