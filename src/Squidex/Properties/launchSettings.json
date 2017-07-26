@@ -17,7 +17,8 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "IIS"
+        "RunningIn": "IIS",
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "Squidex": {
