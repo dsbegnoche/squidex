@@ -6,6 +6,7 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Squidex.Domain.Users;
+using Squidex.Infrastructure.Log;
 using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
@@ -36,7 +38,7 @@ namespace Squidex.Config.Identity
             return app;
         }
 
-        public static IApplicationBuilder UseAdminRole(this IApplicationBuilder app)
+        public static IApplicationBuilder UseMyAdminRole(this IApplicationBuilder app)
         {
             var roleManager = app.ApplicationServices.GetRequiredService<RoleManager<IRole>>();
             var roleFactory = app.ApplicationServices.GetRequiredService<IRoleFactory>();
@@ -53,6 +55,8 @@ namespace Squidex.Config.Identity
             var userManager = app.ApplicationServices.GetService<UserManager<IUser>>();
             var userFactory = app.ApplicationServices.GetService<IUserFactory>();
 
+            var log = app.ApplicationServices.GetService<ISemanticLog>();
+
             if (options.IsAdminConfigured())
             {
                 var adminEmail = options.AdminEmail;
@@ -60,28 +64,20 @@ namespace Squidex.Config.Identity
 
                 Task.Run(async () =>
                 {
-                    var user = await userManager.FindByEmailAsync(adminEmail);
-
-                    async Task userInitAsync(IUser theUser)
+                    if ((userManager.SupportsQueryableUsers && !userManager.Users.Any()))
                     {
-                        await userManager.RemovePasswordAsync(theUser);
-                        await userManager.ChangePasswordAsync(theUser, null, adminPass);
-                        await userManager.AddToRoleAsync(theUser, SquidexRoles.Administrator);
-                    }
-
-                    if (user != null)
-                    {
-                        if (options.EnforceAdmin)
+                        try
                         {
-                            await userInitAsync(user);
-                        }
-                    }
-                    else if ((userManager.SupportsQueryableUsers && !userManager.Users.Any()) || options.EnforceAdmin)
-                    {
-                        user = userFactory.Create(adminEmail);
+                            var user =  await userManager.CreateAsync(userFactory, adminEmail, adminEmail, adminPass);
 
-                        await userManager.CreateAsync(user);
-                        await userInitAsync(user);
+                            await userManager.AddToRoleAsync(user, SquidexRoles.Administrator);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogError(ex, w => w
+                                .WriteProperty("action", "createAdmin")
+                                .WriteProperty("status", "failed"));
+                        }
                     }
                 }).Wait();
             }
