@@ -51,7 +51,7 @@ namespace Squidex
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
+                .AddJsonFile($"appsettings.{System.Environment.GetEnvironmentVariable("RunningIn")}.json", true)
                 .AddEnvironmentVariables();
 
             Configuration = builder.Build();
