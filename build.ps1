@@ -1,5 +1,6 @@
 # Build the image
-docker build . -t squidex-build-image -f dockerfile.build
+#docker build . -t squidex-build-image -f dockerfile.build
+docker build . -t squidex-build-image -f Dockerfile
 
 # Open the image
 docker create --name squidex-build-container squidex-build-image
