@@ -53,7 +53,7 @@ namespace Squidex.Domain.Apps.Read.Schemas
         }
 
         [Fact]
-        public void Should_return_empty_for_events_filter()
+        public void Should_eturn_empty_for_events_filter()
         {
             Assert.Equal(string.Empty, sut.EventsFilter);
         }
