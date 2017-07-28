@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  squidex:
+    image: squidex:dev
+    ports:
+      - "5000:5000"
+    build:
+      args:
+        source: ${DOCKER_BUILD_SOURCE}
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - ASPNETCORE_URLS=http://+:5000
+    volumes:
+      - ./src/Squidex:/app
+      - ~/.nuget/packages:/root/.nuget/packages:ro
+      - ~/clrdbg:/clrdbg:ro
+    entrypoint: tail -f /dev/null
+    labels:
+      - "com.microsoft.visualstudio.targetoperatingsystem=linux"
+    external_links:
+      - dependencies_squidex_mongo_1
+    networks:
+      - dependencies_default
+networks:
+    dependencies_default:
+      external: true

@@ -88,6 +88,17 @@ namespace Squidex.Domain.Users
 			    ClaimsList = new List<IdentityUserClaim>();
 		    }
 
+		    public TestUser(string email, string id, bool isLocked, IReadOnlyList<Claim> claims,
+			    IReadOnlyList<ExternalLogin> logins)
+		    {
+			    this.Email = this.NormalizedEmail = email;
+			    this.Id = id;
+			    this.IsLocked = isLocked;
+			    this.Claims = claims;
+			    this.Logins = logins;
+			    ClaimsList = new List<IdentityUserClaim>();
+			}
+
 		    public void AddClaim(Claim claim)
 		    {
 		    }
@@ -106,7 +117,10 @@ namespace Squidex.Domain.Users
 
 			public IReadOnlyList<ExternalLogin> Logins { get; set; }
 
-		    public void UpdateEmail(string email){}
+		    public void UpdateEmail(string email)
+		    {
+			    this.Email = email;
+		    }
 
 		    public void SetClaim(string type, string value)
 		    {

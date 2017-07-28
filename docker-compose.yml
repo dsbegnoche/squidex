@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  squidex:
+    image: squidex
+    build:
+      context: ./src/Squidex
+      dockerfile: Dockerfile
