@@ -1,18 +1,21 @@
 ﻿// ==========================================================================
-//  IGraphQLInvoker.cs
+//  MustBeAppReaderAttribute.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
-using System.Threading.Tasks;
-using Squidex.Domain.Apps.Read.Apps;
+using Microsoft.AspNetCore.Authorization;
+using Squidex.Shared.Identity;
 
-namespace Squidex.Domain.Apps.Read.Contents.GraphQL
+namespace Squidex.Pipeline
 {
-    public interface IGraphQLInvoker
+    public sealed class MustBeAppReaderAttribute : AuthorizeAttribute
     {
-        Task<object> QueryAsync(IAppEntity app, GraphQLQuery query);
+        public MustBeAppReaderAttribute()
+        {
+            Roles = SquidexRoles.AppReader;
+        }
     }
 }

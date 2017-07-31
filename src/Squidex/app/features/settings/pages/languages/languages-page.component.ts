@@ -6,7 +6,7 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import {
     AddAppLanguageDto,
@@ -35,7 +35,7 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
     public newLanguages: LanguageDto[] = [];
     public appLanguages = ImmutableArray.empty<AppLanguageDto>();
 
-    public addLanguageForm: FormGroup =
+    public addLanguageForm =
         this.formBuilder.group({
             language: [null,
                 Validators.required
@@ -135,7 +135,7 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
 
         this.updateNewLanguages();
 
-        this.messageBus.publish(new HistoryChannelUpdated());
+        this.messageBus.emit(new HistoryChannelUpdated());
     }
 
     private updateNewLanguages() {

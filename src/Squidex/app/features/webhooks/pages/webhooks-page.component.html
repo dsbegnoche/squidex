@@ -42,7 +42,7 @@
                                     </h3>
                                 </td>
                                 <td class="client-delete">
-                                    <button type="button" class="btn btn-link btn-danger" (click)="deleteWebhook(webhook)">
+                                    <button type="button" class="btn btn-link btn-danger" (click)="deleteWebhook(w)">
                                         <i class="icon-bin2"></i>
                                     </button>
                                 </td>
@@ -126,7 +126,7 @@
                         
 
                         <button type="submit" class="btn btn-success" [disabled]="!hasUrl">Add Webhook</button>
-                        <button type="reset" class="btn btn-link" (click)="resetWebhookForm()" [disabled]="addWebhookFormSubmitted">Cancel</button>
+                        <button type="reset" class="btn btn-link" (click)="cancelAddWebhook()" [disabled]="addWebhookFormSubmitted">Cancel</button>
                     </form>
                 </div>
             </div>

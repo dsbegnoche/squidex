@@ -34,15 +34,15 @@ export class DateTimeEditorComponent implements ControlValueAccessor, OnDestroy,
     private changeCallback: (value: any) => void = NOOP;
     private touchedCallback: () => void = NOOP;
 
-    public timeControl = new FormControl();
-
-    public dateControl = new FormControl();
-
     @Input()
     public mode: string;
 
     @Input()
     public enforceTime: boolean;
+
+    public timeControl = new FormControl();
+
+    public dateControl = new FormControl();
 
     public get showTime() {
         return this.mode === 'DateTime';
@@ -166,7 +166,7 @@ export class DateTimeEditorComponent implements ControlValueAccessor, OnDestroy,
     }
 
     private updateValue() {
-        let result: string | null = null;
+        let result: string | null;
 
         if ((this.dateValue && !this.dateValue.isValid()) || (this.timeValue && !this.timeValue.isValid())) {
             result = 'Invalid DateTime';

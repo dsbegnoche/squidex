@@ -6,7 +6,7 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import {
     AppComponentBase,
@@ -36,7 +36,7 @@ export class WebhooksPageComponent extends AppComponentBase implements OnInit {
     public schemas: SchemaDto[];
 
     public addWebhookFormSubmitted = false;
-    public addWebhookForm: FormGroup =
+    public addWebhookForm =
         this.formBuilder.group({
             schemaId: ['',
                 [
@@ -86,38 +86,6 @@ export class WebhooksPageComponent extends AppComponentBase implements OnInit {
                 this.notifyError(error);
             });
     }
-    public resetWebhookForm() {
-        this.addWebhookFormSubmitted = false;
-        this.addWebhookForm.enable();
-        this.addWebhookForm.reset();
-    }
-
-    public addWebhook() {
-        if (this.addWebhookForm.valid) {
-            this.addWebhookFormSubmitted = true;
-            this.addWebhookForm.disable();
-
-            const requestDto = new CreateWebhookDto(this.addWebhookForm.controls['url'].value);
-            const schemaId = this.addWebhookForm.controls['schemaId'].value;
-            const schema = this.schemas.find(s => s.id === schemaId);
-
-            this.appNameOnce()
-                .switchMap(app => this.webhooksService.postWebhook(app, schema.name, requestDto, this.version))
-                .subscribe(dto => {
-                    const webhook = new WebhookDto(dto.id, schemaId, dto.sharedSecret, requestDto.url, 0, 0, 0, 0, []);
-
-                    this.webhooks = this.webhooks.push({ schema, webhook, showDetails: false });
-                    this.resetWebhookForm();
-                }, error => {
-                    this.notifyError(error);
-                    this.resetWebhookForm();
-                });
-        }
-    }
-
-    public toggleDetails(webhook: WebhookWithSchema) {
-        this.webhooks = this.webhooks.replace(webhook, { webhook: webhook.webhook, schema: webhook.schema, showDetails: !webhook.showDetails });
-    }
 
     public deleteWebhook(webhook: WebhookWithSchema) {
         this.appNameOnce()
@@ -127,5 +95,47 @@ export class WebhooksPageComponent extends AppComponentBase implements OnInit {
             }, error => {
                 this.notifyError(error);
             });
+    }
+
+    public addWebhook() {
+        this.addWebhookFormSubmitted = true;
+
+        if (this.addWebhookForm.valid) {
+            this.addWebhookForm.disable();
+
+            const requestDto = new CreateWebhookDto(this.addWebhookForm.controls['url'].value);
+
+            const schemaId = this.addWebhookForm.controls['schemaId'].value;
+            const schema = this.schemas.find(s => s.id === schemaId);
+
+            this.appNameOnce()
+                .switchMap(app => this.webhooksService.postWebhook(app, schema.name, requestDto, this.version))
+                .subscribe(dto => {
+                    this.webhooks = this.webhooks.push({ webhook: dto, schema: schema, showDetails: false });
+
+                    this.resetWebhookForm();
+                }, error => {
+                    this.notifyError(error);
+                    this.enableWebhookForm();
+                });
+        }
+    }
+
+    public cancelAddWebhook() {
+        this.resetWebhookForm();
+    }
+
+    public toggleDetails(webhook: WebhookWithSchema) {
+        this.webhooks = this.webhooks.replace(webhook, { webhook: webhook.webhook, schema: webhook.schema, showDetails: !webhook.showDetails });
+    }
+
+    private enableWebhookForm() {
+        this.addWebhookForm.enable();
+    }
+
+    private resetWebhookForm() {
+        this.addWebhookFormSubmitted = false;
+        this.addWebhookForm.enable();
+        this.addWebhookForm.reset();
     }
 }

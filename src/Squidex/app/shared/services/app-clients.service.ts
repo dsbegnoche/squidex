@@ -21,8 +21,17 @@ export class AppClientDto {
     constructor(
         public readonly id: string,
         public readonly name: string,
-        public readonly secret: string
+        public readonly secret: string,
+        public readonly isReader: boolean
     ) {
+    }
+
+    public rename(name: string): AppClientDto {
+        return new AppClientDto(this.id, name, this.secret, this.isReader);
+    }
+
+    public change(isReader: boolean): AppClientDto {
+        return new AppClientDto(this.id, this.name, this.secret, isReader);
     }
 }
 
@@ -35,7 +44,8 @@ export class CreateAppClientDto {
 
 export class UpdateAppClientDto {
     constructor(
-        public readonly name: string
+        public readonly name?: string,
+        public readonly isReader?: boolean
     ) {
     }
 }
@@ -66,8 +76,9 @@ export class AppClientsService {
                     return items.map(item => {
                         return new AppClientDto(
                             item.id,
-                            item.name,
-                            item.secret);
+                            item.name || response.id,
+                            item.secret,
+                            item.isReader);
                     });
                 })
                 .pretifyError('Failed to load clients. Please reload.');
@@ -80,8 +91,9 @@ export class AppClientsService {
                 .map(response => {
                     return new AppClientDto(
                         response.id,
-                        response.name,
-                        response.secret);
+                        response.name || response.id,
+                        response.secret,
+                        response.isReader);
                 })
                 .pretifyError('Failed to add client. Please reload.');
     }

@@ -56,10 +56,7 @@ export class AssetsEditorComponent extends AppComponentBase implements ControlVa
             this.messageBus.of(AssetUpdated)
                 .subscribe(event => {
                     if (event.sender !== this) {
-                        this.oldAssets =
-                            this.oldAssets.replaceAll(
-                                a => a.id === event.assetDto.id,
-                                a => event.assetDto);
+                        this.oldAssets = this.oldAssets.replaceBy('id', event.assetDto);
                     }
                 });
     }
@@ -132,7 +129,7 @@ export class AssetsEditorComponent extends AppComponentBase implements ControlVa
     }
 
     public onAssetUpdated(asset: AssetDto) {
-        this.messageBus.publish(new AssetUpdated(asset, this));
+        this.messageBus.emit(new AssetUpdated(asset, this));
     }
 
     public onAssetFailed(file: File) {

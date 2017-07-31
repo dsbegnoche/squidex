@@ -32,6 +32,7 @@ export class AssetDto {
         public readonly created: DateTime,
         public readonly lastModified: DateTime,
         public readonly fileName: string,
+        public readonly fileType: string,
         public readonly fileSize: number,
         public readonly fileVersion: number,
         public readonly mimeType: string,
@@ -40,27 +41,44 @@ export class AssetDto {
         public readonly pixelHeight: number | null,
         public readonly version: Version
     ) {
+    }
+
+    public update(update: AssetReplacedDto, user: string, now?: DateTime): AssetDto {
+        return new AssetDto(
+            this.id,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.fileName,
+            this.fileType,
+            update.fileSize,
+            update.fileVersion,
+            update.mimeType,
+            update.isImage,
+            update.pixelWidth,
+            update.pixelHeight,
+            update.version);
+    }
+
+    public rename(name: string, user: string, now?: DateTime): AssetDto {
+        return new AssetDto(
+            this.id,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            name,
+            this.fileType,
+            this.fileSize,
+            this.fileVersion,
+            this.mimeType,
+            this.isImage,
+            this.pixelWidth,
+            this.pixelHeight,
+            this.version);
     }
 }
 
 export class UpdateAssetDto {
     constructor(
         public readonly fileName: string
-    ) {
-    }
-}
-
-export class AssetCreatedDto {
-    constructor(
-        public readonly id: string,
-        public readonly fileName: string,
-        public readonly fileSize: number,
-        public readonly fileVersion: number,
-        public readonly mimeType: string,
-        public readonly isImage: boolean,
-        public readonly pixelWidth: number | null,
-        public readonly pixelHeight: number | null,
-        public readonly version: Version
     ) {
     }
 }
@@ -87,7 +105,7 @@ export class AssetsService {
     }
 
     public getAssets(appName: string, take: number, skip: number, query?: string, mimeTypes?: string[], ids?: string[]): Observable<AssetsDto> {
-        let queries: string[] = [];
+        const queries: string[] = [];
 
         if (mimeTypes && mimeTypes.length > 0) {
             queries.push(`mimeTypes=${mimeTypes.join(',')}`);
@@ -120,6 +138,7 @@ export class AssetsService {
                             DateTime.parseISO_UTC(item.created),
                             DateTime.parseISO_UTC(item.lastModified),
                             item.fileName,
+                            item.fileType,
                             item.fileSize,
                             item.fileVersion,
                             item.mimeType,
@@ -132,8 +151,8 @@ export class AssetsService {
                 .pretifyError('Failed to load assets. Please reload.');
     }
 
-    public uploadFile(appName: string, file: File): Observable<number | AssetCreatedDto> {
-        return new Observable<number | AssetCreatedDto>(subscriber => {
+    public uploadFile(appName: string, file: File, user: string, now?: DateTime): Observable<number | AssetDto> {
+        return new Observable<number | AssetDto>(subscriber => {
             const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
 
             const req = new HttpRequest('POST', url, getFormData(file), {
@@ -150,9 +169,16 @@ export class AssetsService {
                     } else if (event instanceof HttpResponse) {
                         const response = event.body;
 
-                        const dto =  new AssetCreatedDto(
+                        now = now || DateTime.now();
+
+                        const dto =  new AssetDto(
                             response.id,
+                            user,
+                            user,
+                            now,
+                            now,
                             response.fileName,
+                            response.fileType,
                             response.fileSize,
                             response.fileVersion,
                             response.mimeType,
@@ -183,6 +209,7 @@ export class AssetsService {
                         DateTime.parseISO_UTC(response.created),
                         DateTime.parseISO_UTC(response.lastModified),
                         response.fileName,
+                        response.fileType,
                         response.fileSize,
                         response.fileVersion,
                         response.mimeType,

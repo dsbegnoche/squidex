@@ -50,10 +50,7 @@ export class AssetsPageComponent extends AppComponentBase implements OnDestroy, 
             this.messageBus.of(AssetUpdated)
                 .subscribe(event => {
                     if (event.sender !== this) {
-                        this.assetsItems =
-                            this.assetsItems.replaceAll(
-                                a => a.id === event.assetDto.id,
-                                a => event.assetDto);
+                        this.assetsItems = this.assetsItems.replaceBy('id', event.assetDto);
                     }
                 });
 
@@ -89,7 +86,7 @@ export class AssetsPageComponent extends AppComponentBase implements OnDestroy, 
     public onAssetDeleting(asset: AssetDto) {
         this.appNameOnce()
             .switchMap(app => this.assetsService.deleteAsset(app, asset.id, asset.version))
-            .subscribe(dtos => {
+            .subscribe(dto => {
                 this.assetsItems = this.assetsItems.filter(x => x.id !== asset.id);
                 this.assetsPager = this.assetsPager.decrementCount();
             }, error => {
@@ -105,7 +102,7 @@ export class AssetsPageComponent extends AppComponentBase implements OnDestroy, 
     }
 
     public onAssetUpdated(asset: AssetDto) {
-        this.messageBus.publish(new AssetUpdated(asset, this));
+        this.messageBus.emit(new AssetUpdated(asset, this));
     }
 
     public onAssetFailed(file: File) {

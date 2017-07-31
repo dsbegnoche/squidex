@@ -6,15 +6,13 @@
  */
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import {
     ApiUrlConfig,
     AuthService,
-    DateTime,
     fadeAnimation,
     SchemaDto,
-    SchemaPropertiesDto,
     SchemasService,
     ValidatorsEx,
     Version
@@ -31,20 +29,20 @@ const FALLBACK_NAME = 'my-schema';
     ]
 })
 export class SchemaFormComponent {
-    @Input()
-    public appName: string;
-
     @Output()
     public created = new EventEmitter<SchemaDto>();
 
     @Output()
     public cancelled = new EventEmitter();
 
+    @Input()
+    public appName: string;
+
     public showImport = false;
 
     public createFormError = '';
     public createFormSubmitted = false;
-    public createForm: FormGroup =
+    public createForm =
         this.formBuilder.group({
             name: ['',
                 [
@@ -74,8 +72,8 @@ export class SchemaFormComponent {
     }
 
     public cancel() {
-        this.reset();
-        this.cancelled.emit();
+        this.emitCancelled();
+        this.resetCreateForm();
     }
 
     public createSchema() {
@@ -87,31 +85,36 @@ export class SchemaFormComponent {
             const schemaVersion = new Version();
             const schemaName = this.createForm.controls['name'].value;
 
-            const requestDto = Object.assign(this.createForm.controls['import'].value || {}, {});
+            const requestDto = Object.assign(this.createForm.controls['import'].value || {}, { name: schemaName });
 
-            requestDto.name = schemaName;
+            const me = this.authService.user!.token;
 
-            this.schemas.postSchema(this.appName, requestDto, schemaVersion)
+            this.schemas.postSchema(this.appName, requestDto, me, undefined, schemaVersion)
                 .subscribe(dto => {
-                    this.reset();
-                    this.created.emit(this.createSchemaDto(dto.id, requestDto.properties || {}, schemaName, schemaVersion));
+                    this.emitCreated(dto);
+                    this.resetCreateForm();
                 }, error => {
-                    this.createForm.enable();
-                    this.createFormError = error.displayMessage;
+                    this.enableCreateForm(error.displayMessage);
                 });
         }
     }
 
-    private reset() {
+    private emitCancelled() {
+        this.cancelled.emit();
+    }
+
+    private emitCreated(schema: SchemaDto) {
+        this.created.emit(schema);
+    }
+
+    private enableCreateForm(message: string) {
+        this.createForm.enable();
+        this.createFormError = message;
+    }
+
+    private resetCreateForm() {
         this.createFormError = '';
         this.createForm.reset();
         this.createFormSubmitted = false;
-    }
-
-    private createSchemaDto(id: string, properties: SchemaPropertiesDto, name: string, version: Version) {
-        const user = this.authService.user!.token;
-        const now = DateTime.now();
-
-        return new SchemaDto(id, name, properties, false, user, user, now, now, version);
     }
 }

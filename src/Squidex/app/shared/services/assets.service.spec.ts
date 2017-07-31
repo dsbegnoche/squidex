@@ -12,7 +12,6 @@ import {
     ApiUrlConfig,
     AssetsDto,
     AssetDto,
-    AssetCreatedDto,
     AssetReplacedDto,
     AssetsService,
     DateTime,
@@ -20,8 +19,41 @@ import {
     Version
 } from './../';
 
+describe('AssetDto', () => {
+    it('should update name property and user info when renaming', () => {
+        const now = DateTime.now();
+
+        const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null);
+        const asset_2 = asset_1.rename('new-name.png', 'me', now);
+
+        expect(asset_2.fileName).toEqual('new-name.png');
+        expect(asset_2.lastModified).toEqual(now);
+        expect(asset_2.lastModifiedBy).toEqual('me');
+    });
+
+    it('should update file properties when uploading', () => {
+        const now = DateTime.now();
+
+        const update = new AssetReplacedDto(2, 2, 'image/jpeg', true, 2, 2, null);
+
+        const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null);
+        const asset_2 = asset_1.update(update, 'me', now);
+
+        expect(asset_2.fileSize).toEqual(2);
+        expect(asset_2.fileVersion).toEqual(2);
+        expect(asset_2.mimeType).toEqual('image/jpeg');
+        expect(asset_2.isImage).toBeTruthy();
+        expect(asset_2.pixelWidth).toEqual(2);
+        expect(asset_2.pixelHeight).toEqual(2);
+        expect(asset_2.lastModified).toEqual(now);
+        expect(asset_2.lastModifiedBy).toEqual('me');
+    });
+});
+
 describe('AssetsService', () => {
-    let version = new Version('1');
+    const now = DateTime.now();
+    const user = 'me';
+    const version = new Version('1');
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -63,9 +95,10 @@ describe('AssetsService', () => {
                     lastModified: '2017-12-12T10:10',
                     lastModifiedBy: 'LastModifiedBy1',
                     fileName: 'my-asset1.png',
+                    fileType: 'png',
                     fileSize: 1024,
                     fileVersion: 2000,
-                    mimeType: 'text/plain',
+                    mimeType: 'image/png',
                     isImage: true,
                     pixelWidth: 1024,
                     pixelHeight: 2048,
@@ -78,9 +111,10 @@ describe('AssetsService', () => {
                     lastModified: '2017-10-12T10:10',
                     lastModifiedBy: 'LastModifiedBy2',
                     fileName: 'my-asset2.png',
+                    fileType: 'png',
                     fileSize: 1024,
                     fileVersion: 2000,
-                    mimeType: 'text/plain',
+                    mimeType: 'image/png',
                     isImage: true,
                     pixelWidth: 1024,
                     pixelHeight: 2048,
@@ -96,9 +130,10 @@ describe('AssetsService', () => {
                     DateTime.parseISO_UTC('2016-12-12T10:10'),
                     DateTime.parseISO_UTC('2017-12-12T10:10'),
                     'my-asset1.png',
+                    'png',
                     1024,
                     2000,
-                    'text/plain',
+                    'image/png',
                     true,
                     1024,
                     2048,
@@ -107,9 +142,10 @@ describe('AssetsService', () => {
                     DateTime.parseISO_UTC('2016-10-12T10:10'),
                     DateTime.parseISO_UTC('2017-10-12T10:10'),
                     'my-asset2.png',
+                    'png',
                     1024,
                     2000,
-                    'text/plain',
+                    'image/png',
                     true,
                     1024,
                     2048,
@@ -138,9 +174,10 @@ describe('AssetsService', () => {
             lastModified: '2017-12-12T10:10',
             lastModifiedBy: 'LastModifiedBy1',
             fileName: 'my-asset1.png',
+            fileType: 'png',
             fileSize: 1024,
             fileVersion: 2000,
-            mimeType: 'text/plain',
+            mimeType: 'image/png',
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
@@ -153,9 +190,10 @@ describe('AssetsService', () => {
                 DateTime.parseISO_UTC('2016-12-12T10:10'),
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
                 'my-asset1.png',
+                'png',
                 1024,
                 2000,
-                'text/plain',
+                'image/png',
                 true,
                 1024,
                 2048,
@@ -178,9 +216,9 @@ describe('AssetsService', () => {
     it('should append mime types to find by types',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        assetsService.getAssets('my-app', 17, 13, undefined, ['text/plain', 'image/png']).subscribe();
+        assetsService.getAssets('my-app', 17, 13, undefined, ['image/png', 'image/png']).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?mimeTypes=text/plain,image/png&take=17&skip=13');
+        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?mimeTypes=image/png,image/png&take=17&skip=13');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
@@ -204,10 +242,10 @@ describe('AssetsService', () => {
     it('should make post request to create asset',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        let asset: AssetCreatedDto | null = null;
+        let asset: AssetDto | null = null;
 
-        assetsService.uploadFile('my-app', null!).subscribe(result => {
-            asset = <AssetCreatedDto>result;
+        assetsService.uploadFile('my-app', null!, user, now).subscribe(result => {
+            asset = <AssetDto>result;
         });
 
         const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets');
@@ -218,9 +256,10 @@ describe('AssetsService', () => {
         req.flush({
             id: 'id1',
             fileName: 'my-asset1.png',
+            fileType: 'png',
             fileSize: 1024,
             fileVersion: 2,
-            mimeType: 'text/plain',
+            mimeType: 'image/png',
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
@@ -228,11 +267,16 @@ describe('AssetsService', () => {
         });
 
         expect(asset).toEqual(
-            new AssetCreatedDto(
+            new AssetDto(
                 'id1',
+                user,
+                user,
+                now,
+                now,
                 'my-asset1.png',
+                'png',
                 1024, 2,
-                'text/plain',
+                'image/png',
                 true,
                 1024,
                 2048,
@@ -256,7 +300,7 @@ describe('AssetsService', () => {
         req.flush({
             fileSize: 1024,
             fileVersion: 2,
-            mimeType: 'text/plain',
+            mimeType: 'image/png',
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
@@ -266,7 +310,7 @@ describe('AssetsService', () => {
         expect(asset).toEqual(
             new AssetReplacedDto(
                 1024, 2,
-                'text/plain',
+                'image/png',
                 true,
                 1024,
                 2048,

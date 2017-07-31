@@ -6,7 +6,7 @@
  */
 
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import {
@@ -46,13 +46,13 @@ export class LanguageComponent implements OnInit, OnChanges, OnDestroy {
     public isMaster = false;
 
     public editFormSubmitted = false;
-    public editForm: FormGroup =
+    public editForm =
         this.formBuilder.group({
             isMaster: [false, []],
             isOptional: [false, []]
         });
 
-    public addLanguageForm: FormGroup =
+    public addLanguageForm =
         this.formBuilder.group({
             language: [null,
                 Validators.required
@@ -72,7 +72,7 @@ export class LanguageComponent implements OnInit, OnChanges, OnDestroy {
                     this.editForm.controls['isOptional'].setValue(false);
                 });
 
-        this.resetForm();
+        this.resetEditForm();
     }
 
     public ngOnDestroy() {
@@ -80,11 +80,11 @@ export class LanguageComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     public ngOnChanges() {
-        this.resetForm();
+        this.resetEditForm();
     }
 
     public cancel() {
-        this.resetForm();
+        this.resetEditForm();
     }
 
     public toggleEditing() {
@@ -119,11 +119,15 @@ export class LanguageComponent implements OnInit, OnChanges, OnDestroy {
                     this.editForm.controls['isOptional'].value,
                     this.fallbackLanguages.map(l => l.iso2Code));
 
-            this.saving.emit(newLanguage);
+            this.emitSaving(newLanguage);
         }
     }
 
-    private resetForm() {
+    private emitSaving(language: AppLanguageDto) {
+        this.saving.emit(language);
+    }
+
+    private resetEditForm() {
         this.editFormSubmitted = false;
         this.editForm.reset(this.language);
 
