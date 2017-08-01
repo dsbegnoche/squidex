@@ -135,6 +135,8 @@ namespace Squidex.Controllers.UI.Account
         [Route("account/login/")]
         public IActionResult Login(string returnUrl = null)
         {
+			return External("CivicPlus", returnUrl);
+
             return LoginView(returnUrl, true, false);
         }
 

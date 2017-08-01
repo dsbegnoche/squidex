@@ -151,6 +151,7 @@ namespace Squidex
                 identityApp.UseMyGoogleAuthentication();
                 identityApp.UseMyGithubAuthentication();
                 identityApp.UseMyMicrosoftAuthentication();
+                identityApp.UseMyCivicPlusPlatform();
                 identityApp.UseStaticFiles();
 
                 identityApp.MapWhen(x => IsIdentityRequest(x), mvcApp =>
