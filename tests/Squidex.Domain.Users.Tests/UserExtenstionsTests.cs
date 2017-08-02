@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity.MongoDB;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 using Xunit;
 
@@ -79,6 +80,48 @@ namespace Squidex.Domain.Users
 	    {
 		    testUser.SetPictureUrl($"http://{testPictureUrl}/gravatar?test=Test");
 		    Assert.True(testUser.PictureNormalizedUrl().EndsWith("&d=404"));
+	    }
+
+	    [Fact]
+	    public void NewExternalLogin()
+	    {
+		    string testProvider = "testProvider";
+		    string testKey = "testKey";
+		    string testDisplayName = "testDisplayName";
+
+			ExternalLogin testLogin = new ExternalLogin(testProvider, testKey, testDisplayName);
+			Assert.Equal(testProvider, testLogin.LoginProvider);
+			Assert.Equal(testKey, testLogin.ProviderKey);
+			Assert.Equal(testDisplayName, testLogin.ProviderDisplayName);
+		}
+
+	    [Fact]
+	    public void NewExternalLoginEmptyDisplayName()
+	    {
+		    string testProvider = "testProvider";
+		    string testKey = "testKey";
+		    string testDisplayName = "";
+
+		    ExternalLogin testLogin = new ExternalLogin(testProvider, testKey, testDisplayName);
+		    Assert.Equal(testProvider, testLogin.LoginProvider);
+		    Assert.Equal(testKey, testLogin.ProviderKey);
+		    Assert.Equal(testProvider, testLogin.ProviderDisplayName);
+	    }
+
+	    [Fact]
+	    public void TestUserRoles()
+	    {
+		    string admin = "ADMINISTRATOR";
+			string appOwner = "APP-OWNER";
+			string appEditor = "APP-EDITOR";
+		    string appReader = "APP-READER";
+		    string appDeveloper = "APP-DEVELOPER";
+
+		    Assert.Equal(admin, SquidexRoles.Administrator);
+		    Assert.Equal(appOwner, SquidexRoles.AppOwner);
+		    Assert.Equal(appEditor, SquidexRoles.AppEditor);
+		    Assert.Equal(appReader, SquidexRoles.AppReader);
+		    Assert.Equal(appDeveloper, SquidexRoles.AppDeveloper);
 	    }
 
 		public class TestUser : IUser
