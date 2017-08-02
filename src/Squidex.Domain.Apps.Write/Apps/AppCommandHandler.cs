@@ -107,21 +107,9 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             return handler.UpdateAsync<AppDomainObject>(context, async a =>
             {
-                if (command.FromCallback)
-                {
-                    a.ChangePlan(command);
-                }
-                else
-                {
-                    var result = await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name, command.PlanId);
+                a.ChangePlan(command);
 
-                    if (result is PlanChangedResult)
-                    {
-                        a.ChangePlan(command);
-                    }
-
-                    context.Succeed(result);
-                }
+                await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name, command.PlanId);
             });
         }
 

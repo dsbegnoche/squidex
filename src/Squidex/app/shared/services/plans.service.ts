@@ -40,13 +40,6 @@ export class PlanDto {
     }
 }
 
-export class PlanChangedDto {
-    constructor(
-        public readonly redirectUri: string
-    ) {
-    }
-}
-
 export class ChangePlanDto {
     constructor(
         public readonly planId: string
@@ -87,13 +80,10 @@ export class PlansService {
                 .pretifyError('Failed to load plans. Please reload.');
     }
 
-    public putPlan(appName: string, dto: ChangePlanDto, version?: Version): Observable<PlanChangedDto> {
+    public putPlan(appName: string, dto: ChangePlanDto, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/plan`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .map(response => {
-                    return new PlanChangedDto(response.redirectUri);
-                })
                 .pretifyError('Failed to change plan. Please reload.');
     }
 }

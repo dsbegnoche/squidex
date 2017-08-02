@@ -189,7 +189,7 @@ namespace Squidex.Infrastructure.CQRS.Events
                         }
                     }
 
-                    if (reason != SubscriptionDropReason.UserInitiated)
+                    if (reason != SubscriptionDropReason.UserInitiated && reason != SubscriptionDropReason.EventHandlerException)
                     {
                         var exception = ex ?? new ConnectionClosedException($"Subscription closed with reason {reason}.");
 

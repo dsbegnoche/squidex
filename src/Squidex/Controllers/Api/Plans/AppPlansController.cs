@@ -19,8 +19,6 @@ using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.Security;
 using Squidex.Pipeline;
 
-// ReSharper disable RedundantIfElseBlock
-
 namespace Squidex.Controllers.Api.Plans
 {
     /// <summary>
@@ -83,7 +81,6 @@ namespace Squidex.Controllers.Api.Plans
         /// <param name="app">The name of the app.</param>
         /// <param name="request">Plan object that needs to be changed.</param>
         /// <returns>
-        /// 201 => Redirected to checkout page.
         /// 204 => Plan changed.
         /// 400 => Plan not owned by user.
         /// 404 => App not found.
@@ -91,20 +88,13 @@ namespace Squidex.Controllers.Api.Plans
         [MustBeAppOwner]
         [HttpPut]
         [Route("apps/{app}/plan/")]
-        [ProducesResponseType(typeof(PlanChangedDto), 200)]
         [ProducesResponseType(typeof(ErrorDto), 400)]
         [ApiCosts(0.5)]
         public async Task<IActionResult> ChangePlanAsync(string app, [FromBody] ChangePlanDto request)
         {
-            var redirectUri = (string)null;
-            var context = await CommandBus.PublishAsync(SimpleMapper.Map(request, new ChangePlan()));
+            await CommandBus.PublishAsync(SimpleMapper.Map(request, new ChangePlan()));
 
-            if (context.Result<object>() is RedirectToCheckoutResult result)
-            {
-                redirectUri = result.Url.ToString();
-            }
-
-            return Ok(new PlanChangedDto { RedirectUri = redirectUri });
+            return NoContent();
         }
     }
 }

@@ -140,17 +140,26 @@ namespace Squidex.Infrastructure.CQRS.Events
 
             var subscription = eventStore.CreateSubscription(eventConsumer.EventsFilter, position);
 
-            await subscription.SubscribeAsync(async storedEvent =>
-            {
-                await DispatchConsumer(ParseEvent(storedEvent), eventConsumer, eventConsumer.Name);
-
-                await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, storedEvent.EventPosition, false);
-            }, async exception =>
+            async Task StopSubscriptionAsync(Exception exception)
             {
                 await eventConsumerInfoRepository.StopAsync(consumerName, exception.ToString());
 
                 subscription.Dispose();
-            });
+            }
+
+            await subscription.SubscribeAsync(async storedEvent =>
+            {
+                try
+                {
+                    await DispatchConsumer(ParseEvent(storedEvent), eventConsumer, eventConsumer.Name);
+
+                    await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, storedEvent.EventPosition, false);
+                }
+                catch (Exception ex)
+                {
+                    await StopSubscriptionAsync(ex);
+                }
+            }, StopSubscriptionAsync);
 
             currentSubscription = subscription;
         }

@@ -13,8 +13,6 @@ namespace Squidex.Domain.Apps.Write.Apps.Commands
 {
     public sealed class ChangePlan : AppAggregateCommand, IValidatable
     {
-        public bool FromCallback { get; set; }
-
         public string PlanId { get; set; }
 
         public void Validate(IList<ValidationError> errors)
