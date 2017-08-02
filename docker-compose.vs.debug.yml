@@ -1,6 +1,24 @@
 version: '2'
 
 services:
+  squidex_rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+  squidex_redis:
+    image: redis:alpine
+    ports: 
+      - "6379:6379"
+    networks:
+      - squidex_network
+  squidex_mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - squidex_network
+    container_name: dependencies_squidex_mongo_1
   squidex:
     image: squidex:dev
     ports:
@@ -14,14 +32,17 @@ services:
     volumes:
       - ./src/Squidex:/app
       - ~/.nuget/packages:/root/.nuget/packages:ro
-      - ~/clrdbg:/clrdbg:ro
+      - ~//clrdbg:/clrdbg:ro
     entrypoint: tail -f /dev/null
     labels:
       - "com.microsoft.visualstudio.targetoperatingsystem=linux"
     external_links:
       - dependencies_squidex_mongo_1
     networks:
-      - dependencies_default
+      - squidex_network
+    depends_on:
+      - squidex_mongo
 networks:
-    dependencies_default:
-      external: true
+    squidex_network:
+      driver: bridge
+
