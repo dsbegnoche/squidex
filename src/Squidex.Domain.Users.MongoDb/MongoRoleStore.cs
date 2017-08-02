@@ -20,6 +20,12 @@ namespace Squidex.Domain.Users.MongoDb
     {
         private readonly RoleStore<WrappedIdentityRole> innerStore;
 
+	    //This constructor is only for the unit tests because IndexChecks is not mockable.
+		public MongoRoleStore(RoleStore<WrappedIdentityRole> innerStore)
+	    {
+		    this.innerStore = innerStore;
+	    }
+
         public MongoRoleStore(IMongoDatabase database)
         {
             var rolesCollection = database.GetCollection<WrappedIdentityRole>("Identity_Roles");
