@@ -88,28 +88,41 @@ namespace Squidex.Config.Domain
                 .As<IUserStore<IUser>>()
                 .As<IUserFactory>()
                 .As<IUserResolver>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<MongoRoleStore>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IRoleStore<IRole>>()
                 .As<IRoleFactory>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<MongoPersistedGrantStore>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IPersistedGrantStore>()
+                .As<IExternalSystem>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<MongoUsageStore>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IUsageStore>()
+                .As<IExternalSystem>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<MongoHistoryEventRepository>()
+                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
+                .As<IHistoryEventRepository>()
+                .As<IExternalSystem>()
                 .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<MongoEventConsumerInfoRepository>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IEventConsumerInfoRepository>()
+                .As<IExternalSystem>()
                 .AsSelf()
                 .SingleInstance();
 
@@ -120,9 +133,23 @@ namespace Squidex.Config.Domain
                 .AsSelf()
                 .SingleInstance();
 
+            builder.RegisterType<MongoWebhookEventRepository>()
+                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
+                .As<IWebhookEventRepository>()
+                .As<IExternalSystem>()
+                .AsSelf()
+                .SingleInstance();
+
             builder.RegisterType<MongoAppRepository>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IAppRepository>()
+                .As<IExternalSystem>()
+                .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<MongoSchemaRepository>()
+                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
+                .As<ISchemaRepository>()
                 .As<IExternalSystem>()
                 .AsSelf()
                 .SingleInstance();
@@ -143,14 +170,6 @@ namespace Squidex.Config.Domain
                 .AsSelf()
                 .SingleInstance();
 
-            builder.RegisterType<MongoHistoryEventRepository>()
-                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
-                .As<IHistoryEventRepository>()
-                .As<IEventConsumer>()
-                .As<IExternalSystem>()
-                .AsSelf()
-                .SingleInstance();
-
             builder.RegisterType<MongoSchemaWebhookRepository>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<ISchemaWebhookRepository>()
@@ -159,17 +178,11 @@ namespace Squidex.Config.Domain
                 .AsSelf()
                 .SingleInstance();
 
-            builder.RegisterType<MongoSchemaRepository>()
-                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
-                .As<ISchemaRepository>()
-                .As<IExternalSystem>()
-                .AsSelf()
-                .SingleInstance();
 
             builder.Register(c =>
                 new CompoundEventConsumer(
-                    c.Resolve<MongoSchemaRepository>(), 
-                    c.Resolve<CachingGraphQLInvoker>(),
+                    c.Resolve<MongoSchemaRepository>(),
+                    c.Resolve<CachingGraphQLService>(),
                     c.Resolve<CachingSchemaProvider>()))
                 .As<IEventConsumer>()
                 .AsSelf()

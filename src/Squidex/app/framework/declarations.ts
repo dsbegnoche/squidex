@@ -26,6 +26,7 @@ export * from './angular/modal-target.directive';
 export * from './angular/modal-view.directive';
 export * from './angular/money.pipe';
 export * from './angular/name.pipe';
+export * from './angular/numbers.pipes';
 export * from './angular/panel.component';
 export * from './angular/panel-container.directive';
 export * from './angular/parent-link.directive';
@@ -49,6 +50,7 @@ export * from './configurations';
 
 export * from './services/clipboard.service';
 export * from './services/local-store.service';
+export * from './services/local-cache.service';
 export * from './services/message-bus';
 export * from './services/notification.service';
 export * from './services/resource-loader.service';

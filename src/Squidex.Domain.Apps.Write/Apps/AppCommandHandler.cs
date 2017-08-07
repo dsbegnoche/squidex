@@ -107,9 +107,21 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             return handler.UpdateAsync<AppDomainObject>(context, async a =>
             {
-                a.ChangePlan(command);
+                if (command.FromCallback)
+                {
+                    a.ChangePlan(command);
+                }
+                else
+                {
+                    var result = await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name, command.PlanId);
 
-                await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name, command.PlanId);
+                    if (result is PlanChangedResult)
+                    {
+                        a.ChangePlan(command);
+                    }
+
+                    context.Succeed(result);
+                }
             });
         }
 
@@ -123,9 +135,9 @@ namespace Squidex.Domain.Apps.Write.Apps
             return handler.UpdateAsync<AppDomainObject>(context, a => a.RemoveContributor(command));
         }
 
-        protected Task On(RenameClient command, CommandContext context)
+        protected Task On(UpdateClient command, CommandContext context)
         {
-            return handler.UpdateAsync<AppDomainObject>(context, a => a.RenameClient(command));
+            return handler.UpdateAsync<AppDomainObject>(context, a => a.UpdateClient(command));
         }
 
         protected Task On(RevokeClient command, CommandContext context)

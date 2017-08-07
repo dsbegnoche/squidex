@@ -14,11 +14,15 @@ using MongoDB.Driver;
 
 namespace Squidex.Domain.Users.MongoDb
 {
-    public sealed class MongoRoleStore : 
-        IRoleStore<IRole>, 
-        IRoleFactory
+    public sealed class MongoRoleStore : IRoleStore<IRole>, IRoleFactory
     {
         private readonly RoleStore<WrappedIdentityRole> innerStore;
+
+	    //This constructor is only for the unit tests because IndexChecks is not mockable.
+		public MongoRoleStore(RoleStore<WrappedIdentityRole> innerStore)
+	    {
+		    this.innerStore = innerStore;
+	    }
 
         public MongoRoleStore(IMongoDatabase database)
         {

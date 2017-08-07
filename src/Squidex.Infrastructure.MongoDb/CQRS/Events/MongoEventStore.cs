@@ -83,7 +83,7 @@ namespace Squidex.Infrastructure.CQRS.Events
 
             var filter = CreateFilter(streamFilter, lastPosition);
 
-            await Collection.Find(filter).Sort(Sort.Ascending(EventStreamField)).ForEachAsync(async commit =>
+            await Collection.Find(filter).Sort(Sort.Ascending(TimestampField)).ForEachAsync(async commit =>
             {
                 var eventStreamOffset = (int)commit.EventStreamOffset;
 
@@ -140,6 +140,8 @@ namespace Squidex.Infrastructure.CQRS.Events
                     };
 
                     await Collection.InsertOneAsync(document);
+
+                    notifier.NotifyEventsStored();
                 }
                 catch (MongoWriteException ex)
                 {

@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ValidatorFn, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -15,7 +15,7 @@ import 'framework/angular/http-extensions';
 import {
     ApiUrlConfig,
     DateTime,
-    EntityCreatedDto,
+    LocalCacheService,
     HTTP,
     ValidatorsEx,
     Version
@@ -84,21 +84,130 @@ export class SchemaDto {
         public readonly version: Version
     ) {
     }
+
+    public publish(user: string, now?: DateTime): SchemaDto {
+        return new SchemaDto(
+            this.id,
+            this.name,
+            this.properties,
+            true,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version);
+    }
+
+    public unpublish(user: string, now?: DateTime): SchemaDto {
+        return new SchemaDto(
+            this.id,
+            this.name,
+            this.properties,
+            false,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version);
+    }
+
+    public update(properties: SchemaPropertiesDto, user: string, now?: DateTime): SchemaDto {
+        return new SchemaDto(
+            this.id,
+            this.name,
+            properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version);
+    }
 }
 
-export class SchemaDetailsDto {
-    constructor(
-        public readonly id: string,
-        public readonly name: string,
-        public readonly properties: SchemaPropertiesDto,
-        public readonly isPublished: boolean,
-        public readonly createdBy: string,
-        public readonly lastModifiedBy: string,
-        public readonly created: DateTime,
-        public readonly lastModified: DateTime,
-        public readonly version: Version,
+export class SchemaDetailsDto extends SchemaDto {
+    constructor(id: string, name: string, properties: SchemaPropertiesDto, isPublished: boolean, createdBy: string, lastModifiedBy: string, created: DateTime, lastModified: DateTime, version: Version,
         public readonly fields: FieldDto[]
     ) {
+        super(id, name, properties, isPublished, createdBy, lastModifiedBy, created, lastModified, version);
+    }
+
+    public publish(user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            true,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            this.fields);
+    }
+
+    public unpublish(user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            false,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            this.fields);
+    }
+
+    public update(properties: SchemaPropertiesDto, user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            this.fields);
+    }
+
+    public addField(field: FieldDto, user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            [...this.fields, field]);
+    }
+
+    public updateField(field: FieldDto, user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            this.fields.map(f => f.fieldId === field.fieldId ? field : f));
+    }
+
+    public replaceFields(fields: FieldDto[], user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            fields);
+    }
+
+    public removeField(field: FieldDto, user: string, now?: DateTime): SchemaDetailsDto {
+        return new SchemaDetailsDto(
+            this.id,
+            this.name,
+            this.properties,
+            this.isPublished,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.version,
+            this.fields.filter(f => f.fieldId !== field.fieldId));
     }
 }
 
@@ -113,12 +222,32 @@ export class FieldDto {
     ) {
     }
 
+    public show(): FieldDto {
+        return new FieldDto(this.fieldId, this.name, false, this.isDisabled, this.partitioning, this.properties);
+    }
+
+    public hide(): FieldDto {
+        return new FieldDto(this.fieldId, this.name, true, this.isDisabled, this.partitioning, this.properties);
+    }
+
+    public enable(): FieldDto {
+        return new FieldDto(this.fieldId, this.name, this.isHidden, false, this.partitioning, this.properties);
+    }
+
+    public disable(): FieldDto {
+        return new FieldDto(this.fieldId, this.name, this.isHidden, true, this.partitioning, this.properties);
+    }
+
+    public update(properties: FieldPropertiesDto): FieldDto {
+        return new FieldDto(this.fieldId, this.name, this.isHidden, this.isDisabled, this.partitioning, properties);
+    }
+
     public formatValue(value: any): string {
         return this.properties.formatValue(value);
     }
 
-    public createValidators(): ValidatorFn[] {
-        return this.properties.createValidators();
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        return this.properties.createValidators(isOptional);
     }
 }
 
@@ -135,7 +264,7 @@ export abstract class FieldPropertiesDto {
 
     public abstract formatValue(value: any): string;
 
-    public abstract createValidators(): ValidatorFn[];
+    public abstract createValidators(isOptional: boolean): ValidatorFn[];
 }
 
 export class StringFieldPropertiesDto extends FieldPropertiesDto {
@@ -161,10 +290,10 @@ export class StringFieldPropertiesDto extends FieldPropertiesDto {
         return value;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: false): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -209,10 +338,10 @@ export class NumberFieldPropertiesDto extends FieldPropertiesDto {
         return value;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -263,10 +392,10 @@ export class DateTimeFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -292,10 +421,10 @@ export class BooleanFieldPropertiesDto extends FieldPropertiesDto {
         return value ? '✔' : '-';
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -320,10 +449,10 @@ export class GeolocationFieldPropertiesDto extends FieldPropertiesDto {
         return `${value.longitude}, ${value.latitude}`;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -354,10 +483,10 @@ export class ReferencesFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -395,10 +524,10 @@ export class AssetsFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -430,10 +559,10 @@ export class JsonFieldPropertiesDto extends FieldPropertiesDto {
         return '<Json />';
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -475,7 +604,9 @@ export class UpdateFieldDto {
 
 export class CreateSchemaDto {
     constructor(
-        public readonly name: string
+        public readonly name: string,
+        public readonly fields?: FieldDto[],
+        public readonly properties?: SchemaPropertiesDto
     ) {
     }
 }
@@ -484,7 +615,8 @@ export class CreateSchemaDto {
 export class SchemasService {
     constructor(
         private readonly http: HttpClient,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly apiUrl: ApiUrlConfig,
+        private readonly localCache: LocalCacheService
     ) {
     }
 
@@ -545,25 +677,58 @@ export class SchemasService {
                         new Version(response.version.toString()),
                         fields);
                 })
+                .catch(error => {
+                    if (error instanceof HttpErrorResponse && error.status === 404) {
+                        const cached = this.localCache.get(`schema.${appName}.${id}`);
+
+                        if (cached) {
+                            return Observable.of(cached);
+                        }
+                    }
+
+                    return Observable.throw(error);
+                })
                 .pretifyError('Failed to load schema. Please reload.');
     }
 
-    public postSchema(appName: string, dto: CreateSchemaDto, version?: Version): Observable<EntityCreatedDto> {
+    public postSchema(appName: string, dto: CreateSchemaDto, user: string, now?: DateTime, version?: Version): Observable<SchemaDetailsDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas`);
 
         return HTTP.postVersioned(this.http, url, dto, version)
                 .map(response => {
-                    return new EntityCreatedDto(response.id);
+                    now = now || DateTime.now();
+
+                    return new SchemaDetailsDto(
+                        response.id,
+                        dto.name,
+                        dto.properties || new SchemaPropertiesDto(null, null),
+                        false,
+                        user,
+                        user,
+                        now,
+                        now,
+                        version,
+                        dto.fields || []);
+                })
+                .do(schema => {
+                    this.localCache.set(`service.${appName}.${schema.id}`, schema, 5000);
+                    this.localCache.set(`service.${appName}.${schema.name}`, schema, 5000);
                 })
                 .pretifyError('Failed to create schema. Please reload.');
     }
 
-    public postField(appName: string, schemaName: string, dto: AddFieldDto, version?: Version): Observable<EntityCreatedDto> {
+    public postField(appName: string, schemaName: string, dto: AddFieldDto, version?: Version): Observable<FieldDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields`);
 
         return HTTP.postVersioned(this.http, url, dto, version)
                 .map(response => {
-                    return new EntityCreatedDto(response.id);
+                    return new FieldDto(
+                        response.id,
+                        dto.name,
+                        false,
+                        false,
+                        dto.partitioning,
+                        dto.properties);
                 })
                 .pretifyError('Failed to add field. Please reload.');
     }

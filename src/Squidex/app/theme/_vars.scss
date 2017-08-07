@@ -21,7 +21,6 @@ $color-extern-microsoft-icon: #1b67b7;
 $color-extern-github: #191919;
 $color-extern-github-icon: #4a4a4a;
 
-
 $color-theme-blue: #438cef;
 $color-theme-blue-dark: #3d7dd5;
 $color-theme-blue-light: #9ebeea;
@@ -33,6 +32,10 @@ $color-theme-green-dark: #47b353;
 
 $color-theme-error: #f00;
 $color-theme-error-dark: darken($color-theme-error, 5%);
+
+$color-badge-success: $color-theme-green-dark;
+$color-badge-error: $color-theme-error;
+$color-badge-warning: #ff7b00;
 
 $color-dark1-background: #2e3842;
 $color-dark1-foreground: #6a7681;
@@ -54,7 +57,7 @@ $color-panel-icon: #a2b0b6;
 
 $color-table: #fff;
 $color-table-footer: #ecf2f6;
-$color-table-border: #e9ecef;
+$color-table-border: $color-border;
 $color-table-header: $color-text-decent;
 
 $color-modal-header-background: #2e3842;

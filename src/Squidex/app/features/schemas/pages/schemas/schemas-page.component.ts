@@ -13,16 +13,13 @@ import { Subscription } from 'rxjs';
 import {
     AppComponentBase,
     AppsStoreService,
-    AuthService,
-    DateTime,
     fadeAnimation,
     ImmutableArray,
     MessageBus,
     ModalView,
     NotificationService,
     SchemaDto,
-    SchemasService,
-    Version
+    SchemasService
 } from 'shared';
 
 import { SchemaDeleted, SchemaUpdated } from './../messages';
@@ -48,7 +45,6 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
 
     constructor(apps: AppsStoreService, notifications: NotificationService,
         private readonly schemasService: SchemasService,
-        private readonly authService: AuthService,
         private readonly messageBus: MessageBus,
         private readonly route: ActivatedRoute
     ) {
@@ -78,13 +74,13 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
         this.schemaUpdatedSubscription =
             this.messageBus.of(SchemaUpdated)
                 .subscribe(m => {
-                    this.updateSchemas(this.schemas.replaceAll(s => s.name === m.name, s => updateSchema(s, this.authService, m)));
+                    this.updateSchemas(this.schemas.replaceBy('id', m.schema));
                 });
 
         this.schemaDeletedSubscription =
             this.messageBus.of(SchemaDeleted)
                 .subscribe(m => {
-                    this.updateSchemas(this.schemas.filter(s => s.name !== m.name));
+                    this.updateSchemas(this.schemas.filter(s => s.id !== m.schema.id));
                 });
 
         this.load();
@@ -115,31 +111,7 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
             schemas = schemas.filter(t => t.name.indexOf(query!) >= 0);
         }
 
-        schemas =
-            schemas.sort((a, b) => {
-                if (a.name < b.name) {
-                    return -1;
-                }
-                if (a.name > b.name) {
-                    return 1;
-                }
-                return 0;
-            });
-
-        this.schemasFiltered = schemas;
+        this.schemasFiltered = schemas.sortByStringAsc(x => x.name);
     }
-}
-
-function updateSchema(schema: SchemaDto, authService: AuthService, message: SchemaUpdated): SchemaDto {
-    const me = `subject:${authService.user!.id}`;
-
-    return new SchemaDto(
-        schema.id,
-        schema.name,
-        message.properties,
-        message.isPublished,
-        schema.createdBy, me,
-        schema.created, DateTime.now(),
-        new Version(message.version));
 }
 

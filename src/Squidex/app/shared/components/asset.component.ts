@@ -6,21 +6,17 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import { AppComponentBase } from './app.component-base';
 
 import {
-    ApiUrlConfig,
     AppsStoreService,
-    AssetCreatedDto,
     AssetDto,
     AssetReplacedDto,
     AssetsService,
     AuthService,
-    DateTime,
     fadeAnimation,
-    FileHelper,
     ModalView,
     NotificationService,
     UpdateAssetDto,
@@ -36,17 +32,7 @@ import {
     ]
 })
 export class AssetComponent extends AppComponentBase implements OnInit {
-    private version: Version;
-
-    public renameDialog = new ModalView();
-    public renameFormSubmitted = false;
-    public renameForm: FormGroup =
-        this.formBuilder.group({
-            name: ['',
-                [
-                    Validators.required
-                ]]
-        });
+    private assetVersion: Version;
 
     @Input()
     public initFile: File;
@@ -72,19 +58,22 @@ export class AssetComponent extends AppComponentBase implements OnInit {
     @Output()
     public failed = new EventEmitter();
 
+    public renameDialog = new ModalView();
+    public renameFormSubmitted = false;
+    public renameForm =
+        this.formBuilder.group({
+            name: ['',
+                [
+                    Validators.required
+                ]]
+        });
+
     public progress = 0;
-    public previewUrl: string;
-    public fileUrl: string;
-    public fileName: string;
-    public fileType: string;
-    public fileIcon: string;
-    public fileInfo: string;
 
     constructor(apps: AppsStoreService, notifications: NotificationService,
         private readonly formBuilder: FormBuilder,
         private readonly assetsService: AssetsService,
-        private readonly authService: AuthService,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly authService: AuthService
     ) {
         super(notifications, apps);
     }
@@ -94,31 +83,14 @@ export class AssetComponent extends AppComponentBase implements OnInit {
 
         if (initFile) {
             this.appNameOnce()
-                .switchMap(app => this.assetsService.uploadFile(app, initFile))
-                .subscribe(result => {
-                    if (result instanceof AssetCreatedDto) {
-                        const me = `subject:${this.authService.user!.id}`;
-
-                        const asset = new AssetDto(
-                            result.id,
-                            me, me,
-                            DateTime.now(),
-                            DateTime.now(),
-                            result.fileName,
-                            result.fileSize,
-                            result.fileVersion,
-                            result.mimeType,
-                            result.isImage,
-                            result.pixelWidth,
-                            result.pixelHeight,
-                            result.version);
-                        this.loaded.emit(asset);
+                .switchMap(app => this.assetsService.uploadFile(app, initFile, this.authService.user.token))
+                .subscribe(dto => {
+                    if (dto instanceof AssetDto) {
+                        this.emitLoaded(dto);
                     } else {
-                        this.progress = result;
+                        this.progress = dto;
                     }
                 }, error => {
-                    this.failed.emit();
-
                     this.notifyError(error);
                 });
         } else {
@@ -129,31 +101,16 @@ export class AssetComponent extends AppComponentBase implements OnInit {
     public updateFile(files: FileList) {
         if (files.length === 1) {
             this.appNameOnce()
-                .switchMap(app => this.assetsService.replaceFile(app, this.asset.id, files[0], this.version))
-                .subscribe(result => {
-                    if (result instanceof AssetReplacedDto) {
-                        const me = `subject:${this.authService.user!.id}`;
-
-                        const asset = new AssetDto(
-                            this.asset.id,
-                            this.asset.createdBy, me,
-                            this.asset.created, DateTime.now(),
-                            this.asset.fileName,
-                            result.fileSize,
-                            result.fileVersion,
-                            result.mimeType,
-                            result.isImage,
-                            result.pixelWidth,
-                            result.pixelHeight,
-                            result.version);
-                        this.updateAsset(asset, true);
+                .switchMap(app => this.assetsService.replaceFile(app, this.asset.id, files[0], this.assetVersion))
+                .subscribe(dto => {
+                    if (dto instanceof AssetReplacedDto) {
+                        this.updateAsset(this.asset.update(dto, this.authService.user.token), true);
                     } else {
-                        this.progress = result;
+                        this.setProgress(dto);
                     }
                 }, error => {
-                    this.progress = 0;
-
-                    this.notifyError(error);
+                    this.setProgress();
+                    this.emitFailed(error);
                 });
         }
     }
@@ -167,32 +124,42 @@ export class AssetComponent extends AppComponentBase implements OnInit {
             const requestDto = new UpdateAssetDto(this.renameForm.controls['name'].value);
 
             this.appNameOnce()
-                .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.version))
-                .subscribe(_ => {
-                    const me = `subject:${this.authService.user!.id}`;
-
-                    const asset = new AssetDto(
-                        this.asset.id,
-                        this.asset.createdBy, me,
-                        this.asset.created, DateTime.now(), requestDto.fileName,
-                        this.asset.fileSize,
-                        this.asset.fileVersion,
-                        this.asset.mimeType,
-                        this.asset.isImage,
-                        this.asset.pixelWidth,
-                        this.asset.pixelHeight,
-                        this.asset.version);
-
-                    this.updateAsset(asset, true);
-                    this.resetRename();
+                .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.assetVersion))
+                .subscribe(() => {
+                    this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token), true);
+                    this.resetRenameForm();
                 }, error => {
                     this.notifyError(error);
-                    this.resetRename();
+                    this.enableRenameForm();
                 });
         }
     }
 
-    public resetRename() {
+    public cancelRenameAsset() {
+        this.resetRenameForm();
+    }
+
+    private setProgress(progress = 0) {
+        this.progress = progress;
+    }
+
+    private emitFailed(error: any) {
+        this.failed.emit(error);
+    }
+
+    private emitLoaded(asset: AssetDto) {
+        this.loaded.emit(asset);
+    }
+
+    private emitUpdated(asset: AssetDto) {
+        this.updated.emit(asset);
+    }
+
+    private enableRenameForm() {
+        this.renameForm.enable();
+    }
+
+    private resetRenameForm() {
         this.renameForm.enable();
         this.renameForm.controls['name'].setValue(this.asset.fileName);
         this.renameFormSubmitted = false;
@@ -201,19 +168,13 @@ export class AssetComponent extends AppComponentBase implements OnInit {
 
     private updateAsset(asset: AssetDto, emitEvent: boolean) {
         this.asset = asset;
-        this.fileUrl = FileHelper.assetUrl(this.apiUrl, asset);
-        this.fileInfo = FileHelper.assetInfo(asset);
-        this.fileName = FileHelper.assetName(asset);
-        this.fileType = FileHelper.fileType(asset.mimeType, this.asset.fileName);
-        this.fileIcon = FileHelper.fileIcon(asset.mimeType);
+        this.assetVersion = asset.version;
         this.progress = 0;
-        this.previewUrl = FileHelper.assetPreviewUrl(this.apiUrl, asset);
-        this.version = asset.version;
 
         if (emitEvent) {
-            this.updated.emit(asset);
+            this.emitUpdated(asset);
         }
 
-        this.resetRename();
+        this.resetRenameForm();
     }
 }

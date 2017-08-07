@@ -7,7 +7,7 @@
 // ==========================================================================
 
 using System;
-using Moq;
+using FakeItEasy;
 using Squidex.Infrastructure.CQRS.Events;
 using Xunit;
 
@@ -17,9 +17,11 @@ namespace Squidex.Infrastructure.CQRS.Commands
 {
     public class DefaultDomainObjectFactoryTests
     {
+        private readonly IServiceProvider serviceProvider = A.Fake<IServiceProvider>();
+
         private sealed class DO : DomainObjectBase
         {
-            public DO(Guid id, int version) 
+            public DO(Guid id, int version)
                 : base(id, version)
             {
             }
@@ -32,16 +34,15 @@ namespace Squidex.Infrastructure.CQRS.Commands
         [Fact]
         public void Should_create_domain_object_with_autofac()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
-
             var factoryFunction = new DomainObjectFactoryFunction<DO>(passedId =>
             {
                 return new DO(passedId, -1);
             });
 
-            serviceProvider.Setup(x => x.GetService(typeof(DomainObjectFactoryFunction<DO>))).Returns(factoryFunction);
+            A.CallTo(() => serviceProvider.GetService(typeof(DomainObjectFactoryFunction<DO>)))
+                .Returns(factoryFunction);
 
-            var sut = new DefaultDomainObjectFactory(serviceProvider.Object);
+            var sut = new DefaultDomainObjectFactory(serviceProvider);
 
             var id = Guid.NewGuid();
 
@@ -54,16 +55,15 @@ namespace Squidex.Infrastructure.CQRS.Commands
         [Fact]
         public void Should_throw_exception_if_new_entity_has_invalid_version()
         {
-            var serviceProvider = new Mock<IServiceProvider>();
-
             var factoryFunction = new DomainObjectFactoryFunction<DO>(passedId =>
             {
                 return new DO(passedId, 0);
             });
 
-            serviceProvider.Setup(x => x.GetService(typeof(DomainObjectFactoryFunction<DO>))).Returns(factoryFunction);
+            A.CallTo(() => serviceProvider.GetService(typeof(DomainObjectFactoryFunction<DO>)))
+                .Returns(factoryFunction);
 
-            var sut = new DefaultDomainObjectFactory(serviceProvider.Object);
+            var sut = new DefaultDomainObjectFactory(serviceProvider);
 
             Assert.Throws<InvalidOperationException>(() => sut.CreateNew(typeof(DO), Guid.NewGuid()));
         }

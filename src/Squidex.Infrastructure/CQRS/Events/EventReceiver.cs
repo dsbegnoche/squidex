@@ -58,7 +58,7 @@ namespace Squidex.Infrastructure.CQRS.Events
 
                 try
                 {
-                    timer?.Dispose();
+                    timer?.StopAsync().Wait();
                 }
                 catch (Exception ex)
                 {
@@ -73,7 +73,7 @@ namespace Squidex.Infrastructure.CQRS.Events
         {
             ThrowIfDisposed();
 
-            timer?.Wakeup();
+            timer?.SkipCurrentDelay();
         }
 
         public void Subscribe(IEventConsumer eventConsumer)
@@ -121,7 +121,7 @@ namespace Squidex.Infrastructure.CQRS.Events
 
                         return;
                     }
-                    
+
                     if (currentSubscription == null)
                     {
                         await SubscribeAsync(eventConsumer, position);
@@ -140,26 +140,17 @@ namespace Squidex.Infrastructure.CQRS.Events
 
             var subscription = eventStore.CreateSubscription(eventConsumer.EventsFilter, position);
 
-            async Task StopSubscriptionAsync(Exception exception)
+            await subscription.SubscribeAsync(async storedEvent =>
+            {
+                await DispatchConsumer(ParseEvent(storedEvent), eventConsumer, eventConsumer.Name);
+
+                await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, storedEvent.EventPosition, false);
+            }, async exception =>
             {
                 await eventConsumerInfoRepository.StopAsync(consumerName, exception.ToString());
 
                 subscription.Dispose();
-            }
-
-            await subscription.SubscribeAsync(async storedEvent =>
-            {
-                try
-                {
-                    await DispatchConsumer(ParseEvent(storedEvent), eventConsumer, eventConsumer.Name);
-
-                    await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, storedEvent.EventPosition, false);
-                }
-                catch (Exception ex)
-                {
-                    await StopSubscriptionAsync(ex);
-                }
-            }, StopSubscriptionAsync);
+            });
 
             currentSubscription = subscription;
         }

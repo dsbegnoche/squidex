@@ -1,18 +1,18 @@
 ﻿// ==========================================================================
-//  IGraphQLInvoker.cs
+//  WebhookJobResult.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
-using System.Threading.Tasks;
-using Squidex.Domain.Apps.Read.Apps;
-
-namespace Squidex.Domain.Apps.Read.Contents.GraphQL
+namespace Squidex.Domain.Apps.Read.Schemas
 {
-    public interface IGraphQLInvoker
+    public enum WebhookJobResult
     {
-        Task<object> QueryAsync(IAppEntity app, GraphQLQuery query);
+        Pending,
+        Success,
+        Retry,
+        Failed
     }
 }

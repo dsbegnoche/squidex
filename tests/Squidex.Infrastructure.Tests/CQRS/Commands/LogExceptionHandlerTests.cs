@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Moq;
+using FakeItEasy;
 using Squidex.Infrastructure.Log;
 using Xunit;
 
@@ -20,7 +20,7 @@ namespace Squidex.Infrastructure.CQRS.Commands
     {
         private readonly MyLog log = new MyLog();
         private readonly LogExceptionHandler sut;
-        private readonly ICommand command = new Mock<ICommand>().Object;
+        private readonly ICommand command = A.Dummy<ICommand>();
 
         private sealed class MyLog : ISemanticLog
         {
@@ -61,7 +61,7 @@ namespace Squidex.Infrastructure.CQRS.Commands
             var context = new CommandContext(command);
 
             context.Fail(new InvalidOperationException());
-            
+
             var isHandled = await sut.HandleAsync(context);
 
             Assert.False(isHandled);

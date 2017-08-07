@@ -1,9 +1,9 @@
-FROM microsoft/aspnetcore:1.1.2
+FROM microsoft/aspnetcore-build
 
 WORKDIR /app
 
 # Copy from current directory
 COPY . .
 
-EXPOSE 80
-ENTRYPOINT ["dotnet", "Squidex.dll"]
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "run"]

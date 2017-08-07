@@ -7,7 +7,6 @@
 // ==========================================================================
 
 using System;
-using System.Collections.Generic;
 
 namespace Squidex.Domain.Apps.Read.Schemas
 {
@@ -22,7 +21,5 @@ namespace Squidex.Domain.Apps.Read.Schemas
         long TotalTimedout { get; }
 
         long TotalRequestTime { get; }
-
-        IEnumerable<string> LastDumps { get; }
     }
 }

@@ -5,13 +5,14 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { HttpClient, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpEventType, HttpHeaders, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
     ApiUrlConfig,
     DateTime,
+    LocalCacheService,
     HTTP,
     Version
 } from 'framework';
@@ -32,6 +33,7 @@ export class AssetDto {
         public readonly created: DateTime,
         public readonly lastModified: DateTime,
         public readonly fileName: string,
+        public readonly fileType: string,
         public readonly fileSize: number,
         public readonly fileVersion: number,
         public readonly mimeType: string,
@@ -40,27 +42,44 @@ export class AssetDto {
         public readonly pixelHeight: number | null,
         public readonly version: Version
     ) {
+    }
+
+    public update(update: AssetReplacedDto, user: string, now?: DateTime): AssetDto {
+        return new AssetDto(
+            this.id,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.fileName,
+            this.fileType,
+            update.fileSize,
+            update.fileVersion,
+            update.mimeType,
+            update.isImage,
+            update.pixelWidth,
+            update.pixelHeight,
+            update.version);
+    }
+
+    public rename(name: string, user: string, now?: DateTime): AssetDto {
+        return new AssetDto(
+            this.id,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            name,
+            this.fileType,
+            this.fileSize,
+            this.fileVersion,
+            this.mimeType,
+            this.isImage,
+            this.pixelWidth,
+            this.pixelHeight,
+            this.version);
     }
 }
 
 export class UpdateAssetDto {
     constructor(
         public readonly fileName: string
-    ) {
-    }
-}
-
-export class AssetCreatedDto {
-    constructor(
-        public readonly id: string,
-        public readonly fileName: string,
-        public readonly fileSize: number,
-        public readonly fileVersion: number,
-        public readonly mimeType: string,
-        public readonly isImage: boolean,
-        public readonly pixelWidth: number | null,
-        public readonly pixelHeight: number | null,
-        public readonly version: Version
     ) {
     }
 }
@@ -82,12 +101,13 @@ export class AssetReplacedDto {
 export class AssetsService {
     constructor(
         private readonly http: HttpClient,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly apiUrl: ApiUrlConfig,
+        private readonly localCache: LocalCacheService
     ) {
     }
 
     public getAssets(appName: string, take: number, skip: number, query?: string, mimeTypes?: string[], ids?: string[]): Observable<AssetsDto> {
-        let queries: string[] = [];
+        const queries: string[] = [];
 
         if (mimeTypes && mimeTypes.length > 0) {
             queries.push(`mimeTypes=${mimeTypes.join(',')}`);
@@ -120,6 +140,7 @@ export class AssetsService {
                             DateTime.parseISO_UTC(item.created),
                             DateTime.parseISO_UTC(item.lastModified),
                             item.fileName,
+                            item.fileType,
                             item.fileSize,
                             item.fileVersion,
                             item.mimeType,
@@ -132,27 +153,32 @@ export class AssetsService {
                 .pretifyError('Failed to load assets. Please reload.');
     }
 
-    public uploadFile(appName: string, file: File): Observable<number | AssetCreatedDto> {
-        return new Observable<number | AssetCreatedDto>(subscriber => {
-            const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
+    public uploadFile(appName: string, file: File, user: string, now?: DateTime): Observable<number | AssetDto> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
 
-            const req = new HttpRequest('POST', url, getFormData(file), {
-                reportProgress: true
-            });
+        const req = new HttpRequest('POST', url, getFormData(file), {
+            reportProgress: true
+        });
 
-            this.http.request(req)
-                .pretifyError('Failed to upload asset. Please reload.')
-                .subscribe(event => {
+        return this.http.request(req)
+                .map(event => {
                     if (event.type === HttpEventType.UploadProgress) {
                         const percentDone = Math.round(100 * event.loaded / event.total);
 
-                        subscriber.next(percentDone);
+                        return percentDone;
                     } else if (event instanceof HttpResponse) {
-                        const response = event.body;
+                        const response: any = event.body;
 
-                        const dto =  new AssetCreatedDto(
+                        now = now || DateTime.now();
+
+                        const dto =  new AssetDto(
                             response.id,
+                            user,
+                            user,
+                            now,
+                            now,
                             response.fileName,
+                            response.fileType,
                             response.fileSize,
                             response.fileVersion,
                             response.mimeType,
@@ -161,14 +187,17 @@ export class AssetsService {
                             response.pixelHeight,
                             new Version(response.version.toString()));
 
-                        subscriber.next(dto);
+                        this.localCache.set(`asset.${dto.id}`, dto, 5000);
+
+                        return dto;
                     }
-                }, err => {
-                    subscriber.error(err);
-                }, () => {
-                    subscriber.complete();
-                });
-        });
+                })
+                .do(dto => {
+                    if (dto instanceof AssetDto) {
+                        this.localCache.set(`asset.${dto.id}`, dto, 5000);
+                    }
+                })
+                .pretifyError('Failed to upload asset. Please reload.');
     }
 
     public getAsset(appName: string, id: string, version?: Version): Observable<AssetDto> {
@@ -183,6 +212,7 @@ export class AssetsService {
                         DateTime.parseISO_UTC(response.created),
                         DateTime.parseISO_UTC(response.lastModified),
                         response.fileName,
+                        response.fileType,
                         response.fileSize,
                         response.fileVersion,
                         response.mimeType,
@@ -190,6 +220,17 @@ export class AssetsService {
                         response.pixelWidth,
                         response.pixelHeight,
                         new Version(response.version.toString()));
+                })
+                .catch(error => {
+                    if (error instanceof HttpErrorResponse && error.status === 404) {
+                        const cached = this.localCache.get(`asset.${id}`);
+
+                        if (cached) {
+                            return Observable.of(cached);
+                        }
+                    }
+
+                    return Observable.throw(error);
                 })
                 .pretifyError('Failed to load assets. Please reload.');
     }

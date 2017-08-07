@@ -14,11 +14,47 @@ import {
     ContentsDto,
     ContentsService,
     DateTime,
+    LocalCacheService,
     Version
 } from './../';
 
+describe('ContentDto', () => {
+    it('should update data property and user info when updating', () => {
+        const now = DateTime.now();
+
+        const content_1 = new ContentDto('1', false, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_2 = content_1.update({ data: 2 }, 'me', now);
+
+        expect(content_2.data).toEqual({ data: 2 });
+        expect(content_2.lastModified).toEqual(now);
+        expect(content_2.lastModifiedBy).toEqual('me');
+    });
+
+    it('should update isPublished property and user info when publishing', () => {
+        const now = DateTime.now();
+
+        const content_1 = new ContentDto('1', false, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_2 = content_1.publish('me', now);
+
+        expect(content_2.isPublished).toBeTruthy();
+        expect(content_2.lastModified).toEqual(now);
+        expect(content_2.lastModifiedBy).toEqual('me');
+    });
+
+    it('should update isPublished property and user info when unpublishing', () => {
+        const now = DateTime.now();
+
+        const content_1 = new ContentDto('1', true, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_2 = content_1.unpublish('me', now);
+
+        expect(content_2.isPublished).toBeFalsy();
+        expect(content_2.lastModified).toEqual(now);
+        expect(content_2.lastModifiedBy).toEqual('me');
+    });
+});
+
 describe('ContentsService', () => {
-    let version = new Version('1');
+    const version = new Version('1');
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -27,6 +63,7 @@ describe('ContentsService', () => {
             ],
             providers: [
                 ContentsService,
+                LocalCacheService,
                 { provide: ApiUrlConfig, useValue: new ApiUrlConfig('http://service/p/') }
             ]
         });
@@ -45,7 +82,7 @@ describe('ContentsService', () => {
             contents = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?nonPublished=true&hidden=true&$top=17&$skip=13');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?$top=17&$skip=13');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
@@ -94,13 +131,13 @@ describe('ContentsService', () => {
     it('should append query to get request as search',
         inject([ContentsService, HttpTestingController], (contentsService: ContentsService, httpMock: HttpTestingController) => {
 
-        let contents: ContentsDto | null = null;
+        let contents: ContentsDto | null;
 
         contentsService.getContents('my-app', 'my-schema', 17, 13, 'my-query').subscribe(result => {
             contents = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?nonPublished=true&hidden=true&$search="my-query"&$top=17&$skip=13');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?$search="my-query"&$top=17&$skip=13');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
@@ -111,13 +148,13 @@ describe('ContentsService', () => {
     it('should append ids to get request with ids',
         inject([ContentsService, HttpTestingController], (contentsService: ContentsService, httpMock: HttpTestingController) => {
 
-        let contents: ContentsDto | null = null;
+        let contents: ContentsDto | null;
 
         contentsService.getContents('my-app', 'my-schema', 17, 13, null, ['id1', 'id2']).subscribe(result => {
             contents = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?nonPublished=true&hidden=true&$top=17&$skip=13&ids=id1,id2');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?$top=17&$skip=13&ids=id1,id2');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
@@ -128,13 +165,13 @@ describe('ContentsService', () => {
     it('should append query to get request as plain query string',
         inject([ContentsService, HttpTestingController], (contentsService: ContentsService, httpMock: HttpTestingController) => {
 
-        let contents: ContentsDto | null = null;
+        let contents: ContentsDto | null;
 
         contentsService.getContents('my-app', 'my-schema', 17, 13, '$filter=my-filter').subscribe(result => {
             contents = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?nonPublished=true&hidden=true&$filter=my-filter&$top=17&$skip=13');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?$filter=my-filter&$top=17&$skip=13');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
@@ -147,11 +184,11 @@ describe('ContentsService', () => {
 
         let content: ContentDto | null = null;
 
-        contentsService.getContent('my-app', 'my-schema', 'content1', version).subscribe(result => {
+        contentsService.getContent('my-app', 'my-schema', '1', version).subscribe(result => {
             content = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema/content1?hidden=true');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema/1');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBe(version.value);
@@ -173,6 +210,29 @@ describe('ContentsService', () => {
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
                 {},
                 new Version('11')));
+    }));
+
+    it('should provide entry from cache if not found',
+        inject([LocalCacheService, ContentsService, HttpTestingController], (localCache: LocalCacheService, contentsService: ContentsService, httpMock: HttpTestingController) => {
+
+        const cached = {};
+
+        localCache.set('content.1', cached, 10000);
+
+        let content: ContentDto | null = null;
+
+        contentsService.getContent('my-app', 'my-schema', '1', version).subscribe(result => {
+            content = result;
+        });
+
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema/1');
+
+        expect(req.request.method).toEqual('GET');
+        expect(req.request.headers.get('If-Match')).toBe(version.value);
+
+        req.flush({}, { status: 404, statusText: '404' });
+
+        expect(content).toBe(cached);
     }));
 
     it('should make post request to create content',

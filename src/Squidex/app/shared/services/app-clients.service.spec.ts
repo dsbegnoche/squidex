@@ -18,8 +18,24 @@ import {
     Version
 } from './../';
 
+describe('AppClientDto', () => {
+    it('should update name property when renaming', () => {
+        const client_1 = new AppClientDto('1', 'old-name', 'secret', false);
+        const client_2 = client_1.rename('new-name');
+
+        expect(client_2.name).toBe('new-name');
+    });
+
+    it('should update isReader property when changing', () => {
+        const client_1 = new AppClientDto('1', 'old-name', 'secret', false);
+        const client_2 = client_1.change(true);
+
+        expect(client_2.isReader).toBeTruthy();
+    });
+});
+
 describe('AppClientsService', () => {
-    let version = new Version('1');
+    const version = new Version('1');
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -55,19 +71,21 @@ describe('AppClientsService', () => {
             {
                 id: 'client1',
                 name: 'Client 1',
-                secret: 'secret1'
+                secret: 'secret1',
+                isReader: true
             },
             {
                 id: 'client2',
                 name: 'Client 2',
-                secret: 'secret2'
+                secret: 'secret2',
+                isReader: true
             }
         ]);
 
         expect(clients).toEqual(
             [
-                new AppClientDto('client1', 'Client 1', 'secret1'),
-                new AppClientDto('client2', 'Client 2', 'secret2')
+                new AppClientDto('client1', 'Client 1', 'secret1', true),
+                new AppClientDto('client2', 'Client 2', 'secret2', true)
             ]);
     }));
 
@@ -87,10 +105,10 @@ describe('AppClientsService', () => {
         expect(req.request.method).toEqual('POST');
         expect(req.request.headers.get('If-Match')).toEqual('1');
 
-        req.flush({ id: 'client1', name: 'Client 1', secret: 'secret1' });
+        req.flush({ id: 'client1', name: 'Client 1', secret: 'secret1', isReader: true });
 
         expect(client).toEqual(
-            new AppClientDto('client1', 'Client 1', 'secret1'));
+            new AppClientDto('client1', 'Client 1', 'secret1', true));
     }));
 
     it('should make put request to rename client',
@@ -126,7 +144,7 @@ describe('AppClientsService', () => {
 
         let accessTokenDto: AccessTokenDto | null = null;
 
-        appClientsService.createToken('my-app', new AppClientDto('myClientId', 'myClient', 'mySecret')).subscribe(result => {
+        appClientsService.createToken('my-app', new AppClientDto('myClientId', 'myClient', 'mySecret', false)).subscribe(result => {
             accessTokenDto = result;
         });
 

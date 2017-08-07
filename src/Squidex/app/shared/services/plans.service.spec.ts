@@ -12,13 +12,14 @@ import {
     AppPlansDto,
     ApiUrlConfig,
     ChangePlanDto,
+    PlanChangedDto,
     PlanDto,
     PlansService,
     Version
 } from './../';
 
 describe('PlansService', () => {
-    let version = new Version('1');
+    const version = new Version('1');
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -52,7 +53,6 @@ describe('PlansService', () => {
 
         req.flush({
             currentPlanId: '123',
-            hasConfigured: true,
             hasPortal: true,
             planOwner: '456',
             plans: [
@@ -80,7 +80,6 @@ describe('PlansService', () => {
                 '123',
                 '456',
                 true,
-                true,
                 [
                     new PlanDto('free', 'Free', '14 €', 1000, 1500, 2500),
                     new PlanDto('prof', 'Prof', '18 €', 4000, 5500, 6500)
@@ -93,11 +92,19 @@ describe('PlansService', () => {
 
         const dto = new ChangePlanDto('enterprise');
 
-        plansService.putPlan('my-app', dto, version).subscribe();
+        let planChanged: PlanChangedDto | null = null;
+
+        plansService.putPlan('my-app', dto, version).subscribe(result => {
+            planChanged = result;
+        });
 
         const req = httpMock.expectOne('http://service/p/api/apps/my-app/plan');
 
+        req.flush({ redirectUri: 'my-url' });
+
         expect(req.request.method).toEqual('PUT');
         expect(req.request.headers.get('If-Match')).toBe(version.value);
+
+        expect(planChanged).toEqual(new PlanChangedDto('my-url'));
     }));
 });

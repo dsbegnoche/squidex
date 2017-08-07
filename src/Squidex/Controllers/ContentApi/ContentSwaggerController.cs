@@ -26,7 +26,8 @@ namespace Squidex.Controllers.ContentApi
         private readonly IAppProvider appProvider;
         private readonly SchemasSwaggerGenerator schemasSwaggerGenerator;
 
-        public ContentSwaggerController(ISchemaRepository schemaRepository, IAppProvider appProvider, SchemasSwaggerGenerator schemasSwaggerGenerator)
+        public ContentSwaggerController(ISchemaRepository schemaRepository, IAppProvider appProvider,
+            SchemasSwaggerGenerator schemasSwaggerGenerator)
         {
             this.appProvider = appProvider;
 
@@ -55,9 +56,9 @@ namespace Squidex.Controllers.ContentApi
             {
                 return NotFound();
             }
-           
+
             var schemas = await schemaRepository.QueryAllAsync(appEntity.Id);
-            
+
             var swaggerDocument = await schemasSwaggerGenerator.Generate(appEntity, schemas);
 
             return Content(swaggerDocument.ToJson(), "application/json");

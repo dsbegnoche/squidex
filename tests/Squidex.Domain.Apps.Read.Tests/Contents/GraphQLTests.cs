@@ -9,9 +9,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FakeItEasy;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Squidex.Domain.Apps.Core;
@@ -28,6 +28,8 @@ using NodaTime.Extensions;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Read.Assets;
 using Squidex.Infrastructure;
+
+// ReSharper disable SimilarAnonymousTypeNearby
 
 namespace Squidex.Domain.Apps.Read.Contents
 {
@@ -57,32 +59,29 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .AddOrUpdateField(new GeolocationField(9, "my-geolocation", Partitioning.Invariant,
                     new GeolocationFieldProperties()));
 
-        private readonly Mock<ISchemaRepository> schemaRepository = new Mock<ISchemaRepository>();
-        private readonly Mock<IContentRepository> contentRepository = new Mock<IContentRepository>();
-        private readonly Mock<IAssetRepository> assetRepository = new Mock<IAssetRepository>();
-        private readonly IAppEntity app;
+        private readonly ISchemaRepository schemaRepository = A.Fake<ISchemaRepository>();
+        private readonly ISchemaEntity schemaEntity = A.Fake<ISchemaEntity>();
+        private readonly IContentRepository contentRepository = A.Fake<IContentRepository>();
+        private readonly IAssetRepository assetRepository = A.Fake<IAssetRepository>();
+        private readonly IAppEntity appEntity = A.Dummy<IAppEntity>();
         private readonly IMemoryCache cache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
-        private readonly IGraphQLInvoker sut;
+        private readonly IGraphQLService sut;
 
         public GraphQLTests()
         {
-            var appEntity = new Mock<IAppEntity>();
-            appEntity.Setup(x => x.Id).Returns(appId);
-            appEntity.Setup(x => x.PartitionResolver).Returns(x => InvariantPartitioning.Instance);
+            A.CallTo(() => appEntity.Id).Returns(appId);
+            A.CallTo(() => appEntity.PartitionResolver).Returns(x => InvariantPartitioning.Instance);
 
-            app = appEntity.Object;
+            A.CallTo(() => schemaEntity.Id).Returns(schemaId);
+            A.CallTo(() => schemaEntity.Name).Returns(schema.Name);
+            A.CallTo(() => schemaEntity.Schema).Returns(schema);
+            A.CallTo(() => schemaEntity.IsPublished).Returns(true);
 
-            var schemaEntity = new Mock<ISchemaEntity>();
-            schemaEntity.Setup(x => x.Id).Returns(schemaId);
-            schemaEntity.Setup(x => x.Name).Returns(schema.Name);
-            schemaEntity.Setup(x => x.Schema).Returns(schema);
-            schemaEntity.Setup(x => x.IsPublished).Returns(true);
+            var schemas = new List<ISchemaEntity> { schemaEntity };
 
-            var schemas = new List<ISchemaEntity> { schemaEntity.Object };
+            A.CallTo(() => schemaRepository.QueryAllAsync(appId)).Returns(Task.FromResult<IReadOnlyList<ISchemaEntity>>(schemas));
 
-            schemaRepository.Setup(x => x.QueryAllAsync(appId)).Returns(Task.FromResult<IReadOnlyList<ISchemaEntity>>(schemas));
-
-            sut = new CachingGraphQLInvoker(cache, schemaRepository.Object, assetRepository.Object, contentRepository.Object, new FakeUrlGenerator());
+            sut = new CachingGraphQLService(cache, schemaRepository, assetRepository, contentRepository, new FakeUrlGenerator());
         }
 
         [Fact]
@@ -113,11 +112,10 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var assets = new List<IAssetEntity> { assetEntity };
 
-            assetRepository.Setup(x => x.QueryAsync(app.Id, null, null, "my-query", 30, 5))
-                .Returns(Task.FromResult<IReadOnlyList<IAssetEntity>>(assets))
-                .Verifiable();
+            A.CallTo(() => assetRepository.QueryAsync(appEntity.Id, null, null, "my-query", 30, 5))
+                .Returns(Task.FromResult<IReadOnlyList<IAssetEntity>>(assets));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -147,9 +145,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            assetRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         [Fact]
@@ -179,11 +175,10 @@ namespace Squidex.Domain.Apps.Read.Contents
                   }}
                 }}";
 
-            assetRepository.Setup(x => x.FindAssetAsync(assetId))
-                .Returns(Task.FromResult(assetEntity))
-                .Verifiable();
+            A.CallTo(() => assetRepository.FindAssetAsync(assetId))
+                .Returns(Task.FromResult(assetEntity));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -210,9 +205,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            assetRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         [Fact]
@@ -255,11 +248,10 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var contents = new List<IContentEntity> { contentEntity };
 
-            contentRepository.Setup(x => x.QueryAsync(app, schemaId, false, null, "?$top=30&$skip=5"))
-                .Returns(Task.FromResult<IReadOnlyList<IContentEntity>>(contents))
-                .Verifiable();
+            A.CallTo(() => contentRepository.QueryAsync(appEntity, schemaId, false, null, "?$top=30&$skip=5"))
+                .Returns(Task.FromResult<IReadOnlyList<IContentEntity>>(contents));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -315,9 +307,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            contentRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         [Fact]
@@ -359,11 +349,10 @@ namespace Squidex.Domain.Apps.Read.Contents
                   }}
                 }}";
 
-            contentRepository.Setup(x => x.FindContentAsync(app, schemaId, contentId))
-                .Returns(Task.FromResult(contentEntity))
-                .Verifiable();
+            A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaId, contentId))
+                .Returns(Task.FromResult(contentEntity));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -416,9 +405,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            contentRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         [Fact]
@@ -446,15 +433,13 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var refContents = new List<IContentEntity> { contentRefEntity };
 
-            contentRepository.Setup(x => x.FindContentAsync(app, schemaId, contentId))
-                .Returns(Task.FromResult(contentEntity))
-                .Verifiable();
+            A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaId, contentId))
+                .Returns(Task.FromResult(contentEntity));
 
-            contentRepository.Setup(x => x.QueryAsync(app, schemaId, false, new HashSet<Guid> {contentRefId }, null))
-                .Returns(Task.FromResult<IReadOnlyList<IContentEntity>>(refContents))
-                .Verifiable();
+            A.CallTo(() => contentRepository.QueryAsync(appEntity, schemaId, false, A<HashSet<Guid>>.That.Matches(x => x.Contains(contentRefId)), null))
+                .Returns(Task.FromResult<IReadOnlyList<IContentEntity>>(refContents));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -480,9 +465,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            contentRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         [Fact]
@@ -510,15 +493,13 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var refAssets = new List<IAssetEntity> { assetRefEntity };
 
-            contentRepository.Setup(x => x.FindContentAsync(app, schemaId, contentId))
-                .Returns(Task.FromResult(contentEntity))
-                .Verifiable();
+            A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaId, contentId))
+                .Returns(Task.FromResult(contentEntity));
 
-            assetRepository.Setup(x => x.QueryAsync(app.Id, null, new HashSet<Guid> { assetRefId }, null, int.MaxValue, 0))
-                .Returns(Task.FromResult<IReadOnlyList<IAssetEntity>>(refAssets))
-                .Verifiable();
+            A.CallTo(() => assetRepository.QueryAsync(appEntity.Id, null, A<HashSet<Guid>>.That.Matches(x => x.Contains(assetRefId)), null, int.MaxValue, 0))
+                .Returns(Task.FromResult<IReadOnlyList<IAssetEntity>>(refAssets));
 
-            dynamic result = await sut.QueryAsync(app, new GraphQLQuery { Query = query });
+            var result = await sut.QueryAsync(appEntity, new GraphQLQuery { Query = query });
 
             var expected = new
             {
@@ -544,9 +525,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 }
             };
 
-            AssertJson(expected, result);
-
-            contentRepository.VerifyAll();
+            AssertJson(expected, new { data = result.Data });
         }
 
         private static IContentEntity CreateContent(Guid id, Guid refId, Guid assetId)

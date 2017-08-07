@@ -6,7 +6,7 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import {
     AppClientDto,
@@ -34,7 +34,7 @@ export class ClientsPageComponent extends AppComponentBase implements OnInit {
     public appClients: ImmutableArray<AppClientDto>;
 
     public addClientFormSubmitted = false;
-    public addClientForm: FormGroup =
+    public addClientForm =
         this.formBuilder.group({
             name: ['',
                 [
@@ -80,26 +80,33 @@ export class ClientsPageComponent extends AppComponentBase implements OnInit {
     }
 
     public renameClient(client: AppClientDto, name: string) {
-        const request = new UpdateAppClientDto(name);
+        const requestDto = new UpdateAppClientDto(name);
 
         this.appNameOnce()
-            .switchMap(app => this.appClientsService.updateClient(app, client.id, request, this.version))
+            .switchMap(app => this.appClientsService.updateClient(app, client.id, requestDto, this.version))
             .subscribe(() => {
-                this.updateClients(this.appClients.replace(client, rename(client, name)));
+                this.updateClients(this.appClients.replaceBy('id', client.rename(name)));
             }, error => {
                 this.notifyError(error);
             });
     }
 
-    public resetClientForm() {
-        this.addClientFormSubmitted = false;
-        this.addClientForm.enable();
-        this.addClientForm.reset();
+    public changeClient(client: AppClientDto, isReader: boolean) {
+        const requestDto = new UpdateAppClientDto(undefined, isReader);
+
+        this.appNameOnce()
+            .switchMap(app => this.appClientsService.updateClient(app, client.id, requestDto, this.version))
+            .subscribe(() => {
+                this.updateClients(this.appClients.replaceBy('id', client.change(isReader)));
+            }, error => {
+                this.notifyError(error);
+            });
     }
 
     public attachClient() {
+        this.addClientFormSubmitted = true;
+
         if (this.addClientForm.valid) {
-            this.addClientFormSubmitted = true;
             this.addClientForm.disable();
 
             const requestDto = new CreateAppClientDto(this.addClientForm.controls['name'].value);
@@ -108,21 +115,27 @@ export class ClientsPageComponent extends AppComponentBase implements OnInit {
                 .switchMap(app => this.appClientsService.postClient(app, requestDto, this.version))
                 .subscribe(dto => {
                     this.updateClients(this.appClients.push(dto));
-                    this.resetClientForm();
                 }, error => {
                     this.notifyError(error);
+                }, () => {
                     this.resetClientForm();
                 });
         }
     }
 
+    public cancelAttachClient() {
+        this.resetClientForm();
+    }
+
+    private resetClientForm() {
+        this.addClientFormSubmitted = false;
+        this.addClientForm.enable();
+        this.addClientForm.reset();
+    }
+
     private updateClients(clients: ImmutableArray<AppClientDto>) {
         this.appClients = clients;
 
-        this.messageBus.publish(new HistoryChannelUpdated());
+        this.messageBus.emit(new HistoryChannelUpdated());
     }
 }
-
-function rename(client: AppClientDto, name: string): AppClientDto {
-    return new AppClientDto(client.id, name, client.secret);
-};

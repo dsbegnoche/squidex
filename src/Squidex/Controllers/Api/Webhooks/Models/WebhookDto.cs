@@ -7,7 +7,6 @@
 // ==========================================================================
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Squidex.Controllers.Api.Webhooks.Models
@@ -40,7 +39,7 @@ namespace Squidex.Controllers.Api.Webhooks.Models
         public long TotalTimedout { get; set; }
 
         /// <summary>
-        /// The average request time in milliseconds.
+        /// The average response time in milliseconds.
         /// </summary>
         public long AverageRequestTimeMs { get; set; }
 
@@ -55,11 +54,5 @@ namespace Squidex.Controllers.Api.Webhooks.Models
         /// </summary>
         [Required]
         public string SharedSecret { get; set; }
-
-        /// <summary>
-        /// The last invokation dumps.
-        /// </summary>
-        [Required]
-        public List<string> LastDumps { get; set; }
     }
 }

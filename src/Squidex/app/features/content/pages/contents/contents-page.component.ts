@@ -24,14 +24,12 @@ import {
     AuthService,
     ContentDto,
     ContentsService,
-    DateTime,
     FieldDto,
     ImmutableArray,
     MessageBus,
     NotificationService,
     Pager,
-    SchemaDetailsDto,
-    Version
+    SchemaDetailsDto
 } from 'shared';
 
 @Component({
@@ -81,14 +79,14 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.contentCreatedSubscription =
             this.messageBus.of(ContentCreated)
                 .subscribe(message => {
-                    this.contentItems = this.contentItems.pushFront(this.createContent(message.id, message.data, message.version, message.isPublished));
+                    this.contentItems = this.contentItems.pushFront(message.content);
                     this.contentsPager = this.contentsPager.incrementCount();
                 });
 
         this.contentUpdatedSubscription =
             this.messageBus.of(ContentUpdated)
                 .subscribe(message => {
-                    this.updateContents(message.id, undefined, message.data, message.version);
+                    this.contentItems = this.contentItems.replaceBy('id', message.content, (o, n) => o.update(n.data, n.lastModifiedBy));
                 });
 
         this.route.params.map(p => <string> p['language'])
@@ -100,11 +98,15 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             .subscribe(schema => {
                 this.schema = schema;
 
-                this.reset();
+                this.resetContents();
                 this.load();
             });
 
         this.isReadOnly = routeData['isReadOnly'];
+    }
+
+    public dropData(content: ContentDto) {
+        return { content, schemaId: this.schema.id };
     }
 
     public search() {
@@ -114,20 +116,11 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.load();
     }
 
-    private reset() {
-        this.contentItems = ImmutableArray.empty<ContentDto>();
-        this.contentsQuery = '';
-        this.contentsFilter.setValue('');
-        this.contentsPager = new Pager(0);
-
-        this.loadFields();
-    }
-
     public publishContent(content: ContentDto) {
         this.appNameOnce()
             .switchMap(app => this.contentsService.publishContent(app, this.schema.name, content.id, content.version))
             .subscribe(() => {
-                this.updateContents(content.id, true, content.data, content.version.value);
+                this.contentItems = this.contentItems.replaceBy('id', content.publish(this.authService.user.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -137,7 +130,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.appNameOnce()
             .switchMap(app => this.contentsService.unpublishContent(app, this.schema.name, content.id, content.version))
             .subscribe(() => {
-                this.updateContents(content.id, false, content.data, content.version.value);
+                this.contentItems = this.contentItems.replaceBy('id', content.unpublish(this.authService.user.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -150,28 +143,10 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
                 this.contentItems = this.contentItems.removeAll(x => x.id === content.id);
                 this.contentsPager = this.contentsPager.decrementCount();
 
-                this.messageBus.publish(new ContentDeleted(content.id));
+                this.emitContentDeleted(content);
             }, error => {
                 this.notifyError(error);
             });
-    }
-
-    public selectLanguage(language: AppLanguageDto) {
-        this.languageSelected = language;
-    }
-
-    private loadFields() {
-        this.contentFields = this.schema.fields.filter(x => x.properties.isListField);
-
-        if (this.contentFields.length === 0 && this.schema.fields.length > 0) {
-            this.contentFields = [this.schema.fields[0]];
-        }
-
-        if (this.contentFields.length > 0) {
-            this.columnWidth = 100 / this.contentFields.length;
-        } else {
-            this.columnWidth = 100;
-        }
     }
 
     public load(showInfo = false) {
@@ -189,8 +164,8 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             });
     }
 
-    public dropData(content: ContentDto) {
-        return { content, schemaId: this.schema.id };
+    public selectLanguage(language: AppLanguageDto) {
+        this.languageSelected = language;
     }
 
     public goNext() {
@@ -205,39 +180,31 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.load();
     }
 
-    private updateContents(id: string, p: boolean | undefined, data: any, version: string) {
-        this.contentItems = this.contentItems.replaceAll(x => x.id === id, c => this.updateContent(c, p === undefined ? c.isPublished : p, data, version));
+    private emitContentDeleted(content: ContentDto) {
+        this.messageBus.emit(new ContentDeleted(content));
     }
 
-    private createContent(id: string, data: any, version: string, isPublished: boolean): ContentDto {
-        const me = `subject:${this.authService.user!.id}`;
+    private resetContents() {
+        this.contentItems = ImmutableArray.empty<ContentDto>();
+        this.contentsQuery = '';
+        this.contentsFilter.setValue('');
+        this.contentsPager = new Pager(0);
 
-        const newContent =
-            new ContentDto(
-                id,
-                isPublished,
-                me, me,
-                DateTime.now(),
-                DateTime.now(),
-                data,
-                new Version(version));
-
-        return newContent;
+        this.loadFields();
     }
 
-    private updateContent(content: ContentDto, isPublished: boolean, data: any, version: string): ContentDto {
-        const me = `subject:${this.authService.user!.id}`;
+    private loadFields() {
+        this.contentFields = this.schema.fields.filter(x => x.properties.isListField);
 
-        const newContent =
-            new ContentDto(
-                content.id,
-                isPublished,
-                content.createdBy, me,
-                content.created, DateTime.now(),
-                data,
-                new Version(version));
+        if (this.contentFields.length === 0 && this.schema.fields.length > 0) {
+            this.contentFields = [this.schema.fields[0]];
+        }
 
-        return newContent;
+        if (this.contentFields.length > 0) {
+            this.columnWidth = 100 / this.contentFields.length;
+        } else {
+            this.columnWidth = 100;
+        }
     }
 }
 

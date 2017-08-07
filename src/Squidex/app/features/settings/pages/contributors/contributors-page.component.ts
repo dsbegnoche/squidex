@@ -6,12 +6,13 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 
 import {
     AppComponentBase,
     AppContributorDto,
+    AppContributorsDto,
     AppContributorsService,
     AppsStoreService,
     AuthService,
@@ -64,14 +65,15 @@ export class ContributorsPageComponent extends AppComponentBase implements OnIni
     public usersPermissions = [
         'Owner',
         'Developer',
-        'Editor'
+        'Editor',
+        'Reader'
     ];
 
     public get canAddContributor() {
         return this.addContributorForm.valid && (this.maxContributors <= -1 || this.appContributors.length < this.maxContributors);
     }
 
-    public addContributorForm: FormGroup =
+    public addContributorForm =
         this.formBuilder.group({
             user: [null,
                 [
@@ -100,9 +102,7 @@ export class ContributorsPageComponent extends AppComponentBase implements OnIni
         this.appNameOnce()
             .switchMap(app => this.appContributorsService.getContributors(app, this.version).retry(2))
             .subscribe(dto => {
-                this.updateContributors(ImmutableArray.of(dto.contributors));
-
-                this.maxContributors = dto.maxContributors;
+                this.updateContributorsFromDto(dto);
             }, error => {
                 this.notifyError(error);
             });
@@ -118,22 +118,8 @@ export class ContributorsPageComponent extends AppComponentBase implements OnIni
             });
     }
 
-    public assignContributor() {
-        const requestDto = new AppContributorDto(this.addContributorForm.controls['user'].value.id, 'Editor');
-
-        this.appNameOnce()
-            .switchMap(app => this.appContributorsService.postContributor(app, requestDto, this.version))
-            .subscribe(() => {
-                this.updateContributors(this.appContributors.push(requestDto));
-            }, error => {
-                this.notifyError(error);
-            });
-
-        this.addContributorForm.reset();
-    }
-
     public changePermission(contributor: AppContributorDto, permission: string) {
-        const requestDto = changePermission(contributor, permission);
+        const requestDto = contributor.changePermission(permission);
 
         this.appNameOnce()
             .switchMap(app => this.appContributorsService.postContributor(app, requestDto, this.version))
@@ -144,14 +130,33 @@ export class ContributorsPageComponent extends AppComponentBase implements OnIni
             });
     }
 
+    public assignContributor() {
+        const requestDto = new AppContributorDto(this.addContributorForm.controls['user'].value.id, 'Editor');
+
+        this.appNameOnce()
+            .switchMap(app => this.appContributorsService.postContributor(app, requestDto, this.version))
+            .subscribe(() => {
+                this.updateContributors(this.appContributors.push(requestDto));
+                this.resetContributorForm();
+            }, error => {
+                this.notifyError(error);
+                this.resetContributorForm();
+            });
+    }
+
+    private resetContributorForm() {
+        this.addContributorForm.reset();
+    }
+
+    private updateContributorsFromDto(dto: AppContributorsDto) {
+        this.updateContributors(ImmutableArray.of(dto.contributors));
+
+        this.maxContributors = dto.maxContributors;
+    }
+
     private updateContributors(contributors: ImmutableArray<AppContributorDto>) {
         this.appContributors = contributors;
 
-        this.messageBus.publish(new HistoryChannelUpdated());
+        this.messageBus.emit(new HistoryChannelUpdated());
     }
 }
-
-function changePermission(contributor: AppContributorDto, permission: string): AppContributorDto {
-    return new AppContributorDto(contributor.contributorId, permission);
-}
-

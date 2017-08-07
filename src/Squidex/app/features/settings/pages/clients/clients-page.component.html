@@ -18,7 +18,8 @@
             </div>
 
             <div *ngFor="let client of appClients">
-                <sqx-client [client]="client" [appName]="appName() | async" 
+                <sqx-client [client]="client" [appName]="appName() | async"
+                    (changing)="changeClient(client, $event)"
                     (renaming)="renameClient(client, $event)" 
                     (revoking)="revokeClient(client)"></sqx-client>
             </div>
@@ -32,7 +33,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-success" [disabled]="!hasName">Add Client</button>
-                    <button type="reset" class="btn btn-link" (click)="resetClientForm()" [disabled]="addClientFormSubmitted">Cancel</button>
+                    <button type="reset" class="btn btn-link" (click)="cancelAttachClient()">Cancel</button>
                 </form>
             </div>
         </div>

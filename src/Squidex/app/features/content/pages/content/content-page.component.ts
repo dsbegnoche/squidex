@@ -21,6 +21,7 @@ import {
     AppLanguageDto,
     AppsStoreService,
     allData,
+    AuthService,
     CanComponentDeactivate,
     ContentDto,
     ContentsService,
@@ -42,8 +43,9 @@ import {
 })
 export class ContentPageComponent extends AppComponentBase implements CanComponentDeactivate, OnDestroy, OnInit {
     private contentDeletedSubscription: Subscription;
-    private version: Version = new Version('');
+    private version = new Version('');
     private cancelPromise: Subject<boolean> | null = null;
+    private content: ContentDto;
 
     public schema: SchemaDetailsDto;
 
@@ -58,6 +60,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public languages: AppLanguageDto[] = [];
 
     constructor(apps: AppsStoreService, notifications: NotificationService,
+        private readonly authService: AuthService,
         private readonly contentsService: ContentsService,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
@@ -78,21 +81,23 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         this.contentDeletedSubscription =
             this.messageBus.of(ContentDeleted)
                 .subscribe(message => {
-                    if (message.id === this.contentId) {
+                    if (message.content.id === this.contentId) {
                         this.router.navigate(['../'], { relativeTo: this.route });
                     }
                 });
 
-        this.setupForm(routeData['schema']);
+        this.setupContentForm(routeData['schema']);
 
         this.route.data.map(p => p['content'])
             .subscribe((content: ContentDto) => {
-                this.populateForm(content);
+                this.content = content;
+
+                this.populateContentForm();
             });
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!this.contentForm.dirty) {
+        if (!this.contentForm.dirty || this.isNewMode) {
             return Observable.of(true);
         } else {
             this.cancelDialog.show();
@@ -131,37 +136,35 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         this.contentFormSubmitted = true;
 
         if (this.contentForm.valid) {
-            this.disable();
+            this.disableContentForm();
 
             const requestDto = this.contentForm.value;
-
-            const back = () => {
-                this.router.navigate(['../'], { relativeTo: this.route, replaceUrl: true });
-            };
 
             if (this.isNewMode) {
                 this.appNameOnce()
                     .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, publish, this.version))
-                    .subscribe(created => {
-                        this.messageBus.publish(new ContentCreated(created.id, created.data, this.version.value, publish));
+                    .subscribe(dto => {
+                        this.content = dto;
 
+                        this.emitContentCreated(this.content);
                         this.notifyInfo('Content created successfully.');
-                        back();
+                        this.back();
                     }, error => {
                         this.notifyError(error);
-                        this.enable();
+                        this.enableContentForm();
                     });
             } else {
                 this.appNameOnce()
                     .switchMap(app => this.contentsService.putContent(app, this.schema.name, this.contentId!, requestDto, this.version))
                     .subscribe(() => {
-                        this.messageBus.publish(new ContentUpdated(this.contentId!, requestDto, this.version.value));
+                        this.content = this.content.update(requestDto, this.authService.user.token);
 
+                        this.emitContentUpdated(this.content);
                         this.notifyInfo('Content saved successfully.');
-                        this.enable();
+                        this.enableContentForm();
                     }, error => {
                         this.notifyError(error);
-                        this.enable();
+                        this.enableContentForm();
                     });
             }
         } else {
@@ -169,7 +172,23 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         }
     }
 
-    private enable() {
+    private back() {
+        this.router.navigate(['../'], { relativeTo: this.route, replaceUrl: true });
+    }
+
+    private emitContentCreated(content: ContentDto) {
+        this.messageBus.emit(new ContentCreated(content));
+    }
+
+    private emitContentUpdated(content: ContentDto) {
+        this.messageBus.emit(new ContentUpdated(content));
+    }
+
+    private disableContentForm() {
+        this.contentForm.disable();
+    }
+
+    private enableContentForm() {
         this.contentForm.markAsPristine();
 
         for (const field of this.schema.fields.filter(f => !f.isDisabled)) {
@@ -177,13 +196,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         }
     }
 
-    private disable() {
-        for (const field of this.schema.fields.filter(f => !f.isDisabled)) {
-            this.contentForm.controls[field.name].disable();
-        }
-    }
-
-    private setupForm(schema: SchemaDetailsDto) {
+    private setupContentForm(schema: SchemaDetailsDto) {
         this.schema = schema;
 
         const controls: { [key: string]: AbstractControl } = {};
@@ -193,10 +206,10 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
             if (field.partitioning === 'language') {
                 for (let language of this.languages) {
-                    group.addControl(language.iso2Code, new FormControl(undefined, field.createValidators()));
+                    group.addControl(language.iso2Code, new FormControl(undefined, field.createValidators(language.isOptional)));
                 }
             } else {
-                group.addControl('iv', new FormControl(undefined, field.createValidators()));
+                group.addControl('iv', new FormControl(undefined, field.createValidators(false)));
             }
 
             controls[field.name] = group;
@@ -205,23 +218,23 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         this.contentForm = new FormGroup(controls);
     }
 
-    private populateForm(content: ContentDto) {
+    private populateContentForm() {
         this.contentForm.markAsPristine();
 
-        if (!content) {
+        if (!this.content) {
             this.contentData = null;
             this.contentId = null;
             this.isNewMode = true;
             return;
         }
 
-        this.contentData = content.data;
-        this.contentId = content.id;
-        this.version = content.version;
+        this.contentData = this.content.data;
+        this.contentId = this.content.id;
+        this.version = this.content.version;
         this.isNewMode = false;
 
         for (const field of this.schema.fields) {
-            const fieldValue = content.data[field.name] || {};
+            const fieldValue = this.content.data[field.name] || {};
             const fieldForm = <FormGroup>this.contentForm.get(field.name);
 
              if (field.partitioning === 'language') {

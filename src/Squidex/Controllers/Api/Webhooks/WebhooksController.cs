@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using NodaTime;
 using NSwag.Annotations;
 using Squidex.Controllers.Api.Webhooks.Models;
 using Squidex.Domain.Apps.Read.Schemas.Repositories;
@@ -20,7 +21,7 @@ using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
 namespace Squidex.Controllers.Api.Webhooks
-{    
+{
     /// <summary>
     /// Manages and retrieves information about schemas.
     /// </summary>
@@ -31,11 +32,15 @@ namespace Squidex.Controllers.Api.Webhooks
     public class WebhooksController : ControllerBase
     {
         private readonly ISchemaWebhookRepository webhooksRepository;
+        private readonly IWebhookEventRepository webhookEventsRepository;
 
-        public WebhooksController(ICommandBus commandBus, ISchemaWebhookRepository webhooksRepository) 
+        public WebhooksController(ICommandBus commandBus,
+            ISchemaWebhookRepository webhooksRepository,
+            IWebhookEventRepository webhookEventsRepository)
             : base(commandBus)
         {
             this.webhooksRepository = webhooksRepository;
+            this.webhookEventsRepository = webhookEventsRepository;
         }
 
         /// <summary>
@@ -61,7 +66,7 @@ namespace Squidex.Controllers.Api.Webhooks
                 var count = w.TotalTimedout + w.TotalSucceeded + w.TotalFailed;
                 var average = count == 0 ? 0 : w.TotalRequestTime / count;
 
-                return SimpleMapper.Map(w, new WebhookDto { AverageRequestTimeMs = average, LastDumps = w.LastDumps.ToList() });
+                return SimpleMapper.Map(w, new WebhookDto { AverageRequestTimeMs = average });
             });
 
             return Ok(response);
@@ -74,7 +79,7 @@ namespace Squidex.Controllers.Api.Webhooks
         /// <param name="name">The name of the schema.</param>
         /// <param name="request">The webhook object that needs to be added to the app.</param>
         /// <returns>
-        /// 201 => Webhook created.  
+        /// 201 => Webhook created.
         /// 400 => Webhook name or properties are not valid.
         /// 409 => Webhook name already in use.
         /// 404 => App or schema not found.
@@ -94,7 +99,9 @@ namespace Squidex.Controllers.Api.Webhooks
 
             await CommandBus.PublishAsync(command);
 
-            return CreatedAtAction(nameof(GetWebhooks), new { app }, SimpleMapper.Map(command, new WebhookCreatedDto()));
+            var response = SimpleMapper.Map(command, new WebhookCreatedDto { SchemaId = command.SchemaId.Id.ToString() });
+
+            return CreatedAtAction(nameof(GetWebhooks), new { app }, response);
         }
 
         /// <summary>
@@ -110,11 +117,75 @@ namespace Squidex.Controllers.Api.Webhooks
         [HttpDelete]
         [Route("apps/{app}/schemas/{name}/webhooks/{id}")]
         [ApiCosts(1)]
-        public async Task<IActionResult> DeleteSchema(string app, string name, Guid id)
+        public async Task<IActionResult> DeleteWebhook(string app, string name, Guid id)
         {
             await CommandBus.PublishAsync(new DeleteWebhook { Id = id });
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Get webhook events.
+        /// </summary>
+        /// <param name="app">The name of the app.</param>
+        /// <param name="skip">The number of events to skip.</param>
+        /// <param name="take">The number of events to take.</param>
+        /// <returns>
+        /// 200 => Webhook events returned.
+        /// 404 => App not found.
+        /// </returns>
+        [HttpGet]
+        [Route("apps/{app}/webhooks/events")]
+        [ProducesResponseType(typeof(WebhookEventsDto), 200)]
+        [ApiCosts(0)]
+        public async Task<IActionResult> GetEvents(string app, [FromQuery] int skip = 0, [FromQuery] int take = 20)
+        {
+            var taskForItems = webhookEventsRepository.QueryByAppAsync(App.Id, skip, take);
+            var taskForCount = webhookEventsRepository.CountByAppAsync(App.Id);
+
+            await Task.WhenAll(taskForItems, taskForCount);
+
+            var response = new WebhookEventsDto
+            {
+                Total = taskForCount.Result,
+                Items = taskForItems.Result.Select(x =>
+                {
+                    var itemModel = new WebhookEventDto();
+
+                    SimpleMapper.Map(x, itemModel);
+                    SimpleMapper.Map(x.Job, itemModel);
+
+                    return itemModel;
+                }).ToArray()
+            };
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Enqueue the event to be send.
+        /// </summary>
+        /// <param name="app">The name of the app.</param>
+        /// <param name="id">The event to enqueue.</param>
+        /// <returns>
+        /// 200 => Webhook enqueued.
+        /// 404 => App or webhook event not found.
+        /// </returns>
+        [HttpPut]
+        [Route("apps/{app}/webhooks/events/{id}")]
+        [ApiCosts(0)]
+        public async Task<IActionResult> PutEvent(string app, Guid id)
+        {
+            var entity = await webhookEventsRepository.FindAsync(id);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            await webhookEventsRepository.EnqueueAsync(id, SystemClock.Instance.GetCurrentInstant());
+
+            return Ok();
         }
     }
 }

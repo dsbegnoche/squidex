@@ -30,10 +30,10 @@ namespace Squidex.Pipeline.CommandHandlers
 
         public Task<bool> HandleAsync(CommandContext context)
         {
-            if (context.Command is SquidexCommand squidexCommand)
+            if (context.Command is SquidexCommand squidexCommand && squidexCommand.Actor == null)
             {
-                var actorToken = 
-                    FindActorFromSubject() ?? 
+                var actorToken =
+                    FindActorFromSubject() ??
                     FindActorFromClient();
 
 #pragma warning disable

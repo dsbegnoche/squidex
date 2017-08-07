@@ -24,9 +24,11 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable RedundantIfElseBlock
+
 namespace Squidex.Controllers.ContentApi
 {
-    [MustBeAppEditor]
     [ApiExceptionFilter]
     [AppApi]
     [SwaggerIgnore]
@@ -34,13 +36,13 @@ namespace Squidex.Controllers.ContentApi
     {
         private readonly ISchemaProvider schemas;
         private readonly IContentRepository contentRepository;
-        private readonly IGraphQLInvoker graphQL;
+        private readonly IGraphQLService graphQL;
 
         public ContentsController(
-            ICommandBus commandBus, 
+            ICommandBus commandBus,
             ISchemaProvider schemas,
             IContentRepository contentRepository,
-            IGraphQLInvoker graphQL) 
+            IGraphQLService graphQL)
             : base(commandBus)
         {
             this.graphQL = graphQL;
@@ -48,16 +50,8 @@ namespace Squidex.Controllers.ContentApi
             this.contentRepository = contentRepository;
         }
 
+        [MustBeAppReader]
         [HttpGet]
-        [Route("content/{app}/graphql")]
-        [ApiCosts(2)]
-        public async Task<IActionResult> GetGraphQL([FromQuery] GraphQLQuery query)
-        {
-            var result = await graphQL.QueryAsync(App, query);
-
-            return Ok(result);
-        }
-
         [HttpPost]
         [Route("content/{app}/graphql")]
         [ApiCosts(2)]
@@ -65,13 +59,21 @@ namespace Squidex.Controllers.ContentApi
         {
             var result = await graphQL.QueryAsync(App, query);
 
-            return Ok(result);
+            if (result.Errors?.Length > 0)
+            {
+                return BadRequest(new { result.Data, result.Errors });
+            }
+            else
+            {
+                return Ok(new { result.Data });
+            }
         }
 
+        [MustBeAppReader]
         [HttpGet]
         [Route("content/{app}/{name}")]
         [ApiCosts(2)]
-        public async Task<IActionResult> GetContents(string name, [FromQuery] bool nonPublished = false, [FromQuery] bool hidden = false, [FromQuery] string ids = null)
+        public async Task<IActionResult> GetContents(string name, [FromQuery] string ids = null)
         {
             var schemaEntity = await FindSchemaAsync(name);
 
@@ -88,10 +90,12 @@ namespace Squidex.Controllers.ContentApi
                 }
             }
 
+            var isFrontendClient = User.IsFrontendClient();
+
             var query = Request.QueryString.ToString();
 
-            var taskForItems = contentRepository.QueryAsync(App, schemaEntity.Id, nonPublished, idsList, query);
-            var taskForCount = contentRepository.CountAsync(App, schemaEntity.Id, nonPublished, idsList, query);
+            var taskForItems = contentRepository.QueryAsync(App, schemaEntity.Id, isFrontendClient, idsList, query);
+            var taskForCount = contentRepository.CountAsync(App, schemaEntity.Id, isFrontendClient, idsList, query);
 
             await Task.WhenAll(taskForItems, taskForCount);
 
@@ -104,7 +108,7 @@ namespace Squidex.Controllers.ContentApi
 
                     if (x.Data != null)
                     {
-                        itemModel.Data = x.Data.ToApiModel(schemaEntity.Schema, App.LanguagesConfig);
+                        itemModel.Data = x.Data.ToApiModel(schemaEntity.Schema, App.LanguagesConfig, null, !isFrontendClient);
                     }
 
                     return itemModel;
@@ -114,10 +118,11 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
+        [MustBeAppReader]
         [HttpGet]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
-        public async Task<IActionResult> GetContent(string name, Guid id, bool hidden = false)
+        public async Task<IActionResult> GetContent(string name, Guid id)
         {
             var schemaEntity = await FindSchemaAsync(name);
 
@@ -137,7 +142,9 @@ namespace Squidex.Controllers.ContentApi
 
             if (entity.Data != null)
             {
-                response.Data = entity.Data.ToApiModel(schemaEntity.Schema, App.LanguagesConfig, null, hidden);
+                var isFrontendClient = User.IsFrontendClient();
+
+                response.Data = entity.Data.ToApiModel(schemaEntity.Schema, App.LanguagesConfig, null, !isFrontendClient);
             }
 
             Response.Headers["ETag"] = new StringValues(entity.Version.ToString());
@@ -145,6 +152,7 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
+        [MustBeAppEditor]
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
@@ -160,6 +168,7 @@ namespace Squidex.Controllers.ContentApi
             return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
         }
 
+        [MustBeAppEditor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -172,6 +181,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppEditor]
         [HttpPatch]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -184,6 +194,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppEditor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}/publish")]
         [ApiCosts(1)]
@@ -196,6 +207,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppEditor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}/unpublish")]
         [ApiCosts(1)]
@@ -208,6 +220,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppEditor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]

@@ -26,6 +26,8 @@ namespace Squidex.Config.Identity
 
 		public string MicrosoftSecret { get; set; }
 
+        public string AuthorityUrl { get; set; }
+
 		public string CivicPlusAuthority { get; set; }
 
 		public string CivicPlusClient { get; set; }

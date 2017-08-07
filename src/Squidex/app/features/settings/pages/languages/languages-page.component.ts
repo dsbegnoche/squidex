@@ -6,7 +6,7 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 
 import {
     AddAppLanguageDto,
@@ -35,7 +35,7 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
     public newLanguages: LanguageDto[] = [];
     public appLanguages = ImmutableArray.empty<AppLanguageDto>();
 
-    public addLanguageForm: FormGroup =
+    public addLanguageForm =
         this.formBuilder.group({
             language: [null,
                 Validators.required
@@ -105,7 +105,7 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
     private loadAllLanguages() {
         this.languagesService.getLanguages().retry(2)
             .subscribe(languages => {
-                this.allLanguages = languages;
+                this.allLanguages = ImmutableArray.of(languages).sortByStringAsc(l => l.englishName).values;
 
                 this.updateNewLanguages();
             }, error => {
@@ -118,10 +118,11 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
 
         this.appLanguages =
             languages.map(l => {
+                const isMaster = masterId ? l.iso2Code === masterId : l.isMaster;
+
                 return new AppLanguageDto(
                     l.iso2Code,
-                    l.englishName,
-                    masterId ? l.iso2Code === masterId : l.isMaster,
+                    l.englishName, isMaster,
                     l.isOptional,
                     l.fallback.filter(f => !!languages.find(l2 => l2.iso2Code === f))
                 );
@@ -135,11 +136,12 @@ export class LanguagesPageComponent extends AppComponentBase implements OnInit {
 
         this.updateNewLanguages();
 
-        this.messageBus.publish(new HistoryChannelUpdated());
+        this.messageBus.emit(new HistoryChannelUpdated());
     }
 
     private updateNewLanguages() {
         this.newLanguages = this.allLanguages.filter(x => !this.appLanguages.find(l => l.iso2Code === x.iso2Code));
+        this.addLanguageForm.controls['language'].setValue(this.newLanguages[0]);
     }
 }
 
