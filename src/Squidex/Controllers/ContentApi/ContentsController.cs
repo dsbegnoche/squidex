@@ -24,6 +24,7 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
+// ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantIfElseBlock
 
 namespace Squidex.Controllers.ContentApi
@@ -38,10 +39,10 @@ namespace Squidex.Controllers.ContentApi
         private readonly IGraphQLService graphQL;
 
         public ContentsController(
-            ICommandBus commandBus, 
+            ICommandBus commandBus,
             ISchemaProvider schemas,
             IContentRepository contentRepository,
-            IGraphQLService graphQL) 
+            IGraphQLService graphQL)
             : base(commandBus)
         {
             this.graphQL = graphQL;
@@ -116,7 +117,7 @@ namespace Squidex.Controllers.ContentApi
 
             return Ok(response);
         }
-        
+
         [MustBeAppReader]
         [HttpGet]
         [Route("content/{app}/{name}/{id}")]

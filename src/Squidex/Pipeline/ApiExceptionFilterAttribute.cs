@@ -64,14 +64,14 @@ namespace Squidex.Pipeline
         {
             error.StatusCode = statusCode;
 
-            return new ObjectResult(error) { StatusCode = 412 };
+            return new ObjectResult(error) { StatusCode = statusCode };
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (!context.ModelState.IsValid)
             {
-                var errors = 
+                var errors =
                     context.ModelState.SelectMany(m =>
                         {
                             return m.Value.Errors.Where(e => !string.IsNullOrWhiteSpace(e.ErrorMessage))

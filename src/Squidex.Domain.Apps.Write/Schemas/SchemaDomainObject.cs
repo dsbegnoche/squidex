@@ -55,7 +55,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         protected void On(SchemaCreated @event)
         {
-            totalFields += @event?.Fields.Count ?? 0;
+            totalFields += @event.Fields?.Count ?? 0;
 
             schema = SchemaEventDispatcher.Dispatch(@event, registry);
         }
@@ -222,7 +222,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
-            
+
             RaiseEvent(command, new FieldHidden());
 
             return this;
@@ -233,7 +233,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
-            
+
             RaiseEvent(command, new FieldShown());
 
             return this;
@@ -255,7 +255,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
-            
+
             RaiseEvent(command, new FieldEnabled());
 
             return this;
@@ -266,7 +266,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
-            
+
             RaiseEvent(command, new FieldDeleted());
 
             return this;

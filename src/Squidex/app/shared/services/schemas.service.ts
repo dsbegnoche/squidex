@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ValidatorFn, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -15,6 +15,7 @@ import 'framework/angular/http-extensions';
 import {
     ApiUrlConfig,
     DateTime,
+    LocalCacheService,
     HTTP,
     ValidatorsEx,
     Version
@@ -245,8 +246,8 @@ export class FieldDto {
         return this.properties.formatValue(value);
     }
 
-    public createValidators(): ValidatorFn[] {
-        return this.properties.createValidators();
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        return this.properties.createValidators(isOptional);
     }
 }
 
@@ -263,7 +264,7 @@ export abstract class FieldPropertiesDto {
 
     public abstract formatValue(value: any): string;
 
-    public abstract createValidators(): ValidatorFn[];
+    public abstract createValidators(isOptional: boolean): ValidatorFn[];
 }
 
 export class StringFieldPropertiesDto extends FieldPropertiesDto {
@@ -289,10 +290,10 @@ export class StringFieldPropertiesDto extends FieldPropertiesDto {
         return value;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: false): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -337,10 +338,10 @@ export class NumberFieldPropertiesDto extends FieldPropertiesDto {
         return value;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -391,10 +392,10 @@ export class DateTimeFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -420,10 +421,10 @@ export class BooleanFieldPropertiesDto extends FieldPropertiesDto {
         return value ? '✔' : '-';
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -448,10 +449,10 @@ export class GeolocationFieldPropertiesDto extends FieldPropertiesDto {
         return `${value.longitude}, ${value.latitude}`;
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -482,10 +483,10 @@ export class ReferencesFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -523,10 +524,10 @@ export class AssetsFieldPropertiesDto extends FieldPropertiesDto {
         }
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -558,10 +559,10 @@ export class JsonFieldPropertiesDto extends FieldPropertiesDto {
         return '<Json />';
     }
 
-    public createValidators(): ValidatorFn[] {
+    public createValidators(isOptional: boolean): ValidatorFn[] {
         const validators: ValidatorFn[] = [];
 
-        if (this.isRequired) {
+        if (this.isRequired && !isOptional) {
             validators.push(Validators.required);
         }
 
@@ -614,7 +615,8 @@ export class CreateSchemaDto {
 export class SchemasService {
     constructor(
         private readonly http: HttpClient,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly apiUrl: ApiUrlConfig,
+        private readonly localCache: LocalCacheService
     ) {
     }
 
@@ -675,6 +677,17 @@ export class SchemasService {
                         new Version(response.version.toString()),
                         fields);
                 })
+                .catch(error => {
+                    if (error instanceof HttpErrorResponse && error.status === 404) {
+                        const cached = this.localCache.get(`schema.${appName}.${id}`);
+
+                        if (cached) {
+                            return Observable.of(cached);
+                        }
+                    }
+
+                    return Observable.throw(error);
+                })
                 .pretifyError('Failed to load schema. Please reload.');
     }
 
@@ -696,6 +709,10 @@ export class SchemasService {
                         now,
                         version,
                         dto.fields || []);
+                })
+                .do(schema => {
+                    this.localCache.set(`service.${appName}.${schema.id}`, schema, 5000);
+                    this.localCache.set(`service.${appName}.${schema.name}`, schema, 5000);
                 })
                 .pretifyError('Failed to create schema. Please reload.');
     }

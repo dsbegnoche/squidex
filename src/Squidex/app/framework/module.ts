@@ -32,6 +32,7 @@ import {
     IndeterminateValueDirective,
     JsonEditorComponent,
     KNumberPipe,
+    LocalCacheService,
     LocalStoreService,
     LowerCaseInputDirective,
     MarkdownEditorComponent,
@@ -177,6 +178,7 @@ export class SqxFrameworkModule {
             providers: [
                 CanDeactivateGuard,
                 ClipboardService,
+                LocalCacheService,
                 LocalStoreService,
                 MessageBus,
                 NotificationService,

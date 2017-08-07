@@ -50,6 +50,7 @@ export * from './configurations';
 
 export * from './services/clipboard.service';
 export * from './services/local-store.service';
+export * from './services/local-cache.service';
 export * from './services/message-bus';
 export * from './services/notification.service';
 export * from './services/resource-loader.service';

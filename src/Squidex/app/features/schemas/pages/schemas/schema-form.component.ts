@@ -12,7 +12,7 @@ import {
     ApiUrlConfig,
     AuthService,
     fadeAnimation,
-    SchemaDto,
+    SchemaDetailsDto,
     SchemasService,
     ValidatorsEx,
     Version
@@ -30,7 +30,7 @@ const FALLBACK_NAME = 'my-schema';
 })
 export class SchemaFormComponent {
     @Output()
-    public created = new EventEmitter<SchemaDto>();
+    public created = new EventEmitter<SchemaDetailsDto>();
 
     @Output()
     public cancelled = new EventEmitter();
@@ -103,7 +103,7 @@ export class SchemaFormComponent {
         this.cancelled.emit();
     }
 
-    private emitCreated(schema: SchemaDto) {
+    private emitCreated(schema: SchemaDetailsDto) {
         this.created.emit(schema);
     }
 

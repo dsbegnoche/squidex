@@ -25,6 +25,8 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
+// ReSharper disable PossibleNullReferenceException
+
 namespace Squidex.Controllers.Api.Assets
 {
     /// <summary>
@@ -41,11 +43,11 @@ namespace Squidex.Controllers.Api.Assets
         private readonly AssetConfig assetsConfig;
 
         public AssetsController(
-            ICommandBus commandBus, 
+            ICommandBus commandBus,
             IAssetRepository assetRepository,
             IAssetStatsRepository assetStatsRepository,
             IAppPlansProvider appPlanProvider,
-            IOptions<AssetConfig> assetsConfig) 
+            IOptions<AssetConfig> assetsConfig)
             : base(commandBus)
         {
             this.assetsConfig = assetsConfig.Value;
