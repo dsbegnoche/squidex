@@ -6,10 +6,16 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Write.Apps.Commands;
+using Squidex.Domain.Apps.Write.Schemas;
+using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
@@ -65,7 +71,37 @@ namespace Squidex.Domain.Apps.Write.Apps
 
                 context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
             });
+
+	        await AddDefaultSchemas(command, context);
         }
+
+	    private async Task AddDefaultSchemas(CreateApp command, CommandContext context)
+	    {
+			List<CreateSchema> defaultSchema = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CreateSchema>>(System.IO.File.ReadAllText("DefaultSchema.json"));
+		    foreach (CreateSchema schema in defaultSchema)
+		    {
+			    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
+			    schema.Actor = command.Actor;
+
+			    await handler.CreateAsync<SchemaDomainObject>(context, a =>
+			    {
+				    a.Create(schema);
+				    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+			    });
+
+			    PublishSchema publishSchema = new PublishSchema
+			    {
+				    Actor = command.Actor,
+				    AppId = new NamedId<Guid>(command.AppId, command.Name),
+				    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
+			    };
+			    await handler.UpdateAsync<SchemaDomainObject>(context, a =>
+			    {
+				    a.Publish(publishSchema);
+				    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+			    });
+		    }
+	    }
 
         protected async Task On(AssignContributor command, CommandContext context)
         {
