@@ -24,6 +24,7 @@ using Squidex.Config.Swagger;
 using Squidex.Config.Web;
 using Squidex.Infrastructure.Log;
 using Squidex.Infrastructure.Log.Adapter;
+using Squidex.Infrastructure.CQRS.Events;
 
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable AccessToModifiedClosure
@@ -91,6 +92,8 @@ namespace Squidex
             builder.RegisterModule(new WebModule(Configuration));
             builder.RegisterModule(new WriteModule(Configuration));
 
+            AddCustomEventConsumers(ref builder);
+
             var container = builder.Build();
 
             container.Resolve<IApplicationLifetime>().ApplicationStopping.Register(() =>
@@ -99,6 +102,14 @@ namespace Squidex
             });
 
             return new AutofacServiceProvider(container);
+        }
+
+        public void AddCustomEventConsumers(ref ContainerBuilder builder)
+        {
+            builder.RegisterType<SchemaCreationConsumer>()
+                .As<IEventConsumer>()
+                .AsSelf()
+                .SingleInstance();
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
