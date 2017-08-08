@@ -42,7 +42,8 @@ services:
       - squidex_network
     depends_on:
       - squidex_mongo
+    extra_hosts:
+    - "account.cpdv.ninja:10.0.1.43"
 networks:
     squidex_network:
       driver: bridge
-
