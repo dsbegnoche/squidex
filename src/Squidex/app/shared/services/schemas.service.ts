@@ -60,6 +60,9 @@ export function createProperties(fieldType: string, values: Object | null = null
         case 'Assets':
             properties = new AssetsFieldPropertiesDto(null, null, null, false, false);
             break;
+        case 'Tag':
+            properties = new TagFieldPropertiesDto(null, null, null, false, false, 'Input', false);
+            break;
         default:
             throw 'Invalid properties type';
     }
@@ -403,6 +406,28 @@ export class DateTimeFieldPropertiesDto extends FieldPropertiesDto {
     }
 }
 
+export class TagFieldPropertiesDto extends FieldPropertiesDto {
+    constructor(label: string | null, hints: string | null, placeholder: string | null,
+        isRequired: boolean,
+        isListField: boolean,
+        public readonly editor: string,
+        public readonly defaultValue?: boolean
+    ) {
+        super('Tag', label, hints, placeholder, isRequired, isListField);
+    }
+
+    public formatValue(value: any): string {
+        return value;
+    }
+
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        // const validators: ValidatorFn[] = [];
+        // return validators;
+        return [];
+    }
+}
+
+
 export class BooleanFieldPropertiesDto extends FieldPropertiesDto {
     constructor(label: string | null, hints: string | null, placeholder: string | null,
         isRequired: boolean,
@@ -711,8 +736,8 @@ export class SchemasService {
                         dto.fields || []);
                 })
                 .do(schema => {
-                    this.localCache.set(`service.${appName}.${schema.id}`, schema, 5000);
-                    this.localCache.set(`service.${appName}.${schema.name}`, schema, 5000);
+                    this.localCache.set(`schema.${appName}.${schema.id}`, schema, 5000);
+                    this.localCache.set(`schema.${appName}.${schema.name}`, schema, 5000);
                 })
                 .pretifyError('Failed to create schema. Please reload.');
     }
@@ -738,7 +763,7 @@ export class SchemasService {
 
         return HTTP.deleteVersioned(this.http, url, version)
                 .do(() => {
-                    this.localCache.remove(`service.${appName}.${schemaName}`);
+                    this.localCache.remove(`schema.${appName}.${schemaName}`);
                 })
                 .pretifyError('Failed to delete schema. Please reload.');
     }

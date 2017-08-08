@@ -86,6 +86,9 @@
                     <div *ngSwitchCase="'Geolocation'">
                         <sqx-geolocation-editor [formControlName]="partition"></sqx-geolocation-editor>
                     </div>
+                    <div *ngSwitchCase="'Tag'">
+                        <sqx-tag-editor [formControlName]="partition"></sqx-tag-editor>
+                    </div>
                     <div *ngSwitchCase="'Json'">
                         <sqx-json-editor [formControlName]="partition"></sqx-json-editor>
                     </div>
