@@ -21,12 +21,20 @@ namespace Squidex.Domain.Apps.Core.Schemas
     {
         public override JToken GetDefaultValue()
         {
-            return "";
+            return DefaultValue;
         }
+
+        public TagFieldEditor Editor { get; set; } = TagFieldEditor.Input;
+
+        public string DefaultValue { get; set; } = "";
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
-            yield break;
+            var condition = false;
+            if (condition)
+            {
+                yield return new ValidationError("nope");
+            }
         }
     }
 }

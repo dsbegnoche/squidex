@@ -14,6 +14,8 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Tasks;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Events.Schemas;
 
 namespace Squidex.Domain.Apps.Write.Schemas
 {
@@ -41,6 +43,20 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
                 throw new ValidationException("Cannot create a new schema", error);
             }
+
+            /* pending bug resulting in 404 on frontend resolution
+            var tagField = new CreateSchemaField()
+            {
+                Properties = new TagFieldProperties(),
+                Name = "Tags",
+                Partitioning = "Invariant",
+                IsDisabled = false,
+                IsHidden = false,
+            };
+
+            // ensure Tags field is always first
+            command.Fields.Insert(0, tagField);
+            */
 
             await handler.CreateAsync<SchemaDomainObject>(context, s =>
             {
