@@ -53,18 +53,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 IsHidden = false,
             };
 
-            var stringField = new CreateSchemaField()
-            {
-                Properties = new StringFieldProperties(),
-                Name = "title",
-                Partitioning = "Invariant",
-                IsDisabled = false,
-                IsHidden = false,
-            };
-
             // ensure Tags field is always first
             command.Fields.Insert(0, tagField);
-
 
             await handler.CreateAsync<SchemaDomainObject>(context, s =>
             {
