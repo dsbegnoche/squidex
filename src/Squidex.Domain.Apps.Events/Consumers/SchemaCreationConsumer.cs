@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Squidex.Infrastructure.CQRS.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Squidex.Infrastructure.CQRS.Events
+namespace Squidex.Domain.Apps.Events.Consumers
 {
     public sealed class SchemaCreationConsumer : IEventConsumer
     {

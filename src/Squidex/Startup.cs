@@ -25,6 +25,7 @@ using Squidex.Config.Web;
 using Squidex.Infrastructure.Log;
 using Squidex.Infrastructure.Log.Adapter;
 using Squidex.Infrastructure.CQRS.Events;
+using Squidex.Domain.Apps.Events.Consumers;
 
 // ReSharper disable ConvertClosureToMethodGroup
 // ReSharper disable AccessToModifiedClosure
