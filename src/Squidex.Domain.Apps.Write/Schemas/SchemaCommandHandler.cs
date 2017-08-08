@@ -44,11 +44,19 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 throw new ValidationException("Cannot create a new schema", error);
             }
 
-            /* pending bug resulting in 404 on frontend resolution
             var tagField = new CreateSchemaField()
             {
                 Properties = new TagFieldProperties(),
-                Name = "Tags",
+                Name = "tags",
+                Partitioning = "Invariant",
+                IsDisabled = false,
+                IsHidden = false,
+            };
+
+            var stringField = new CreateSchemaField()
+            {
+                Properties = new StringFieldProperties(),
+                Name = "title",
                 Partitioning = "Invariant",
                 IsDisabled = false,
                 IsHidden = false,
@@ -56,7 +64,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             // ensure Tags field is always first
             command.Fields.Insert(0, tagField);
-            */
+
 
             await handler.CreateAsync<SchemaDomainObject>(context, s =>
             {
