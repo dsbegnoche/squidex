@@ -18,6 +18,7 @@ using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Xunit;
+using System.Linq;
 
 // ReSharper disable ConvertToConstant.Local
 
@@ -85,13 +86,12 @@ namespace Squidex.Domain.Apps.Write.Schemas
             });
         }
 
-        //[Fact]
-        // [NRI] disabling this test temporarily as there doens't appear to be a way to connect FieldIds to created schema tag field.
+        [Fact]
         public async Task ReorderSchema_should_update_domain_object()
         {
             CreateSchema();
 
-            var context = CreateContextForCommand(new ReorderFields { FieldIds = new List<long>()});
+            var context = CreateContextForCommand(new ReorderFields { FieldIds = new long [] { 1 }.ToList()});
 
             await TestUpdate(schema, async _ =>
             {
