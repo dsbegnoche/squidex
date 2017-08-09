@@ -150,7 +150,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 await sut.HandleAsync(context);
             });
 
-            Assert.Equal(1, context.Result<EntityCreatedResult<long>>().IdOrValue);
+            Assert.Equal(2, context.Result<EntityCreatedResult<long>>().IdOrValue);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            var context = CreateContextForCommand(new UpdateField { FieldId = 1, Properties = new NumberFieldProperties() });
+            var context = CreateContextForCommand(new UpdateField { FieldId = 2, Properties = new NumberFieldProperties() });
 
             await TestUpdate(schema, async _ =>
             {
