@@ -97,7 +97,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                             {
                                 Properties = new TagFieldProperties(),
                                 Name = "tags",
-                                Partitioning = "Invariant",
+                                Partitioning = "Language",
                                 IsDisabled = false,
                                 IsHidden = false,
                             } }.ToList()

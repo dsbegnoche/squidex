@@ -145,11 +145,11 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 }
             }
 
-            var tagField = new SchemaCreatedField()
+            var tagField = new SchemaCreatedField
             {
                 Properties = new TagFieldProperties(),
                 Name = "tags",
-                Partitioning = "Invariant",
+                Partitioning = "Language",
                 IsDisabled = false,
                 IsHidden = false,
             };
