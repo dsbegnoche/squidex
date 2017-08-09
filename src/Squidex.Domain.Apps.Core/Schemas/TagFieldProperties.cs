@@ -30,10 +30,12 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
+            // you have to have some kind of return value, and doing the 
+            // condition like this evades the unreachable code warning.
             var condition = false;
             if (condition)
             {
-                yield return new ValidationError("nope");
+                yield return new ValidationError("This should never be called.");
             }
         }
     }

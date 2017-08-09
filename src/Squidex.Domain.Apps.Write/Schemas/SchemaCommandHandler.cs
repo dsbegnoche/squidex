@@ -82,8 +82,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
             // treating the first field undeletable, expect tags.
             if (command.FieldId != 1)
                 return handler.UpdateAsync<SchemaDomainObject>(context, s => s.DeleteField(command));
-            else
-                return Task.CompletedTask;
+
+            return Task.CompletedTask;
         }
 
         protected Task On(DisableField command, CommandContext context)

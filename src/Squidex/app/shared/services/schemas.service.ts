@@ -421,8 +421,6 @@ export class TagFieldPropertiesDto extends FieldPropertiesDto {
     }
 
     public createValidators(isOptional: boolean): ValidatorFn[] {
-        // const validators: ValidatorFn[] = [];
-        // return validators;
         return [];
     }
 }
