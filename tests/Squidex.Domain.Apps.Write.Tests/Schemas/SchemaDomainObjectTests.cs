@@ -88,7 +88,20 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateEvent(new SchemaCreated { Name = SchemaName, Properties = properties })
+                    CreateEvent(new SchemaCreated
+                    {
+                        Name = SchemaName,
+                        Properties = properties,
+                        Fields = new[] {
+                         new SchemaCreatedField()
+                            {
+                                Properties = new TagFieldProperties(),
+                                Name = "tags",
+                                Partitioning = "Invariant",
+                                IsDisabled = false,
+                                IsHidden = false,
+                            } }.ToList()
+                    })
                 );
         }
 
@@ -103,7 +116,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 new CreateSchemaField { Name = "field2", Properties = new StringFieldProperties() }
             };
 
-            sut.Create(CreateCommand(new CreateSchema { Name = SchemaName, Properties = properties, Fields = fields  }));
+            sut.Create(CreateCommand(new CreateSchema { Name = SchemaName, Properties = properties, Fields = fields }));
 
             var @event = (SchemaCreated)sut.GetUncomittedEvents().Single().Payload;
 
