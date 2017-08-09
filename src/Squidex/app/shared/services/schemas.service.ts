@@ -124,7 +124,7 @@ export class SchemaDto {
 
 export class SchemaDetailsDto extends SchemaDto {
     constructor(id: string, name: string, properties: SchemaPropertiesDto, isPublished: boolean, createdBy: string, lastModifiedBy: string, created: DateTime, lastModified: DateTime, version: Version,
-        public readonly fields: FieldDto[]
+        public fields: FieldDto[]
     ) {
         super(id, name, properties, isPublished, createdBy, lastModifiedBy, created, lastModified, version);
     }
