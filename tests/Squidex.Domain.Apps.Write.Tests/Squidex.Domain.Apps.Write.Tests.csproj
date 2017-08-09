@@ -6,6 +6,11 @@
     <RootNamespace>Squidex.Domain.Apps.Write</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\src\Squidex\DefaultSchema.json" Link="DefaultSchema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Squidex.Domain.Apps.Core\Squidex.Domain.Apps.Core.csproj" />
     <ProjectReference Include="..\..\src\Squidex.Infrastructure\Squidex.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Squidex.Domain.Apps.Write\Squidex.Domain.Apps.Write.csproj" />

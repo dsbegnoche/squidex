@@ -35,13 +35,15 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlansProvider appPlansProvider;
         private readonly IAppPlanBillingManager appPlansBillingManager;
         private readonly IUserResolver userResolver;
+        private readonly IAggregateHandler defaultSchemaHandler;
 
         public AppCommandHandler(
             IAggregateHandler handler,
             IAppRepository appRepository,
             IAppPlansProvider appPlansProvider,
             IAppPlanBillingManager appPlansBillingManager,
-            IUserResolver userResolver)
+            IUserResolver userResolver,
+			IAggregateHandler defaultSchemaHandler)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(appRepository, nameof(appRepository));
@@ -50,6 +52,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             Guard.NotNull(appPlansBillingManager, nameof(appPlansBillingManager));
 
             this.handler = handler;
+            this.defaultSchemaHandler = defaultSchemaHandler;
             this.userResolver = userResolver;
             this.appRepository = appRepository;
             this.appPlansProvider = appPlansProvider;
@@ -79,31 +82,37 @@ namespace Squidex.Domain.Apps.Write.Apps
 
 	    private async Task AddDefaultSchemas(CreateApp command, CommandContext context)
 	    {
-			List<CreateSchema> defaultSchema = 
-                JsonConvert.DeserializeObject<List<CreateSchema>>(File.ReadAllText("DefaultSchema.json"));
+		    string defaultSchemaFile = "DefaultSchema.json";
 
-		    foreach (CreateSchema schema in defaultSchema)
-		    {
-			    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
-			    schema.Actor = command.Actor;
+			if (File.Exists(defaultSchemaFile))
+			{
+				string defaultSchemaJson = File.ReadAllText(defaultSchemaFile);
+				List<CreateSchema> defaultSchema =
+				    JsonConvert.DeserializeObject<List<CreateSchema>>(defaultSchemaJson);
 
-			    await handler.CreateAsync<SchemaDomainObject>(context, a =>
+			    foreach (CreateSchema schema in defaultSchema)
 			    {
-				    a.Create(schema);
-				    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
-			    });
+				    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
+				    schema.Actor = command.Actor;
 
-			    PublishSchema publishSchema = new PublishSchema
-			    {
-				    Actor = command.Actor,
-				    AppId = new NamedId<Guid>(command.AppId, command.Name),
-				    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
-			    };
-			    await handler.UpdateAsync<SchemaDomainObject>(context, a =>
-			    {
-				    a.Publish(publishSchema);
-				    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
-			    });
+				    await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
+				    {
+					    a.Create(schema);
+					    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+				    });
+
+				    PublishSchema publishSchema = new PublishSchema
+				    {
+					    Actor = command.Actor,
+					    AppId = new NamedId<Guid>(command.AppId, command.Name),
+					    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
+				    };
+				    await defaultSchemaHandler.UpdateAsync<SchemaDomainObject>(context, a =>
+				    {
+					    a.Publish(publishSchema);
+					    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+				    });
+			    }
 		    }
 	    }
 

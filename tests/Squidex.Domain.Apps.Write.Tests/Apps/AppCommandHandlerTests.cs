@@ -31,6 +31,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlansProvider appPlansProvider = A.Fake<IAppPlansProvider>();
         private readonly IAppPlanBillingManager appPlansBillingManager = A.Fake<IAppPlanBillingManager>();
         private readonly IUserResolver userResolver = A.Fake<IUserResolver>();
+        private readonly IAggregateHandler defaultSchemaHandler = A.Fake<IAggregateHandler>();
         private readonly AppCommandHandler sut;
         private readonly AppDomainObject app;
         private readonly Language language = Language.DE;
@@ -41,7 +42,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             app = new AppDomainObject(AppId, -1);
 
-            sut = new AppCommandHandler(Handler, appRepository, appPlansProvider, appPlansBillingManager, userResolver);
+            sut = new AppCommandHandler(Handler, appRepository, appPlansProvider, appPlansBillingManager, userResolver, defaultSchemaHandler);
         }
 
         [Fact]
@@ -60,23 +61,23 @@ namespace Squidex.Domain.Apps.Write.Apps
             A.CallTo(() => appRepository.FindAppAsync(AppName)).MustHaveHappened();
         }
 
-        //[Fact]
-        //public async Task Create_should_create_app_if_name_is_free()
-        //{
-        //    var context = CreateContextForCommand(new CreateApp { Name = AppName, AppId = AppId });
+		[Fact]
+		public async Task Create_should_create_app_if_name_is_free()
+		{
+			var context = CreateContextForCommand(new CreateApp { Name = AppName, AppId = AppId });
 
-        //    A.CallTo(() => appRepository.FindAppAsync(AppName))
-        //        .Returns(Task.FromResult<IAppEntity>(null));
+			A.CallTo(() => appRepository.FindAppAsync(AppName))
+				.Returns(Task.FromResult<IAppEntity>(null));
 
-        //    await TestCreate(app, async _ =>
-        //    {
-        //        await sut.HandleAsync(context);
-        //    });
+			await TestCreate(app, async _ =>
+			{
+				await sut.HandleAsync(context);
+			});
 
-        //    Assert.Equal(AppId, context.Result<EntityCreatedResult<Guid>>().IdOrValue);
-        //}
+			Assert.Equal(AppId, context.Result<EntityCreatedResult<Guid>>().IdOrValue);
+		}
 
-        [Fact]
+		[Fact]
         public async Task AssignContributor_should_throw_exception_if_user_not_found()
         {
             CreateApp();
