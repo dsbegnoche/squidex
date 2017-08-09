@@ -14,8 +14,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Tasks;
-using Squidex.Domain.Apps.Core.Schemas;
-using Squidex.Domain.Apps.Events.Schemas;
 
 namespace Squidex.Domain.Apps.Write.Schemas
 {
