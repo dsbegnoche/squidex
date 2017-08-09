@@ -112,13 +112,16 @@ export class TagEditorComponent implements ControlValueAccessor {
         if (event.keyCode === KEY_ENTER) {
             const value = <string>this.addInput.value;
 
-            if (this.converter.isValid(value)) {
+            if (this.converter.isValid(value) && !this.items.includes(value)) {
                 const converted = this.converter.convert(value);
 
                 this.updateItems([...this.items, converted]);
                 this.addInput.reset();
                 return false;
             }
+
+            this.addInput.reset();
+            return false;
         }
 
         return true;
