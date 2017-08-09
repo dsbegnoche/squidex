@@ -44,18 +44,6 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 throw new ValidationException("Cannot create a new schema", error);
             }
 
-            var tagField = new CreateSchemaField()
-            {
-                Properties = new TagFieldProperties(),
-                Name = "tags",
-                Partitioning = "Invariant",
-                IsDisabled = false,
-                IsHidden = false,
-            };
-
-            // ensure Tags field is always first
-            command.Fields.Insert(0, tagField);
-
             await handler.CreateAsync<SchemaDomainObject>(context, s =>
             {
                 s.Create(command);
@@ -130,6 +118,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         protected Task On(UpdateField command, CommandContext context)
         {
+
             return handler.UpdateAsync<SchemaDomainObject>(context, s => s.UpdateField(command));
         }
 

@@ -21,6 +21,8 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Tasks;
 using Squidex.Shared.Users;
+using Newtonsoft.Json;
+using System.IO;
 
 // ReSharper disable InvertIf
 
@@ -77,7 +79,9 @@ namespace Squidex.Domain.Apps.Write.Apps
 
 	    private async Task AddDefaultSchemas(CreateApp command, CommandContext context)
 	    {
-			List<CreateSchema> defaultSchema = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CreateSchema>>(System.IO.File.ReadAllText("DefaultSchema.json"));
+			List<CreateSchema> defaultSchema = 
+                JsonConvert.DeserializeObject<List<CreateSchema>>(File.ReadAllText("DefaultSchema.json"));
+
 		    foreach (CreateSchema schema in defaultSchema)
 		    {
 			    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);

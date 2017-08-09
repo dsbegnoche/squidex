@@ -229,7 +229,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            var context = CreateContextForCommand(new DeleteField { FieldId = 1 });
+            var context = CreateContextForCommand(new DeleteField { FieldId = 2 });
 
             await TestUpdate(schema, async _ =>
             {
