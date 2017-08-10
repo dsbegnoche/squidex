@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  ETagCommandHandler.cs
+//  ETagCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -15,11 +15,11 @@ using Squidex.Infrastructure.CQRS.Commands;
 
 namespace Squidex.Pipeline.CommandHandlers
 {
-    public class ETagCommandHandler : ICommandHandler
+    public class ETagCommandMiddleware : ICommandMiddleware
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public ETagCommandHandler(IHttpContextAccessor httpContextAccessor)
+        public ETagCommandMiddleware(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
         }

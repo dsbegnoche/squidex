@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  EnrichWithActorCommandHandler.cs
+//  EnrichWithActorCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -19,11 +19,11 @@ using Squidex.Infrastructure.Security;
 
 namespace Squidex.Pipeline.CommandHandlers
 {
-    public class EnrichWithActorCommandHandler : ICommandHandler
+    public class EnrichWithActorCommandMiddleware : ICommandMiddleware
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public EnrichWithActorCommandHandler(IHttpContextAccessor httpContextAccessor)
+        public EnrichWithActorCommandMiddleware(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
         }

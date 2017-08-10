@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  AssetCommandHandler.cs
+//  AssetCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -16,13 +16,13 @@ using Squidex.Infrastructure.Dispatching;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
-    public class AssetCommandHandler : ICommandHandler
+    public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
 
-        public AssetCommandHandler(
+        public AssetCommandMiddleware(
             IAggregateHandler handler,
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator)
@@ -69,6 +69,8 @@ namespace Squidex.Domain.Apps.Write.Assets
                     a.Update(command);
 
                     await assetStore.UploadTemporaryAsync(context.ContextId.ToString(), command.File.OpenRead());
+
+                    context.Complete(new AssetSavedResult(a.Version, a.FileVersion));
                 });
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);

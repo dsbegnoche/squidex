@@ -20,12 +20,12 @@ using Squidex.Infrastructure.CQRS.Commands;
 
 namespace Squidex.Pipeline.CommandHandlers
 {
-    public sealed class EnrichWithSchemaIdCommandHandler : ICommandHandler
+    public sealed class EnrichWithSchemaIdCommandMiddleware : ICommandMiddleware
     {
         private readonly ISchemaProvider schemas;
         private readonly IActionContextAccessor actionContextAccessor;
 
-        public EnrichWithSchemaIdCommandHandler(ISchemaProvider schemas, IActionContextAccessor actionContextAccessor)
+        public EnrichWithSchemaIdCommandMiddleware(ISchemaProvider schemas, IActionContextAccessor actionContextAccessor)
         {
             this.schemas = schemas;
 
