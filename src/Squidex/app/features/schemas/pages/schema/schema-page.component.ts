@@ -250,11 +250,6 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
     }
 
     private updateSchema(schema: SchemaDetailsDto) {
-        // don't show tags in this view.
-        if (schema.fields[0] && schema.fields[0].name === 'tags') {
-            schema.fields.splice(0, 1);
-        }
-
         this.schema = schema;
 
         this.emitSchemaUpdated(schema);
