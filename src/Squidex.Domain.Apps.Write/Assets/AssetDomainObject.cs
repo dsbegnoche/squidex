@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using System.ComponentModel;
 using Squidex.Domain.Apps.Events.Assets;
 using Squidex.Domain.Apps.Write.Assets.Commands;
 using Squidex.Infrastructure;
@@ -25,6 +26,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private long fileVersion = -1;
         private long totalSize;
         private string fileName;
+        private string briefDescription;
 
         public bool IsDeleted
         {
@@ -45,6 +47,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             fileVersion = @event.FileVersion;
             fileName = @event.FileName;
+	        briefDescription = @event.BriefDescription;
 
             totalSize += @event.FileSize;
         }
@@ -59,7 +62,8 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected void On(AssetRenamed @event)
         {
             fileName = @event.FileName;
-        }
+	        briefDescription = @event.BriefDescription;
+		}
 
         protected void On(AssetDeleted @event)
         {
@@ -80,7 +84,8 @@ namespace Squidex.Domain.Apps.Write.Assets
                 MimeType = command.File.MimeType,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
-                IsImage = command.ImageInfo != null
+                IsImage = command.ImageInfo != null,
+				BriefDescription = command.File.BriefDescription
             });
 
             RaiseEvent(@event);
@@ -125,18 +130,18 @@ namespace Squidex.Domain.Apps.Write.Assets
             Guard.Valid(command, nameof(command), () => "Cannot rename asset.");
 
             VerifyCreatedAndNotDeleted();
-            VerifyDifferentNames(command.FileName, () => "Cannot rename asset.");
+	        VerifyAssetFields(command.FileName, command.BriefDescription, () => "Cannot update asset.");
 
             RaiseEvent(SimpleMapper.Map(command, new AssetRenamed()));
 
             return this;
         }
 
-        private void VerifyDifferentNames(string newName, Func<string> message)
+        private void VerifyAssetFields(string newName, string newBriefDescription, Func<string> message)
         {
-            if (string.Equals(fileName, newName))
+            if (string.Equals(fileName, newName) && string.Equals(briefDescription, newBriefDescription))
             {
-                throw new ValidationException(message(), new ValidationError("The asset already has this name.", "Name"));
+                throw new ValidationException(message(), new ValidationError("The asset properties have not changed.", "Name"));
             }
         }
 

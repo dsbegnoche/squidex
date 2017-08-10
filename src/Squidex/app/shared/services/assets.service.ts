@@ -40,7 +40,8 @@ export class AssetDto {
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
-        public readonly version: Version
+        public readonly version: Version,
+        public readonly briefDescription: string
     ) {
     }
 
@@ -57,10 +58,11 @@ export class AssetDto {
             update.isImage,
             update.pixelWidth,
             update.pixelHeight,
-            update.version);
+            update.version,
+            this.briefDescription);
     }
 
-    public rename(name: string, user: string, now?: DateTime): AssetDto {
+    public rename(name: string, user: string, briefDescription: string, now?: DateTime): AssetDto {
         return new AssetDto(
             this.id,
             this.createdBy, user,
@@ -73,13 +75,15 @@ export class AssetDto {
             this.isImage,
             this.pixelWidth,
             this.pixelHeight,
-            this.version);
+            this.version,
+            briefDescription);
     }
 }
 
 export class UpdateAssetDto {
     constructor(
-        public readonly fileName: string
+        public readonly fileName: string,
+        public readonly briefDescription: string
     ) {
     }
 }
@@ -92,7 +96,8 @@ export class AssetReplacedDto {
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
-        public readonly version: Version
+        public readonly version: Version,
+        public readonly briefDescription: string
     ) {
     }
 }
@@ -147,7 +152,9 @@ export class AssetsService {
                             item.isImage,
                             item.pixelWidth,
                             item.pixelHeight,
-                            new Version(item.version.toString()));
+                            new Version(item.version.toString()),
+                            item.briefDescription
+                        );
                     }));
                 })
                 .pretifyError('Failed to load assets. Please reload.');
@@ -185,7 +192,8 @@ export class AssetsService {
                             response.isImage,
                             response.pixelWidth,
                             response.pixelHeight,
-                            new Version(response.version.toString()));
+                            new Version(response.version.toString()),
+                            response.briefDescription);
 
                         this.localCache.set(`asset.${dto.id}`, dto, 5000);
 
@@ -219,7 +227,8 @@ export class AssetsService {
                         response.isImage,
                         response.pixelWidth,
                         response.pixelHeight,
-                        new Version(response.version.toString()));
+                        new Version(response.version.toString()),
+                        response.briefDescription);
                 })
                 .catch(error => {
                     if (error instanceof HttpErrorResponse && error.status === 404) {
@@ -261,7 +270,8 @@ export class AssetsService {
                             response.isImage,
                             response.pixelWidth,
                             response.pixelHeight,
-                            new Version(response.version.toString()));
+                            new Version(response.version.toString()),
+                            response.briefDescription);
 
                         return dto;
                     }

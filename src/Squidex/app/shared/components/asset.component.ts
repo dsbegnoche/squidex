@@ -65,7 +65,8 @@ export class AssetComponent extends AppComponentBase implements OnInit {
             name: ['',
                 [
                     Validators.required
-                ]]
+            ]],
+            briefDescription: ['']
         });
 
     public progress = 0;
@@ -121,12 +122,12 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         if (this.renameForm.valid) {
             this.renameForm.disable();
 
-            const requestDto = new UpdateAssetDto(this.renameForm.controls['name'].value);
+            const requestDto = new UpdateAssetDto(this.renameForm.controls['name'].value, this.renameForm.controls['briefDescription'].value);
 
             this.appNameOnce()
                 .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.assetVersion))
                 .subscribe(() => {
-                    this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token), true);
+                    this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token, requestDto.briefDescription), true);
                     this.resetRenameForm();
                 }, error => {
                     this.notifyError(error);
@@ -162,6 +163,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
     private resetRenameForm() {
         this.renameForm.enable();
         this.renameForm.controls['name'].setValue(this.asset.fileName);
+        this.renameForm.controls['briefDescription'].setValue(this.asset.briefDescription);
         this.renameFormSubmitted = false;
         this.renameDialog.hide();
     }

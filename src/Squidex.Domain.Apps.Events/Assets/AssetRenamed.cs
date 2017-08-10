@@ -14,5 +14,7 @@ namespace Squidex.Domain.Apps.Events.Assets
     public class AssetRenamed : AssetEvent
     {
         public string FileName { get; set; }
+
+        public string BriefDescription { get; set; }
     }
 }

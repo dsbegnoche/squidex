@@ -44,5 +44,7 @@ namespace Squidex.Domain.Apps.Read.Contents.TestData
         public int? PixelWidth { get; set; }
 
         public int? PixelHeight { get; set; }
+
+		public string BriefDescription { get; set; }
     }
 }
