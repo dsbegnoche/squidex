@@ -104,7 +104,8 @@ describe('AssetsService', () => {
                     isImage: true,
                     pixelWidth: 1024,
                     pixelHeight: 2048,
-                    version: 11
+                    version: 11,
+                    briefDescription: 'my-asset1.png'
                 },
                 {
                     id: 'id2',
@@ -120,7 +121,8 @@ describe('AssetsService', () => {
                     isImage: true,
                     pixelWidth: 1024,
                     pixelHeight: 2048,
-                    version: 22
+                    version: 22,
+                    briefDescription: 'my-asset2.png'
                 }
             ]
         });
@@ -185,7 +187,8 @@ describe('AssetsService', () => {
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
-            version: 11
+            version: 11,
+            briefDescription: 'my-asset1.png'
         });
 
         expect(asset).toEqual(
@@ -291,7 +294,8 @@ describe('AssetsService', () => {
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
-            version: 11
+            version: 11,
+            briefDescription: 'my-asset1.png'
         });
 
         expect(asset).toEqual(
@@ -333,7 +337,8 @@ describe('AssetsService', () => {
             isImage: true,
             pixelWidth: 1024,
             pixelHeight: 2048,
-            version: 11
+            version: 11,
+            briefDescription: 'my-asset1.png'
         });
 
         expect(asset).toEqual(
