@@ -29,15 +29,15 @@ namespace Squidex.Controllers.UI.Profile
     [SwaggerIgnore]
     public class ProfileController : Controller
     {
-        private readonly SignInManager<IUser> signInManager;
-        private readonly UserManager<IUser> userManager;
+		private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
+		private readonly UserManager<IUser> userManager;
         private readonly IUserPictureStore userPictureStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
         private readonly IOptions<MyIdentityOptions> identityOptions;
         private readonly IOptions<IdentityCookieOptions> identityCookieOptions;
 
         public ProfileController(
-            SignInManager<IUser> signInManager,
+	        Domain.Users.Base.ISignInManager<IUser> signInManager,
             UserManager<IUser> userManager,
             IUserPictureStore userPictureStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,

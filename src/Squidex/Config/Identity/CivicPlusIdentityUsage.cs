@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿// ==========================================================================
+//  CivicPlus implementation of Squidex Headless CMS
+// ==========================================================================
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -14,13 +18,15 @@ namespace Squidex.Config.Identity
 			{
 				var civicPlusOptions = new OpenIdConnectOptions()
 				{
-					AuthenticationScheme = "CivicPlus",
+					AuthenticationScheme = Constants.CivicPlusAuthenticationScheme,
 					Authority = options.CivicPlusAuthority,
 					ClientId = options.CivicPlusClient,
 					ClientSecret = options.CivicPlusSecret,
 					DisplayName = "CivicPlus",
 					PostLogoutRedirectUri = options.CivicPlusPostLogoutRedirectUri,
-					ResponseType = options.CivicPlusResponseType
+					ResponseType = options.CivicPlusResponseType,
+					Events = new CivicPlusHandler(),
+					SaveTokens = true
 				};
 
 				foreach (var scope in options.CivicPlusScope.Split(' '))

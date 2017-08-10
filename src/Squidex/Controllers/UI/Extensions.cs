@@ -24,7 +24,7 @@ namespace Squidex.Controllers.UI
             return userManager.UpdateAsync(user);
         }
 
-        public static async Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(this SignInManager<IUser> signInManager, string expectedXsrf = null)
+        public static async Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(this Domain.Users.Base.ISignInManager<IUser> signInManager, string expectedXsrf = null)
         {
             var externalLogin = await signInManager.GetExternalLoginInfoAsync(expectedXsrf);
 

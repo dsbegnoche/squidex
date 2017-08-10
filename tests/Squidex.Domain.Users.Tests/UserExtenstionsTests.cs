@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using IdentityServer4.Endpoints;
 using Microsoft.AspNetCore.Identity.MongoDB;
 using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
@@ -171,6 +172,13 @@ namespace Squidex.Domain.Users
 			    ClaimsList.Add(new IdentityUserClaim { Type = type, Value = value });
 			    this.Claims = this.ClaimsList.Select(x => new Claim(x.Type, x.Value)).ToList();
 			}
-		}
+
+		    private string tokenValue = "tokenValue";
+
+		    public string GetTokenValue(string loginProvider, string name)
+		    {
+			    return tokenValue;
+		    }
+	    }
 	}
 }

@@ -38,22 +38,24 @@ namespace Squidex.Controllers.UI.Account
 	[SwaggerIgnore]
 	public sealed class AccountController : Controller
 	{
-		private readonly SignInManager<IUser> signInManager;
+		private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
 		private readonly UserManager<IUser> userManager;
 		private readonly IUserFactory userFactory;
 		private readonly IOptions<MyIdentityOptions> identityOptions;
 		private readonly IOptions<MyUrlsOptions> urlOptions;
 		private readonly ISemanticLog log;
 		private readonly IIdentityServerInteractionService interactions;
+		private readonly CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk;
 
 		public AccountController(
-			SignInManager<IUser> signInManager,
+			Domain.Users.Base.ISignInManager<IUser> signInManager,
 			UserManager<IUser> userManager,
 			IUserFactory userFactory,
 			IOptions<MyIdentityOptions> identityOptions,
 			IOptions<MyUrlsOptions> urlOptions,
 			ISemanticLog log,
-			IIdentityServerInteractionService interactions)
+			IIdentityServerInteractionService interactions,
+			CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk)
 		{
 			this.log = log;
 			this.urlOptions = urlOptions;
@@ -62,6 +64,7 @@ namespace Squidex.Controllers.UI.Account
 			this.interactions = interactions;
 			this.identityOptions = identityOptions;
 			this.signInManager = signInManager;
+			this.civicplusIdentityServerSdk = civicplusIdentityServerSdk;
 		}
 
 		[HttpGet]
@@ -112,19 +115,29 @@ namespace Squidex.Controllers.UI.Account
 				logoutUrl = urlOptions.Value.BuildUrl("logout");
 			}
 
-			//if (User.Identity.IsAuthenticated && User.FindFirst("id_token") != null)
-			//{
-			//	var configuration = new CivicPlusIdentityServer.SDK.Actions("https://account.cpdv.ninja");
-
-			//	var url = $"{configuration.GetWellKnownConfiguration().EndSessionEndpoint}?" +
-			//			  $"post_logout_redirect_uri=https://{"localhost:5000"}" +
-			//			  $"{logoutUrl}&id_token_hint={User.FindFirst("id_token").Value}";
-
-			//	return Redirect(url);
-			//}
 			await signInManager.SignOutAsync();
 
+			logoutUrl = await LogoutCivicPlus(logoutUrl);
+
 			return Redirect(logoutUrl);
+		}
+
+		private async Task<string> LogoutCivicPlus(string logoutUrl)
+		{
+			if (User.Identity.IsAuthenticated)
+			{
+				var user = await userManager.GetUserAsync(User);
+
+				var idToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "id_token");
+
+				if (!string.IsNullOrWhiteSpace(idToken))
+				{
+					logoutUrl = $"{civicplusIdentityServerSdk.GetWellKnownConfiguration().EndSessionEndpoint}?" +
+								$"post_logout_redirect_uri={logoutUrl}&id_token_hint={idToken}";
+				}
+			}
+
+			return logoutUrl;
 		}
 
 		[HttpGet]
@@ -147,9 +160,7 @@ namespace Squidex.Controllers.UI.Account
 		[Route("account/login/")]
 		public IActionResult Login(string returnUrl = null)
 		{
-			return External("CivicPlus", returnUrl);
-
-			return LoginView(returnUrl, true, false);
+			return External(Constants.CivicPlusAuthenticationScheme, returnUrl);
 		}
 
 		[HttpPost]
@@ -256,20 +267,10 @@ namespace Squidex.Controllers.UI.Account
 				}
 			}
 
-			//if (isLoggedIn)
-			//{
-			//	var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(IdentityServer4.IdentityServerConstants.DefaultCookieAuthenticationScheme);
-
-			//	AuthenticationProperties props = null;
-
-			//	var id_token = info.Properties.GetTokenValue("id_token");
-
-			//	if (id_token != null)
-			//	{
-			//		props = new AuthenticationProperties();
-			//		props.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = id_token } });
-			//	}
-			//}
+			if (isLoggedIn)
+			{
+				await signInManager.UpdateExternalAuthenticationTokensAsync(externalLogin);
+			}
 
 			if (!isLoggedIn)
 			{
