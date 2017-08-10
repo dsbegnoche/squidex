@@ -65,8 +65,8 @@ export class AssetComponent extends AppComponentBase implements OnInit {
             name: ['',
                 [
                     Validators.required
-			]],
-			briefDescription: ['']
+            ]],
+            briefDescription: ['']
         });
 
     public progress = 0;
@@ -127,7 +127,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
             this.appNameOnce()
                 .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.assetVersion))
                 .subscribe(() => {
-					this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token, requestDto.briefDescription), true);
+                    this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token, requestDto.briefDescription), true);
                     this.resetRenameForm();
                 }, error => {
                     this.notifyError(error);
