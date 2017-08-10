@@ -89,5 +89,10 @@ namespace Squidex.Controllers.Api.Assets.Models
         /// The version of the asset.
         /// </summary>
         public long Version { get; set; }
+
+		/// <summary>
+		/// The brief description of the asset, usually used for Alt Text for screen readers. Should be kept below 125 characters
+		/// </summary>
+		public string BriefDescription { get; set; }
     }
 }

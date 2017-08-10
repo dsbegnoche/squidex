@@ -63,5 +63,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
         [BsonRequired]
         [BsonElement]
         public RefToken LastModifiedBy { get; set; }
-    }
+
+	    [BsonRequired]
+	    [BsonElement]
+	    public string BriefDescription { get; set; }
+	}
 }

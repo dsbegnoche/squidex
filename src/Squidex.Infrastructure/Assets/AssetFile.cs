@@ -21,7 +21,9 @@ namespace Squidex.Infrastructure.Assets
 
         public long FileSize { get; }
 
-        public AssetFile(string fileName, string mimeType, long fileSize, Func<Stream> openAction)
+        public string BriefDescription { get; }
+
+        public AssetFile(string fileName, string mimeType, long fileSize, Func<Stream> openAction, string description)
         {
             Guard.NotNullOrEmpty(fileName, nameof(fileName));
             Guard.NotNullOrEmpty(mimeType, nameof(mimeType));
@@ -30,6 +32,7 @@ namespace Squidex.Infrastructure.Assets
 
             FileName = fileName;
             FileSize = fileSize;
+            BriefDescription = description;
 
             MimeType = mimeType;
 

@@ -24,7 +24,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     {
         private readonly AssetDomainObject sut;
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
-        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream());
+        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "my-image.png");
 
         public Guid AssetId { get; } = Guid.NewGuid();
 
@@ -59,7 +59,8 @@ namespace Squidex.Domain.Apps.Write.Assets
                         FileVersion = 0,
                         MimeType = file.MimeType,
                         PixelWidth = image.PixelWidth,
-                        PixelHeight = image.PixelHeight
+                        PixelHeight = image.PixelHeight,
+						BriefDescription = file.BriefDescription
                     })
                 );
         }
@@ -154,11 +155,11 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             CreateAsset();
 
-            sut.Rename(CreateAssetCommand(new RenameAsset { FileName = "my-new-image.png" }));
+            sut.Rename(CreateAssetCommand(new RenameAsset { FileName = "my-new-image.png", BriefDescription = "changed description" }));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateAssetEvent(new AssetRenamed { FileName = "my-new-image.png" })
+                    CreateAssetEvent(new AssetRenamed { FileName = "my-new-image.png", BriefDescription = "changed description" })
                 );
         }
 

@@ -35,7 +35,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         public AssetCommandHandlerTests()
         {
-            file = new AssetFile("my-image.png", "image/png", 1024, () => stream);
+            file = new AssetFile("my-image.png", "image/png", 1024, () => stream, "my-image description");
 
             asset = new AssetDomainObject(assetId, -1);
 
@@ -85,7 +85,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             CreateAsset();
 
-            var context = CreateContextForCommand(new RenameAsset { AssetId = assetId, FileName = "my-new-image.png" });
+            var context = CreateContextForCommand(new RenameAsset { AssetId = assetId, FileName = "my-new-image.png", BriefDescription = "changed description" });
 
             await TestUpdate(asset, async _ =>
             {
