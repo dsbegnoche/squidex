@@ -116,6 +116,11 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         protected Task On(UpdateField command, CommandContext context)
         {
+            // ensure tag fields can't be renamed
+            if (command.FieldId == 1 )
+            {
+                command.Properties.Label = "";
+            }
 
             return handler.UpdateAsync<SchemaDomainObject>(context, s => s.UpdateField(command));
         }

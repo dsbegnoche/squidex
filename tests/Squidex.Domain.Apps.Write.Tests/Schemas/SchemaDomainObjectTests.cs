@@ -100,7 +100,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                                 Partitioning = "Language",
                                 IsDisabled = false,
                                 IsHidden = false,
-                            } }.ToList()
+                            }}.ToList()
                     })
                 );
         }
