@@ -1,0 +1,67 @@
+version: '2'
+services:
+  squidex_rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    restart: always
+  squidex_redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    labels:
+      NAME: "squidex_redis"
+  squidex_mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    labels:
+      NAME: "squidex_mongo"
+  squidex_squidex:
+    image: "civicplus.azurecr.io/kraken:latest"
+    ports:
+      - "5000:80"
+    environment:
+      - "URLS__BASEURL=https://${SQUIDEX_DOMAIN}"
+      - "URLS__ENFORCEHTTPS=true"
+      - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://squidex_mongo"
+      - "PUBSUB__TYPE=redis"
+      - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
+      - "STORE__MONGODB__CONFIGURATION=mongodb://squidex_mongo"
+      - "IDENTITY__KEYSSTORE__TYPE=redis"
+      - "IDENTITY__KEYSSTORE__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=true"
+      - "IDENTITY__GOOGLECLIENT=70791586885-rnpr22qk9joa8bqmmbbfq6l5et9a3nef.apps.googleusercontent.com"
+      - "IDENTITY__GOOGLESECRET=rsQCbZM3TTHoo5HqhAeeCra-"
+      - "IDENTITY__ADMINEMAIL=${SQUIDEX_EMAIL}"
+      - "IDENTITY__ADMINPASSWORD=${SQUIDEX_PASSWORD}"
+      - "VIRTUAL_HOST=${SQUIDEX_DOMAIN}"
+      - "LETSENCRYPT_HOST=${SQUIDEX_DOMAIN}"
+      - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
+    depends_on:
+      - squidex_redis
+      - squidex_mongo
+    labels:
+      NAME: "squidex_squidex"
+    restart: "always"
+  squidex_proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/vhost.d
+      - /etc/nginx/certs:/etc/nginx/certs:ro
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+  squidex_encrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - /etc/nginx/certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - squidex_proxy
+    restart: unless-stopped

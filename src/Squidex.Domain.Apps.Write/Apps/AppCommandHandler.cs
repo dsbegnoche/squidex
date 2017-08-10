@@ -17,7 +17,6 @@ using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Tasks;
 using Squidex.Shared.Users;
 using Newtonsoft.Json;
 using System.IO;
@@ -72,7 +71,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             {
                 a.Create(command);
 
-                context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+                context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
             });
 
 	        await AddDefaultSchemas(command, context);
@@ -96,7 +95,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 				    await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
 				    {
 					    a.Create(schema);
-					    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
 				    });
 
 				    PublishSchema publishSchema = new PublishSchema
@@ -108,7 +107,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 				    await defaultSchemaHandler.UpdateAsync<SchemaDomainObject>(context, a =>
 				    {
 					    a.Publish(publishSchema);
-					    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
 				    });
 			    }
 		    }
@@ -167,7 +166,7 @@ namespace Squidex.Domain.Apps.Write.Apps
                         a.ChangePlan(command);
                     }
 
-                    context.Succeed(result);
+                    context.Complete(result);
                 }
             });
         }
@@ -207,9 +206,12 @@ namespace Squidex.Domain.Apps.Write.Apps
             return handler.UpdateAsync<AppDomainObject>(context, a => a.UpdateLanguage(command));
         }
 
-        public Task<bool> HandleAsync(CommandContext context)
+        public async Task HandleAsync(CommandContext context, Func<Task> next)
         {
-            return context.IsHandled ? TaskHelper.False : this.DispatchActionAsync(context.Command, context);
+            if (!await this.DispatchActionAsync(context.Command, context))
+            {
+                await next();
+            }
         }
     }
 }
