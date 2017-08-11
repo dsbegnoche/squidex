@@ -183,7 +183,7 @@ export class ContentsService {
 
         return HTTP.putVersioned(this.http, url, dto, version)
                 .do(content => {
-                    this.localCache.set(`content.${content.id}`, content, 5000);
+                    this.localCache.set(`content.${id}`, dto, 5000);
                 })
                 .pretifyError('Failed to update content. Please reload.');
     }
