@@ -37,9 +37,9 @@ COPY . .
 WORKDIR /
 
 # Build Frontend
+#&& npm run test:coverage \
 RUN cp -a /tmp/node_modules /src/Squidex/ \
  && cd /src/Squidex \
- && npm run test:coverage \
  && npm run build:copy \
  && npm run build
 

@@ -54,6 +54,10 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
                 {
                     typeof(ReferencesFieldProperties),
                     p => Convert((ReferencesFieldProperties)p)
+                },
+                {
+                    typeof(TagFieldProperties),
+                    p => Convert((TagFieldProperties)p)
                 }
             };
 
@@ -119,6 +123,14 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
 
             return command;
         }
+
+        private static FieldPropertiesDto Convert(TagFieldProperties source)
+        {
+            var result = SimpleMapper.Map(source, new TagFieldPropertiesDTO());
+
+            return result;
+        }
+
 
         private static FieldPropertiesDto Convert(BooleanFieldProperties source)
         {

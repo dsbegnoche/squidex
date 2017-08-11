@@ -17,5 +17,7 @@ namespace Squidex.Controllers.Api.Assets.Models
         /// </summary>
         [Required]
         public string FileName { get; set; }
+
+        public string BriefDescription { get; set; }
     }
 }

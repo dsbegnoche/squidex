@@ -60,6 +60,9 @@ export function createProperties(fieldType: string, values: Object | null = null
         case 'Assets':
             properties = new AssetsFieldPropertiesDto(null, null, null, false, false);
             break;
+        case 'Tag':
+            properties = new TagFieldPropertiesDto(null, null, null, false, false, 'Input', false);
+            break;
         default:
             throw 'Invalid properties type';
     }
@@ -121,7 +124,7 @@ export class SchemaDto {
 
 export class SchemaDetailsDto extends SchemaDto {
     constructor(id: string, name: string, properties: SchemaPropertiesDto, isPublished: boolean, createdBy: string, lastModifiedBy: string, created: DateTime, lastModified: DateTime, version: Version,
-        public readonly fields: FieldDto[]
+        public fields: FieldDto[]
     ) {
         super(id, name, properties, isPublished, createdBy, lastModifiedBy, created, lastModified, version);
     }
@@ -402,6 +405,26 @@ export class DateTimeFieldPropertiesDto extends FieldPropertiesDto {
         return validators;
     }
 }
+
+export class TagFieldPropertiesDto extends FieldPropertiesDto {
+    constructor(label: string | null, hints: string | null, placeholder: string | null,
+        isRequired: boolean,
+        isListField: boolean,
+        public readonly editor: string,
+        public readonly defaultValue?: boolean
+    ) {
+        super('Tag', label, hints, placeholder, isRequired, isListField);
+    }
+
+    public formatValue(value: any): string {
+        return value;
+    }
+
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        return [];
+    }
+}
+
 
 export class BooleanFieldPropertiesDto extends FieldPropertiesDto {
     constructor(label: string | null, hints: string | null, placeholder: string | null,
@@ -711,8 +734,8 @@ export class SchemasService {
                         dto.fields || []);
                 })
                 .do(schema => {
-                    this.localCache.set(`service.${appName}.${schema.id}`, schema, 5000);
-                    this.localCache.set(`service.${appName}.${schema.name}`, schema, 5000);
+                    this.localCache.set(`schema.${appName}.${schema.id}`, schema, 5000);
+                    this.localCache.set(`schema.${appName}.${schema.name}`, schema, 5000);
                 })
                 .pretifyError('Failed to create schema. Please reload.');
     }
@@ -731,6 +754,16 @@ export class SchemasService {
                         dto.properties);
                 })
                 .pretifyError('Failed to add field. Please reload.');
+    }
+
+    public deleteSchema(appName: string, schemaName: string, version?: Version): Observable<any> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}`);
+
+        return HTTP.deleteVersioned(this.http, url, version)
+                .do(() => {
+                    this.localCache.remove(`schema.${appName}.${schemaName}`);
+                })
+                .pretifyError('Failed to delete schema. Please reload.');
     }
 
     public putSchema(appName: string, schemaName: string, dto: UpdateSchemaDto, version?: Version): Observable<any> {
@@ -801,12 +834,5 @@ export class SchemasService {
 
         return HTTP.deleteVersioned(this.http, url, version)
                 .pretifyError('Failed to delete field. Please reload.');
-    }
-
-    public deleteSchema(appName: string, schemaName: string, version?: Version): Observable<any> {
-        const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}`);
-
-        return HTTP.deleteVersioned(this.http, url, version)
-                .pretifyError('Failed to delete schema. Please reload.');
     }
 }

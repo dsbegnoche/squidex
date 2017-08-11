@@ -21,15 +21,18 @@ namespace Squidex.Infrastructure.Assets
 
         public long FileSize { get; }
 
-        public AssetFile(string fileName, string mimeType, long fileSize, Func<Stream> openAction)
+        public string BriefDescription { get; }
+
+        public AssetFile(string fileName, string mimeType, long fileSize, Func<Stream> openAction, string briefDescription)
         {
             Guard.NotNullOrEmpty(fileName, nameof(fileName));
             Guard.NotNullOrEmpty(mimeType, nameof(mimeType));
             Guard.NotNull(openAction, nameof(openAction));
-            Guard.GreaterThan(fileSize, 0, nameof(fileSize));
+            Guard.GreaterEquals(fileSize, 0, nameof(fileSize));
 
             FileName = fileName;
             FileSize = fileSize;
+            BriefDescription = briefDescription;
 
             MimeType = mimeType;
 

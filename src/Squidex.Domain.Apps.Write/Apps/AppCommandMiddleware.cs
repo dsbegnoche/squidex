@@ -1,39 +1,46 @@
 ﻿// ==========================================================================
-//  AppCommandHandler.cs
+//  AppCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Write.Apps.Commands;
+using Squidex.Domain.Apps.Write.Schemas;
+using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Tasks;
 using Squidex.Shared.Users;
+using Newtonsoft.Json;
+using System.IO;
 
 // ReSharper disable InvertIf
 
 namespace Squidex.Domain.Apps.Write.Apps
 {
-    public class AppCommandHandler : ICommandHandler
+    public class AppCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
         private readonly IAppRepository appRepository;
         private readonly IAppPlansProvider appPlansProvider;
         private readonly IAppPlanBillingManager appPlansBillingManager;
         private readonly IUserResolver userResolver;
+        private readonly IAggregateHandler defaultSchemaHandler;
 
-        public AppCommandHandler(
+        public AppCommandMiddleware(
             IAggregateHandler handler,
             IAppRepository appRepository,
             IAppPlansProvider appPlansProvider,
             IAppPlanBillingManager appPlansBillingManager,
-            IUserResolver userResolver)
+            IUserResolver userResolver,
+			IAggregateHandler defaultSchemaHandler)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(appRepository, nameof(appRepository));
@@ -42,6 +49,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             Guard.NotNull(appPlansBillingManager, nameof(appPlansBillingManager));
 
             this.handler = handler;
+            this.defaultSchemaHandler = defaultSchemaHandler;
             this.userResolver = userResolver;
             this.appRepository = appRepository;
             this.appPlansProvider = appPlansProvider;
@@ -63,9 +71,47 @@ namespace Squidex.Domain.Apps.Write.Apps
             {
                 a.Create(command);
 
-                context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+                context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
             });
+
+	        await AddDefaultSchemas(command, context);
         }
+
+	    private async Task AddDefaultSchemas(CreateApp command, CommandContext context)
+	    {
+		    string defaultSchemaFile = "DefaultSchema.json";
+
+			if (File.Exists(defaultSchemaFile))
+			{
+				string defaultSchemaJson = File.ReadAllText(defaultSchemaFile);
+				List<CreateSchema> defaultSchema =
+				    JsonConvert.DeserializeObject<List<CreateSchema>>(defaultSchemaJson);
+
+			    foreach (CreateSchema schema in defaultSchema)
+			    {
+				    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
+				    schema.Actor = command.Actor;
+
+				    await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
+				    {
+					    a.Create(schema);
+					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
+				    });
+
+				    PublishSchema publishSchema = new PublishSchema
+				    {
+					    Actor = command.Actor,
+					    AppId = new NamedId<Guid>(command.AppId, command.Name),
+					    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
+				    };
+				    await defaultSchemaHandler.UpdateAsync<SchemaDomainObject>(context, a =>
+				    {
+					    a.Publish(publishSchema);
+					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
+				    });
+			    }
+		    }
+	    }
 
         protected async Task On(AssignContributor command, CommandContext context)
         {
@@ -120,7 +166,7 @@ namespace Squidex.Domain.Apps.Write.Apps
                         a.ChangePlan(command);
                     }
 
-                    context.Succeed(result);
+                    context.Complete(result);
                 }
             });
         }
@@ -160,9 +206,12 @@ namespace Squidex.Domain.Apps.Write.Apps
             return handler.UpdateAsync<AppDomainObject>(context, a => a.UpdateLanguage(command));
         }
 
-        public Task<bool> HandleAsync(CommandContext context)
+        public async Task HandleAsync(CommandContext context, Func<Task> next)
         {
-            return context.IsHandled ? TaskHelper.False : this.DispatchActionAsync(context.Command, context);
+            if (!await this.DispatchActionAsync(context.Command, context))
+            {
+                await next();
+            }
         }
     }
 }

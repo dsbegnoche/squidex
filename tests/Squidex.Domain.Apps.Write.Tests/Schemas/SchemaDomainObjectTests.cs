@@ -29,7 +29,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         public SchemaDomainObjectTests()
         {
-            fieldId = new NamedId<long>(1, fieldName);
+            fieldId = new NamedId<long>(2, fieldName);
 
             var fieldRegistry = new FieldRegistry(new TypeNameRegistry());
 
@@ -88,7 +88,23 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateEvent(new SchemaCreated { Name = SchemaName, Properties = properties, Fields = new List<SchemaCreatedField>() })
+                    CreateEvent(new SchemaCreated
+                    {
+                        Name = SchemaName,
+                        Properties = properties,
+                        Fields = new[] {
+                         new SchemaCreatedField()
+                            {
+                                Properties = new TagFieldProperties
+                                {
+	                                Label = "Tags"
+                                },
+                                Name = "tags",
+                                Partitioning = "Language",
+                                IsDisabled = false,
+                                IsHidden = false,
+                            }}.ToList()
+                    })
                 );
         }
 
@@ -103,12 +119,12 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 new CreateSchemaField { Name = "field2", Properties = new StringFieldProperties() }
             };
 
-            sut.Create(CreateCommand(new CreateSchema { Name = SchemaName, Properties = properties, Fields = fields  }));
+            sut.Create(CreateCommand(new CreateSchema { Name = SchemaName, Properties = properties, Fields = fields }));
 
             var @event = (SchemaCreated)sut.GetUncomittedEvents().Single().Payload;
 
             Assert.Equal(SchemaName, sut.Schema.Name);
-            Assert.Equal(2, @event.Fields.Count);
+            Assert.Equal(3, @event.Fields.Count);
         }
 
         [Fact]
@@ -195,7 +211,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
         [Fact]
         public void Reorder_should_refresh_properties_and_create_events()
         {
-            var fieldIds = new List<long> { 1, 2 };
+            var fieldIds = new List<long> { 1, 2, 3 };
 
             CreateSchema();
 
@@ -369,7 +385,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             sut.AddField(CreateCommand(new AddField { Name = fieldName, Properties = properties }));
 
-            Assert.Equal(properties, sut.Schema.FieldsById[1].RawProperties);
+            Assert.Equal(properties, sut.Schema.FieldsById[2].RawProperties);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
@@ -402,7 +418,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             Assert.Throws<DomainObjectNotFoundException>(() =>
             {
-                sut.UpdateField(CreateCommand(new UpdateField { FieldId = 1, Properties = new NumberFieldProperties() }));
+                sut.UpdateField(CreateCommand(new UpdateField { FieldId = 2, Properties = new NumberFieldProperties() }));
             });
         }
 
@@ -426,9 +442,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.UpdateField(CreateCommand(new UpdateField { FieldId = 1, Properties = properties }));
+            sut.UpdateField(CreateCommand(new UpdateField { FieldId = 2, Properties = properties }));
 
-            Assert.Equal(properties, sut.Schema.FieldsById[1].RawProperties);
+            Assert.Equal(properties, sut.Schema.FieldsById[2].RawProperties);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
@@ -474,9 +490,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.HideField(CreateCommand(new HideField { FieldId = 1 }));
+            sut.HideField(CreateCommand(new HideField { FieldId = 2 }));
 
-            Assert.True(sut.Schema.FieldsById[1].IsHidden);
+            Assert.True(sut.Schema.FieldsById[2].IsHidden);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
@@ -522,8 +538,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.HideField(CreateCommand(new HideField { FieldId = 1 }));
-            sut.ShowField(CreateCommand(new ShowField { FieldId = 1 }));
+            sut.HideField(CreateCommand(new HideField { FieldId = 2 }));
+            sut.ShowField(CreateCommand(new ShowField { FieldId = 2 }));
 
             Assert.False(sut.Schema.FieldsById[1].IsHidden);
 
@@ -571,9 +587,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.DisableField(CreateCommand(new DisableField { FieldId = 1 }));
+            sut.DisableField(CreateCommand(new DisableField { FieldId = 2 }));
 
-            Assert.True(sut.Schema.FieldsById[1].IsDisabled);
+            Assert.True(sut.Schema.FieldsById[2].IsDisabled);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
@@ -619,8 +635,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.DisableField(CreateCommand(new DisableField { FieldId = 1 }));
-            sut.EnableField(CreateCommand(new EnableField { FieldId = 1 }));
+            sut.DisableField(CreateCommand(new DisableField { FieldId = 2 }));
+            sut.EnableField(CreateCommand(new EnableField { FieldId = 2 }));
 
             Assert.False(sut.Schema.FieldsById[1].IsDisabled);
 
@@ -657,9 +673,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.DeleteField(CreateCommand(new DeleteField { FieldId = 1 }));
+            sut.DeleteField(CreateCommand(new DeleteField { FieldId = 2 }));
 
-            Assert.False(sut.Schema.FieldsById.ContainsKey(1));
+            Assert.False(sut.Schema.FieldsById.ContainsKey(2));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(

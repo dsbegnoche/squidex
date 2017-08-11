@@ -7,12 +7,25 @@
 // ==========================================================================
 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Squidex.Infrastructure;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 
 namespace Squidex.Domain.Apps.Core.Schemas
 {
-    public abstract class FieldProperties : NamedElementPropertiesBase, IValidatable
+	[JsonConverter(typeof(JsonInheritanceConverter), "fieldType")]
+	[KnownType(typeof(AssetsFieldProperties))]
+	[KnownType(typeof(BooleanFieldProperties))]
+	[KnownType(typeof(DateTimeFieldProperties))]
+	[KnownType(typeof(GeolocationFieldProperties))]
+	[KnownType(typeof(JsonFieldProperties))]
+	[KnownType(typeof(NumberFieldProperties))]
+	[KnownType(typeof(ReferencesFieldProperties))]
+	[KnownType(typeof(StringFieldProperties))]
+	[KnownType(typeof(TagFieldProperties))]
+	public abstract class FieldProperties : NamedElementPropertiesBase, IValidatable
     {
         private bool isRequired;
         private bool isListField;

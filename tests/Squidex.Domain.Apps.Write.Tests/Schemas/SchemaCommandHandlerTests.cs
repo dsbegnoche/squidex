@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  SchemaCommandHandlerTests.cs
+//  SchemaCommandMiddlewareTests.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -7,7 +7,6 @@
 // ==========================================================================
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Squidex.Domain.Apps.Core.Schemas;
@@ -18,24 +17,25 @@ using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Xunit;
+using System.Linq;
 
 // ReSharper disable ConvertToConstant.Local
 
 namespace Squidex.Domain.Apps.Write.Schemas
 {
-    public class SchemaCommandHandlerTests : HandlerTestBase<SchemaDomainObject>
+    public class SchemaCommandMiddlewareTests : HandlerTestBase<SchemaDomainObject>
     {
         private readonly ISchemaProvider schemaProvider = A.Fake<ISchemaProvider>();
-        private readonly SchemaCommandHandler sut;
+        private readonly SchemaCommandMiddleware sut;
         private readonly SchemaDomainObject schema;
         private readonly FieldRegistry registry = new FieldRegistry(new TypeNameRegistry());
         private readonly string fieldName = "age";
 
-        public SchemaCommandHandlerTests()
+        public SchemaCommandMiddlewareTests()
         {
             schema = new SchemaDomainObject(SchemaId, -1, registry);
 
-            sut = new SchemaCommandHandler(Handler, schemaProvider);
+            sut = new SchemaCommandMiddleware(Handler, schemaProvider);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
         {
             CreateSchema();
 
-            var context = CreateContextForCommand(new ReorderFields { FieldIds = new List<long>() });
+            var context = CreateContextForCommand(new ReorderFields { FieldIds = new long [] { 1 }.ToList()});
 
             await TestUpdate(schema, async _ =>
             {
@@ -150,7 +150,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 await sut.HandleAsync(context);
             });
 
-            Assert.Equal(1, context.Result<EntityCreatedResult<long>>().IdOrValue);
+            Assert.Equal(2, context.Result<EntityCreatedResult<long>>().IdOrValue);
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            var context = CreateContextForCommand(new UpdateField { FieldId = 1, Properties = new NumberFieldProperties() });
+            var context = CreateContextForCommand(new UpdateField { FieldId = 2, Properties = new NumberFieldProperties() });
 
             await TestUpdate(schema, async _ =>
             {
@@ -229,7 +229,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            var context = CreateContextForCommand(new DeleteField { FieldId = 1 });
+            var context = CreateContextForCommand(new DeleteField { FieldId = 2 });
 
             await TestUpdate(schema, async _ =>
             {

@@ -16,7 +16,7 @@ using NJsonSchema.Annotations;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
-namespace Squidex.Controllers.Api.Schemas.Models.Converters
+namespace Squidex.Domain.Apps.Core.Schemas.Json
 {
     public sealed class JsonInheritanceConverter : JsonConverter
     {

@@ -8,7 +8,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json.Linq;
@@ -26,7 +25,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public override object ConvertValue(JToken value)
         {
-            return value.ToString().ToLower().Split(',').ToArray();
+            return value.ToString().ToLower().Split(',').Distinct().ToArray();
         }
 
         protected override IEdmTypeReference CreateEdmType()

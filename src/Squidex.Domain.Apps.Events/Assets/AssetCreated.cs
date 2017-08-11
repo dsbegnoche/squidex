@@ -26,5 +26,7 @@ namespace Squidex.Domain.Apps.Events.Assets
         public int? PixelWidth { get; set; }
 
         public int? PixelHeight { get; set; }
+
+		public string BriefDescription { get; set; }
     }
 }

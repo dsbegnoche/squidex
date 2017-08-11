@@ -6,9 +6,7 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using Newtonsoft.Json.Linq;
 using Squidex.Infrastructure;
 
@@ -21,12 +19,22 @@ namespace Squidex.Domain.Apps.Core.Schemas
     {
         public override JToken GetDefaultValue()
         {
-            return "";
+            return DefaultValue;
         }
+
+        public TagFieldEditor Editor { get; set; } = TagFieldEditor.Input;
+
+        public string DefaultValue { get; set; } = "";
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
-            yield break;
+            // you have to have some kind of return value, and doing the 
+            // condition like this evades the unreachable code warning.
+            var condition = false;
+            if (condition)
+            {
+                yield return new ValidationError("This should never be called.");
+            }
         }
     }
 }

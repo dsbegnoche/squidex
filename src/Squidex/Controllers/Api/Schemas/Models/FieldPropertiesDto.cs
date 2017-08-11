@@ -9,7 +9,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using Squidex.Controllers.Api.Schemas.Models.Converters;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Domain.Apps.Core.Schemas;
 
 namespace Squidex.Controllers.Api.Schemas.Models
@@ -23,6 +23,7 @@ namespace Squidex.Controllers.Api.Schemas.Models
     [KnownType(typeof(NumberFieldPropertiesDto))]
     [KnownType(typeof(ReferencesFieldPropertiesDto))]
     [KnownType(typeof(StringFieldPropertiesDto))]
+    [KnownType(typeof(TagFieldPropertiesDTO))]
     public abstract class FieldPropertiesDto
     {
         /// <summary>

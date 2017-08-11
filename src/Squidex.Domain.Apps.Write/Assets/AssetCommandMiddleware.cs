@@ -1,28 +1,28 @@
 ﻿// ==========================================================================
-//  AssetCommandHandler.cs
+//  AssetCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
+using System;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Write.Assets.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
-    public class AssetCommandHandler : ICommandHandler
+    public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
 
-        public AssetCommandHandler(
+        public AssetCommandMiddleware(
             IAggregateHandler handler,
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator)
@@ -47,7 +47,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                     await assetStore.UploadTemporaryAsync(context.ContextId.ToString(), command.File.OpenRead());
 
-                    context.Succeed(EntityCreatedResult.Create(a.Id, a.Version));
+                    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
                 });
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
@@ -69,6 +69,8 @@ namespace Squidex.Domain.Apps.Write.Assets
                     a.Update(command);
 
                     await assetStore.UploadTemporaryAsync(context.ContextId.ToString(), command.File.OpenRead());
+
+                    context.Complete(new AssetSavedResult(a.Version, a.FileVersion));
                 });
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
@@ -89,9 +91,12 @@ namespace Squidex.Domain.Apps.Write.Assets
             return handler.UpdateAsync<AssetDomainObject>(context, a => a.Delete(command));
         }
 
-        public Task<bool> HandleAsync(CommandContext context)
+        public async Task HandleAsync(CommandContext context, Func<Task> next)
         {
-            return context.IsHandled ? TaskHelper.False : this.DispatchActionAsync(context.Command, context);
+            if (!await this.DispatchActionAsync(context.Command, context))
+            {
+                await next();
+            }
         }
     }
 }

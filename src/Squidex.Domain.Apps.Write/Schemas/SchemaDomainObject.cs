@@ -145,6 +145,23 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 }
             }
 
+            var tagField = new SchemaCreatedField
+            {
+                Properties = new TagFieldProperties
+	            {
+		            Label = "Tags"
+	            },
+                Name = "tags",
+                Partitioning = "Language",
+                IsDisabled = false,
+                IsHidden = false,
+            };
+
+            @event.Fields = @event.Fields ??new List<SchemaCreatedField>();
+
+            // ensure Tags field is always first
+            @event.Fields.Insert(0, tagField);
+
             RaiseEvent(@event);
 
             return this;

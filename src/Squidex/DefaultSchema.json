@@ -1,0 +1,37 @@
+﻿[
+	{
+		"name": "faq",
+		"isPublished": true,
+		"properties": {
+			"label": "FAQ"
+		},
+		"fields": [
+			{
+				"name": "question",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "Input",
+					"label": "Question",
+					"isRequired": true,
+					"isListField": false
+				}
+			},
+			{
+				"name": "answer",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "RichText",
+					"label": "Answer",
+					"isRequired": true,
+					"isListField": false
+				}
+			}
+		]
+	}
+]

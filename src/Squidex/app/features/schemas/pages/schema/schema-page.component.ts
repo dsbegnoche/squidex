@@ -308,4 +308,3 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.messageBus.emit(new HistoryChannelUpdated());
     }
 }
-

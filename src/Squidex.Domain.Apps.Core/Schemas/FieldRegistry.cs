@@ -78,6 +78,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
             Add<GeolocationFieldProperties>(
                 (id, name, partitioning, properties) =>
                     new GeolocationField(id, name, partitioning, (GeolocationFieldProperties)properties));
+
+            Add<TagFieldProperties>(
+                (id, name, partitioning, properties) =>
+                    new TagField(id, name, partitioning, (TagFieldProperties)properties));
         }
 
         private void Add<TFieldProperties>(FactoryFunction fieldFactory)

@@ -1,18 +1,18 @@
 ﻿// ==========================================================================
-//  EnrichWithTimestampHandler.cs
+//  EnrichWithTimestampCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
+using System;
 using System.Threading.Tasks;
 using NodaTime;
-using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Infrastructure.CQRS.Commands
 {
-    public sealed class EnrichWithTimestampHandler : ICommandHandler
+    public sealed class EnrichWithTimestampHandler : ICommandMiddleware
     {
         private readonly IClock clock;
 
@@ -23,14 +23,14 @@ namespace Squidex.Infrastructure.CQRS.Commands
             this.clock = clock;
         }
 
-        public Task<bool> HandleAsync(CommandContext context)
+        public Task HandleAsync(CommandContext context, Func<Task> next)
         {
             if (context.Command is ITimestampCommand timestampCommand)
             {
                 timestampCommand.Timestamp = clock.GetCurrentInstant();
             }
 
-            return TaskHelper.False;
+            return next();
         }
     }
 }

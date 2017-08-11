@@ -40,7 +40,8 @@ export class AssetDto {
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
-        public readonly version: Version
+        public readonly version: Version,
+        public readonly briefDescription: string
     ) {
     }
 
@@ -57,10 +58,11 @@ export class AssetDto {
             update.isImage,
             update.pixelWidth,
             update.pixelHeight,
-            update.version);
+            update.version,
+            this.briefDescription);
     }
 
-    public rename(name: string, user: string, now?: DateTime): AssetDto {
+    public rename(name: string, user: string, briefDescription: string, now?: DateTime): AssetDto {
         return new AssetDto(
             this.id,
             this.createdBy, user,
@@ -73,13 +75,15 @@ export class AssetDto {
             this.isImage,
             this.pixelWidth,
             this.pixelHeight,
-            this.version);
+            this.version,
+            briefDescription);
     }
 }
 
 export class UpdateAssetDto {
     constructor(
-        public readonly fileName: string
+        public readonly fileName: string,
+        public readonly briefDescription: string
     ) {
     }
 }
@@ -92,7 +96,8 @@ export class AssetReplacedDto {
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
-        public readonly version: Version
+        public readonly version: Version,
+        public readonly briefDescription: string
     ) {
     }
 }
@@ -147,7 +152,9 @@ export class AssetsService {
                             item.isImage,
                             item.pixelWidth,
                             item.pixelHeight,
-                            new Version(item.version.toString()));
+                            new Version(item.version.toString()),
+                            item.briefDescription
+                        );
                     }));
                 })
                 .pretifyError('Failed to load assets. Please reload.');
@@ -185,7 +192,8 @@ export class AssetsService {
                             response.isImage,
                             response.pixelWidth,
                             response.pixelHeight,
-                            new Version(response.version.toString()));
+                            new Version(response.version.toString()),
+                            response.briefDescription);
 
                         this.localCache.set(`asset.${dto.id}`, dto, 5000);
 
@@ -219,7 +227,8 @@ export class AssetsService {
                         response.isImage,
                         response.pixelWidth,
                         response.pixelHeight,
-                        new Version(response.version.toString()));
+                        new Version(response.version.toString()),
+                        response.briefDescription);
                 })
                 .catch(error => {
                     if (error instanceof HttpErrorResponse && error.status === 404) {
@@ -236,25 +245,23 @@ export class AssetsService {
     }
 
     public replaceFile(appName: string, id: string, file: File, version?: Version): Observable<number | AssetReplacedDto> {
-        return new Observable<number | AssetReplacedDto>(subscriber => {
-            const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}/content`);
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}/content`);
 
-            const req = new HttpRequest('PUT', url, getFormData(file), {
-                headers: new HttpHeaders({
-                    'If-Match': version.value
-                }),
-                reportProgress: true
-            });
+        const req = new HttpRequest('PUT', url, getFormData(file), {
+            headers: new HttpHeaders({
+                'If-Match': version.value
+            }),
+            reportProgress: true
+        });
 
-            this.http.request(req)
-                .pretifyError('Failed to replace asset. Please reload.')
-                .subscribe(event => {
+        return this.http.request(req)
+                .map(event => {
                     if (event.type === HttpEventType.UploadProgress) {
                         const percentDone = Math.round(100 * event.loaded / event.total);
 
-                        subscriber.next(percentDone);
+                        return percentDone;
                     } else if (event instanceof HttpResponse) {
-                        const response = event.body;
+                        const response: any = event.body;
 
                         const dto =  new AssetReplacedDto(
                             response.fileSize,
@@ -263,29 +270,29 @@ export class AssetsService {
                             response.isImage,
                             response.pixelWidth,
                             response.pixelHeight,
-                            new Version(response.version.toString()));
+                            new Version(response.version.toString()),
+                            response.briefDescription);
 
-                        subscriber.next(dto);
+                        return dto;
                     }
-                }, err => {
-                    subscriber.error(err);
-                }, () => {
-                    subscriber.complete();
-                });
-        });
-    }
-
-    public putAsset(appName: string, id: string, dto: UpdateAssetDto, version?: Version): Observable<any> {
-        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
-
-        return HTTP.putVersioned(this.http, url, dto, version)
-                .pretifyError('Failed to delete asset. Please reload.');
+                })
+                .pretifyError('Failed to replace asset. Please reload.');
     }
 
     public deleteAsset(appName: string, id: string, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
+                .do(() => {
+                    this.localCache.remove(`asset.${id}`);
+                })
+                .pretifyError('Failed to delete asset. Please reload.');
+    }
+
+    public putAsset(appName: string, id: string, dto: UpdateAssetDto, version?: Version): Observable<any> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
+
+        return HTTP.putVersioned(this.http, url, dto, version)
                 .pretifyError('Failed to delete asset. Please reload.');
     }
 }

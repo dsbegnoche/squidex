@@ -33,5 +33,10 @@ namespace Squidex.Infrastructure.CQRS.Commands
                 return TaskHelper.Done;
             });
         }
+
+        public static Task HandleAsync(this ICommandMiddleware commandMiddleware, CommandContext context)
+        {
+            return commandMiddleware.HandleAsync(context, () => TaskHelper.Done);
+        }
     }
 }

@@ -1,11 +1,12 @@
 ﻿// ==========================================================================
-//  SchemaCommandHandler.cs
+//  SchemaCommandMiddleware.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Read.Schemas.Services;
@@ -13,16 +14,15 @@ using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Domain.Apps.Write.Schemas
 {
-    public class SchemaCommandHandler : ICommandHandler
+    public class SchemaCommandMiddleware : ICommandMiddleware
     {
         private readonly ISchemaProvider schemas;
         private readonly IAggregateHandler handler;
 
-        public SchemaCommandHandler(IAggregateHandler handler, ISchemaProvider schemas)
+        public SchemaCommandMiddleware(IAggregateHandler handler, ISchemaProvider schemas)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(schemas, nameof(schemas));
@@ -46,7 +46,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             {
                 s.Create(command);
 
-                context.Succeed(EntityCreatedResult.Create(s.Id, s.Version));
+                context.Complete(EntityCreatedResult.Create(s.Id, s.Version));
             });
         }
 
@@ -56,7 +56,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             {
                 s.AddField(command);
 
-                context.Succeed(EntityCreatedResult.Create(s.Schema.FieldsById.Values.First(x => x.Name == command.Name).Id, s.Version));
+                context.Complete(EntityCreatedResult.Create(s.Schema.FieldsById.Values.First(x => x.Name == command.Name).Id, s.Version));
             });
         }
 
@@ -77,7 +77,11 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         protected Task On(DeleteField command, CommandContext context)
         {
-            return handler.UpdateAsync<SchemaDomainObject>(context, s => s.DeleteField(command));
+            // treating the first field undeletable, expect tags.
+            if (command.FieldId != 1)
+                return handler.UpdateAsync<SchemaDomainObject>(context, s => s.DeleteField(command));
+
+            return Task.CompletedTask;
         }
 
         protected Task On(DisableField command, CommandContext context)
@@ -112,6 +116,12 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
         protected Task On(UpdateField command, CommandContext context)
         {
+            // ensure tag fields can't be renamed
+            if (command.FieldId == 1 )
+            {
+                command.Properties.Label = "";
+            }
+
             return handler.UpdateAsync<SchemaDomainObject>(context, s => s.UpdateField(command));
         }
 
@@ -125,9 +135,12 @@ namespace Squidex.Domain.Apps.Write.Schemas
             return handler.UpdateAsync<SchemaDomainObject>(context, s => s.Unpublish(command));
         }
 
-        public Task<bool> HandleAsync(CommandContext context)
+        public async Task HandleAsync(CommandContext context, Func<Task> next)
         {
-            return context.IsHandled ? TaskHelper.False : this.DispatchActionAsync(context.Command, context);
+            if (!await this.DispatchActionAsync(context.Command, context))
+            {
+                await next();
+            }
         }
     }
 }

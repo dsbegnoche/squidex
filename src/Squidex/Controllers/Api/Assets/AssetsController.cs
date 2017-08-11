@@ -18,6 +18,7 @@ using NSwag.Annotations;
 using Squidex.Controllers.Api.Assets.Models;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
+using Squidex.Domain.Apps.Write.Assets;
 using Squidex.Domain.Apps.Write.Assets.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
@@ -201,7 +202,7 @@ namespace Squidex.Controllers.Api.Assets
             var command = new UpdateAsset { File = assetFile, AssetId = id };
             var context = await CommandBus.PublishAsync(command);
 
-            var result = context.Result<EntitySavedResult>();
+            var result = context.Result<AssetSavedResult>();
             var response = AssetReplacedDto.Create(command, result);
 
             return StatusCode(201, response);
@@ -281,7 +282,7 @@ namespace Squidex.Controllers.Api.Assets
                 throw new ValidationException("Cannot create asset.", error);
             }
 
-            var assetFile = new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, formFile.OpenReadStream);
+            var assetFile = new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, formFile.OpenReadStream, "");
 
             return assetFile;
         }
