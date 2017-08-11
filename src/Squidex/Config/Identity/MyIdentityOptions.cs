@@ -39,15 +39,11 @@ namespace Squidex.Config.Identity
 
 		public string CivicPlusSecret { get; set; }
 
-		public string CivicPlusRedirectUri { get; set; }
-
 		public string CivicPlusPostLogoutRedirectUri { get; set; }
 
 		public string CivicPlusScope { get; set; }
 
 		public string CivicPlusResponseType { get; set; }
-
-		public string CivicPlusSignInAsAuthenticationType { get; set; }
 
 		public bool RequiresHttps { get; set; }
 
@@ -82,11 +78,9 @@ namespace Squidex.Config.Identity
 				!string.IsNullOrWhiteSpace(CivicPlusAuthority) &&
 				!string.IsNullOrWhiteSpace(CivicPlusClient) &&
 				!string.IsNullOrWhiteSpace(CivicPlusSecret) &&
-				!string.IsNullOrWhiteSpace(CivicPlusRedirectUri) &&
 				!string.IsNullOrWhiteSpace(CivicPlusPostLogoutRedirectUri) &&
 				!string.IsNullOrWhiteSpace(CivicPlusScope) &&
-				!string.IsNullOrWhiteSpace(CivicPlusResponseType) &&
-				!string.IsNullOrWhiteSpace(CivicPlusSignInAsAuthenticationType);
+				!string.IsNullOrWhiteSpace(CivicPlusResponseType);
 		}
 	}
 }
