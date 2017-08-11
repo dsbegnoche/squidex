@@ -147,7 +147,10 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             var tagField = new SchemaCreatedField
             {
-                Properties = new TagFieldProperties(),
+                Properties = new TagFieldProperties
+	            {
+		            Label = "Tags"
+	            },
                 Name = "tags",
                 Partitioning = "Language",
                 IsDisabled = false,
