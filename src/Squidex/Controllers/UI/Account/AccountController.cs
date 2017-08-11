@@ -122,6 +122,16 @@ namespace Squidex.Controllers.UI.Account
 			return Redirect(logoutUrl);
 		}
 
+		[HttpGet]
+		[Route("account/logoutcleanup/")]
+		public async Task LogoutCleanup(string sid)
+		{
+			if (((ClaimsPrincipal)User).FindFirst("sid")?.Value == sid)
+			{
+				await signInManager.SignOutAsync();
+			}
+		}
+
 		private async Task<string> LogoutCivicPlus(string logoutUrl)
 		{
 			if (User.Identity.IsAuthenticated)

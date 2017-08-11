@@ -6,7 +6,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { AuthService } from './../services/auth.service';
@@ -14,8 +14,7 @@ import { AuthService } from './../services/auth.service';
 @Injectable()
 export class MustBeAuthenticatedGuard implements CanActivate {
     constructor(
-        private readonly authService: AuthService,
-        private readonly router: Router
+        private readonly authService: AuthService
     ) {
     }
 
@@ -23,7 +22,7 @@ export class MustBeAuthenticatedGuard implements CanActivate {
         return this.authService.userChanges.first()
             .do(user => {
                 if (!user) {
-                    this.router.navigate(['']);
+                    this.authService.loginRedirect();
                 }
             })
             .map(user => !!user);
