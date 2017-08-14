@@ -62,7 +62,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Squidex.Infrastructure.Azur
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{BCAFF4B5-7A89-4154-AC38-F73F767C384A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Squidex.Tests", "..\Squidex.Tests\Squidex.Tests.csproj", "{09F12A6B-62FA-41F5-8992-E2249F2D03C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Squidex.Tests", "tests\Squidex.Tests\Squidex.Tests.csproj", "{09F12A6B-62FA-41F5-8992-E2249F2D03C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
