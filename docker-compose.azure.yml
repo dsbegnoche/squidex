@@ -41,6 +41,10 @@ services:
       - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
       - "ASSETSTORE__TYPE=${ASSETSTORE_TYPE}"
       - "ASSETSTORE__AZUREBLOB__CONNECTIONSTRING=${AZUREBLOB_CONNECTION}"
+      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://identityserver.cpqa.ninja"
+      - "IDENTITY__CIVICPLUSCLIENT=87"
+      - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
+      - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://kraken.cpqa.ninja/identity-server/account/logout"
     depends_on:
       - squidex_redis
       - squidex_mongo

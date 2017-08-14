@@ -30,5 +30,7 @@ namespace Squidex.Shared.Users
         void AddClaim(Claim claim);
 
         void SetClaim(string type, string value);
+
+	    string GetTokenValue(string loginProvider, string name);
     }
 }

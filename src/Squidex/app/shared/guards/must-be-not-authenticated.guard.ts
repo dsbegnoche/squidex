@@ -24,6 +24,8 @@ export class MustBeNotAuthenticatedGuard implements CanActivate {
             .do(user => {
                 if (user) {
                     this.router.navigate(['app']);
+                } else {
+                    this.authService.loginRedirect();
                 }
             })
             .map(user => !user);

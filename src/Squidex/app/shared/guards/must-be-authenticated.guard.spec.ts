@@ -11,7 +11,6 @@ import { Observable } from 'rxjs';
 import { AuthService } from 'shared';
 
 import { MustBeAuthenticatedGuard } from './must-be-authenticated.guard';
-import { RouterMockup } from './router-mockup';
 
 describe('MustBeAuthenticatedGuard', () => {
     let authService: IMock<AuthService>;
@@ -23,14 +22,12 @@ describe('MustBeAuthenticatedGuard', () => {
     it('should navigate to default page if not authenticated', (done) => {
         authService.setup(x => x.userChanges)
             .returns(() => Observable.of(null));
-        const router = new RouterMockup();
 
-        const guard = new MustBeAuthenticatedGuard(authService.object, <any>router);
+        const guard = new MustBeAuthenticatedGuard(authService.object);
 
         guard.canActivate(<any>{}, <any>{})
             .subscribe(result => {
                 expect(result).toBeFalsy();
-                expect(router.lastNavigation).toEqual(['']);
 
                 done();
             });
@@ -39,14 +36,12 @@ describe('MustBeAuthenticatedGuard', () => {
     it('should return true if authenticated', (done) => {
         authService.setup(x => x.userChanges)
             .returns(() => Observable.of(<any>{}));
-        const router = new RouterMockup();
 
-        const guard = new MustBeAuthenticatedGuard(authService.object, <any>router);
+        const guard = new MustBeAuthenticatedGuard(authService.object);
 
         guard.canActivate(<any>{}, <any>{})
             .subscribe(result => {
                 expect(result).toBeTruthy();
-                expect(router.lastNavigation).toBeUndefined();
 
                 done();
             });

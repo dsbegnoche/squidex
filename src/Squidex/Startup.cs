@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Squidex.Config;
+using Squidex.Config.CivicPlus;
 using Squidex.Config.Domain;
 using Squidex.Config.Identity;
 using Squidex.Config.Swagger;
@@ -78,6 +79,8 @@ namespace Squidex
                 Configuration.GetSection("identity"));
             services.Configure<MyUsageOptions>(
                 Configuration.GetSection("usage"));
+
+			services.AddCivicPlusServices();
 
             var builder = new ContainerBuilder();
             builder.Populate(services);
@@ -151,6 +154,7 @@ namespace Squidex
                 identityApp.UseMyGoogleAuthentication();
                 identityApp.UseMyGithubAuthentication();
                 identityApp.UseMyMicrosoftAuthentication();
+                identityApp.UseMyCivicPlusPlatform();
                 identityApp.UseStaticFiles();
 
                 identityApp.MapWhen(x => IsIdentityRequest(x), mvcApp =>
