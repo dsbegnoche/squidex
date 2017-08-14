@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\squidex\src\Squidex.Domain.Users\Squidex.Domain.Users.csproj" />
-    <ProjectReference Include="..\squidex\src\Squidex\Squidex.csproj" />
+    <ProjectReference Include="..\..\src\Squidex.Domain.Users\Squidex.Domain.Users.csproj" />
+    <ProjectReference Include="..\..\src\Squidex\Squidex.csproj" />
   </ItemGroup>
 
   <ItemGroup>
