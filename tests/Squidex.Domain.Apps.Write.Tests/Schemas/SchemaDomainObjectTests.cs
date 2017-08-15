@@ -490,9 +490,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
             CreateSchema();
             CreateField();
 
-            sut.LockField(CreateCommand(new LockField { FieldId = 1 }));
+            sut.LockField(CreateCommand(new LockField { FieldId = 2 }));
 
-            Assert.False(sut.Schema.FieldsById[1].IsDisabled);
+            Assert.False(sut.Schema.FieldsById[2].IsDisabled);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
