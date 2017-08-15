@@ -33,5 +33,331 @@
 				}
 			}
 		]
+	},
+	{
+		"name": "article",
+		"isPublished": true,
+		"properties": {
+			"label": "Article"
+		},
+		"fields": [
+			{
+				"name": "name",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "Input",
+					"label": "Name",
+					"isRequired": true,
+					"isListField": false
+				}
+			},
+			{
+				"name": "article",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "RichText",
+					"label": "Article",
+					"isRequired": true,
+					"isListField": false
+				}
+			}
+		]
+	},
+	{
+		"name": "event",
+		"isPublished": true,
+		"properties": {
+			"label": "Event"
+		},
+		"fields": [
+			{
+				"name": "title",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Title",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "startdate",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "DateTimeFieldProperties",
+					"label": "Start Date",
+					"isRequired": true,
+					"editor": "DateTime"
+				}
+			},
+			{
+				"name": "enddate",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "DateTimeFieldProperties",
+					"label": "End Date",
+					"isRequired": true,
+					"editor": "DateTime"
+				}
+			},
+			{
+				"name": "description",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Description",
+					"editor": "RichText"
+				}
+			}
+		]
+	},
+	{
+		"name": "news",
+		"isPublished": true,
+		"properties": {
+			"label": "News"
+		},
+		"fields": [
+			{
+				"name": "title",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "Input",
+					"label": "Title",
+					"isRequired": true,
+					"isListField": false
+				}
+			},
+			{
+				"name": "description",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "RichText",
+					"label": "Description",
+					"isRequired": true,
+					"isListField": false
+				}
+			}
+		]
+	},
+	{
+		"name": "department",
+		"isPublished": true,
+		"properties": {
+			"label": "Department"
+		},
+		"fields": [
+			{
+				"name": "department",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Department",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "location",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "GeolocationFieldProperties",
+					"label": "Location",
+					"editor": "Map"
+				}
+			},
+			{
+				"name": "phonenumber",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Phone Number",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "emailaddress",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Email Address",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "hoursofoperation",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Days/Hours of Operation",
+					"editor": "RichText"
+				}
+			},
+			{
+				"name": "additionalinformation",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Additional Information",
+					"editor": "RichText"
+				}
+			}
+		]
+	},
+	{
+		"name": "employee",
+		"isPublished": true,
+		"properties": {
+			"label": "Employee"
+		},
+		"fields": [
+			{
+				"name": "firstname",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "First Name",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "lastname",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Last Name",
+					"isRequired": true,
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "title",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Title",
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "department",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "ReferencesFieldProperties",
+					"label": "Department",
+					"schemaId": "00000000-0000-0000-0000-000000000000"
+				}
+			},
+			{
+				"name": "phonenumber",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Phone Number",
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "emailaddress",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"label": "Email Address",
+					"editor": "Input"
+				}
+			},
+			{
+				"name": "image",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "AssetsFieldProperties",
+					"label": "Image"
+				}
+			}
+		]
+	},
+	{
+		"name": "quicklink",
+		"isPublished": true,
+		"properties": {
+			"label": "Quick Link"
+		},
+		"fields": [
+			{
+				"name": "title",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "Input",
+					"label": "Title",
+					"isRequired": true,
+					"isListField": false
+				}
+			},
+			{
+				"name": "link",
+				"isHidden": false,
+				"isDisabled": false,
+				"partitioning": "language",
+				"properties": {
+					"fieldType": "StringFieldProperties",
+					"editor": "Input",
+					"label": "Link",
+					"isRequired": true,
+					"isListField": false
+				}
+			}
+		]
 	}
 ]

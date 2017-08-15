@@ -20,6 +20,8 @@ using Squidex.Infrastructure.Dispatching;
 using Squidex.Shared.Users;
 using Newtonsoft.Json;
 using System.IO;
+using System.Linq;
+using Squidex.Domain.Apps.Core.Schemas;
 
 // ReSharper disable InvertIf
 
@@ -32,9 +34,9 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlansProvider appPlansProvider;
         private readonly IAppPlanBillingManager appPlansBillingManager;
         private readonly IUserResolver userResolver;
-        private readonly IAggregateHandler defaultSchemaHandler;
+		private readonly IAggregateHandler defaultSchemaHandler;
 
-        public AppCommandMiddleware(
+		public AppCommandMiddleware(
             IAggregateHandler handler,
             IAppRepository appRepository,
             IAppPlansProvider appPlansProvider,
@@ -49,8 +51,8 @@ namespace Squidex.Domain.Apps.Write.Apps
             Guard.NotNull(appPlansBillingManager, nameof(appPlansBillingManager));
 
             this.handler = handler;
-            this.defaultSchemaHandler = defaultSchemaHandler;
-            this.userResolver = userResolver;
+			this.defaultSchemaHandler = defaultSchemaHandler;
+			this.userResolver = userResolver;
             this.appRepository = appRepository;
             this.appPlansProvider = appPlansProvider;
             this.appPlansBillingManager = appPlansBillingManager;
@@ -74,12 +76,13 @@ namespace Squidex.Domain.Apps.Write.Apps
                 context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
             });
 
-	        await AddDefaultSchemas(command, context);
+	        await AddDefaultSchemas(command);
         }
 
-	    private async Task AddDefaultSchemas(CreateApp command, CommandContext context)
+	    private async Task AddDefaultSchemas(CreateApp command)
 	    {
 		    string defaultSchemaFile = "DefaultSchema.json";
+			Dictionary<string, Guid> schemaIds = new Dictionary<string, Guid>();
 
 			if (File.Exists(defaultSchemaFile))
 			{
@@ -87,27 +90,31 @@ namespace Squidex.Domain.Apps.Write.Apps
 				List<CreateSchema> defaultSchema =
 				    JsonConvert.DeserializeObject<List<CreateSchema>>(defaultSchemaJson);
 
-			    foreach (CreateSchema schema in defaultSchema)
+				foreach (CreateSchema schema in defaultSchema)
 			    {
 				    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
 				    schema.Actor = command.Actor;
+				    CommandContext context = new CommandContext(schema);
+					schemaIds.Add(schema.Name, schema.SchemaId);
 
-				    await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
+					//Get reference schemas here
+				    if (schema.Name == "employee")
 				    {
-					    a.Create(schema);
-					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
-				    });
+					    var fieldPropertiesToUpdate = schema.Fields.FirstOrDefault(f => f.Properties != null && f.Properties.GetType() == typeof(ReferencesFieldProperties)).Properties;
+					    ((ReferencesFieldProperties)fieldPropertiesToUpdate).SchemaId = schemaIds["department"];
+				    }
 
-				    PublishSchema publishSchema = new PublishSchema
+					PublishSchema publishSchema = new PublishSchema
 				    {
 					    Actor = command.Actor,
 					    AppId = new NamedId<Guid>(command.AppId, command.Name),
 					    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
 				    };
-				    await defaultSchemaHandler.UpdateAsync<SchemaDomainObject>(context, a =>
+
+					await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
 				    {
+					    a.Create(schema);
 					    a.Publish(publishSchema);
-					    context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
 				    });
 			    }
 		    }
