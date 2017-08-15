@@ -97,11 +97,15 @@ namespace Squidex.Domain.Apps.Write.Apps
 				    CommandContext context = new CommandContext(schema);
 					schemaIds.Add(schema.Name, schema.SchemaId);
 
+				    var refFieldToUpdate =
+					    schema.Fields.FirstOrDefault(f => f.Properties is ReferencesFieldProperties);
+
 					//Get reference schemas here
-				    if (schema.Name == "employee")
-				    {
-					    var fieldPropertiesToUpdate = schema.Fields.FirstOrDefault(f => f.Properties != null && f.Properties.GetType() == typeof(ReferencesFieldProperties)).Properties;
-					    ((ReferencesFieldProperties)fieldPropertiesToUpdate).SchemaId = schemaIds["department"];
+					if (refFieldToUpdate != null)
+					{
+						ReferencesFieldProperties fieldProperties = (ReferencesFieldProperties)refFieldToUpdate.Properties;
+						string referenceSchemaLabel = fieldProperties.Label.ToLower();
+						fieldProperties.SchemaId = schemaIds[referenceSchemaLabel];
 				    }
 
 					PublishSchema publishSchema = new PublishSchema
