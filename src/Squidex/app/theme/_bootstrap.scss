@@ -4,18 +4,73 @@
 @import './../../node_modules/bootstrap/scss/mixins/_buttons';
 
 //
-// Override most common header sizes
+// Bade colors
 //
-h1 {
-    font-size: 1.3rem;
+.badge {
+    & {
+        font-size: .9rem;
+        font-weight: normal;
+        padding: .3rem .6rem;
+    }
+
+    &-default {
+        color: $color-badge-default-foreground;
+    }
+
+    &-primary {
+        color: $color-badge-primary-foreground;
+    }
+
+    &-success {
+        color: $color-badge-success-foreground;
+    }
+
+    &-info {
+        color: $color-badge-info-foreground;
+    }
+
+    &-warning {
+        color: $color-badge-warning-foreground;
+    }
+
+    &-danger {
+        color: $color-badge-danger-foreground;
+    }
 }
 
-h2 {
-    font-size: 1.1rem;
+// 
+// Alert overrides.
+//
+.alert-success,
+.alert-warning,
+.alert-info,
+.alert-danger {
+    .alert-link {
+        color: $color-dark-foreground;
+        font-size: inherit;
+        font-weight: normal;
+        text-decoration: underline;
+    }
+
+    .close {
+        & {
+            font-weight: 400;
+            font-size: 1.6rem;
+        }
+
+        &:hover,
+        &:focus {
+            color: inherit;
+        }
+    }
 }
 
-h3 {
-    font-size: 1.05rem;
+a {
+    &:disabled,
+    &.disabled {
+        @include opacity(.8);
+        pointer-events: none;
+    }
 }
 
 //
@@ -29,6 +84,10 @@ h3 {
 
     &-nav {
         line-height: 2.2rem;
+    }
+
+    &-toggler {
+        padding: .18rem .6rem;
     }
 
     // Ensure that dropdown is always under nav bar.
@@ -67,6 +126,11 @@ h3 {
 
             &:active {
                 background: $color-theme-error-dark;
+            }
+
+            &:disabled,
+            &.disabled {
+                color: lighten($color-theme-error, 20%);
             }
         }
 
@@ -287,9 +351,12 @@ h3 {
     &-header {
         @include border-radius-top(.3rem);
         background: $color-modal-header-background;
+        font-size: 1rem;
+        font-weight: normal;
+        color: $color-modal-header-foreground;
 
-        h4 {
-            color: $color-modal-header-foreground;
+        h4,
+        h5 {
             font-size: 1rem;
             font-weight: normal;
         }

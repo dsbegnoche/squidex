@@ -32,22 +32,25 @@ export class FieldComponent implements OnInit {
     public schemas: SchemaDto[];
 
     @Output()
-    public hiding = new EventEmitter<FieldDto>();
+    public locking = new EventEmitter();
 
     @Output()
-    public showing = new EventEmitter<FieldDto>();
+    public hiding = new EventEmitter();
 
     @Output()
-    public saving= new EventEmitter<FieldDto>();
+    public showing = new EventEmitter();
 
     @Output()
-    public enabling = new EventEmitter<FieldDto>();
+    public saving= new EventEmitter();
 
     @Output()
-    public disabling = new EventEmitter<FieldDto>();
+    public enabling = new EventEmitter();
 
     @Output()
-    public deleting = new EventEmitter<FieldDto>();
+    public disabling = new EventEmitter();
+
+    @Output()
+    public deleting = new EventEmitter();
 
     public dropdown = new ModalView(false, true);
 
@@ -104,6 +107,7 @@ export class FieldComponent implements OnInit {
                 new FieldDto(
                     this.field.fieldId,
                     this.field.name,
+                    this.field.isLocked,
                     this.field.isHidden,
                     this.field.isHidden,
                     this.field.partitioning,
@@ -120,6 +124,10 @@ export class FieldComponent implements OnInit {
     private resetEditForm() {
         this.editFormSubmitted = false;
         this.editForm.reset(this.field.properties);
+
+        if (this.field.isLocked) {
+            this.editForm.disable();
+        }
 
         this.isEditing = false;
     }

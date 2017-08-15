@@ -10,12 +10,12 @@ import { Observable, Subscription } from 'rxjs';
 
 import {
     ComponentBase,
+    DialogService,
     EventConsumerDto,
     EventConsumersService,
     fadeAnimation,
     ImmutableArray,
-    ModalView,
-    NotificationService
+    ModalView
 } from 'shared';
 
 @Component({
@@ -26,17 +26,17 @@ import {
         fadeAnimation
     ]
 })
-export class EventConsumersPageComponent extends ComponentBase implements OnInit, OnDestroy {
+export class EventConsumersPageComponent extends ComponentBase implements OnDestroy, OnInit {
     private subscription: Subscription;
 
     public eventConsumerErrorDialog = new ModalView();
     public eventConsumerError = '';
     public eventConsumers = ImmutableArray.empty<EventConsumerDto>();
 
-    constructor(notifications: NotificationService,
+    constructor(dialogs: DialogService,
         private readonly eventConsumersService: EventConsumersService
     ) {
-        super(notifications);
+        super(dialogs);
     }
 
     public ngOnInit() {
