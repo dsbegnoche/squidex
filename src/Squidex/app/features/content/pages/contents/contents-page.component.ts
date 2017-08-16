@@ -197,7 +197,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.contentFields = this.schema.fields.filter(x => x.properties.isListField);
 
         if (this.contentFields.length === 0 && this.schema.fields.length > 0) {
-            if (this.schema.fields[0].name == "tags" && this.schema.fields.length > 1) {
+            if (this.schema.fields[0].name === 'tags' && this.schema.fields.length > 1) {
                 this.contentFields = [this.schema.fields[1]];
             } else {
                 this.contentFields = [this.schema.fields[0]];
