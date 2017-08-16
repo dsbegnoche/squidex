@@ -52,7 +52,7 @@ services:
       NAME: "squidex_squidex"
     restart: "always"
   squidex_proxy:
-    image: jwilder/nginx-proxy
+    image: civicplus.azurecr.io/nginxbuffer
     ports:
       - "80:80"
       - "443:443"
