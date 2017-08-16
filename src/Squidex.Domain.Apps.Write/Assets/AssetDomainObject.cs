@@ -27,6 +27,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private long totalSize;
         private string fileName;
         private string briefDescription;
+        private string[] tags;
 
         public bool IsDeleted
         {
@@ -48,6 +49,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             fileVersion = @event.FileVersion;
             fileName = @event.FileName;
 	        briefDescription = @event.BriefDescription;
+	        tags = @event.Tags;
 
             totalSize += @event.FileSize;
         }
@@ -63,6 +65,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             fileName = @event.FileName;
 	        briefDescription = @event.BriefDescription;
+	        tags = @event.Tags;
 		}
 
         protected void On(AssetDeleted @event)
@@ -85,7 +88,8 @@ namespace Squidex.Domain.Apps.Write.Assets
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
                 IsImage = command.ImageInfo != null,
-				BriefDescription = command.File.BriefDescription
+                BriefDescription = command.File.BriefDescription,
+                Tags = command.File.Tags
             });
 
             RaiseEvent(@event);
@@ -130,16 +134,16 @@ namespace Squidex.Domain.Apps.Write.Assets
             Guard.Valid(command, nameof(command), () => "Cannot rename asset.");
 
             VerifyCreatedAndNotDeleted();
-	        VerifyAssetFields(command.FileName, command.BriefDescription, () => "Cannot update asset.");
+	        VerifyAssetFields(command.FileName, command.BriefDescription, command.Tags, () => "Cannot update asset.");
 
             RaiseEvent(SimpleMapper.Map(command, new AssetRenamed()));
 
             return this;
         }
 
-        private void VerifyAssetFields(string newName, string newBriefDescription, Func<string> message)
+        private void VerifyAssetFields(string newName, string newBriefDescription, string[] newTags, Func<string> message)
         {
-            if (string.Equals(fileName, newName) && string.Equals(briefDescription, newBriefDescription))
+            if (string.Equals(fileName, newName) && string.Equals(briefDescription, newBriefDescription) && tags == newTags)
             {
                 throw new ValidationException(message(), new ValidationError("The asset properties have not changed.", "Name"));
             }

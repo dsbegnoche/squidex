@@ -24,7 +24,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     {
         private readonly AssetDomainObject sut;
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
-        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "");
+        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "", null);
 
         public Guid AssetId { get; } = Guid.NewGuid();
 
@@ -146,7 +146,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             Assert.Throws<ValidationException>(() =>
             {
-                sut.Rename(CreateAssetCommand(new RenameAsset { FileName = file.FileName, BriefDescription = file.BriefDescription}));
+                sut.Rename(CreateAssetCommand(new RenameAsset { FileName = file.FileName, BriefDescription = file.BriefDescription, Tags = file.Tags}));
             });
         }
 

@@ -17,6 +17,8 @@ namespace Squidex.Domain.Apps.Write.Assets.Commands
 
 	    public string BriefDescription { get; set; }
 
+	    public string[] Tags { get; set; }
+
         public void Validate(IList<ValidationError> errors)
         {
             if (string.IsNullOrWhiteSpace(FileName))

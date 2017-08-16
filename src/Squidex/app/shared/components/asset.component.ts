@@ -66,7 +66,8 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                 [
                     Validators.required
             ]],
-            briefDescription: ['']
+            briefDescription: [''],
+            tags: ['']
         });
 
     public progress = 0;
@@ -123,12 +124,22 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         if (this.renameForm.valid) {
             this.renameForm.disable();
 
-            const requestDto = new UpdateAssetDto(this.renameForm.controls['name'].value, this.renameForm.controls['briefDescription'].value ? this.renameForm.controls['briefDescription'].value : '');
+            const requestDto =
+                new UpdateAssetDto(
+                    this.renameForm.controls['name'].value,
+                    this.renameForm.controls['briefDescription'].value ? this.renameForm.controls['briefDescription'].value : '',
+                    this.renameForm.controls['tags'].value ? this.renameForm.controls['tags'].value : []
+                );
 
             this.appNameOnce()
                 .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.assetVersion))
                 .subscribe(() => {
-                    this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token, requestDto.briefDescription), true);
+                    this.updateAsset(
+                        this.asset.rename(
+                            requestDto.fileName,
+                            this.authService.user.token,
+                            requestDto.briefDescription,
+                            requestDto.tags), true);
                     this.resetRenameForm();
                 }, error => {
                     this.enableRenameForm(error.displayMessage);
@@ -166,6 +177,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         this.renameForm.enable();
         this.renameForm.controls['name'].setValue(this.asset.fileName);
         this.renameForm.controls['briefDescription'].setValue(this.asset.briefDescription);
+        this.renameForm.controls['tags'].setValue(this.asset.tags);
         this.renameFormSubmitted = false;
         this.renameDialog.hide();
     }

@@ -19,5 +19,7 @@ namespace Squidex.Controllers.Api.Assets.Models
         public string FileName { get; set; }
 
         public string BriefDescription { get; set; }
+
+        public string[] Tags { get; set; }
     }
 }

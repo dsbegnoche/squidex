@@ -35,7 +35,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         public AssetCommandMiddlewareTests()
         {
-            file = new AssetFile("my-image.png", "image/png", 1024, () => stream, "my-image description");
+            file = new AssetFile("my-image.png", "image/png", 1024, () => stream, "my-image description", new[] { "tag" });
 
             asset = new AssetDomainObject(assetId, -1);
 
