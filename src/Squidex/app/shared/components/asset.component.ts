@@ -70,6 +70,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         });
 
     public progress = 0;
+    public renameFormError = '';
 
     constructor(apps: AppsStoreService, dialogs: DialogService,
         private readonly formBuilder: FormBuilder,
@@ -130,8 +131,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                     this.updateAsset(this.asset.rename(requestDto.fileName, this.authService.user.token, requestDto.briefDescription), true);
                     this.resetRenameForm();
                 }, error => {
-                    this.notifyError(error);
-                    this.enableRenameForm();
+                    this.enableRenameForm(error.displayMessage);
                 });
         }
     }
@@ -156,11 +156,13 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         this.updated.emit(asset);
     }
 
-    private enableRenameForm() {
+    private enableRenameForm(message: string) {
         this.renameForm.enable();
+        this.renameFormError = message;
     }
 
     private resetRenameForm() {
+        this.renameFormError = '';
         this.renameForm.enable();
         this.renameForm.controls['name'].setValue(this.asset.fileName);
         this.renameForm.controls['briefDescription'].setValue(this.asset.briefDescription);
