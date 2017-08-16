@@ -110,7 +110,7 @@ export class TagEditorComponent implements ControlValueAccessor {
 
     public onKeyDown(event: KeyboardEvent) {
         if (event.keyCode === KEY_ENTER) {
-            const value = <string>this.addInput.value;
+            const value = <string>this.addInput.value.trim();
 
             if (this.converter.isValid(value) && !this.items.includes(value)) {
                 const converted = this.converter.convert(value);
