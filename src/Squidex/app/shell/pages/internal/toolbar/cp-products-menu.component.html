@@ -1,0 +1,20 @@
+<ul class="nav navbar-nav">
+    <li class="nav-item dropdown">
+        <span class="nav-link dropdown-toggle" id="app-name" (click)="modalMenu.toggle()">CP Products</span>
+
+        <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade]>
+            <a class="dropdown-item all-apps" routerLink="/app">
+                <span class="all-apps-text">All Apps</span> 
+                <span class="all-apps-pill badge badge-pill badge-primary">{{products.length}}</span>
+            </a>
+
+            <div class="dropdown-divider"></div>
+
+            <div *ngIf="apps.length > 0">
+                <a class="dropdown-item" *ngFor="let app of apps" [routerLink]="['/app', app.name]" routerLinkActive="active">{{product.name}}</a>
+
+                <div class="dropdown-divider"></div>
+            </div>
+        </div>
+    </li>
+</ul>

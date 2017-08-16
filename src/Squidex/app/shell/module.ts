@@ -12,6 +12,7 @@ import { SqxFrameworkModule, SqxSharedModule } from 'shared';
 import {
     AppAreaComponent,
     AppsMenuComponent,
+    CpProductsMenuComponent,
     HomePageComponent,
     InternalAreaComponent,
     LeftMenuComponent,
@@ -35,6 +36,7 @@ import {
     declarations: [
         AppAreaComponent,
         AppsMenuComponent,
+        CpProductsMenuComponent,
         HomePageComponent,
         InternalAreaComponent,
         LeftMenuComponent,

@@ -11,6 +11,7 @@ export * from './pages/app/left-menu.component';
 export * from './pages/home/home-page.component';
 
 export * from './pages/internal/apps-menu.component';
+export * from './pages/internal/toolbar/cp-products-menu.component';
 export * from './pages/internal/internal-area.component';
 export * from './pages/internal/profile-menu.component';
 
