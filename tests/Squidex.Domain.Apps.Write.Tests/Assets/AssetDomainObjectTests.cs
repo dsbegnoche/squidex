@@ -60,8 +60,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                         MimeType = file.MimeType,
                         PixelWidth = image.PixelWidth,
                         PixelHeight = image.PixelHeight,
-						BriefDescription = file.BriefDescription,
-                        Tags = file.Tags
+						BriefDescription = file.BriefDescription
                     })
                 );
         }

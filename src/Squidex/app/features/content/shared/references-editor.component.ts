@@ -146,10 +146,10 @@ export class ReferencesEditorComponent extends AppComponentBase implements Contr
         this.contentFields = this.schema.fields.filter(x => x.properties.isListField);
 
         // remove tag fields from displaying here.
-        this.contentFields = this.schema.fields.filter(x => x.fieldId !== 1);
+        this.contentFields = this.contentFields.filter(x => x.fieldId !== 1);
 
         if (this.contentFields.length === 0 && this.schema.fields.length > 0) {
-            this.contentFields = [this.schema.fields[0]];
+            this.contentFields = [this.schema.fields[1]];
         }
 
         if (this.contentFields.length > 0) {
