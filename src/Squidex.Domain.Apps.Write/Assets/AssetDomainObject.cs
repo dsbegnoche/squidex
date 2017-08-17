@@ -15,6 +15,7 @@ using Squidex.Infrastructure.CQRS;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Reflection;
+using System.Linq;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -143,7 +144,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         private void VerifyAssetFields(string newName, string newBriefDescription, string[] newTags, Func<string> message)
         {
-            if (string.Equals(fileName, newName) && string.Equals(briefDescription, newBriefDescription) && tags == newTags)
+            if (string.Equals(fileName, newName) && string.Equals(briefDescription, newBriefDescription) && tags.SequenceEqual(newTags))
             {
                 throw new ValidationException(message(), new ValidationError("The asset properties have not changed.", "Name"));
             }
