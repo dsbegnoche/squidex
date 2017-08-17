@@ -198,7 +198,7 @@
 				"properties": {
 					"fieldType": "StringFieldProperties",
 					"label": "Phone Number",
-					"isRequired": true,
+					"isRequired": false,
 					"editor": "Input"
 				}
 			},
@@ -210,7 +210,7 @@
 				"properties": {
 					"fieldType": "StringFieldProperties",
 					"label": "Email Address",
-					"isRequired": true,
+					"isRequired": false,
 					"editor": "Input"
 				}
 			},
