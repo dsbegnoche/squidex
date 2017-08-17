@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using CivicPlusIdentityServer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using RestSharp;
@@ -7,6 +10,7 @@ using Squidex.Pipeline;
 using Microsoft.AspNetCore.Identity;
 using Squidex.Shared.Users;
 using Squidex.Config;
+using Squidex.Infrastructure.Reflection;
 
 namespace Squidex.Controllers.Toolbar
 {
@@ -35,7 +39,7 @@ namespace Squidex.Controllers.Toolbar
 		/// </remarks>
 		[HttpGet]
 	    [Route("cptoolbar/products/")]
-	    [ProducesResponseType(typeof(CpProducts[]), 200)]
+	    [ProducesResponseType(typeof(CpProductsDto[]), 200)]
 	    [ApiCosts(1)]
 		public async Task<IActionResult> GetProductDropdown()
 		{
@@ -43,10 +47,17 @@ namespace Squidex.Controllers.Toolbar
 			var emailAddress = user.Email;
 			var accessToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "access_token");
 
-			var test = civicplusIdentityServerSdk.GetClientList(accessToken, emailAddress);
+			List<ClientInfo> products = civicplusIdentityServerSdk.GetClientList(accessToken, emailAddress);
+
+			var response = products.Select(p =>
+			{
+				var dto = SimpleMapper.Map(p, new CpProductsDto());
+
+				return dto;
+			}).ToList();
 
 
-			return Ok();
+			return Ok(response);
 		}
 
     }

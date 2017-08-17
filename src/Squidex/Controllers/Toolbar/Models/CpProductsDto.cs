@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Squidex.Controllers.Toolbar.Models
 {
-    public sealed class CpProducts
+    public sealed class CpProductsDto
 	{        /// <summary>
 		/// The name of the app.
 		/// </summary>
