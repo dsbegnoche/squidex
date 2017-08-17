@@ -36,9 +36,9 @@ module.exports = function (config) {
         /*
          * Use a mocha style console reporter, html reporter and the code coverage reporter
          */
-        reporters: ['mocha', 'html', 'coverage', 'trx'],
+        reporters: ['mocha' ],
 
-        trxReporter: { outputFile: 'results.trx', shortTestName: false },
+        //trxReporter: { outputFile: 'results.trx', shortTestName: false },
 
         // HtmlReporter configuration
         htmlReporter: {
