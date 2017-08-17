@@ -14,8 +14,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
