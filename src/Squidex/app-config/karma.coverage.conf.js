@@ -2,7 +2,7 @@
 
 module.exports = function (config) {
     var _config = {
-        /** 
+        /**
          * Base path that will be used to resolve all patterns (e.g. files, exclude)
          */
         basePath: '',
@@ -36,12 +36,14 @@ module.exports = function (config) {
         /*
          * Use a mocha style console reporter, html reporter and the code coverage reporter
          */
-        reporters: ['mocha', 'html', 'coverage'],
+        reporters: ['mocha', 'html', 'coverage', 'trx'],
+
+        trxReporter: { outputFile: 'results.trx', shortTestName: false },
 
         // HtmlReporter configuration
         htmlReporter: {
             useCompactStyle: true,
-            /** 
+            /**
              * Use the same folder like the html report for coverage reports
              */
             outputFile: '_test-output/tests.html',
@@ -54,7 +56,7 @@ module.exports = function (config) {
 
         coverageReporter: {
             type: 'html',
-            /** 
+            /**
              * Use the same folder like the html report for coverage reports
              */
             dir: '_test-output/coverage'
@@ -67,7 +69,7 @@ module.exports = function (config) {
 
         /**
          * Run with chrome because phantom js does not provide all types, e.g. DragEvent
-         * 
+         *
          * available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
          */
         browsers: ['PhantomJS']
