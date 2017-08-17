@@ -24,7 +24,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     {
         private readonly AssetDomainObject sut;
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
-        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "", null);
+        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "", new[] { "tag" });
 
         public Guid AssetId { get; } = Guid.NewGuid();
 
