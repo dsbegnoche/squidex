@@ -2,7 +2,7 @@
 
 module.exports = function (config) {
     var _config = {
-        /** 
+        /**
          * Base path that will be used to resolve all patterns (e.g. files, exclude)
          */
         basePath: '',
@@ -28,7 +28,7 @@ module.exports = function (config) {
         webpackMiddleware: {
             stats: 'errors-only'
         },
-        
+
         webpackServer: {
             noInfo: true
         },
@@ -43,12 +43,13 @@ module.exports = function (config) {
         /*
          * Use a mocha style console reporter and html reporter.
          */
-        reporters: ['kjhtml', 'mocha'],
+        reporters: ['kjhtml', 'mocha', 'trx'],
 
+        trxReporter: { outputFile: 'results.trx', shortTestName: false },
 
         /**
          * Run with chrome to enable debugging
-         * 
+         *
          * available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
          */
         browsers: ['Chrome']

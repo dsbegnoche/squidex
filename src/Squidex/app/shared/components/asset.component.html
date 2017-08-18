@@ -4,7 +4,7 @@
             <span class="file-type" *ngIf="asset.fileType">
                 {{asset.fileType}}
             </span>
-            
+
             <div *ngIf="asset.isImage" class="file-image">
                 <img [sqxImageSource]="asset | sqxAssetPreviewUrl">
             </div>
@@ -14,7 +14,7 @@
 
             <div class="file-overlay">
                 <div class="file-overlay-background"></div>
-                
+
                 <a class="file-edit" (click)="renameDialog.show()">
                     <i class="icon-pencil"></i>
                 </a>
@@ -82,23 +82,28 @@
 	                </div>
 	                <div class="form-group">
 		                <label for="asset-name">Name</label>
-                        
+
 		                <sqx-control-errors for="name" [submitted]="renameFormSubmitted"></sqx-control-errors>
 
 		                <input type="text" class="form-control" id="asset-name" formControlName="name" autocomplete="off" sqxFocusOnInit />
 	                </div>
 	                <div class="form-group">
 		                <label for="asset-briefDescription">Brief Description</label>
-						
+
 		                <input type="text" class="form-control" id="asset-briefDescription" formControlName="briefDescription" autocomplete="off" />
 		                <small class="form-text text-muted">
 							Can be used as alt text for web content. We recommend keeping the description 125 characters or less for best results with screen readers.
 		                </small>
 	                </div>
 
+	                <div class="form-group">
+		                <label for="tags">Tags</label>
+                    <sqx-tag-editor id="asset-tags" formControlName="tags"></sqx-tag-editor>
+	                </div>
+
                     <div class="form-group clearfix">
                         <button type="reset" class="float-left btn btn-secondary" (click)="cancelRenameAsset()">Cancel</button>
-                        <button type="submit" class="float-right btn btn-success">Rename</button>
+                        <button type="submit" class="float-right btn btn-success">Save</button>
                     </div>
                 </form>
             </div>

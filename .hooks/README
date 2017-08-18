@@ -1,0 +1,2 @@
+enable these with:
+git config --global core.hooksPath .hooks

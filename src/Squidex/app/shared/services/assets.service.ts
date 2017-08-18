@@ -41,7 +41,8 @@ export class AssetDto {
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
         public readonly version: Version,
-        public readonly briefDescription: string
+        public readonly briefDescription: string,
+        public readonly tags: string[]
     ) {
     }
 
@@ -59,10 +60,11 @@ export class AssetDto {
             update.pixelWidth,
             update.pixelHeight,
             update.version,
-            this.briefDescription);
+            this.briefDescription,
+            this.tags);
     }
 
-    public rename(name: string, user: string, briefDescription: string, now?: DateTime): AssetDto {
+    public rename(name: string, user: string, briefDescription: string, tags: string[], now?: DateTime): AssetDto {
         return new AssetDto(
             this.id,
             this.createdBy, user,
@@ -76,14 +78,16 @@ export class AssetDto {
             this.pixelWidth,
             this.pixelHeight,
             this.version,
-            briefDescription);
+            briefDescription,
+            tags);
     }
 }
 
 export class UpdateAssetDto {
     constructor(
         public readonly fileName: string,
-        public readonly briefDescription: string
+        public readonly briefDescription: string,
+        public readonly tags: string[]
     ) {
     }
 }
@@ -97,7 +101,8 @@ export class AssetReplacedDto {
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
         public readonly version: Version,
-        public readonly briefDescription: string
+        public readonly briefDescription: string,
+        public readonly tags: string[]
     ) {
     }
 }
@@ -153,7 +158,8 @@ export class AssetsService {
                             item.pixelWidth,
                             item.pixelHeight,
                             new Version(item.version.toString()),
-                            item.briefDescription
+                            item.briefDescription,
+                            item.tags
                         );
                     }));
                 })
@@ -193,7 +199,8 @@ export class AssetsService {
                             response.pixelWidth,
                             response.pixelHeight,
                             new Version(response.version.toString()),
-                            response.briefDescription);
+                            response.briefDescription,
+                            response.tags);
 
                         this.localCache.set(`asset.${dto.id}`, dto, 5000);
 
@@ -228,7 +235,8 @@ export class AssetsService {
                         response.pixelWidth,
                         response.pixelHeight,
                         new Version(response.version.toString()),
-                        response.briefDescription);
+                        response.briefDescription,
+                        response.tags);
                 })
                 .catch(error => {
                     if (error instanceof HttpErrorResponse && error.status === 404) {
@@ -271,7 +279,8 @@ export class AssetsService {
                             response.pixelWidth,
                             response.pixelHeight,
                             new Version(response.version.toString()),
-                            response.briefDescription);
+                            response.briefDescription,
+                            response.tags);
 
                         return dto;
                     }

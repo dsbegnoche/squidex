@@ -24,8 +24,8 @@ describe('AssetDto', () => {
     it('should update name property and user info when renaming', () => {
         const now = DateTime.now();
 
-        const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png');
-        const asset_2 = asset_1.rename('new-name.png', 'me', 'new description', now);
+        const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
+        const asset_2 = asset_1.rename('new-name.png', 'me', 'new description', ['tag'], now);
 
         expect(asset_2.fileName).toEqual('new-name.png');
         expect(asset_2.lastModified).toEqual(now);
@@ -35,9 +35,9 @@ describe('AssetDto', () => {
     it('should update file properties when uploading', () => {
         const now = DateTime.now();
 
-        const update = new AssetReplacedDto(2, 2, 'image/jpeg', true, 2, 2, null, 'new description');
+        const update = new AssetReplacedDto(2, 2, 'image/jpeg', true, 2, 2, null, 'new description', ['tag']);
 
-		const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png');
+		    const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
         const asset_2 = asset_1.update(update, 'me', now);
 
         expect(asset_2.fileSize).toEqual(2);
@@ -105,7 +105,8 @@ describe('AssetsService', () => {
                     pixelWidth: 1024,
                     pixelHeight: 2048,
                     version: 11,
-                    briefDescription: 'my-asset1.png'
+                    briefDescription: 'my-asset1.png',
+                    tags: ['tag']
                 },
                 {
                     id: 'id2',
@@ -122,7 +123,8 @@ describe('AssetsService', () => {
                     pixelWidth: 1024,
                     pixelHeight: 2048,
                     version: 22,
-                    briefDescription: 'my-asset2.png'
+                    briefDescription: 'my-asset2.png',
+                    tags: ['tag']
                 }
             ]
         });
@@ -142,7 +144,8 @@ describe('AssetsService', () => {
                     1024,
                     2048,
 					new Version('11'),
-					'my-asset1.png'),
+					          'my-asset1.png',
+                ['tag']),
                 new AssetDto('id2', 'Created2', 'LastModifiedBy2',
                     DateTime.parseISO_UTC('2016-10-12T10:10'),
                     DateTime.parseISO_UTC('2017-10-12T10:10'),
@@ -155,7 +158,8 @@ describe('AssetsService', () => {
                     1024,
                     2048,
 					new Version('22'),
-					'my-asset2.png')
+					                   'my-asset2.png',
+                            ['tag'])
         ]));
     }));
 
@@ -188,7 +192,8 @@ describe('AssetsService', () => {
             pixelWidth: 1024,
             pixelHeight: 2048,
             version: 11,
-            briefDescription: 'my-asset1.png'
+            briefDescription: 'my-asset1.png',
+            tags: ['tag']
         });
 
         expect(asset).toEqual(
@@ -205,7 +210,8 @@ describe('AssetsService', () => {
                 1024,
                 2048,
 				new Version('11'),
-				'my-asset1.png'));
+				        'my-asset1.png',
+                ['tag']));
     }));
 
     it('should provide entry from cache if not found',
@@ -295,7 +301,8 @@ describe('AssetsService', () => {
             pixelWidth: 1024,
             pixelHeight: 2048,
             version: 11,
-            briefDescription: 'my-asset1.png'
+            briefDescription: 'my-asset1.png',
+            tags: ['tag']
         });
 
         expect(asset).toEqual(
@@ -312,8 +319,9 @@ describe('AssetsService', () => {
                 true,
                 1024,
                 2048,
-				new Version('11'),
-				'my-asset1.png'));
+                new Version('11'),
+				        'my-asset1.png',
+                ['tag']));
     }));
 
     it('should make put request to replace asset content',
@@ -338,7 +346,8 @@ describe('AssetsService', () => {
             pixelWidth: 1024,
             pixelHeight: 2048,
             version: 11,
-            briefDescription: 'my-asset1.png'
+            briefDescription: 'my-asset1.png',
+            tags: ['tag']
         });
 
         expect(asset).toEqual(
@@ -349,13 +358,14 @@ describe('AssetsService', () => {
                 1024,
                 2048,
 				new Version('11'),
-				'my-asset1.png'));
+				        'my-asset1.png',
+            ['tag']));
     }));
 
     it('should make put request to update asset',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        const dto = new UpdateAssetDto('My-Asset.pdf', 'My-Asset brief description');
+        const dto = new UpdateAssetDto('My-Asset.pdf', 'My-Asset brief description', ['tag']);
 
         assetsService.putAsset('my-app', '123', dto, version).subscribe();
 
