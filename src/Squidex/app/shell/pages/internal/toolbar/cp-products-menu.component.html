@@ -1,17 +1,14 @@
-<ul class="nav navbar-nav">
+<link rel="stylesheet" type="text/css" href="http://civiccenter.cpqa.ninja/assets/Styles/CPToolbar--system.css">
+<ul class="nav navbar-nav cp-AdminWrap">
     <li class="nav-item dropdown">
-        <span class="nav-link dropdown-toggle" id="app-name" (click)="modalMenu.toggle()">CP Products</span>
+        <span class="nav-link dropdown-toggle" id="product-name" (click)="modalMenu.toggle()">CP Products</span>
 
         <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade]>
-            <a class="dropdown-item all-apps" routerLink="/app">
-                <span class="all-apps-text">All Apps</span> 
-                <span class="all-apps-pill badge badge-pill badge-primary">{{products.length}}</span>
-            </a>
-
-            <div class="dropdown-divider"></div>
-
             <div *ngIf="products.length > 0">
-                <a class="dropdown-item" *ngFor="let product of products" [routerLink]="['/app', app.name]" routerLinkActive="active">{{product.name}}</a>
+                <a class="dropdown-item cp-NavMenuList-itemLink cp-NavMenuList-itemLink--hasIcon" *ngFor="let product of products" href="{{product.productUri}}" target="_blank" ng-switch="product.currentProduct">
+					<img class="cp-NavMenuList-itemIcon" ng-if="product.logoUri" [src]="product.logoUri"/>
+					<span>{{product.name}}</span>
+				</a>
 
                 <div class="dropdown-divider"></div>
             </div>

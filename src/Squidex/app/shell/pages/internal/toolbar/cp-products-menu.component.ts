@@ -11,8 +11,9 @@ import { Subscription } from 'rxjs';
 import {
     ApiUrlConfig,
     CpProductsService,
+    CpProductsDto,
     fadeAnimation,
-    CpProductsDto
+    ModalView
 } from 'shared';
 
 @Component({
@@ -24,6 +25,7 @@ import {
 })
 export class CpProductsMenuComponent implements OnDestroy, OnInit {
     public productsSubscription: Subscription;
+    public modalMenu = new ModalView(false, true);
 
     public products: CpProductsDto[] = [];
     public productUrl = this.apiUrl.buildUrl('/api/cptoolbar/products');
@@ -32,11 +34,10 @@ export class CpProductsMenuComponent implements OnDestroy, OnInit {
         private readonly productService: CpProductsService,
         private readonly apiUrl: ApiUrlConfig
     ) {
-        console.log(this.productUrl);
     }
 
     public ngOnDestroy() {
-        console.log('destroy');
+        this.products = [];
     }
 
     public ngOnInit() {

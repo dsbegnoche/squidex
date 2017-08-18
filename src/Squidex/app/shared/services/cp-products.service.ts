@@ -19,7 +19,11 @@ import {
 export class CpProductsDto {
     constructor(
         public readonly id: string,
-        public readonly name: string
+        public readonly name: string,
+        public readonly description: string,
+        public readonly logoUri: string,
+        public readonly logoutUri: string,
+        public readonly productUri: string
     ) {
     }
 }
@@ -34,7 +38,6 @@ export class CpProductsService {
 
     public getPoducts(): Observable<CpProductsDto[]> {
         const url = this.apiUrl.buildUrl('/api/cptoolbar/products');
-        console.log('afterURL');
 
         return HTTP.getVersioned(this.http, url)
                 .map(response => {
@@ -43,7 +46,11 @@ export class CpProductsService {
                     return items.map(item => {
                         return new CpProductsDto(
                             item.id,
-                            item.name);
+                            item.name,
+                            item.description,
+                            item.logoUri,
+                            item.logoutUri,
+                            item.productUri);
                     });
                 })
                 .pretifyError('Failed to load products. Please reload.');
