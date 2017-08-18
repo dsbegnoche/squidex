@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="http://civiccenter.cpqa.ninja/assets/Styles/CPToolbar--system.css">
 <ul class="nav navbar-nav">
     <li class="nav-item dropdown cp-Toolbar-item cp-Toolbar-item--wide cp-Toolbar-item--withMenu cp-Toolbar-item--productsList">
-        <span class="nav-link cp-Toolbar-itemLink cp-Toolbar-logo cp-Toolbar-products" style="cursor: pointer;" id="product-name" [ngClass]="{'is-open': modalMenu.isOpen$.value}" (click)="modalMenu.toggle();">
+        <span class="nav-link cp-Toolbar-itemLink cp-Toolbar-logo cp-Toolbar-products" style="cursor: pointer; margin-top: -0.5em;" id="product-name" [ngClass]="{'is-open': modalMenu.isOpen$.value}" (click)="modalMenu.toggle();">
 			<svg *ngIf="modalMenu.isOpen$.value" class="cp-Toolbar-logoSVG cp-Toolbar-logoSVG--white" id="CPLogo--mono" viewBox="0 0 51.3 33.6" width="100%" height="100%">
 				<title>CivicPlus</title>
 				<path fill="currentColor" d="M38.3,2H28v9h10.3c1.5,0,2.7,1.2,2.7,2.7c0,1.5-1.2,2.7-2.7,2.7H28v15.4h3l6.1-6.4h1.2 c6.5,0,11.7-5.2,11.7-11.7C50,7.3,44.8,2,38.3,2z"></path>

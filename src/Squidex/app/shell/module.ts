@@ -19,6 +19,7 @@ import {
     LoginPageComponent,
     LogoutPageComponent,
     NotFoundPageComponent,
+    CpProfileMenuComponent,
     ProfileMenuComponent
 } from './declarations';
 
@@ -43,6 +44,7 @@ import {
         LoginPageComponent,
         LogoutPageComponent,
         NotFoundPageComponent,
+        CpProfileMenuComponent,
         ProfileMenuComponent
     ]
 })
