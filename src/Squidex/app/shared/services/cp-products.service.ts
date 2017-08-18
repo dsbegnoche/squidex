@@ -23,7 +23,9 @@ export class CpProductsDto {
         public readonly description: string,
         public readonly logoUri: string,
         public readonly logoutUri: string,
-        public readonly productUri: string
+        public readonly productUri: string,
+        public readonly currentProduct: string,
+        public readonly isProductHidden: string
     ) {
     }
 }
@@ -50,7 +52,9 @@ export class CpProductsService {
                             item.description,
                             item.logoUri,
                             item.logoutUri,
-                            item.productUri);
+                            item.productUri,
+                            item.currentProduct,
+                            item.isProductHidden);
                     });
                 })
                 .pretifyError('Failed to load products. Please reload.');

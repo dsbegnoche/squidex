@@ -35,5 +35,10 @@
 		/// Is the product hidden by user
 		/// </summary>
 		public bool IsProductHidden { get; set; }
+
+		/// <summary>
+		/// Is the product hidden by user
+		/// </summary>
+		public bool CurrentProduct { get; set; }
 	}
 }
