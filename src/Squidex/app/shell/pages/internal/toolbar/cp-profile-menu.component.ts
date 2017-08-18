@@ -47,8 +47,7 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
     public ngOnInit() {
         this.authenticationSubscription =
             this.authService.userChanges.filter(user => !!user)
-            .subscribe(user => {
-                console.log(user);
+                .subscribe(user => {
                     this.profileId = user.id;
                     this.profileDisplayName = user.displayName;
 
