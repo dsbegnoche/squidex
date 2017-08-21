@@ -43,7 +43,7 @@ namespace Squidex.Controllers.UI.Account
 		private readonly IOptions<MyUrlsOptions> urlOptions;
 		private readonly ISemanticLog log;
 		private readonly IIdentityServerInteractionService interactions;
-		private readonly CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk;
+		private readonly CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk;
 
 		public AccountController(
 			Domain.Users.Base.ISignInManager<IUser> signInManager,
@@ -53,7 +53,7 @@ namespace Squidex.Controllers.UI.Account
 			IOptions<MyUrlsOptions> urlOptions,
 			ISemanticLog log,
 			IIdentityServerInteractionService interactions,
-			CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk)
+			CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk)
 		{
 			this.log = log;
 			this.urlOptions = urlOptions;

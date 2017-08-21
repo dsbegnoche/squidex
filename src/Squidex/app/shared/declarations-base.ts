@@ -24,6 +24,7 @@ export * from './services/apps.service';
 export * from './services/assets.service';
 export * from './services/auth.service';
 export * from './services/contents.service';
+export * from './services/cp-helplinks.service';
 export * from './services/cp-products.service';
 export * from './services/event-consumers.service';
 export * from './services/graphql.service';

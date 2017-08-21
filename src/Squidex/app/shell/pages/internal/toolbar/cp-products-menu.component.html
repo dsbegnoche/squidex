@@ -17,9 +17,11 @@
         <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade]>
             <div *ngIf="products.length > 0">
                 <a class="dropdown-item cp-NavMenuList-itemLink cp-NavMenuList-itemLink--hasIcon" *ngFor="let product of products" href="{{product.productUri}}" target="_blank" [ngSwitch]="product.currentProduct">
-					<img class="cp-NavMenuList-itemIcon" *ngIf="product.logoUri" [src]="product.logoUri"/>
-					<strong *ngSwitchCase="true">{{product.name}}</strong>
-					<span *ngSwitchDefault>{{product.name}}</span>
+	                <div *ngIf="!product.isProductHidden">
+		                <img class="cp-NavMenuList-itemIcon" *ngIf="product.logoUri" [src]="product.logoUri"/>
+		                <strong *ngSwitchCase="true">{{product.name}}</strong>
+		                <span *ngSwitchDefault>{{product.name}}</span>
+	                </div>
 				</a>
 
                 <div class="dropdown-divider"></div>

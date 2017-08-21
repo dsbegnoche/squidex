@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using CivicPlusIdentityServer.Entities;
+using CivicPlusIdentityServer.SDK.NetCore.Entities;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using RestSharp;
@@ -18,10 +19,10 @@ namespace Squidex.Controllers.Toolbar
 	public class ToolbarController : Controller
 	{
 		private readonly UserManager<IUser> userManager;
-		private readonly CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk;
+		private readonly CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk;
 
 		public ToolbarController(UserManager<IUser> userManager,
-			CivicPlusIdentityServer.SDK.Base.IActions civicplusIdentityServerSdk)
+			CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk)
 		{
 			this.userManager = userManager;
 			this.civicplusIdentityServerSdk = civicplusIdentityServerSdk;
@@ -60,5 +61,46 @@ namespace Squidex.Controllers.Toolbar
 			return Ok(response);
 		}
 
-    }
+		/// <summary>
+		/// Get CP Help Links.
+		/// </summary>
+		/// <returns>
+		/// 200 => CP Help Links returned.
+		/// </returns>
+		/// <remarks>
+		/// You will retrieve all CP Help Links from the CivicPlusPlatform.
+		/// </remarks>
+		[HttpGet]
+		[Route("cptoolbar/helplinks/")]
+		[ProducesResponseType(typeof(CpProductsDto[]), 200)]
+		[ApiCosts(1)]
+		public async Task<IActionResult> GetHelpLinks()
+		{
+			var client = new RestClient("https://civiccenter.cpqa.ninja/api/helplinks");
+			var request = new RestRequest(Method.GET);
+			IRestResponse<List<CpHelpLinksDto>> response = new RestResponse<List<CpHelpLinksDto>>();
+
+			Task.Run(async () =>
+			{
+				response = await GetResponseContentAsync<List<CpHelpLinksDto>>(client, request);
+			}).Wait();
+
+			if (response.StatusCode == HttpStatusCode.OK)
+			{
+				List<CpHelpLinksDto> helpLinks = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CpHelpLinksDto>>(response.Content);
+				return Ok(helpLinks);
+			}
+			return BadRequest();
+		}
+
+		private Task<IRestResponse<T>> GetResponseContentAsync<T>(IRestClient restClient, IRestRequest theRequest) where T : new()
+		{
+			var complete = new TaskCompletionSource<IRestResponse<T>>();
+			restClient.ExecuteAsync<T>(theRequest, (response, handler) =>
+			{
+				complete.SetResult(response);
+			});
+			return complete.Task;
+		}
+	}
 }

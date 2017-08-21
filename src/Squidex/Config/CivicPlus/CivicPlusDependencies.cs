@@ -2,12 +2,7 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CivicPlusIdentityServer.SDK;
-using Microsoft.AspNetCore.Identity;
+using CivicPlusIdentityServer.SDK.NetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -24,8 +19,8 @@ namespace Squidex.Config.CivicPlus
 			var serviceProvider = services.BuildServiceProvider();
 			var options = serviceProvider.GetService<IOptions<MyIdentityOptions>>().Value;
 
-			services.AddSingleton<CivicPlusIdentityServer.SDK.Base.IActions>(new Actions(options.CivicPlusIdentityServerBaseUrl));
-			services.TryAddScoped<Squidex.Domain.Users.Base.ISignInManager<IUser>, Squidex.Domain.Users.SignInManager<IUser>>();
+			services.AddSingleton<CivicPlusIdentityServer.SDK.NetCore.Base.IActions>(new Actions(options.CivicPlusIdentityServerBaseUrl));
+			services.TryAddScoped<ISignInManager<IUser>, Squidex.Domain.Users.SignInManager<IUser>>();
 
 			return services;
 		}

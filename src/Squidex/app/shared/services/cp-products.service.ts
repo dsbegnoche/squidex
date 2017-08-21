@@ -1,8 +1,5 @@
 /*
- * Squidex Headless CMS
- *
- * @license
- * Copyright (c) Sebastian Stehle. All rights reserved
+ * CivicPlus implementation of Squidex Headless CMS
  */
 
 import { HttpClient } from '@angular/common/http';
