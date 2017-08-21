@@ -8,7 +8,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export class ModalView {
-    private readonly isOpen$: BehaviorSubject<boolean>;
+    public readonly isOpen$: BehaviorSubject<boolean>;
     private static openView: ModalView | null = null;
 
     public get isOpen(): Observable<boolean> {

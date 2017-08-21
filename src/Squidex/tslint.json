@@ -14,7 +14,7 @@
     "component-selector": [
       true,
       "element",
-      "sqx",
+	    [ "sqx", "cp" ],
       "kebab-case"
     ],
     "curly": true,
@@ -22,7 +22,7 @@
     "directive-selector": [
       true,
       "attribute",
-      "sqx",
+			[ "sqx", "cp" ],
       "camelCase"
     ],
     "eofline": false,

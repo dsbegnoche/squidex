@@ -14,6 +14,10 @@ export * from './pages/internal/apps-menu.component';
 export * from './pages/internal/internal-area.component';
 export * from './pages/internal/profile-menu.component';
 
+export * from './pages/internal/toolbar/cp-helplinks-menu.component';
+export * from './pages/internal/toolbar/cp-products-menu.component';
+export * from './pages/internal/toolbar/cp-profile-menu.component';
+
 export * from './pages/login/login-page.component';
 export * from './pages/logout/logout-page.component';
 

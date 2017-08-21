@@ -1,14 +1,19 @@
-<nav class="navbar fixed-top navbar-inverse bg-primary bg-faded">
-    <span class="navbar-brand" routerLink="/app">
-        <i class="icon-logo"></i>
+<nav class="navbar fixed-top navbar-inverse cp-Toolbar cp-AdminWrap" style="position: fixed;">
+    <span class="navbar-brand icon-CPLogo--new" routerLink="/app">
+        <span class="path1"></span>
+        <span class="path2"></span>
     </span>
 
-    <div class="float-left apps-menu">
-        <sqx-apps-menu></sqx-apps-menu>
+    <div class="float-left cp-products-menu">
+        <cp-products-menu></cp-products-menu>
     </div>
 
-    <div class="float-right profile-menu">
-        <sqx-profile-menu></sqx-profile-menu>
+    <div class="float-right cp-helplinks-menu">
+        <cp-helplinks-menu></cp-helplinks-menu>
+    </div>
+
+    <div class="float-right cp-profile-menu">
+        <cp-profile-menu></cp-profile-menu>
     </div>
 </nav>
 
@@ -17,9 +22,9 @@
 </div>
 
 <div class="notification-container">
-    <div class="notification-item notification-{{notification.messageType}}" *ngFor="let notification of notifications" (click)="close(notification)">
-        {{notification.message}}
-    </div>
+	<div class="notification-item notification-{{notification.messageType}}" *ngFor="let notification of notifications" (click)="close(notification)">
+		{{notification.message}}
+	</div>
 </div>
 
 <sqx-dialog-renderer></sqx-dialog-renderer>

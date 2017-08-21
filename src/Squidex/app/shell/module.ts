@@ -12,12 +12,15 @@ import { SqxFrameworkModule, SqxSharedModule } from 'shared';
 import {
     AppAreaComponent,
     AppsMenuComponent,
+    CpHelpLinksMenuComponent,
+    CpProductsMenuComponent,
     HomePageComponent,
     InternalAreaComponent,
     LeftMenuComponent,
     LoginPageComponent,
     LogoutPageComponent,
     NotFoundPageComponent,
+    CpProfileMenuComponent,
     ProfileMenuComponent
 } from './declarations';
 
@@ -35,12 +38,15 @@ import {
     declarations: [
         AppAreaComponent,
         AppsMenuComponent,
+        CpHelpLinksMenuComponent,
+        CpProductsMenuComponent,
         HomePageComponent,
         InternalAreaComponent,
         LeftMenuComponent,
         LoginPageComponent,
         LogoutPageComponent,
         NotFoundPageComponent,
+        CpProfileMenuComponent,
         ProfileMenuComponent
     ]
 })
