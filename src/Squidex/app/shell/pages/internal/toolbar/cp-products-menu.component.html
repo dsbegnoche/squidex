@@ -1,0 +1,31 @@
+<link rel="stylesheet" type="text/css" href="http://civiccenter.cpqa.ninja/assets/Styles/CPToolbar--system.css">
+<ul class="nav navbar-nav">
+    <li class="nav-item dropdown cp-Toolbar-item cp-Toolbar-item--wide cp-Toolbar-item--withMenu cp-Toolbar-item--productsList">
+        <span class="nav-link cp-Toolbar-itemLink cp-Toolbar-logo cp-Toolbar-products" style="cursor: pointer; margin-top: -0.5em;" id="product-name" [ngClass]="{'is-open': modalMenu.isOpen$.value}" (click)="modalMenu.toggle();">
+			<svg *ngIf="modalMenu.isOpen$.value" class="cp-Toolbar-logoSVG cp-Toolbar-logoSVG--white" id="CPLogo--mono" viewBox="0 0 51.3 33.6" width="100%" height="100%">
+				<title>CivicPlus</title>
+				<path fill="currentColor" d="M38.3,2H28v9h10.3c1.5,0,2.7,1.2,2.7,2.7c0,1.5-1.2,2.7-2.7,2.7H28v15.4h3l6.1-6.4h1.2 c6.5,0,11.7-5.2,11.7-11.7C50,7.3,44.8,2,38.3,2z"></path>
+				<path fill="currentColor" d="M23.4,25.4H13c-6.5,0-11.7-5.2-11.7-11.7C1.3,7.3,6.6,2,13,2h10.3v9H13c-1.5,0-2.7,1.2-2.7,2.7 c0,1.5,1.2,2.7,2.7,2.7h10.3V25.4L23.4,25.4z"></path>
+			</svg>
+			<svg *ngIf="!modalMenu.isOpen$.value" class="cp-Toolbar-logoSVG cp-Toolbar-logoSVG--product cp-Toolbar-logoSVG--color" id="CPLogo--mono" viewBox="0 0 51.3 33.6" width="100%" height="100%">
+				<title>CivicPlus</title>
+				<path fill="currentColor" d="M38.3,2H28v9h10.3c1.5,0,2.7,1.2,2.7,2.7c0,1.5-1.2,2.7-2.7,2.7H28v15.4h3l6.1-6.4h1.2 c6.5,0,11.7-5.2,11.7-11.7C50,7.3,44.8,2,38.3,2z"></path>
+				<path fill="currentColor" d="M23.4,25.4H13c-6.5,0-11.7-5.2-11.7-11.7C1.3,7.3,6.6,2,13,2h10.3v9H13c-1.5,0-2.7,1.2-2.7,2.7 c0,1.5,1.2,2.7,2.7,2.7h10.3V25.4L23.4,25.4z"></path>
+			</svg>
+		</span>
+
+        <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade]>
+            <div *ngIf="products.length > 0">
+                <a class="dropdown-item cp-NavMenuList-itemLink cp-NavMenuList-itemLink--hasIcon" *ngFor="let product of products" href="{{product.productUri}}" target="_blank" [ngSwitch]="product.currentProduct">
+	                <div *ngIf="!product.isProductHidden">
+		                <img class="cp-NavMenuList-itemIcon" *ngIf="product.logoUri" [src]="product.logoUri"/>
+		                <strong *ngSwitchCase="true">{{product.name}}</strong>
+		                <span *ngSwitchDefault>{{product.name}}</span>
+	                </div>
+				</a>
+
+                <div class="dropdown-divider"></div>
+            </div>
+        </div>
+    </li>
+</ul>

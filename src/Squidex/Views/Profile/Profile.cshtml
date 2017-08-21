@@ -107,17 +107,6 @@
                     </tr>
                 }
             </table>
-
-            <form asp-controller="Profile" asp-action="AddLogin" method="post">
-                @foreach (var provider in Model.ExternalProviders.Where(x => !Model.ExternalLogins.Any(y => x.AuthenticationScheme == y.LoginProvider)))
-                {
-                    var schema = provider.AuthenticationScheme.ToLowerInvariant();
-
-                    <button class="btn external-button-small btn btn-@schema" type="submit" name="provider" value="@provider.AuthenticationScheme">
-                        <i class="icon-@schema external-icon"></i>
-                    </button>
-                }
-            </form>
         </div>
     }
     

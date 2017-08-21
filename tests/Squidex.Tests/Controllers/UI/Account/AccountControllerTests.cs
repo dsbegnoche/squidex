@@ -2,30 +2,23 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
-using CivicPlusIdentityServer.Entities;
-using CivicPlusIdentityServer.SDK.Base;
+using CivicPlusIdentityServer.SDK.NetCore.Entities;
+using CivicPlusIdentityServer.SDK.NetCore.Base;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.MongoDB;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Squidex.Config;
 using Squidex.Config.Identity;
-using Squidex.Controllers.UI;
 using Squidex.Controllers.UI.Account;
 using Squidex.Domain.Users;
 using Squidex.Domain.Users.MongoDb;
@@ -44,7 +37,7 @@ namespace Squidex.Tests.Controllers.UI.Account
 		private readonly Mock<IOptions<MyUrlsOptions>> urlOptions;
 		private readonly Mock<ISemanticLog> log;
 		private readonly Mock<IIdentityServerInteractionService> interactions;
-		private readonly Mock<CivicPlusIdentityServer.SDK.Base.IActions> civicplusIdentityServerSdk;
+		private readonly Mock<IActions> civicplusIdentityServerSdk;
 		private readonly Mock<HttpContext> httpContext;
 		private readonly HttpContextAccessor httpContextAccessor;
 		private readonly Mock<IUserClaimsPrincipalFactory<IUser>> userClaimsPrincipalFactory;
