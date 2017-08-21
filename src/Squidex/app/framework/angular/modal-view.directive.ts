@@ -101,7 +101,8 @@ export class ModalViewDirective implements OnChanges, OnDestroy {
                         const clickedInside = rootNode.contains(event.target);
 
                         if (!clickedInside && this.modalView) {
-                            this.modalView.hide();
+                            // disabling as this causes bug when using modals that have interactive elements.
+                            // this.modalView.hide();
                         }
                     }
                 }

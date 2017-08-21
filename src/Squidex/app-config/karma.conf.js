@@ -43,7 +43,7 @@ module.exports = function (config) {
         /*
          * Use a mocha style console reporter and html reporter.
          */
-        reporters: ['kjhtml', 'mocha', 'trx'],
+        reporters: ['mocha', 'trx'],
 
         trxReporter: { outputFile: 'results.trx', shortTestName: false },
 

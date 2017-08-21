@@ -24,7 +24,7 @@ namespace Squidex.Config
 
         public static readonly string IdentityPrefix = "/identity-server";
 
-		public static readonly string CivicPlusAuthenticationScheme = "CivicPlus";
+		public static readonly string CivicPlusAuthenticationScheme = "oidc";
 
 		public static readonly string CivicPlusPlatformUrl = "https://civiccenter.cpqa.ninja/";
     }
