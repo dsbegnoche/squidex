@@ -135,7 +135,7 @@ namespace Squidex.Tests.Controllers.UI.Account
 					{
 						new IdentityUserToken()
 						{
-							LoginProvider = "CivicPlus",
+							LoginProvider = Constants.CivicPlusAuthenticationScheme,
 							Name = "id_token",
 							Value = "tokenValue"
 						}
