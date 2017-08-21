@@ -94,6 +94,10 @@ export class AuthService {
             this.user$.next(null);
         });
 
+        this.userManager.events.addUserSignedOut(() => {
+            this.userManager.signinRedirect();
+        });
+
         this.user$.subscribe(user => {
             this.currentUser = user;
         });

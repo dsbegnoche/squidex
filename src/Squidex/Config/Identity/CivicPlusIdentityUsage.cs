@@ -20,6 +20,7 @@ namespace Squidex.Config.Identity
 				var civicPlusOptions = new OpenIdConnectOptions()
 				{
 					AuthenticationScheme = Constants.CivicPlusAuthenticationScheme,
+					SignInScheme = "Identity.External",
 					Authority = options.CivicPlusAuthority,
 					ClientId = options.CivicPlusClient,
 					ClientSecret = options.CivicPlusSecret,
