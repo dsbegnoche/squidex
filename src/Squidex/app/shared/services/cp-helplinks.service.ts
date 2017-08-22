@@ -46,4 +46,21 @@ export class CpHelpLinksService {
             })
             .pretifyError('Failed to load help links. Please reload.');
     }
+
+    public getResetPasswordUrl(): Observable<CpHelpLinksDto[]> {
+        const url = this.apiUrl.buildUrl('/api/cptoolbar/reset-password');
+
+        return HTTP.getVersioned(this.http, url)
+            .map(response => {
+                const items: any[] = response;
+
+                return items.map(item => {
+                    return new CpHelpLinksDto(
+                        item.id,
+                        item.title,
+                        item.url);
+                });
+            })
+            .pretifyError('Failed to load reset password link. Please reload.');
+    }
 }

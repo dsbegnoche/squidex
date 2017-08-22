@@ -11,6 +11,8 @@ import { Subscription } from 'rxjs';
 import {
     ApiUrlConfig,
     AuthService,
+    CpHelpLinksService,
+    CpHelpLinksDto,
     fadeAnimation,
     ModalView
 } from 'shared';
@@ -24,6 +26,7 @@ import {
 })
 export class CpProfileMenuComponent implements OnDestroy, OnInit {
     private authenticationSubscription: Subscription;
+    private helplinksSubscription: Subscription;
 
     public modalMenu = new ModalView(false, true);
 
@@ -33,10 +36,14 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
     public isAdmin = false;
 
     public profileUrl = this.apiUrl.buildUrl('/identity-server/account/profile');
+    public resetPasswordLink: CpHelpLinksDto[] = [];
+    public resetPasswordUrl = '';
+    public resetPasswordReturnUrl = window.location.href;
 
     constructor(
         private readonly authService: AuthService,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly apiUrl: ApiUrlConfig,
+        private readonly helplinksService: CpHelpLinksService
     ) {
     }
 
@@ -53,6 +60,11 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
 
                     this.isAdmin = user.isAdmin;
                 });
+
+        this.helplinksSubscription = this.helplinksService.getResetPasswordUrl().subscribe(resetPasswordLink => {
+            this.resetPasswordLink = resetPasswordLink;
+            this.resetPasswordUrl = resetPasswordLink[0].url + this.resetPasswordReturnUrl;
+        });
     }
 
     public logout() {

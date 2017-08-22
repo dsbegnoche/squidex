@@ -30,6 +30,8 @@ namespace Squidex.Config.Identity
 
 		public string CivicPlusIdentityServerBaseUrl { get; set; }
 
+		public string CivicPlusPlatformBaseUrl { get; set; }
+
 		public string CivicPlusAuthority
 		{
 			get { return $"{CivicPlusIdentityServerBaseUrl}/identity"; }
@@ -75,6 +77,7 @@ namespace Squidex.Config.Identity
 		{
 			return 
 				!string.IsNullOrWhiteSpace(CivicPlusIdentityServerBaseUrl) &&
+				!string.IsNullOrWhiteSpace(CivicPlusPlatformBaseUrl) &&
 				!string.IsNullOrWhiteSpace(CivicPlusAuthority) &&
 				!string.IsNullOrWhiteSpace(CivicPlusClient) &&
 				!string.IsNullOrWhiteSpace(CivicPlusSecret) &&

@@ -6,22 +6,22 @@
             </span>
         </span>
 
-        <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade] style="right: 0; left: auto;">
-	        <a class="dropdown-item" [sqxPopupLink]="profileUrl" style="cursor: pointer; padding-right: 3em;">
+        <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade] style="right: 0; left: auto; padding: 0;">
+	        <a class="dropdown-item cp-NavMenuList-itemLink" [sqxPopupLink]="profileUrl" style="cursor: pointer;">
 		        <span class="user">
 			        <img class="user-picture" [attr.src]="profileId | sqxUserIdPicture" />
 		        </span>
 		        {{profileDisplayName}}
 	        </a>
 
-            <a class="dropdown-item" routerLink="/app/administration" *ngIf="isAdmin">
+            <a class="dropdown-item cp-NavMenuList-itemLink" routerLink="/app/administration" *ngIf="isAdmin">
                 Administration
             </a>
-	        <a href="https://civiccenter.cpqa.ninja:443/ResetPassword?redirectUrl=https://qatv5.civicplus.com/admin/dashboard#!/recentactivity" class="dropdown-item">
+	        <a href="{{resetPasswordUrl}}" class="dropdown-item cp-NavMenuList-itemLink">
 		        Reset Password
 	        </a>
 
-            <a class="dropdown-item" (click)="logout()" style="cursor: pointer;">
+            <a class="dropdown-item cp-NavMenuList-itemLink" (click)="logout()" style="cursor: pointer;">
                 Sign Out
             </a>
         </div>
