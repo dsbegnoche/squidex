@@ -66,6 +66,7 @@ export class ContributorsPageComponent extends AppComponentBase implements OnIni
         'Owner',
         'Developer',
         'Editor',
+        'Author',
         'Reader'
     ];
 

@@ -96,8 +96,9 @@ namespace Squidex.Pipeline.Swagger
                         { Constants.ApiScope, "Read and write access to the API" },
                         { SquidexRoles.AppOwner, "You get this scope / role when you are owner of the app you are accessing." },
                         { SquidexRoles.AppEditor, "You get this scope / role when you are owner of the app you are accessing or when the subject is a client." },
-                        { SquidexRoles.AppDeveloper, "You get this scope / role when you are owner of the app you are accessing." }
-                    },
+                        { SquidexRoles.AppDeveloper, "You get this scope / role when you are owner of the app you are accessing." },
+	                    { SquidexRoles.AppAuthor, "You get this scope / role when you are author of the app you are accessing." }
+					},
                     Description = securityDescription
                 };
 
