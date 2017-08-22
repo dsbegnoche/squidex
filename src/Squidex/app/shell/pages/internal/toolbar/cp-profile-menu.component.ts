@@ -63,7 +63,7 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
 
         this.helplinksSubscription = this.helplinksService.getResetPasswordUrl().subscribe(resetPasswordLink => {
             this.resetPasswordLink = resetPasswordLink;
-            this.resetPasswordUrl = resetPasswordLink[0].url;
+            this.resetPasswordUrl = resetPasswordLink[0].url + this.resetPasswordReturnUrl;
         });
     }
 
