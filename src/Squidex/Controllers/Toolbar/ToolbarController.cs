@@ -9,8 +9,10 @@ using RestSharp;
 using Squidex.Controllers.Toolbar.Models;
 using Squidex.Pipeline;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Squidex.Shared.Users;
 using Squidex.Config;
+using Squidex.Config.Identity;
 using Squidex.Infrastructure.Reflection;
 
 namespace Squidex.Controllers.Toolbar
@@ -20,12 +22,15 @@ namespace Squidex.Controllers.Toolbar
 	{
 		private readonly UserManager<IUser> userManager;
 		private readonly CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk;
+		private readonly IOptions<MyIdentityOptions> identityOptions;
 
 		public ToolbarController(UserManager<IUser> userManager,
-			CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk)
+			CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk,
+			IOptions<MyIdentityOptions> identityOptions)
 		{
 			this.userManager = userManager;
 			this.civicplusIdentityServerSdk = civicplusIdentityServerSdk;
+			this.identityOptions = identityOptions;
 		}
 
 		/// <summary>
@@ -72,11 +77,11 @@ namespace Squidex.Controllers.Toolbar
 		/// </remarks>
 		[HttpGet]
 		[Route("cptoolbar/helplinks/")]
-		[ProducesResponseType(typeof(CpProductsDto[]), 200)]
+		[ProducesResponseType(typeof(CpHelpLinksDto[]), 200)]
 		[ApiCosts(1)]
-		public async Task<IActionResult> GetHelpLinks()
+		public IActionResult GetHelpLinks()
 		{
-			var client = new RestClient("https://civiccenter.cpqa.ninja/api/helplinks");
+			var client = new RestClient($"{identityOptions.Value.CivicPlusPlatformBaseUrl}/api/helplinks");
 			var request = new RestRequest(Method.GET);
 			IRestResponse<List<CpHelpLinksDto>> response = new RestResponse<List<CpHelpLinksDto>>();
 
@@ -93,7 +98,7 @@ namespace Squidex.Controllers.Toolbar
 			return BadRequest();
 		}
 
-		private Task<IRestResponse<T>> GetResponseContentAsync<T>(IRestClient restClient, IRestRequest theRequest) where T : new()
+		private static Task<IRestResponse<T>> GetResponseContentAsync<T>(IRestClient restClient, IRestRequest theRequest) where T : new()
 		{
 			var complete = new TaskCompletionSource<IRestResponse<T>>();
 			restClient.ExecuteAsync<T>(theRequest, (response, handler) =>
@@ -101,6 +106,34 @@ namespace Squidex.Controllers.Toolbar
 				complete.SetResult(response);
 			});
 			return complete.Task;
+		}
+
+		/// <summary>
+		/// Get CP Reset Password link.
+		/// </summary>
+		/// <returns>
+		/// 200 => CP Reset Password link returned.
+		/// </returns>
+		/// <remarks>
+		/// You will retrieve CP Reset Password link.
+		/// </remarks>
+		[HttpGet]
+		[Route("cptoolbar/reset-password/")]
+		[ProducesResponseType(typeof(CpHelpLinksDto[]), 200)]
+		[ApiCosts(1)]
+		public IActionResult ResetPassword()
+		{
+			var resetPasswordUrl = $"{identityOptions.Value.CivicPlusPlatformBaseUrl}/ResetPassword?redirectUrl=";
+			var response = new List<CpHelpLinksDto>();
+			response.Add(new CpHelpLinksDto
+			{
+				Id = 0,
+				Title = "ResetPasswordLink",
+				Url = resetPasswordUrl
+			});
+
+
+			return Ok(response);
 		}
 	}
 }

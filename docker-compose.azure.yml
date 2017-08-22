@@ -45,6 +45,7 @@ services:
       - "IDENTITY__CIVICPLUSCLIENT=87"
       - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
       - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://${SQUIDEX_DOMAIN}/identity-server/account/logout"
+      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
       - squidex_mongo
