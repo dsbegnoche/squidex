@@ -36,8 +36,6 @@ namespace Squidex.Config.Identity
 					civicPlusOptions.Scope.Add(scope);
 				}
 
-				app.UseCookieAuthentication();
-
 				app.UseOpenIdConnectAuthentication(civicPlusOptions);
 			}
 

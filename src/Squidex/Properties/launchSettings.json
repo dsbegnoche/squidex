@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50261/",
+      "applicationUrl": "http://localhost:5000",
       "sslPort": 0
     }
   },
@@ -12,6 +12,7 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
+        "RunningIn": "Squidex",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
