@@ -13,7 +13,8 @@ import {
     AppDto,
     AppsService,
     CreateAppDto,
-    DateTime
+    DateTime,
+    PermissionEnum
 } from './../';
 
 describe('AppsService', () => {
@@ -67,8 +68,8 @@ describe('AppsService', () => {
         ]);
 
         expect(apps).toEqual([
-            new AppDto('123', 'name1', 'Owner', DateTime.parseISO('2016-01-01'), DateTime.parseISO('2016-02-02')),
-            new AppDto('456', 'name2', 'Owner', DateTime.parseISO('2017-01-01'), DateTime.parseISO('2017-02-02'))
+            new AppDto('123', 'name1', PermissionEnum.Owner, DateTime.parseISO('2016-01-01'), DateTime.parseISO('2016-02-02')),
+            new AppDto('456', 'name2', PermissionEnum.Owner, DateTime.parseISO('2017-01-01'), DateTime.parseISO('2017-02-02'))
         ]);
     }));
 
@@ -90,6 +91,6 @@ describe('AppsService', () => {
 
         req.flush({ id: '123' });
 
-        expect(app).toEqual(new AppDto('123', dto.name, 'Owner', now, now));
+        expect(app).toEqual(new AppDto('123', dto.name, PermissionEnum.Owner, now, now));
     }));
 });
