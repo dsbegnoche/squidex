@@ -54,14 +54,14 @@ describe('AppsService', () => {
             {
                 id: '123',
                 name: 'name1',
-                permission: 'Owner',
+                permission: PermissionEnum.Owner,
                 created: '2016-01-01',
                 lastModified: '2016-02-02'
             },
             {
                 id: '456',
                 name: 'name2',
-                permission: 'Owner',
+                permission: PermissionEnum.Owner,
                 created: '2017-01-01',
                 lastModified: '2017-02-02'
             }
