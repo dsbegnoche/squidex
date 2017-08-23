@@ -130,7 +130,7 @@ services:
       NAME: "kraken_hcms"
     restart: "always"
   squidex_squidex:
-    image: "squidex:dev"
+    image: "squidex/squidex:dev"
     ports:
       - "5003:80"
     environment:
