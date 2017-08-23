@@ -18,7 +18,7 @@ import { AppsStoreService, PermissionEnum } from 'shared';
 export class LeftMenuComponent implements OnDestroy, OnInit {
     private appSubscription: Subscription;
 
-    public permission: PermissionEnum | null = null;
+    public permission: number | null = -1;
     public PermissionEnum = PermissionEnum;
 
     constructor(
@@ -33,9 +33,9 @@ export class LeftMenuComponent implements OnDestroy, OnInit {
     public ngOnInit() {
         this.appSubscription =
             this.appsStore.selectedApp.subscribe(app => {
-            if (app) {
-                this.permission = app.permission;
-            }
+                if (app) {
+                    this.permission = Number(PermissionEnum[app.permission]);
+                }
             });
     }
 }
