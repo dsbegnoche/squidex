@@ -24,3 +24,7 @@ node_modules/
 /src/Squidex/appsettings.Development.json
 /src/Squidex/Assets
 /src/Squidex/results.trx
+/deploy_kraken.sh
+/deploy_kraken_hcms.sh
+/deploy_kraken_review.sh
+/deploy_squidex_dev.sh
