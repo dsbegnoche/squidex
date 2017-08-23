@@ -18,7 +18,7 @@ import { AppsStoreService, PermissionEnum } from 'shared';
 export class LeftMenuComponent implements OnDestroy, OnInit {
     private appSubscription: Subscription;
 
-    public permission: number | null = null;
+    public permission: number | null = -1;
     public PermissionEnum = PermissionEnum;
 
     constructor(
