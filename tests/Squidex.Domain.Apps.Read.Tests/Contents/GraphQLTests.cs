@@ -57,7 +57,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .AddOrUpdateField(new ReferencesField(9, "my-invalid", Partitioning.Invariant,
                     new ReferencesFieldProperties { SchemaId = Guid.NewGuid() }))
                 .AddOrUpdateField(new GeolocationField(9, "my-geolocation", Partitioning.Invariant,
-                    new GeolocationFieldProperties()));
+                    new GeolocationFieldProperties()))
+                .AddOrUpdateField(new TagField(10, "my-tags", Partitioning.Invariant,
+                    new TagFieldProperties()));
 
         private readonly ISchemaRepository schemaRepository = A.Fake<ISchemaRepository>();
         private readonly ISchemaEntity schemaEntity = A.Fake<ISchemaEntity>();
@@ -213,7 +215,7 @@ namespace Squidex.Domain.Apps.Read.Contents
         }
 
         [Fact]
-        public async Task Should_return_multiple_contens_when_querying_contents()
+        public async Task Should_return_multiple_contents_when_querying_contents()
         {
             const string query = @"
                 query {
@@ -244,6 +246,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                       myGeolocation {
                         iv
                       }
+					  myTags {
+						iv
+					  }
                     }
                   }
                 }";
@@ -304,7 +309,15 @@ namespace Squidex.Domain.Apps.Read.Contents
                                         latitude = 10,
                                         longitude = 20
                                     }
-                                }
+                                },
+								myTags = new
+								{
+									iv = new[]
+									{
+										"value1",
+										"value2"
+									}
+								}
                             }
                         }
                     }
@@ -347,6 +360,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                         iv
                       }}
                       myGeolocation {{
+                        iv
+                      }}
+                      myTags {{
                         iv
                       }}
                     }}
@@ -402,6 +418,14 @@ namespace Squidex.Domain.Apps.Read.Contents
                                 {
                                     latitude = 10,
                                     longitude = 20
+                                }
+                            },
+                            myTags = new
+                            {
+                                iv = new[]
+                                {
+                                    "value1",
+                                    "value2"
                                 }
                             }
                         }
@@ -553,7 +577,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                     .AddField("my-references",
                         new ContentFieldData().AddValue("iv", JToken.FromObject(new[] { refId })))
                     .AddField("my-geolocation",
-                        new ContentFieldData().AddValue("iv", JToken.FromObject(new { latitude = 10, longitude = 20 })));
+                        new ContentFieldData().AddValue("iv", JToken.FromObject(new { latitude = 10, longitude = 20 })))
+                    .AddField("my-tags",
+                        new ContentFieldData().AddValue("iv", JToken.FromObject(new[] { "value1", "value2" })));
 
             var contentEntity = new FakeContentEntity
             {
