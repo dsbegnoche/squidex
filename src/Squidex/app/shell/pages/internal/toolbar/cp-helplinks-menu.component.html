@@ -1,6 +1,8 @@
 ﻿<ul class="nav navbar-nav">
 	<li class="nav-item dropdown cp-Toolbar-item cp-Toolbar-item--wide cp-Toolbar-item--withMenu cp-Toolbar-item--help">
-		<span (click)="modalMenu.toggle();" style="cursor: pointer; margin-left: 3em;">HELP</span>
+		<span class="cp-Toolbar-itemLink cp-Toolbar-help" [ngClass]="{'is-open': modalMenu.isOpen$.value}" (click)="modalMenu.toggle();" style="cursor: pointer; margin-top: -0.5em;">
+			HELP
+		</span>
 
 		<div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade] style="right: 0; left: auto; padding: 0;">
 			<div *ngIf="helplinks.length > 0">

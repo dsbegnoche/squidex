@@ -1,10 +1,8 @@
 <ul class="nav navbar-nav cp-Toolbar-items cp-Toolbar-items--right" style="list-style: none;">
     <li class="nav-item dropdown cp-Toolbar-item cp-Toolbar-item--wide cp-Toolbar-item--withMenu">
-        <span (click)="modalMenu.toggle()" style="padding: 0; cursor: pointer;">
-            <span class="user">
-	            <strong>{{profileDisplayName}}</strong>
-            </span>
-        </span>
+	    <span class="user cp-Toolbar-itemLink cp-Toolbar-myAccount" [ngClass]="{'is-open': modalMenu.isOpen$.value}" (click)="modalMenu.toggle()" style="margin-top: -0.5em; cursor: pointer;">
+		    <strong>{{profileDisplayName}}</strong>
+	    </span>
 
         <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade] style="right: 0; left: auto; padding: 0;">
 	        <a class="dropdown-item cp-NavMenuList-itemLink" [sqxPopupLink]="profileUrl" style="cursor: pointer;">
