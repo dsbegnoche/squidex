@@ -28,3 +28,5 @@ node_modules/
 /deploy_kraken_hcms.sh
 /deploy_kraken_review.sh
 /deploy_squidex_dev.sh
+/docker-compose.azure.alex.yml
+/deploy_kraken.alex.sh
