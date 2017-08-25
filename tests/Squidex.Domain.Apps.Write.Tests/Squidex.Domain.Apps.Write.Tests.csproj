@@ -6,6 +6,9 @@
     <RootNamespace>Squidex.Domain.Apps.Write</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\src\Squidex\AllowedFiletypes.txt" Link="AllowedFiletypes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\src\Squidex\DefaultSchema.json" Link="DefaultSchema.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
