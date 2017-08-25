@@ -8,7 +8,10 @@ namespace Squidex.Domain.Apps.Core.Apps
     {
 		Deleted = 0,
 		Draft = 1,
+<<<<<<< HEAD
         Submitted = 2,
+=======
+>>>>>>> HCMS
 		Published = 10
     }
 }
