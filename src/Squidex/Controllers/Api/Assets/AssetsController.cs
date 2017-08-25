@@ -25,6 +25,7 @@ using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
+using Squidex.Shared.Config;
 
 // ReSharper disable PossibleNullReferenceException
 
@@ -253,34 +254,35 @@ namespace Squidex.Controllers.Api.Assets
             return NoContent();
         }
 
+        private void FailValidationCreation(string message) =>
+            throw new ValidationException("Cannot create asset.", new ValidationError(message));
+
         private async Task<AssetFile> CheckAssetFileAsync(IReadOnlyList<IFormFile> file)
         {
             if (file.Count != 1)
-            {
-                var error = new ValidationError($"Can only upload one file, found {file.Count}.");
-
-                throw new ValidationException("Cannot create asset.", error);
-            }
+                FailValidationCreation($"Can only upload one file, found {file.Count}.");
 
             var formFile = file[0];
 
             if (formFile.Length > assetsConfig.MaxSize)
-            {
-                var error = new ValidationError($"File size cannot be longer than ${assetsConfig.MaxSize}.");
-
-                throw new ValidationException("Cannot create asset.", error);
-            }
+                FailValidationCreation($"File size cannot be longer than ${assetsConfig.MaxSize}.");
 
             var plan = appPlanProvider.GetPlanForApp(App);
-
             var currentSize = await assetStatsRepository.GetTotalSizeAsync(App.Id);
 
             if (plan.MaxAssetSize > 0 && plan.MaxAssetSize < currentSize + formFile.Length)
-            {
-                var error = new ValidationError("You have reached your max asset size.");
+                FailValidationCreation("You have reached your max asset size.");
 
-                throw new ValidationException("Cannot create asset.", error);
-            }
+            var filename = formFile.FileName;
+
+            if (!filename.Contains("."))
+                FailValidationCreation("Asset has no extensions found");
+
+            var extension = filename.Split('.').Last().ToLower();
+            var validExtensions = AssetFileValidationConfig.ValidExtensions;
+
+            if (!validExtensions.Contains(extension))
+                FailValidationCreation($"Asset extension '{extension}' is not an allowed filetype."); 
 
             var assetFile = new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, formFile.OpenReadStream, "", new string[0]);
 
