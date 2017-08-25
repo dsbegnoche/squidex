@@ -40,8 +40,6 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         protected async Task On(CreateAsset command, CommandContext context)
         {
-            AssetFileValidator.Instance.ValidateFileExtension(command.File.FileName);
-
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
             {
