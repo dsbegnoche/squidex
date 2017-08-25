@@ -7,7 +7,7 @@ using System.Text;
 namespace Squidex.Shared.Config
 {
     /// <summary> class used to validate asset creation file commands </summary>
-    // TODO: consider finding a better place for this -- issue is we don't want this to read with every request.
+    // TODO: consider finding a better place for this?
     public static class AssetFileValidationConfig
     {
         public static string[] ValidExtensions { get; } =

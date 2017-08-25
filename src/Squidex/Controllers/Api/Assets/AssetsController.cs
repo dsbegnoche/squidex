@@ -168,7 +168,15 @@ namespace Squidex.Controllers.Api.Assets
         [ProducesResponseType(typeof(ErrorDto), 400)]
         public async Task<IActionResult> PostAsset(string app, List<IFormFile> file)
         {
-            var assetFile = await CheckAssetFileAsync(file);
+            AssetFile assetFile = null;
+            try
+            {
+                assetFile = await CheckAssetFileAsync(file);
+            }
+            catch(Exception e)
+            {
+                FailValidationCreation(e.ToString());
+            }
 
             var command = new CreateAsset { File = assetFile };
             var context = await CommandBus.PublishAsync(command);
