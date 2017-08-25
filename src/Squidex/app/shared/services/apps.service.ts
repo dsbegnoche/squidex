@@ -14,14 +14,15 @@ import 'framework/angular/http-extensions';
 import {
     ApiUrlConfig,
     DateTime,
-    HTTP
+    HTTP,
+    PermissionEnum
 } from 'framework';
 
 export class AppDto {
     constructor(
         public readonly id: string,
         public readonly name: string,
-        public readonly permission: string,
+        public readonly permission: PermissionEnum,
         public readonly created: DateTime,
         public readonly lastModified: DateTime
     ) {
@@ -69,7 +70,7 @@ export class AppsService {
                 .map(response => {
                     now = now || DateTime.now();
 
-                    return new AppDto(response.id, dto.name, 'Owner', now, now);
+                    return new AppDto(response.id, dto.name, PermissionEnum.Owner, now, now);
                 })
                 .pretifyError('Failed to create app. Please reload.');
     }

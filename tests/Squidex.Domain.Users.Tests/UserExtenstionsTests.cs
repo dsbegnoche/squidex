@@ -117,13 +117,15 @@ namespace Squidex.Domain.Users
 			string appEditor = "APP-EDITOR";
 		    string appReader = "APP-READER";
 		    string appDeveloper = "APP-DEVELOPER";
+		    string appAuthor = "APP-AUTHOR";
 
-		    Assert.Equal(admin, SquidexRoles.Administrator);
+			Assert.Equal(admin, SquidexRoles.Administrator);
 		    Assert.Equal(appOwner, SquidexRoles.AppOwner);
 		    Assert.Equal(appEditor, SquidexRoles.AppEditor);
 		    Assert.Equal(appReader, SquidexRoles.AppReader);
 		    Assert.Equal(appDeveloper, SquidexRoles.AppDeveloper);
-	    }
+		    Assert.Equal(appAuthor, SquidexRoles.AppAuthor);
+		}
 
 		public class TestUser : IUser
 	    {

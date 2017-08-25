@@ -19,5 +19,7 @@ namespace Squidex.Shared.Identity
         public static readonly string AppReader = "APP-READER";
 
         public static readonly string AppDeveloper = "APP-DEVELOPER";
-    }
+
+	    public static readonly string AppAuthor = "APP-AUTHOR";
+	}
 }

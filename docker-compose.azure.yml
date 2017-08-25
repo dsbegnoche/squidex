@@ -18,18 +18,132 @@ services:
       - "27017:27017"
     labels:
       NAME: "squidex_mongo"
-  squidex_squidex:
+  kraken_dev:
     image: "civicplus.azurecr.io/kraken:dev"
     ports:
       - "5000:80"
+    environment:
+      - "URLS__BASEURL=https://${KRAKEN_DOMAIN}"
+      - "URLS__ENFORCEHTTPS=true"
+      - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_DEV}"
+      - "PUBSUB__TYPE=redis"
+      - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
+      - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "STORE__MONGODB__CONTENTDATABASE=${CONTENTDATABASE_DEV}"
+      - "STORE__MONGODB__DATABASE=${DATABASE_DEV}"
+      - "IDENTITY__KEYSSTORE__TYPE=redis"
+      - "IDENTITY__KEYSSTORE__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=true"
+      - "IDENTITY__GOOGLECLIENT=70791586885-rnpr22qk9joa8bqmmbbfq6l5et9a3nef.apps.googleusercontent.com"
+      - "IDENTITY__GOOGLESECRET=rsQCbZM3TTHoo5HqhAeeCra-"
+      - "IDENTITY__ADMINEMAIL=${SQUIDEX_EMAIL}"
+      - "IDENTITY__ADMINPASSWORD=${SQUIDEX_PASSWORD}"
+      - "VIRTUAL_HOST=${KRAKEN_DOMAIN}"
+      - "LETSENCRYPT_HOST=${KRAKEN_DOMAIN}"
+      - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
+      - "ASSETSTORE__TYPE=${ASSETSTORE_TYPE}"
+      - "ASSETSTORE__AZUREBLOB__CONNECTIONSTRING=${AZUREBLOB_CONNECTION}"
+      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://identityserver.cpqa.ninja"
+      - "IDENTITY__CIVICPLUSCLIENT=87"
+      - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
+      - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://${KRAKEN_DOMAIN}/identity-server/account/logout"
+      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
+    depends_on:
+      - squidex_redis
+      - squidex_mongo
+    labels:
+      NAME: "kraken_dev"
+    restart: "always"
+  kraken_review:
+    image: "civicplus.azurecr.io/kraken:latest"
+    ports:
+      - "5001:80"
+    environment:
+      - "URLS__BASEURL=https://${KRAKEN_REVIEW_DOMAIN}"
+      - "URLS__ENFORCEHTTPS=true"
+      - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_REVIEW}"
+      - "PUBSUB__TYPE=redis"
+      - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
+      - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "STORE__MONGODB__CONTENTDATABASE=${CONTENTDATABASE_REVIEW}"
+      - "STORE__MONGODB__DATABASE=${DATABASE_REVIEW}"
+      - "IDENTITY__KEYSSTORE__TYPE=redis"
+      - "IDENTITY__KEYSSTORE__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=true"
+      - "IDENTITY__GOOGLECLIENT=70791586885-rnpr22qk9joa8bqmmbbfq6l5et9a3nef.apps.googleusercontent.com"
+      - "IDENTITY__GOOGLESECRET=rsQCbZM3TTHoo5HqhAeeCra-"
+      - "IDENTITY__ADMINEMAIL=${SQUIDEX_EMAIL}"
+      - "IDENTITY__ADMINPASSWORD=${SQUIDEX_PASSWORD}"
+      - "VIRTUAL_HOST=${KRAKEN_REVIEW_DOMAIN}"
+      - "LETSENCRYPT_HOST=${KRAKEN_REVIEW_DOMAIN}"
+      - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
+      - "ASSETSTORE__TYPE=${ASSETSTORE_TYPE}"
+      - "ASSETSTORE__AZUREBLOB__CONNECTIONSTRING=${AZUREBLOB_CONNECTION}"
+      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://identityserver.cpqa.ninja"
+      - "IDENTITY__CIVICPLUSCLIENT=95"
+      - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
+      - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://${KRAKEN_REVIEW_DOMAIN}/identity-server/account/logout"
+      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
+    depends_on:
+      - squidex_redis
+      - squidex_mongo
+    labels:
+      NAME: "kraken_review"
+    restart: "always"
+  kraken_hcms:
+    image: "civicplus.azurecr.io/kraken:latest"
+    ports:
+      - "5002:80"
+    environment:
+      - "URLS__BASEURL=https://${KRAKEN_HCMS_DOMAIN}"
+      - "URLS__ENFORCEHTTPS=true"
+      - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_HCMS}"
+      - "PUBSUB__TYPE=redis"
+      - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
+      - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "STORE__MONGODB__CONTENTDATABASE=${CONTENTDATABASE_HCMS}"
+      - "STORE__MONGODB__DATABASE=${DATABASE_HCMS}"
+      - "IDENTITY__KEYSSTORE__TYPE=redis"
+      - "IDENTITY__KEYSSTORE__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=true"
+      - "IDENTITY__GOOGLECLIENT=70791586885-rnpr22qk9joa8bqmmbbfq6l5et9a3nef.apps.googleusercontent.com"
+      - "IDENTITY__GOOGLESECRET=rsQCbZM3TTHoo5HqhAeeCra-"
+      - "IDENTITY__ADMINEMAIL=${SQUIDEX_EMAIL}"
+      - "IDENTITY__ADMINPASSWORD=${SQUIDEX_PASSWORD}"
+      - "VIRTUAL_HOST=${KRAKEN_HCMS_DOMAIN}"
+      - "LETSENCRYPT_HOST=${KRAKEN_HCMS_DOMAIN}"
+      - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
+      - "ASSETSTORE__TYPE=${ASSETSTORE_TYPE}"
+      - "ASSETSTORE__AZUREBLOB__CONNECTIONSTRING=${AZUREBLOB_CONNECTION}"
+      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://identityserver.cpqa.ninja"
+      - "IDENTITY__CIVICPLUSCLIENT=96"
+      - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
+      - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://${KRAKEN_HCMS_DOMAIN}/identity-server/account/logout"
+      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
+    depends_on:
+      - squidex_redis
+      - squidex_mongo
+    labels:
+      NAME: "kraken_hcms"
+    restart: "always"
+  squidex_squidex:
+    image: "squidex/squidex:dev"
+    ports:
+      - "5003:80"
     environment:
       - "URLS__BASEURL=https://${SQUIDEX_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_SQUIDEX}"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
+      - "STORE__MONGODB__CONTENTDATABASE=${CONTENTDATABASE_SQUIDEX}"
+      - "STORE__MONGODB__DATABASE=${DATABASE_SQUIDEX}"
       - "IDENTITY__KEYSSTORE__TYPE=redis"
       - "IDENTITY__KEYSSTORE__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=true"
       - "IDENTITY__GOOGLECLIENT=70791586885-rnpr22qk9joa8bqmmbbfq6l5et9a3nef.apps.googleusercontent.com"

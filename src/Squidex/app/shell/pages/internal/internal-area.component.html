@@ -1,20 +1,24 @@
 <nav class="navbar fixed-top navbar-inverse cp-Toolbar cp-AdminWrap" style="position: fixed;">
-    <span class="navbar-brand icon-CPLogo--new" routerLink="/app">
-        <span class="path1"></span>
-        <span class="path2"></span>
-    </span>
+	<div class="cp-LayoutWrap cp-Toolbar-inner">
+		<div class="cp-Toolbar-items cp-Toolbar-items--left">
+			<span class="navbar-brand icon-CPLogo--new" routerLink="/app">
+				<span class="path1"></span>
+				<span class="path2"></span>
+			</span>
 
-    <div class="float-left cp-products-menu">
-        <cp-products-menu></cp-products-menu>
-    </div>
+			<div class="float-left cp-products-menu">
+				<cp-products-menu></cp-products-menu>
+			</div>
+		</div>
 
-    <div class="float-right cp-helplinks-menu">
-        <cp-helplinks-menu></cp-helplinks-menu>
-    </div>
+		<div class="float-right cp-profile-menu">
+			<cp-profile-menu></cp-profile-menu>
+		</div>
 
-    <div class="float-right cp-profile-menu">
-        <cp-profile-menu></cp-profile-menu>
-    </div>
+		<div class="float-right cp-helplinks-menu">
+			<cp-helplinks-menu></cp-helplinks-menu>
+		</div>
+	</div>
 </nav>
 
 <div class="main">

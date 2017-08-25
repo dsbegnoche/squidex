@@ -74,7 +74,8 @@ namespace Squidex.Controllers.ContentApi.Generator
                         {
                             SquidexRoles.AppOwner,
                             SquidexRoles.AppDeveloper,
-                            SquidexRoles.AppEditor
+                            SquidexRoles.AppEditor,
+							SquidexRoles.AppAuthor
                         }
                     }
                 }

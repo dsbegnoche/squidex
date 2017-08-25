@@ -8,7 +8,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { AppsStoreService } from 'shared';
+import { AppsStoreService, PermissionEnum } from 'shared';
 
 @Component({
     selector: 'sqx-left-menu',
@@ -18,7 +18,8 @@ import { AppsStoreService } from 'shared';
 export class LeftMenuComponent implements OnDestroy, OnInit {
     private appSubscription: Subscription;
 
-    public permission: string | null = null;
+    public permission: number | null = -1;
+    public PermissionEnum = PermissionEnum;
 
     constructor(
         private readonly appsStore: AppsStoreService
@@ -33,7 +34,7 @@ export class LeftMenuComponent implements OnDestroy, OnInit {
         this.appSubscription =
             this.appsStore.selectedApp.subscribe(app => {
                 if (app) {
-                    this.permission = app.permission;
+                    this.permission = Number(PermissionEnum[app.permission]);
                 }
             });
     }
