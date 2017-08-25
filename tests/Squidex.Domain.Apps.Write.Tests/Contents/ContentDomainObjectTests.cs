@@ -75,7 +75,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         [Fact]
         public void Create_should_also_publish_if_set_to_true()
         {
-            sut.Create(CreateContentCommand(new CreateContent { Data = data, Publish = true }));
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Core.Apps.Status.Published }));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(

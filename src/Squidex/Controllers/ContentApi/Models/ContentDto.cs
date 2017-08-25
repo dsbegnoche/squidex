@@ -9,6 +9,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using NodaTime;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure;
@@ -52,9 +53,9 @@ namespace Squidex.Controllers.ContentApi.Models
         public Instant LastModified { get; set; }
 
         /// <summary>
-        /// Indicates if the content element is publihed.
+        /// The status of the content element.
         /// </summary>
-        public bool IsPublished { get; set; }
+        public Status Status { get; set; }
 
         /// <summary>
         /// The version of the content.
@@ -63,10 +64,10 @@ namespace Squidex.Controllers.ContentApi.Models
 
         public static ContentDto Create(CreateContent command, EntityCreatedResult<NamedContentData> result)
         {
-            return ContentDto.Create(command, result, command.Publish);
+            return ContentDto.Create(command, result, command.Status);
         }
 
-	    public static ContentDto Create(ContentCommand command, EntityCreatedResult<NamedContentData> result, bool isPublished = false)
+	    public static ContentDto Create(ContentCommand command, EntityCreatedResult<NamedContentData> result, Status status = Status.Draft)
 	    {
 		    var now = SystemClock.Instance.GetCurrentInstant();
 
@@ -79,7 +80,7 @@ namespace Squidex.Controllers.ContentApi.Models
 			    CreatedBy = command.Actor,
 			    LastModified = now,
 			    LastModifiedBy = command.Actor,
-			    IsPublished = isPublished
+			    Status = status
 		    };
 
 		    return response;

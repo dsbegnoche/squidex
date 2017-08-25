@@ -31,6 +31,10 @@ import {
     Version
 } from 'shared';
 
+import {
+    Status
+} from 'framework';
+
 @Component({
     selector: 'sqx-content-page',
     styleUrls: ['./content-page.component.scss'],
@@ -98,14 +102,14 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     }
 
     public saveAndPublish() {
-        this.saveContent(true);
+        this.saveContent(Status.Published);
     }
 
     public saveAsDraft() {
-        this.saveContent(false);
+        this.saveContent(Status.Draft);
     }
 
-    private saveContent(publish: boolean) {
+    private saveContent(status: Status) {
         this.contentFormSubmitted = true;
 
         if (this.contentForm.valid) {
@@ -115,7 +119,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
             if (this.isNewMode) {
                 this.appNameOnce()
-                    .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, publish, this.version))
+                    .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, status, this.version))
                     .subscribe(dto => {
                         this.content = dto;
 
@@ -210,7 +214,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             const fieldValue = this.content.data[field.name] || {};
             const fieldForm = <FormGroup>this.contentForm.get(field.name);
 
-             if (field.partitioning === 'language') {
+            if (field.partitioning === 'language') {
                 for (let language of this.languages) {
                     fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
                 }
