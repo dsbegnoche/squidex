@@ -24,6 +24,7 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
+using Squidex.Domain.Apps.Core.Apps;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantIfElseBlock
@@ -157,11 +158,11 @@ namespace Squidex.Controllers.ContentApi
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
-        public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] bool publish = false)
+        public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] Status status = Status.Draft)
         {
-            var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Publish = publish };
-
-            var context = await CommandBus.PublishAsync(command);
+            var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Status = status };
+			
+			var context = await CommandBus.PublishAsync(command);
 
             var result = context.Result<EntityCreatedResult<NamedContentData>>();
             var response = ContentDto.Create(command, result);
