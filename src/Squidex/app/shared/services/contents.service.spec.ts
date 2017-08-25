@@ -15,6 +15,7 @@ import {
     ContentsService,
     DateTime,
     LocalCacheService,
+    Status,
     Version
 } from './../';
 
@@ -22,7 +23,7 @@ describe('ContentDto', () => {
     it('should update data property and user info when updating', () => {
         const now = DateTime.now();
 
-        const content_1 = new ContentDto('1', false, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_1 = new ContentDto('1', Status.Draft, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
         const content_2 = content_1.update({ data: 2 }, 'me', now);
 
         expect(content_2.data).toEqual({ data: 2 });
@@ -30,24 +31,24 @@ describe('ContentDto', () => {
         expect(content_2.lastModifiedBy).toEqual('me');
     });
 
-    it('should update isPublished property and user info when publishing', () => {
+    it('should update status property and user info when publishing', () => {
         const now = DateTime.now();
 
-        const content_1 = new ContentDto('1', false, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_1 = new ContentDto('1', Status.Draft, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
         const content_2 = content_1.publish('me', now);
 
-        expect(content_2.isPublished).toBeTruthy();
+        expect(content_2.status).toEqual(Status.Published);
         expect(content_2.lastModified).toEqual(now);
         expect(content_2.lastModifiedBy).toEqual('me');
     });
 
-    it('should update isPublished property and user info when unpublishing', () => {
+    it('should update status property and user info when unpublishing', () => {
         const now = DateTime.now();
 
-        const content_1 = new ContentDto('1', true, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_1 = new ContentDto('1', Status.Published, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
         const content_2 = content_1.unpublish('me', now);
 
-        expect(content_2.isPublished).toBeFalsy();
+        expect(content_2.status).toEqual(Status.Draft);
         expect(content_2.lastModified).toEqual(now);
         expect(content_2.lastModifiedBy).toEqual('me');
     });
@@ -92,7 +93,7 @@ describe('ContentsService', () => {
             items: [
                 {
                     id: 'id1',
-                    isPublished: true,
+                    status: Status.Published,
                     created: '2016-12-12T10:10',
                     createdBy: 'Created1',
                     lastModified: '2017-12-12T10:10',
@@ -102,7 +103,7 @@ describe('ContentsService', () => {
                 },
                 {
                     id: 'id2',
-                    isPublished: true,
+                    status: Status.Published,
                     created: '2016-10-12T10:10',
                     createdBy: 'Created2',
                     lastModified: '2017-10-12T10:10',
@@ -115,12 +116,12 @@ describe('ContentsService', () => {
 
         expect(contents).toEqual(
             new ContentsDto(10, [
-                new ContentDto('id1', true, 'Created1', 'LastModifiedBy1',
+                new ContentDto('id1', Status.Published, 'Created1', 'LastModifiedBy1',
                     DateTime.parseISO_UTC('2016-12-12T10:10'),
                     DateTime.parseISO_UTC('2017-12-12T10:10'),
                     {},
                     new Version('11')),
-                new ContentDto('id2', true, 'Created2', 'LastModifiedBy2',
+                new ContentDto('id2', Status.Published, 'Created2', 'LastModifiedBy2',
                     DateTime.parseISO_UTC('2016-10-12T10:10'),
                     DateTime.parseISO_UTC('2017-10-12T10:10'),
                     {},
@@ -195,7 +196,7 @@ describe('ContentsService', () => {
 
         req.flush({
             id: 'id1',
-            isPublished: true,
+            status: Status.Published,
             created: '2016-12-12T10:10',
             createdBy: 'Created1',
             lastModified: '2017-12-12T10:10',
@@ -205,7 +206,7 @@ describe('ContentsService', () => {
         });
 
         expect(content).toEqual(
-            new ContentDto('id1', true, 'Created1', 'LastModifiedBy1',
+            new ContentDto('id1', Status.Published, 'Created1', 'LastModifiedBy1',
                 DateTime.parseISO_UTC('2016-12-12T10:10'),
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
                 {},
@@ -242,18 +243,18 @@ describe('ContentsService', () => {
 
         let content: ContentDto | null = null;
 
-        contentsService.postContent('my-app', 'my-schema', dto, true, version).subscribe(result => {
+        contentsService.postContent('my-app', 'my-schema', dto, Status.Published, version).subscribe(result => {
             content = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?publish=true');
+        const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?status=10');
 
         expect(req.request.method).toEqual('POST');
         expect(req.request.headers.get('If-Match')).toBe(version.value);
 
         req.flush({
             id: 'id1',
-            isPublished: true,
+            status: Status.Published,
             created: '2016-12-12T10:10',
             createdBy: 'Created1',
             lastModified: '2017-12-12T10:10',
@@ -263,11 +264,46 @@ describe('ContentsService', () => {
         });
 
         expect(content).toEqual(
-            new ContentDto('id1', true, 'Created1', 'LastModifiedBy1',
+            new ContentDto('id1', Status.Published, 'Created1', 'LastModifiedBy1',
                 DateTime.parseISO_UTC('2016-12-12T10:10'),
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
                 {},
                 new Version('11')));
+    }));
+
+    it('should make post request to create draft content',
+        inject([ContentsService, HttpTestingController], (contentsService: ContentsService, httpMock: HttpTestingController) => {
+
+            const dto = {};
+
+            let content: ContentDto | null = null;
+
+            contentsService.postContent('my-app', 'my-schema', dto, Status.Draft, version).subscribe(result => {
+                content = result;
+            });
+
+            const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema?status=1');
+
+            expect(req.request.method).toEqual('POST');
+            expect(req.request.headers.get('If-Match')).toBe(version.value);
+
+            req.flush({
+                id: 'id1',
+                status: Status.Published,
+                created: '2016-12-12T10:10',
+                createdBy: 'Created1',
+                lastModified: '2017-12-12T10:10',
+                lastModifiedBy: 'LastModifiedBy1',
+                version: 11,
+                data: {}
+            });
+
+            expect(content).toEqual(
+                new ContentDto('id1', Status.Published, 'Created1', 'LastModifiedBy1',
+                    DateTime.parseISO_UTC('2016-12-12T10:10'),
+                    DateTime.parseISO_UTC('2017-12-12T10:10'),
+                    {},
+                    new Version('11')));
     }));
 
     it('should make put request to update content',

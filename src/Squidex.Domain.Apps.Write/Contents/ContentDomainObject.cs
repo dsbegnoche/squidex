@@ -75,7 +75,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             RaiseEvent(SimpleMapper.Map(command, new ContentCreated()));
 
-            if (command.Publish)
+            if (command.Status == Core.Apps.Status.Published)
             {
                 RaiseEvent(SimpleMapper.Map(command, new ContentPublished()));
             }
