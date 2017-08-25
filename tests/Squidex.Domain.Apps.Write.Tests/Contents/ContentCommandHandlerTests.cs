@@ -201,22 +201,11 @@ namespace Squidex.Domain.Apps.Write.Contents
 	    }
 
 	    [Fact]
-	    public async Task Copy_should_throw_exception_if_SchemaName_is_not_provided()
-	    {
-		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId });
-
-		    await TestCopy(content, async _ =>
-		    {
-			    await Assert.ThrowsAsync<ArgumentNullException>(() => sut.HandleAsync(context));
-		    }, false);
-	    }
-
-	    [Fact]
 	    public async Task Copy_should_throw_exception_if_Schema_is_not_found()
 	    {
 		    A.CallTo(() => schemaProvider.FindSchemaByIdAsync(SchemaId, false)).Returns(Task.FromResult((ISchemaEntity)null));
 
-		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId });
 
 		    await TestCopy(content, async _ =>
 		    {
@@ -227,9 +216,9 @@ namespace Squidex.Domain.Apps.Write.Contents
 	    [Fact]
 	    public async Task Copy_should_throw_exception_if_content_to_copy_is_not_found()
 	    {
-		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaEntity.Id, contentId)).Returns(Task.FromResult((IContentEntity)null));
+		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, SchemaId, contentId)).Returns(Task.FromResult((IContentEntity)null));
 
-		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaId = SchemaNamedId });
 
 		    await TestCopy(content, async _ =>
 		    {
@@ -244,10 +233,10 @@ namespace Squidex.Domain.Apps.Write.Contents
 		    A.CallTo(() => copyFromContent.Data).Returns(data);
 		    A.CallTo(() => copyFromContent.Id).Returns(contentId);
 
-		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaEntity.Id, contentId)).Returns(Task.FromResult(copyFromContent));
+		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, SchemaId, contentId)).Returns(Task.FromResult(copyFromContent));
 
 
-			var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+			var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaId = SchemaNamedId });
 
 			await TestCopy(content, async _ =>
 		    {

@@ -238,9 +238,9 @@ namespace Squidex.Controllers.ContentApi
 	    [HttpPost]
 	    [Route("content/{app}/{name}/{id}/copy")]
 	    [ApiCosts(1)]
-	    public async Task<IActionResult> CopyContent(string name, Guid id)
+	    public async Task<IActionResult> CopyContent(Guid id)
 	    {
-		    var command = new CopyContent() { CopyFromId = id, App = App, SchemaName = name };
+		    var command = new CopyContent() { CopyFromId = id, App = App };
 
 		    var context = await CommandBus.PublishAsync(command);
 

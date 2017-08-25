@@ -9,8 +9,6 @@ namespace Squidex.Domain.Apps.Write.Contents.Commands
 {
 	public class CopyContent : ContentCommand
 	{
-		public string SchemaName { get; set; }
-
 		public IAppEntity App { get; set; }
 
 		public Guid CopyFromId { get; set; }
