@@ -34,7 +34,9 @@ export class LeftMenuComponent implements OnDestroy, OnInit {
         this.appSubscription =
             this.appsStore.selectedApp.subscribe(app => {
                 if (app) {
-                    this.permission = Number(PermissionEnum[app.permission]) || app.permission;
+                    this.permission = isNaN(Number(app.permission))
+                        ? Number(PermissionEnum[app.permission])
+                        : app.permission;
                 }
             });
     }
