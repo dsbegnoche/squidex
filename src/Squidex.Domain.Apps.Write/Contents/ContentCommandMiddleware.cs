@@ -15,11 +15,13 @@ using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
 using Squidex.Domain.Apps.Read.Contents.Repositories;
+using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Domain.Apps.Read.Schemas.Services;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Infrastructure.Reflection;
 
 // ReSharper disable ConvertToLambdaExpression
 
@@ -94,6 +96,50 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             return handler.UpdateAsync<ContentDomainObject>(context, c => c.Delete(command));
         }
+
+	    protected async Task On(CopyContent command, CommandContext context)
+	    {
+			Guard.NotNull(command.App, nameof(command.App));
+		    Guard.NotEmpty(command.CopyFromId, nameof(command.App));
+			Guard.NotNullOrEmpty(command.SchemaName, nameof(command.SchemaName));
+
+			ISchemaEntity schemaEntity;
+
+		    if (Guid.TryParse(command.SchemaName, out var schemaId))
+		    {
+			    schemaEntity = await schemas.FindSchemaByIdAsync(schemaId);
+		    }
+		    else
+		    {
+			    schemaEntity = await schemas.FindSchemaByNameAsync(command.App.Id, command.SchemaName);
+		    }
+
+			Guard.NotNull<NullReferenceException>(schemaEntity, $"'{nameof(schemaEntity)}' cannot be null. A schema could not be found by '{command.SchemaName}'");
+
+		    var contentToCopy = await contentRepository.FindContentAsync(command.App, schemaEntity.Id, command.CopyFromId);
+
+		    Guard.NotNull<NullReferenceException>(contentToCopy, $"'{nameof(contentToCopy)}' cannot be null. A content item with id '{command.CopyFromId}' could not be found in a schema with id `{schemaEntity.Id}`");
+
+			var createCommand = new CreateContent
+		    {
+			    ContentId = command.ContentId,
+				Data = contentToCopy.Data,
+				Publish = false,
+				AppId = command.AppId,
+				Actor = command.Actor,
+				SchemaId = command.SchemaId,
+				ExpectedVersion = null
+		    };
+
+			await ValidateAsync(createCommand, () => "Failed to copy content", true);
+
+			await handler.CreateAsync<ContentDomainObject>(context, c =>
+			{
+				c.Create(createCommand);
+
+			    context.Complete(EntityCreatedResult.Create(createCommand.Data, c.Version));
+		    });
+		}
 
         public async Task HandleAsync(CommandContext context, Func<Task> next)
         {

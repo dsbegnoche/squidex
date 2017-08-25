@@ -113,7 +113,19 @@ namespace Squidex.Domain.Apps.Write.TestHelpers
             }
         }
 
-        protected TCommand CreateCommand<TCommand>(TCommand command) where TCommand : SquidexCommand
+	    protected async Task TestCopy(T domainObject, Func<T, Task> action, bool shouldCopy = true)
+	    {
+		    handler.Init(domainObject);
+
+		    await action(domainObject);
+
+		    if (!handler.IsCreated && shouldCopy)
+		    {
+			    throw new InvalidOperationException("Create not called");
+		    }
+	    }
+
+		protected TCommand CreateCommand<TCommand>(TCommand command) where TCommand : SquidexCommand
         {
             if (command.Actor == null)
             {

@@ -15,6 +15,7 @@ using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
+using Squidex.Domain.Apps.Read.Contents;
 using Squidex.Domain.Apps.Read.Contents.Repositories;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Domain.Apps.Read.Schemas.Services;
@@ -36,7 +37,8 @@ namespace Squidex.Domain.Apps.Write.Contents
         private readonly ISchemaEntity schemaEntity = A.Fake<ISchemaEntity>();
         private readonly IAppProvider appProvider = A.Fake<IAppProvider>();
         private readonly IAppEntity appEntity = A.Fake<IAppEntity>();
-        private readonly NamedContentData data = new NamedContentData().AddField("my-field", new ContentFieldData().SetValue(1));
+	    private readonly IContentRepository contentRepository = A.Fake<IContentRepository>();
+		private readonly NamedContentData data = new NamedContentData().AddField("my-field", new ContentFieldData().SetValue(1));
         private readonly LanguagesConfig languagesConfig = LanguagesConfig.Create(Language.DE);
         private readonly Guid contentId = Guid.NewGuid();
 
@@ -49,7 +51,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             content = new ContentDomainObject(contentId, -1);
 
-            sut = new ContentCommandMiddleware(Handler, appProvider, A.Dummy<IAssetRepository>(), schemaProvider, A.Dummy<IContentRepository>());
+            sut = new ContentCommandMiddleware(Handler, appProvider, A.Dummy<IAssetRepository>(), schemaProvider, contentRepository);
 
             A.CallTo(() => appEntity.LanguagesConfig).Returns(languagesConfig);
             A.CallTo(() => appEntity.PartitionResolver).Returns(languagesConfig.ToResolver());
@@ -176,9 +178,88 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
-        private void CreateContent()
+	    [Fact]
+	    public async Task Copy_should_throw_exception_if_app_is_not_provided()
+	    {
+		    var context = CreateContextForCommand(new CopyContent() { });
+
+		    await TestCopy(content, async _ =>
+		    {
+			    await Assert.ThrowsAsync<ArgumentNullException>(() => sut.HandleAsync(context));
+		    }, false);
+	    }
+
+	    [Fact]
+	    public async Task Copy_should_throw_exception_if_CopyFromId_is_not_provided()
+	    {
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity });
+
+		    await TestCopy(content, async _ =>
+		    {
+			    await Assert.ThrowsAsync<ArgumentException>(() => sut.HandleAsync(context));
+		    }, false);
+	    }
+
+	    [Fact]
+	    public async Task Copy_should_throw_exception_if_SchemaName_is_not_provided()
+	    {
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId });
+
+		    await TestCopy(content, async _ =>
+		    {
+			    await Assert.ThrowsAsync<ArgumentNullException>(() => sut.HandleAsync(context));
+		    }, false);
+	    }
+
+	    [Fact]
+	    public async Task Copy_should_throw_exception_if_Schema_is_not_found()
+	    {
+		    A.CallTo(() => schemaProvider.FindSchemaByIdAsync(SchemaId, false)).Returns(Task.FromResult((ISchemaEntity)null));
+
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+
+		    await TestCopy(content, async _ =>
+		    {
+			    await Assert.ThrowsAsync<NullReferenceException>(() => sut.HandleAsync(context));
+		    }, false);
+	    }
+
+	    [Fact]
+	    public async Task Copy_should_throw_exception_if_content_to_copy_is_not_found()
+	    {
+		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaEntity.Id, contentId)).Returns(Task.FromResult((IContentEntity)null));
+
+		    var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+
+		    await TestCopy(content, async _ =>
+		    {
+			    await Assert.ThrowsAsync<NullReferenceException>(() => sut.HandleAsync(context));
+		    }, false);
+	    }
+
+	    [Fact]
+	    public async Task Copy_should_create_content()
+	    {
+			IContentEntity copyFromContent = A.Fake<IContentEntity>();
+		    A.CallTo(() => copyFromContent.Data).Returns(data);
+		    A.CallTo(() => copyFromContent.Id).Returns(contentId);
+
+		    A.CallTo(() => contentRepository.FindContentAsync(appEntity, schemaEntity.Id, contentId)).Returns(Task.FromResult(copyFromContent));
+
+
+			var context = CreateContextForCommand(new CopyContent() { App = appEntity, CopyFromId = contentId, SchemaName = SchemaName });
+
+			await TestCopy(content, async _ =>
+		    {
+			    await sut.HandleAsync(context);
+		    });
+
+		    Assert.Equal(data, context.Result<EntityCreatedResult<NamedContentData>>().IdOrValue);
+	    }
+
+		private ContentDomainObject CreateContent()
         {
-            content.Create(new CreateContent { Data = data });
+            return content.Create(new CreateContent { Data = data });
         }
     }
 }
