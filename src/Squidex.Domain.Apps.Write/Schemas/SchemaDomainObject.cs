@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Events.Schemas;
 using Squidex.Domain.Apps.Events.Schemas.Utils;
@@ -150,22 +151,25 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 }
             }
 
-            var tagField = new SchemaCreatedField
-            {
-                Properties = new TagFieldProperties
-	            {
-		            Label = "Tags"
-	            },
-                Name = "tags",
-                Partitioning = "Language",
-                IsDisabled = false,
-                IsHidden = false,
-            };
+	        if (!@event.Fields.Any(f => f.Properties is TagFieldProperties))
+	        {
+		        var tagField = new SchemaCreatedField
+		        {
+			        Properties = new TagFieldProperties
+			        {
+				        Label = "Tags"
+			        },
+			        Name = "tags",
+			        Partitioning = "Language",
+			        IsDisabled = false,
+			        IsHidden = false,
+		        };
 
-            @event.Fields = @event.Fields ??new List<SchemaCreatedField>();
+				@event.Fields = @event.Fields ?? new List<SchemaCreatedField>();
 
-            // ensure Tags field is always first
-            @event.Fields.Insert(0, tagField);
+				// ensure Tags field is always first
+				@event.Fields.Insert(0, tagField);
+	        }
 
             RaiseEvent(@event);
 
