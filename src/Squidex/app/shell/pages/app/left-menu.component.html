@@ -1,4 +1,5 @@
 <div class="sidebar">
+    <div>{{permission}}</div>
     <ul class="nav flex-column">
         <li class="nav-item" *ngIf="permission < PermissionEnum.Editor">
             <a class="nav-link" routerLink="schemas" routerLinkActive="active">
@@ -37,4 +38,4 @@
             </a>
         </li>
     </ul>
-</div>
+</div> 
