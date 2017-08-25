@@ -14,6 +14,7 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Shared.Config;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
@@ -37,27 +38,9 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetThumbnailGenerator = assetThumbnailGenerator;
         }
 
-        // TODO: export this to a validator class (will also container the code for getting conf)
-        private void ValidateFileName(string fileName)
-        {
-            var valid = new[] { "txt", "pdf" };
-
-            if (string.IsNullOrEmpty((fileName)))
-                throw new InvalidOperationException("Asset is null or empty");
-
-            if (!fileName.Contains("."))
-                throw new InvalidOperationException("Asset has no extension found");
-
-            var extension = fileName.Split('.').Last();
-
-            if (!valid.Contains(extension))
-                throw new InvalidOperationException("Asset extension not within allowed values: " + 
-                    string.Join(", ", valid));
-        }
-
         protected async Task On(CreateAsset command, CommandContext context)
         {
-            ValidateFileName(command.File.FileName);
+            AssetFileValidator.Instance.ValidateFileExtension(command.File.FileName);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
