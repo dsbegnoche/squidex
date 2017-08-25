@@ -14,7 +14,7 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Shared.Config;
+using System.Collections.Generic;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
@@ -38,8 +38,33 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetThumbnailGenerator = assetThumbnailGenerator;
         }
 
+
+        private void ValidateCond(bool condition, string message)
+        {
+            if (condition)
+                throw new ValidationException("Cannot create asset.", new ValidationError(message));
+        }
+
+        private void CheckAssetFileAsync(AssetFile file)
+        {
+            var assetsConfig = file.AssetConfig;
+            var filename = file.FileName;
+
+            ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than ${assetsConfig.MaxSize}.");
+            ValidateCond(file.MaxAssetRepoSize > 0 && file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize, 
+                "You have reached your max asset size.");
+            ValidateCond(!filename.Contains("."), "Asset has no extensions found");
+
+            var extension = filename.Split('.').Last().ToLower();
+            var validExtensions = AssetFileValidationConfig.ValidExtensions;
+
+            ValidateCond(!validExtensions.Contains(extension), $"Asset extension '{extension}' is not an allowed filetype.");
+        }
+
         protected async Task On(CreateAsset command, CommandContext context)
         {
+            CheckAssetFileAsync(command.File);
+
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
             {
@@ -62,6 +87,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         protected async Task On(UpdateAsset command, CommandContext context)
         {
+            CheckAssetFileAsync(command.File);
+
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
 
             try

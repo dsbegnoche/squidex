@@ -25,7 +25,6 @@ using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
-using Squidex.Shared.Config;
 
 // ReSharper disable PossibleNullReferenceException
 
@@ -168,15 +167,7 @@ namespace Squidex.Controllers.Api.Assets
         [ProducesResponseType(typeof(ErrorDto), 400)]
         public async Task<IActionResult> PostAsset(string app, List<IFormFile> file)
         {
-            AssetFile assetFile = null;
-            try
-            {
-                assetFile = await CheckAssetFileAsync(file);
-            }
-            catch(Exception e)
-            {
-                FailValidationCreation(e.ToString());
-            }
+            var assetFile = await GetAssetFile(file[0]);
 
             var command = new CreateAsset { File = assetFile };
             var context = await CommandBus.PublishAsync(command);
@@ -206,7 +197,7 @@ namespace Squidex.Controllers.Api.Assets
         [ApiCosts(1)]
         public async Task<IActionResult> PutAssetContent(string app, Guid id, List<IFormFile> file)
         {
-            var assetFile = await CheckAssetFileAsync(file);
+            var assetFile = await GetAssetFile(file[0]);
 
             var command = new UpdateAsset { File = assetFile, AssetId = id };
             var context = await CommandBus.PublishAsync(command);
@@ -262,39 +253,13 @@ namespace Squidex.Controllers.Api.Assets
             return NoContent();
         }
 
-        private void FailValidationCreation(string message) =>
-            throw new ValidationException("Cannot create asset.", new ValidationError(message));
-
-        private async Task<AssetFile> CheckAssetFileAsync(IReadOnlyList<IFormFile> file)
-        {
-            if (file.Count != 1)
-                FailValidationCreation($"Can only upload one file, found {file.Count}.");
-
-            var formFile = file[0];
-
-            if (formFile.Length > assetsConfig.MaxSize)
-                FailValidationCreation($"File size cannot be longer than ${assetsConfig.MaxSize}.");
-
-            var plan = appPlanProvider.GetPlanForApp(App);
-            var currentSize = await assetStatsRepository.GetTotalSizeAsync(App.Id);
-
-            if (plan.MaxAssetSize > 0 && plan.MaxAssetSize < currentSize + formFile.Length)
-                FailValidationCreation("You have reached your max asset size.");
-
-            var filename = formFile.FileName;
-
-            if (!filename.Contains("."))
-                FailValidationCreation("Asset has no extensions found");
-
-            var extension = filename.Split('.').Last().ToLower();
-            var validExtensions = AssetFileValidationConfig.ValidExtensions;
-
-            if (!validExtensions.Contains(extension))
-                FailValidationCreation($"Asset extension '{extension}' is not an allowed filetype."); 
-
-            var assetFile = new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, formFile.OpenReadStream, "", new string[0]);
-
-            return assetFile;
-        }
+        private async Task<AssetFile> GetAssetFile(IFormFile formFile) =>
+            // validation of input happens on asset creation middleware
+            new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, 
+                          formFile.OpenReadStream, "", new string[0], 
+                          // Extended AssetFile to have context for validation
+                          assetsConfig,  
+                          appPlanProvider.GetPlanForApp(App).MaxAssetSize,
+                          await assetStatsRepository.GetTotalSizeAsync(App.Id));
     }
 }

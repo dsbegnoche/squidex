@@ -25,7 +25,16 @@ namespace Squidex.Infrastructure.Assets
 
         public string[] Tags { get; }
 
-        public AssetFile(string fileName, string mimeType, long fileSize, Func<Stream> openAction, string briefDescription, string[] tags)
+        public AssetConfig AssetConfig { get; }
+
+        public long MaxAssetRepoSize { get; }
+
+        public long CurrentAssetRepoSize { get; }
+
+        public AssetFile(string fileName, string mimeType, long fileSize, 
+                         Func<Stream> openAction, string briefDescription, 
+                         string[] tags, 
+                         AssetConfig assetConfig = null, long? maxAssetRepoSize = null, long? currentAssetRepoSize = null)
         {
             Guard.NotNullOrEmpty(fileName, nameof(fileName));
             Guard.NotNullOrEmpty(mimeType, nameof(mimeType));
@@ -40,6 +49,11 @@ namespace Squidex.Infrastructure.Assets
             MimeType = mimeType;
 
             this.openAction = openAction;
+
+            // default values for testing purposes
+            AssetConfig = assetConfig ?? new AssetConfig() { MaxSize = 1024 * 1024 * 50 };
+            MaxAssetRepoSize = maxAssetRepoSize ?? AssetConfig.MaxSize * 1000;
+            CurrentAssetRepoSize = currentAssetRepoSize ?? AssetConfig.MaxSize * 1;
         }
 
         public Stream OpenRead()
