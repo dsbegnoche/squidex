@@ -38,6 +38,9 @@ export class ContentItemComponent extends AppComponentBase implements OnInit, On
     @Output()
     public deleting = new EventEmitter<ContentDto>();
 
+    @Output()
+    public copying = new EventEmitter<ContentDto>();
+
     @Input()
     public languageCode: string;
 

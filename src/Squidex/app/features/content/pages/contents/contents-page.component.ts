@@ -7,7 +7,7 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import {
@@ -61,6 +61,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         private readonly authService: AuthService,
         private readonly contentsService: ContentsService,
         private readonly route: ActivatedRoute,
+        private readonly router: Router,
         private readonly messageBus: MessageBus
     ) {
         super(dialogs, apps);
@@ -149,6 +150,17 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             });
     }
 
+    public copyContent(content: ContentDto) {
+        this.appNameOnce()
+            .switchMap(app => this.contentsService.copyContent(app, this.schema.name, content.id, content.version))
+            .subscribe((dto) => {
+                this.emitContentCreated(dto);
+                this.goToContent(dto);
+            }, error => {
+                this.notifyError(error);
+            });
+    }
+
     public load(showInfo = false) {
         this.appNameOnce()
             .switchMap(app => this.contentsService.getContents(app, this.schema.name, this.contentsPager.pageSize, this.contentsPager.skip, this.contentsQuery))
@@ -178,6 +190,14 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.contentsPager = this.contentsPager.goPrev();
 
         this.load();
+    }
+
+    private emitContentCreated(content: ContentDto) {
+        this.messageBus.emit(new ContentCreated(content));
+    }
+
+    private goToContent(content: ContentDto) {
+        this.router.navigate([content.id], { relativeTo: this.route, replaceUrl: true });
     }
 
     private emitContentDeleted(content: ContentDto) {
