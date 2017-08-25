@@ -100,7 +100,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 		protected async Task On(CopyContent command, CommandContext context)
 		{
 			Guard.NotNull(command.App, nameof(command.App));
-			Guard.NotEmpty(command.CopyFromId, nameof(command.App));
+			Guard.NotEmpty(command.CopyFromId, nameof(command.CopyFromId));
 
 			var contentToCopy = await contentRepository.FindContentAsync(command.App, command.SchemaId.Id, command.CopyFromId);
 

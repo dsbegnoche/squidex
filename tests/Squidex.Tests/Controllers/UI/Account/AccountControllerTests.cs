@@ -76,9 +76,23 @@ namespace Squidex.Tests.Controllers.UI.Account
 		}
 
 		[Fact]
-		public void LoginTest()
+		public void LoginUserIsAuthenticatedTest()
 		{
 			//Arrange
+			httpContext.Setup(x => x.User.Identity.IsAuthenticated).Returns(true);
+
+			//Act
+			IActionResult result = systemUnderTest.Login();
+
+			//Assert
+			Assert.IsType<RedirectResult>(result);
+		}
+
+		[Fact]
+		public void LoginUserIsNotAuthenticatedTest()
+		{
+			//Arrange
+			httpContext.Setup(x => x.User.Identity.IsAuthenticated).Returns(false);
 
 			//Act
 			IActionResult result = systemUnderTest.Login();

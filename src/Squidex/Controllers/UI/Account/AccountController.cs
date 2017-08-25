@@ -168,7 +168,14 @@ namespace Squidex.Controllers.UI.Account
 		[Route("account/login/")]
 		public IActionResult Login(string returnUrl = null)
 		{
-			return External(Constants.CivicPlusAuthenticationScheme, returnUrl);
+			if (User.Identity.IsAuthenticated)
+			{
+				return Redirect(returnUrl ?? "~/../");
+			}
+			else
+			{
+				return External(Constants.CivicPlusAuthenticationScheme, returnUrl);
+			}
 		}
 
 		[HttpPost]
