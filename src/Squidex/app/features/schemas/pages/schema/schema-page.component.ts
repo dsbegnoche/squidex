@@ -30,7 +30,7 @@ import {
     ValidatorsEx
 } from 'shared';
 
-import { SchemaDeleted, SchemaUpdated } from './../messages';
+import { SchemaDeleted, SchemaUpdated, SchemaCopied } from './../messages';
 
 @Component({
     selector: 'sqx-schema-page',
@@ -48,6 +48,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
     public schemas: SchemaDto[];
 
     public exportSchemaDialog = new ModalView();
+    public copySchemaDialog = new ModalView();
 
     public editOptionsDropdown = new ModalView();
     public editSchemaDialog = new ModalView();
@@ -298,5 +299,10 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
 
     private notify() {
         this.messageBus.emit(new HistoryChannelUpdated());
+    }
+    
+    public onSchemaCopied(schema: SchemaDto) {
+        this.messageBus.emit(new SchemaCopied(schema));
+        this.copySchemaDialog.hide();
     }
 }

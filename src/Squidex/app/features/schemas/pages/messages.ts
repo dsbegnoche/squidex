@@ -7,6 +7,13 @@
 
 import { SchemaDto } from 'shared';
 
+export class SchemaCopied {
+    constructor(
+        public readonly schema: SchemaDto
+    ) {
+    }
+}
+
 export class SchemaUpdated {
     constructor(
         public readonly schema: SchemaDto

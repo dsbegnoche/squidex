@@ -38,6 +38,12 @@ export class SchemaFormComponent {
     @Input()
     public appName: string;
 
+    @Input()
+    public copySchemaJson: any = {};
+    @Input()
+    public modalTitle: string;
+
+    @Input()
     public showImport = false;
 
     public createFormError = '';
@@ -50,7 +56,7 @@ export class SchemaFormComponent {
                     Validators.maxLength(40),
                     ValidatorsEx.pattern('[a-z0-9]+(\-[a-z0-9]+)*', 'Name can contain lower case letters (a-z), numbers and dashes only (not at the end).')
                 ]],
-            import: [{}]
+            import: [this.copySchemaJson]
         });
 
     public schemaName =

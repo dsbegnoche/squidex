@@ -22,7 +22,7 @@ import {
     SchemasService
 } from 'shared';
 
-import { SchemaDeleted, SchemaUpdated } from './../messages';
+import { SchemaDeleted, SchemaUpdated, SchemaCopied } from './../messages';
 
 @Component({
     selector: 'sqx-schemas-page',
@@ -33,6 +33,7 @@ import { SchemaDeleted, SchemaUpdated } from './../messages';
     ]
 })
 export class SchemasPageComponent extends AppComponentBase implements OnDestroy, OnInit {
+    private schemaCopiedSubscription: Subscription;
     private schemaUpdatedSubscription: Subscription;
     private schemaDeletedSubscription: Subscription;
 
@@ -52,6 +53,7 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
     }
 
     public ngOnDestroy() {
+        this.schemaCopiedSubscription.unsubscribe();
         this.schemaUpdatedSubscription.unsubscribe();
         this.schemaDeletedSubscription.unsubscribe();
     }
@@ -70,6 +72,12 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
                     this.addSchemaDialog.show();
                 }
             });
+
+        this.schemaCopiedSubscription =
+            this.messageBus.of(SchemaCopied)
+                .subscribe(m => {
+                    this.updateSchemas(this.schemas.push(m.schema));
+                });
 
         this.schemaUpdatedSubscription =
             this.messageBus.of(SchemaUpdated)
