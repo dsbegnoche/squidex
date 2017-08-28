@@ -93,7 +93,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                         Name = SchemaName,
                         Properties = properties,
                         Fields = new[] {
-                         new SchemaCreatedField()
+                         new SchemaCreatedField
                             {
                                 Properties = new TagFieldProperties
                                 {
