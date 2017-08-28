@@ -90,6 +90,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         protected async Task On(UpdateAsset command, CommandContext context)
         {
+            CheckAssetFileAsync(command.File);
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
 
             try
