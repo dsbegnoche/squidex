@@ -93,6 +93,33 @@ const routes: Routes = [
                             {
                                 path: 'assets',
                                 loadChildren: './../assets/module#SqxFeatureAssetsModule'
+                            },
+                        ]
+                    },
+                    {
+                        path: ':contentId/copy',
+                        component: ContentPageComponent,
+                        canDeactivate: [CanDeactivateGuard],
+                        resolve: {
+                            content: ResolveContentGuard
+                        },
+                        data: {
+                            isCopy: true
+                        },
+                        children: [
+                            {
+                                path: 'assets',
+                                loadChildren: './../assets/module#SqxFeatureAssetsModule'
+                            },
+                            {
+                                path: 'references/:schemaName/:language',
+                                component: ContentsPageComponent,
+                                data: {
+                                    isReadOnly: true
+                                },
+                                resolve: {
+                                    schemaOverride: ResolvePublishedSchemaGuard
+                                }
                             }
                         ]
                     }

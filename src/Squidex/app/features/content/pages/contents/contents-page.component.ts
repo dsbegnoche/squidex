@@ -151,14 +151,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
     }
 
     public copyContent(content: ContentDto) {
-        this.appNameOnce()
-            .switchMap(app => this.contentsService.copyContent(app, this.schema.name, content.id, content.version))
-            .subscribe((dto) => {
-                this.emitContentCreated(dto);
-                this.goToContent(dto);
-            }, error => {
-                this.notifyError(error);
-            });
+        this.router.navigate([content.id, 'copy'], { relativeTo: this.route, replaceUrl: true });
     }
 
     public load(showInfo = false) {
@@ -190,14 +183,6 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.contentsPager = this.contentsPager.goPrev();
 
         this.load();
-    }
-
-    private emitContentCreated(content: ContentDto) {
-        this.messageBus.emit(new ContentCreated(content));
-    }
-
-    private goToContent(content: ContentDto) {
-        this.router.navigate([content.id], { relativeTo: this.route, replaceUrl: true });
     }
 
     private emitContentDeleted(content: ContentDto) {
