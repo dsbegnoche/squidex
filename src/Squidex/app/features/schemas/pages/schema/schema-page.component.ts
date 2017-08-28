@@ -300,7 +300,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
     private notify() {
         this.messageBus.emit(new HistoryChannelUpdated());
     }
-    
+
     public onSchemaCopied(schema: SchemaDto) {
         this.messageBus.emit(new SchemaCopied(schema));
         this.copySchemaDialog.hide();
