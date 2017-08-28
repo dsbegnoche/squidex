@@ -6,7 +6,7 @@
  */
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -22,7 +22,7 @@ import {
     SchemasService
 } from 'shared';
 
-import { SchemaDeleted, SchemaUpdated } from './../messages';
+import { SchemaDeleted, SchemaUpdated, SchemaCopied } from './../messages';
 
 @Component({
     selector: 'sqx-schemas-page',
@@ -33,6 +33,7 @@ import { SchemaDeleted, SchemaUpdated } from './../messages';
     ]
 })
 export class SchemasPageComponent extends AppComponentBase implements OnDestroy, OnInit {
+    private schemaCopiedSubscription: Subscription;
     private schemaUpdatedSubscription: Subscription;
     private schemaDeletedSubscription: Subscription;
 
@@ -46,12 +47,14 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
     constructor(apps: AppsStoreService, dialogs: DialogService,
         private readonly schemasService: SchemasService,
         private readonly messageBus: MessageBus,
-        private readonly route: ActivatedRoute
+        private readonly route: ActivatedRoute,
+        private readonly router: Router
     ) {
         super(dialogs, apps);
     }
 
     public ngOnDestroy() {
+        this.schemaCopiedSubscription.unsubscribe();
         this.schemaUpdatedSubscription.unsubscribe();
         this.schemaDeletedSubscription.unsubscribe();
     }
@@ -70,6 +73,13 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
                     this.addSchemaDialog.show();
                 }
             });
+
+        this.schemaCopiedSubscription =
+            this.messageBus.of(SchemaCopied)
+                .subscribe(m => {
+                    this.updateSchemas(this.schemas.push(m.schema));
+                    this.goToSchema(m.schema);
+                });
 
         this.schemaUpdatedSubscription =
             this.messageBus.of(SchemaUpdated)
@@ -100,6 +110,7 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
         this.updateSchemas(this.schemas.push(dto), this.schemaQuery);
 
         this.addSchemaDialog.hide();
+        this.goToSchema(dto);
     }
 
     private updateSchemas(schemas: ImmutableArray<SchemaDto>, query?: string) {
@@ -112,6 +123,10 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
         }
 
         this.schemasFiltered = schemas.sortByStringAsc(x => x.name);
+    }
+
+    private goToSchema(dto: SchemaDto) {
+        this.router.navigate([dto.name], { relativeTo: this.route, replaceUrl: true });
     }
 }
 
