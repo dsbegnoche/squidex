@@ -60,7 +60,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         public async Task<IAppEntity> FindAppAsync(string name)
         {
             var appEntity =
-                await Collection.Find(s => s.Name == name)
+                await Collection.Find(s => s.Name == name && !((IAppEntity)s).IsDeleted)
                     .FirstOrDefaultAsync();
 
             return appEntity;
