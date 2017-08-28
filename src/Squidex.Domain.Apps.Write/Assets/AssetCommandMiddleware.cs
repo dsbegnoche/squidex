@@ -51,8 +51,11 @@ namespace Squidex.Domain.Apps.Write.Assets
             var filename = file.FileName;
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than ${assetsConfig.MaxSize}.");
-            ValidateCond(file.MaxAssetRepoSize > 0 && file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize, 
-                "You have reached your max asset size.");
+
+            ValidateCond(file.MaxAssetRepoSize > 0 && 
+                         file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize, 
+                         "You have reached your max asset size.");
+
             ValidateCond(!filename.Contains("."), "Asset has no extensions found");
 
             var extension = filename.Split('.').Last().ToLower();
@@ -88,7 +91,6 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(UpdateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
-
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
 
             try

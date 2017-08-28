@@ -16,6 +16,7 @@ using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Tasks;
 using Xunit;
+using Squidex.Infrastructure;
 
 // ReSharper disable ImplicitlyCapturedClosure
 // ReSharper disable ConvertToConstant.Local
@@ -40,6 +41,50 @@ namespace Squidex.Domain.Apps.Write.Assets
             asset = new AssetDomainObject(assetId, -1);
 
             sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator);
+        }
+
+        [Fact]
+        public async Task Create_should_validate_asset_extension()
+        {
+            var invalidFile = new AssetFile("my-image.invalidExtension", "image/png", 1024, () => stream, "my-image description", new[] { "tag" });
+            var context = CreateContextForCommand(new CreateAsset { AssetId = assetId, File = invalidFile });
+
+            SetupStore(0, context.ContextId);
+            SetupImageInfo();
+
+            await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await TestCreate(asset, async _ =>
+                {
+                    await sut.HandleAsync(context);
+                });
+            });
+        } 
+
+        [Fact]
+        public async Task Create_should_validate_asset_size()
+        {
+            var configReference = new AssetConfig();
+            var sizeReference = configReference.MaxSize;
+            var testSize = sizeReference + 1;
+
+            var invalidFile = 
+                new AssetFile("my-image.png", "image/png", testSize, () => stream, 
+                              "my-image description", new[] { "tag" }, configReference); 
+
+            var context = CreateContextForCommand(new CreateAsset { AssetId = assetId, File = invalidFile });
+
+            SetupStore(0, context.ContextId);
+            SetupImageInfo();
+
+            await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await TestCreate(asset, async _ =>
+                {
+                    await sut.HandleAsync(context);
+                });
+            });
+
         }
 
         [Fact]

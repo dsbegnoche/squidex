@@ -167,7 +167,7 @@ namespace Squidex.Controllers.Api.Assets
         [ProducesResponseType(typeof(ErrorDto), 400)]
         public async Task<IActionResult> PostAsset(string app, List<IFormFile> file)
         {
-            var assetFile = await GetAssetFile(file[0]);
+            var assetFile = await GetAssetFile(file);
 
             var command = new CreateAsset { File = assetFile };
             var context = await CommandBus.PublishAsync(command);
@@ -197,7 +197,7 @@ namespace Squidex.Controllers.Api.Assets
         [ApiCosts(1)]
         public async Task<IActionResult> PutAssetContent(string app, Guid id, List<IFormFile> file)
         {
-            var assetFile = await GetAssetFile(file[0]);
+            var assetFile = await GetAssetFile(file);
 
             var command = new UpdateAsset { File = assetFile, AssetId = id };
             var context = await CommandBus.PublishAsync(command);
@@ -253,13 +253,23 @@ namespace Squidex.Controllers.Api.Assets
             return NoContent();
         }
 
-        private async Task<AssetFile> GetAssetFile(IFormFile formFile) =>
+        private async Task<AssetFile> GetAssetFile(List<IFormFile> formFiles)
+        {
+            if (formFiles.Count != 1)
+            {
+                throw new ValidationException("Upload Error", new ValidationError("Only one file may be acted upon at a time"));
+            }
+
+            var formFile = formFiles[0];
+
             // validation of input happens on asset creation middleware
-            new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, 
-                          formFile.OpenReadStream, "", new string[0], 
-                          // Extended AssetFile to have context for validation
-                          assetsConfig,  
-                          appPlanProvider.GetPlanForApp(App).MaxAssetSize,
-                          await assetStatsRepository.GetTotalSizeAsync(App.Id));
+            return new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, 
+                                 formFile.OpenReadStream, "", new string[0], 
+                                 // Extended AssetFile to have context for validation
+                                 assetsConfig,  
+                                 appPlanProvider.GetPlanForApp(App).MaxAssetSize,
+                                 await assetStatsRepository.GetTotalSizeAsync(App.Id));
+        }
+
     }
 }
