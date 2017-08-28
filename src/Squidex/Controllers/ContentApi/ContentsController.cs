@@ -234,22 +234,6 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-	    [MustBeAppEditor]
-	    [HttpPost]
-	    [Route("content/{app}/{name}/{id}/copy")]
-	    [ApiCosts(1)]
-	    public async Task<IActionResult> CopyContent(Guid id)
-	    {
-		    var command = new CopyContent() { CopyFromId = id, App = App };
-
-		    var context = await CommandBus.PublishAsync(command);
-
-		    var result = context.Result<EntityCreatedResult<NamedContentData>>();
-		    var response = ContentDto.Create(command, result);
-
-		    return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
-		}
-
 		private async Task<ISchemaEntity> FindSchemaAsync(string name)
         {
             ISchemaEntity schemaEntity;
