@@ -53,6 +53,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public contentId: string | null = null;
 
     public isNewMode = true;
+    public isViewOnly = false;
 
     public languages: AppLanguageDto[] = [];
 
@@ -223,6 +224,9 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         this.contentId = this.content.id;
         this.version = this.content.version;
         this.isNewMode = false;
+        if (this.content.status === Status.Published && this.isAppAuthor()) {
+            this.isViewOnly = true;
+        }
 
         for (const field of this.schema.fields) {
             const fieldValue = this.content.data[field.name] || {};
@@ -234,6 +238,9 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
                 }
             } else {
                 fieldForm.controls['iv'].setValue(fieldValue['iv']);
+            }
+            if (this.isViewOnly) {
+                fieldForm.disable();
             }
         }
     }
