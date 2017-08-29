@@ -239,6 +239,19 @@ namespace Squidex.Controllers.ContentApi
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
+        public async Task<IActionResult> SubmitContent(Guid id)
+        {
+            var command = new SubmitContent() { ContentId = id };
+
+            await CommandBus.PublishAsync(command);
+
+            return NoContent();
+        }
+
+        [MustBeAppAuthor]
+        [HttpDelete]
+        [Route("content/{app}/{name}/{id}")]
+        [ApiCosts(1)]
         public async Task<IActionResult> PutContent(Guid id)
         {
             var command = new DeleteContent { ContentId = id };

@@ -103,6 +103,11 @@ namespace Squidex.Domain.Apps.Write.Contents
             return handler.UpdateAsync<ContentDomainObject>(context, c => c.Submit(command));
         }
 
+        protected Task On(SubmitContent command, CommandContext context)
+        {
+            return handler.UpdateAsync<ContentDomainObject>(context, c => c.Submit(command));
+        }
+
 		public async Task HandleAsync(CommandContext context, Func<Task> next)
 		{
 			if (!await this.DispatchActionAsync(context.Command, context))
