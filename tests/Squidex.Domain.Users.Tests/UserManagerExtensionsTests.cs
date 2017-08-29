@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Squidex.Infrastructure;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 using Xunit;
 
@@ -21,13 +22,14 @@ namespace Squidex.Domain.Users
 		private string testEmail = "test@test.com";
 		private string testId = "ValidID";
 		private string testPassword = "password";
+		private string testDiplayname = "test user";
 		private readonly Mock<IQueryableUserStore<IUser>> store = new Mock<IQueryableUserStore<IUser>>();
 		private UserExtenstionsTests.TestUser testUser;
 		private readonly Mock<IUserFactory> mockFactory = new Mock<IUserFactory>();
 
 		public UserManagerExtensionsTests()
 		{
-			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), new List<ExternalLogin>());
+			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), new List<ExternalLogin>(), new List<string>());
 			store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Success));
 			mockFactory.Setup(u => u.Create(testEmail)).Returns(testUser);
 			userManager = new FakeUserManager(store);
@@ -91,6 +93,40 @@ namespace Squidex.Domain.Users
 			Assert.Equal("Cannot create user.", ex.Result.Message);
 		}
 
+		[Fact]
+		public async void UpdateUserAsync()
+		{
+			string updatedEmail = "test2@test.com";
+			string updatedDisplayName = "displayname2";
+
+			IUser user = await userManager.FindByIdAsync(testId);
+
+			await userManager.UpdateAsync(testId, updatedEmail, updatedDisplayName, null, null);
+
+			Assert.Equal(updatedEmail, user.Email);
+			Assert.Equal(updatedDisplayName, user.DisplayName());
+		}
+
+		[Fact]
+		public async void Update_user_so_that_they_are_an_administrator_Async()
+		{
+			IUser user = await userManager.FindByIdAsync(testId);
+
+			await userManager.UpdateAsync(testId, null, null, null, true);
+
+			Assert.True(user.InRole(SquidexRoles.Administrator));
+		}
+
+		[Fact]
+		public async void Update_user_so_that_they_are_no_longer_an_administrator_Async()
+		{
+			IUser user = await userManager.FindByIdAsync(testId);
+
+			await userManager.UpdateAsync(testId, null, null, null, false);
+
+			Assert.False(user.InRole(SquidexRoles.Administrator));
+		}
+
 		public class FakeUserManager : UserManager<IUser>
 		{
 			public FakeUserManager(Mock<IQueryableUserStore<IUser>> storeMock)
@@ -110,20 +146,20 @@ namespace Squidex.Domain.Users
 				return IdentityResult.Success;
 			}
 
-			public override IQueryable<IUser> Users
+			public override IQueryable<IUser> Users { get; } = CreateUsers();
+
+			private static IQueryable<IUser> CreateUsers()
 			{
-				get
-				{
-					string testEmail = "test@test.com";
-					IReadOnlyList<Claim> testClaims = new List<Claim>();
-					IReadOnlyList<ExternalLogin> testLogins = new List<ExternalLogin>();
-					UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins);
-					UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins);
+				string testEmail = "test@test.com";
+				IReadOnlyList<Claim> testClaims = new List<Claim>();
+				IReadOnlyList<ExternalLogin> testLogins = new List<ExternalLogin>();
+				List<string> roles = new List<string>();
+				UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins, roles);
+				UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins, roles);
 
-					var retVal = new List<IUser> {validUser, lockedUser};
+				var retVal = new List<IUser> {validUser, lockedUser};
 
-					return retVal.AsQueryable();
-				}
+				return retVal.AsQueryable();
 			}
 
 			public override string NormalizeKey(string email)
@@ -140,7 +176,10 @@ namespace Squidex.Domain.Users
 			{
 				return IdentityResult.Success;
 			}
+
+			public override async Task<IdentityResult> UpdateAsync(IUser user)
+			{
+				return IdentityResult.Success;
+			}
 		}
-	}
-	
-}
+	}}

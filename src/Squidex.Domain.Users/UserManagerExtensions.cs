@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Squidex.Infrastructure;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
 // ReSharper disable ImplicitlyCapturedClosure
@@ -76,7 +77,8 @@ namespace Squidex.Domain.Users
             return user;
         }
 
-        public static async Task UpdateAsync(this UserManager<IUser> userManager, string id, string email, string displayName, string password)
+        public static async Task UpdateAsync(this UserManager<IUser> userManager, string id, 
+			string email, string displayName, string password, bool? isAdministrator)
         {
             var user = await userManager.FindByIdAsync(id);
 
@@ -95,7 +97,17 @@ namespace Squidex.Domain.Users
                 user.SetDisplayName(displayName);
             }
 
-            await DoChecked(() => userManager.UpdateAsync(user), "Cannot update user.");
+	        if (isAdministrator.HasValue && isAdministrator.Value)
+	        {
+		        user.AddRole(SquidexRoles.Administrator);
+	        }
+
+	        if (isAdministrator.HasValue && !isAdministrator.Value)
+	        {
+		        user.RemoveRole(SquidexRoles.Administrator);
+	        }
+
+			await DoChecked(() => userManager.UpdateAsync(user), "Cannot update user.");
 
             if (!string.IsNullOrWhiteSpace(password))
             {
