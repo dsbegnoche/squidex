@@ -6,10 +6,11 @@
  */
 
 import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 import {
     AppsStoreService,
-    AppsService,
+    AuthService,
     fadeAnimation,
     ModalView
 } from 'shared';
@@ -23,22 +24,24 @@ import {
     ]
 })
 export class AppsPageComponent implements OnInit {
+    private authenticationSubscription: Subscription;
     public addAppDialog = new ModalView();
 
     public apps = this.appsStore.apps;
+    public isAdmin = false;
 
     constructor(
-        private readonly appsStore: AppsStoreService,
-        private readonly appService: AppsService
+        public readonly appsStore: AppsStoreService,
+        private readonly authService: AuthService
     ) {
     }
 
     public ngOnInit() {
         this.appsStore.selectApp(null);
-    }
-
-    public deleteApp(appName: string) {
-        console.log('deleting app ' + appName);
-        this.appService.deleteApp(appName);
+        this.authenticationSubscription =
+            this.authService.userChanges.filter(user => !!user)
+            .subscribe(user => {
+                this.isAdmin = user.isAdmin;
+            });
     }
 }

@@ -67,4 +67,14 @@ export class AppsStoreService {
                 });
             });
     }
+
+    public deleteApp(dto: AppDto, now?: DateTime): Observable<AppDto> {
+        return this.appsService.deleteApp(dto)
+            .do(app => {
+                console.log(app);
+                this.apps$.first().subscribe(apps => {
+                    console.log('maybe?');
+                });
+            });
+    }
 }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Squidex.Controllers.Api.Apps.Models;
+using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Write.Apps.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
@@ -110,14 +111,14 @@ namespace Squidex.Controllers.Api.Apps
         /// 404 => App not found.
         /// </returns>
         [MustBeAdministrator]
-        [HttpDelete]
-        [Route("apps/{app}/")]
+        [HttpPut]
+        [Route("apps/")]
         [ApiCosts(1)]
-        public async Task<IActionResult> DeleteApp(string app)
+        public async Task<IActionResult> DeleteApp([FromBody] AppDto app)
         {
             await CommandBus.PublishAsync(new DeleteApp());
 
-            return NoContent();
-        }
+			return NoContent();
+		}
     }
 }
