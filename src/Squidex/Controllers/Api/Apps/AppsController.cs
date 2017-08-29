@@ -112,7 +112,7 @@ namespace Squidex.Controllers.Api.Apps
         /// </returns>
         [MustBeAdministrator]
         [HttpPut]
-        [Route("apps/")]
+        [Route("apps/{app}")]
         [ApiCosts(1)]
         public async Task<IActionResult> DeleteApp([FromBody] AppDto app)
         {
