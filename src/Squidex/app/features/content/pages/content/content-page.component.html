@@ -16,7 +16,7 @@
                             Save and Submit
                         </button>
                     </span>
-                    <span *ngIf="!isNewMode">
+                    <span *ngIf="!isNewMode && !isViewOnly">
                         <button type="submit" class="btn btn-primary" title="CTRL + S">
                             Save
                         </button>
@@ -28,8 +28,11 @@
                 <h3 class="panel-title" *ngIf="isNewMode">
                     New Content
                 </h3>
-                <h3 class="panel-title" *ngIf="!isNewMode">
+                <h3 class="panel-title" *ngIf="!isNewMode && !isViewOnly">
                     Edit Content
+                </h3>
+                <h3 class="panel-title" *ngIf="!isNewMode && isViewOnly">
+                    View Content
                 </h3>
             </div>
 
