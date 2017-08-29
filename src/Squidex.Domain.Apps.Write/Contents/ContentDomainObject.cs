@@ -24,7 +24,6 @@ namespace Squidex.Domain.Apps.Write.Contents
 {
     public class ContentDomainObject : DomainObjectBase
     {
-        private bool isDeleted;
         private bool isCreated;
         private Status status;
 
