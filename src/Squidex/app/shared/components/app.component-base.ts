@@ -15,7 +15,7 @@ export abstract class AppComponentBase extends ComponentBase {
     private appName$: Observable<string>;
 
     constructor(dialogs: DialogService,
-        private readonly appsStore: AppsStoreService
+        public readonly appsStore: AppsStoreService
     ) {
         super(dialogs);
 

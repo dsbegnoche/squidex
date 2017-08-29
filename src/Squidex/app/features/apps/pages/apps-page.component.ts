@@ -5,12 +5,14 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import {
+    ComponentBase,
     AppsStoreService,
     AuthService,
+    DialogService,
     fadeAnimation,
     ModalView
 } from 'shared';
@@ -23,17 +25,23 @@ import {
         fadeAnimation
     ]
 })
-export class AppsPageComponent implements OnInit {
+export class AppsPageComponent extends ComponentBase implements OnInit, OnDestroy {
+    private deleteAppSubscription: Subscription;
     private authenticationSubscription: Subscription;
     public addAppDialog = new ModalView();
 
     public apps = this.appsStore.apps;
     public isAdmin = false;
 
-    constructor(
-        public readonly appsStore: AppsStoreService,
+    constructor(dialogs: DialogService,
+        private readonly appsStore: AppsStoreService,
         private readonly authService: AuthService
     ) {
+        super(dialogs);
+    }
+
+    public ngOnDestroy() {
+        this.deleteAppSubscription.unsubscribe();
     }
 
     public ngOnInit() {
@@ -42,7 +50,7 @@ export class AppsPageComponent implements OnInit {
             this.authService.userChanges.filter(user => !!user)
             .subscribe(user => {
                 this.isAdmin = user.isAdmin;
-            });
+                });
     }
 
     public deleteApp(appName: string) {
@@ -51,7 +59,7 @@ export class AppsPageComponent implements OnInit {
                     console.log(appName);
                 },
                 error => {
-                    console.log(error);
+                    this.notifyError(error);
                 });
     }
 }
