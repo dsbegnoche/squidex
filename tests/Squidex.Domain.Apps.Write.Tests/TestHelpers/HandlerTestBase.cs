@@ -7,11 +7,14 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Events;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS;
 using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Shared.Identity;
 
 #pragma warning disable IDE0019
 
@@ -144,6 +147,20 @@ namespace Squidex.Domain.Apps.Write.TestHelpers
             if (schemaCommand != null && schemaCommand.SchemaId == null)
             {
                 schemaCommand.SchemaId = SchemaNamedId;
+            }
+
+            var rolesCommand = command as RolesCommand;
+
+            if (rolesCommand != null && !rolesCommand.Roles.Any())
+            {
+                rolesCommand.Roles = new List<string>
+                {
+                    SquidexRoles.AppOwner,
+                    SquidexRoles.AppDeveloper,
+                    SquidexRoles.AppEditor,
+                    SquidexRoles.AppAuthor,
+                    SquidexRoles.AppReader
+                };
             }
 
             return command;
