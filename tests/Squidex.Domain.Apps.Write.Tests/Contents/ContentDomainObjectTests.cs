@@ -8,6 +8,7 @@
 
 using System;
 using FluentAssertions;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Events.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
@@ -81,6 +82,18 @@ namespace Squidex.Domain.Apps.Write.Contents
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentCreated { Data = data }),
                     CreateContentEvent(new ContentPublished())
+                );
+        }
+
+        [Fact]
+        public void Create_should_sumbit_if_status_submitted()
+        {
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Status.Submitted}));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentCreated { Data = data }),
+                    CreateContentEvent(new ContentSubmitted())
                 );
         }
 
@@ -262,11 +275,24 @@ namespace Squidex.Domain.Apps.Write.Contents
             sut.Unpublish(CreateContentCommand(new UnpublishContent()));
 
             Assert.False(sut.IsPublished);
+            Assert.Equal(Status.Draft, sut.Status);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentUnpublished())
                 );
+        }
+
+        [Fact]
+        public void Unpublish_should_throw_exception_if_submitted()
+        {
+            CreateContent();
+            SubmitContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Unpublish(CreateContentCommand(new UnpublishContent()));
+            });
         }
 
         [Fact]
@@ -305,6 +331,66 @@ namespace Squidex.Domain.Apps.Write.Contents
                 );
         }
 
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_deleted()
+        {
+            CreateContent();
+            DeleteContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_published()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_not_created()
+        {
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_refresh_properties_and_create_events()
+        {
+            CreateContent();
+
+            sut.Submit(CreateContentCommand(new SubmitContent()));
+
+            Assert.True(sut.Status == Status.Submitted);
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentPublished())
+                );
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_already_submitted()
+        {
+            CreateContent();
+            SubmitContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
         private void CreateContent()
         {
             sut.Create(CreateContentCommand(new CreateContent { Data = data }));
@@ -329,6 +415,13 @@ namespace Squidex.Domain.Apps.Write.Contents
         private void DeleteContent()
         {
             sut.Delete(CreateContentCommand(new DeleteContent()));
+
+            ((IAggregate)sut).ClearUncommittedEvents();
+        }
+
+        private void SubmitContent()
+        {
+            sut.Submit(CreateContentCommand(new SubmitContent()));
 
             ((IAggregate)sut).ClearUncommittedEvents();
         }

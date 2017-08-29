@@ -154,7 +154,7 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
@@ -170,7 +170,7 @@ namespace Squidex.Controllers.ContentApi
             return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -183,7 +183,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPatch]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -222,6 +222,19 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppAuthor]
+        [HttpPut]
+        [Route("content/{app}/{name}/{id}/submit")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> SubmitContent(Guid id)
+        {
+            var command = new SubmitContent() { ContentId = id };
+
+            await CommandBus.PublishAsync(command);
+
+            return NoContent();
+        }
+
         [MustBeAppEditor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
@@ -235,7 +248,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-	    [MustBeAppEditor]
+        [MustBeAppAuthor]
 	    [HttpPost]
 	    [Route("content/{app}/{name}/{id}/copy")]
 	    [ApiCosts(1)]
