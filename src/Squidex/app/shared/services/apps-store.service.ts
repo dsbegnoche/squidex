@@ -68,7 +68,7 @@ export class AppsStoreService {
             });
     }
 
-    public deleteApp(appName: string, now?: DateTime): Observable<any> {
+    public deleteApp(appName: string): Observable<any> {
         return this.appsService.deleteApp(appName)
             .do(app => {
                 this.apps$.first().subscribe(apps => {

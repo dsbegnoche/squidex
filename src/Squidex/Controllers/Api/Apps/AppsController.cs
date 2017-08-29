@@ -105,18 +105,20 @@ namespace Squidex.Controllers.Api.Apps
         /// <summary>
         /// Delete an App.
         /// </summary>
-        /// <param name="app">The name of the app to delete.</param>
+        /// <param name="appName">The name of the app to delete.</param>
         /// <returns>
         /// 204 => App has been deleted.
         /// 404 => App not found.
         /// </returns>
         [MustBeAdministrator]
         [HttpDelete]
-        [Route("apps/{app}/")]
+        [Route("apps/{appName}")]
         [ApiCosts(1)]
-        public async Task<IActionResult> DeleteApp(string app)
+        public async Task<IActionResult> DeleteApp(string appName)
         {
-            await CommandBus.PublishAsync(new DeleteApp());
+	        var appId = appRepository.FindAppAsync(appName).Result.Id;
+
+            await CommandBus.PublishAsync(new DeleteApp(appName, appId));
 
 			return NoContent();
 		}

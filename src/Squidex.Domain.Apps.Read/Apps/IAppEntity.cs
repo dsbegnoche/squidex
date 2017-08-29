@@ -15,7 +15,7 @@ namespace Squidex.Domain.Apps.Read.Apps
     {
         string Name { get; }
 
-        bool IsDeleted { get; } 
+        bool IsDeleted { get; }
 
         string PlanId { get; }
 

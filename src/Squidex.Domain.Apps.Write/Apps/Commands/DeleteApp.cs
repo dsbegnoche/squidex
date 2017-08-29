@@ -13,10 +13,12 @@ using Squidex.Infrastructure.CQRS.Commands;
 
 namespace Squidex.Domain.Apps.Write.Apps.Commands
 {
-    public sealed class DeleteApp : SquidexCommand 
-    {
-        public DeleteApp()
-        {
-        }
-    }
+    public sealed class DeleteApp : AppAggregateCommand
+	{
+
+		public DeleteApp(string name, Guid id)
+		{
+			AppId = new NamedId<Guid>(id, name);
+		}
+	}
 }

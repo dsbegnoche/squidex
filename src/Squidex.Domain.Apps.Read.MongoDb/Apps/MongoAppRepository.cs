@@ -42,7 +42,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         public async Task<IReadOnlyList<IAppEntity>> QueryAllAsync(string subjectId)
         {
             var appEntities =
-                await Collection.Find(s => s.Contributors.ContainsKey(subjectId))
+                await Collection.Find(s => s.Contributors.ContainsKey(subjectId) && !((IAppEntity)s).IsDeleted)
                     .ToListAsync();
 
             return appEntities;
@@ -51,7 +51,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         public async Task<IAppEntity> FindAppAsync(Guid id)
         {
             var appEntity =
-                await Collection.Find(s => s.Id == id)
+                await Collection.Find(s => s.Id == id && !((IAppEntity)s).IsDeleted)
                     .FirstOrDefaultAsync();
 
             return appEntity;

@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import {
@@ -25,8 +25,7 @@ import {
         fadeAnimation
     ]
 })
-export class AppsPageComponent extends ComponentBase implements OnInit, OnDestroy {
-    private deleteAppSubscription: Subscription;
+export class AppsPageComponent extends ComponentBase implements OnInit {
     private authenticationSubscription: Subscription;
     public addAppDialog = new ModalView();
 
@@ -38,10 +37,6 @@ export class AppsPageComponent extends ComponentBase implements OnInit, OnDestro
         private readonly authService: AuthService
     ) {
         super(dialogs);
-    }
-
-    public ngOnDestroy() {
-        this.deleteAppSubscription.unsubscribe();
     }
 
     public ngOnInit() {
@@ -56,7 +51,7 @@ export class AppsPageComponent extends ComponentBase implements OnInit, OnDestro
     public deleteApp(appName: string) {
         this.appsStore.deleteApp(appName)
             .subscribe(() => {
-                    console.log(appName);
+                    this.apps = this.appsStore.apps;
                 },
                 error => {
                     this.notifyError(error);
