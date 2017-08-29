@@ -13,7 +13,6 @@ namespace Squidex.Domain.Apps.Read.Contents
 {
     public interface IContentEntity : IAppRefEntity, IEntityWithCreatedBy, IEntityWithLastModifiedBy, IEntityWithVersion
     {
-        //TODO: Remove??;
         bool IsPublished { get; }
 
         Status Status { get; }

@@ -51,6 +51,10 @@ namespace Squidex.Config.Domain
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
+            builder.RegisterType<EnrichWithRolesCommandMiddleware>()
+                .As<ICommandMiddleware>()
+                .SingleInstance();
+
             builder.RegisterType<FieldRegistry>()
                 .AsSelf()
                 .SingleInstance();
@@ -68,10 +72,6 @@ namespace Squidex.Config.Domain
                 .SingleInstance();
 
             builder.RegisterType<SchemaCommandMiddleware>()
-                .As<ICommandMiddleware>()
-                .SingleInstance();
-
-            builder.RegisterType<ETagCommandMiddleware>()
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 

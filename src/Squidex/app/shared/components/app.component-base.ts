@@ -33,21 +33,17 @@ export abstract class AppComponentBase extends ComponentBase {
         return this.appName$.first();
     }
 
-    public appPermission(): Observable<PermissionEnum> {
-        return this.appPermission$;
+    private appPermission(): PermissionEnum {
+        let permission = PermissionEnum.Reader;
+        this.appPermission$.subscribe(x => permission = x).unsubscribe();
+        return permission;
     }
 
     public isAppEditor(): boolean {
-        let permission = PermissionEnum.Reader;
-        this.appPermission$.subscribe(x => permission = x).unsubscribe();
-
-        return permission < PermissionEnum.Author;
+        return this.appPermission() < PermissionEnum.Author;
     }
 
     public isAppAuthor(): boolean {
-        let permission;
-        this.appPermission$.subscribe(x => permission = x).unsubscribe();
-
-        return permission === PermissionEnum.Author;
+        return this.appPermission() === PermissionEnum.Author;
     }
 }

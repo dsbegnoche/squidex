@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
@@ -15,6 +16,7 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS;
+using Squidex.Shared.Identity;
 using Xunit;
 
 // ReSharper disable ConvertToConstant.Local
@@ -143,6 +145,20 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
+        public void Update_should_create_events_if_submitted_and_user_is_author()
+        {
+            CreateContent();
+            SubmitContent();
+
+            sut.Update(CreateContentCommandAuthor(new UpdateContent { Data = otherData }));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentUpdated { Data = otherData })
+                );
+        }
+
+        [Fact]
         public void Update_should_not_create_event_for_same_data()
         {
             CreateContent();
@@ -151,6 +167,18 @@ namespace Squidex.Domain.Apps.Write.Contents
             sut.Update(CreateContentCommand(new UpdateContent { Data = data }));
 
             sut.GetUncomittedEvents().Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Update_should_throw_exception_if_published_and_user_is_author()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Update(CreateContentCommandAuthor(new UpdateContent { Data = data }));
+            });
         }
 
         [Fact]
@@ -210,6 +238,18 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
+        public void Patch_should_throw_exception_if_published_and_user_is_author()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.Patch(CreateContentCommandAuthor(new PatchContent()));
+            });
+        }
+
+        [Fact]
         public void Publish_should_throw_exception_if_not_created()
         {
             Assert.Throws<DomainException>(() =>
@@ -227,6 +267,17 @@ namespace Squidex.Domain.Apps.Write.Contents
             Assert.Throws<DomainException>(() =>
             {
                 sut.Publish(CreateContentCommand(new PublishContent()));
+            });
+        }
+
+        [Fact]
+        public void Publish_should_throw_exception_if_user_not_editor_or_greater()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Publish(CreateContentCommandAuthor(new PublishContent()));
             });
         }
 
@@ -291,7 +342,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Unpublish(CreateContentCommand(new UnpublishContent()));
+                sut.Unpublish(CreateContentCommandAuthor(new UnpublishContent()));
             });
         }
 
@@ -332,6 +383,17 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
+        public void Delete_should_throw_exception_if_user_is_not_editor_or_greater()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Delete(CreateContentCommandAuthor(new DeleteContent()));
+            });
+        }
+
+        [Fact]
         public void Submit_should_throw_exception_if_content_is_deleted()
         {
             CreateContent();
@@ -369,7 +431,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
 
-            sut.Submit(CreateContentCommand(new SubmitContent()));
+            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
 
             Assert.True(sut.Status == Status.Submitted);
 
@@ -384,6 +446,28 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
             SubmitContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_user_is_not_author()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommandReader(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_user_is_owner()
+        {
+            CreateContent();
 
             Assert.Throws<DomainException>(() =>
             {
@@ -421,7 +505,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
         private void SubmitContent()
         {
-            sut.Submit(CreateContentCommand(new SubmitContent()));
+            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
 
             ((IAggregate)sut).ClearUncommittedEvents();
         }
@@ -436,6 +520,28 @@ namespace Squidex.Domain.Apps.Write.Contents
         protected T CreateContentCommand<T>(T command) where T : ContentCommand
         {
             command.ContentId = ContentId;
+
+            return CreateCommand(command);
+        }
+
+        /// <summary>
+        /// Creates content command with reader roles.
+        /// </summary>
+        protected T CreateContentCommandReader<T>(T command) where T : ContentCommand
+        {
+            command.ContentId = ContentId;
+            command.Roles = new List<string> { SquidexRoles.AppReader };
+
+            return CreateCommand(command);
+        }
+
+        /// <summary>
+        /// Creates content command with author roles.
+        /// </summary>
+        protected T CreateContentCommandAuthor<T>(T command) where T : ContentCommand
+        {
+            command.ContentId = ContentId;
+            command.Roles = new List<string> { SquidexRoles.AppReader, SquidexRoles.AppAuthor };
 
             return CreateCommand(command);
         }

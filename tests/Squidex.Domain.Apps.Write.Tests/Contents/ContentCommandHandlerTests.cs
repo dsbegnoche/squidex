@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Squidex.Domain.Apps.Core;
@@ -23,6 +24,7 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Shared.Identity;
 using Xunit;
 
 // ReSharper disable ConvertToConstant.Local
@@ -185,7 +187,11 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
 
-            var context = CreateContextForCommand(new SubmitContent {ContentId = contentId});
+            var context = CreateContextForCommand(new SubmitContent
+            {
+                ContentId = contentId,
+                Roles = new List<string> {SquidexRoles.AppAuthor}
+            });
 
             await TestUpdate(content, async _ =>
             {
