@@ -12,7 +12,7 @@
             <h4 class="card-title app-title">{{app.name}}</h4>
 
             <a [routerLink]="['/app', app.name]">Edit</a>
-	        <a *ngIf="isAdmin" (sqxConfirmClick)="appsStore.deleteApp(app)" confirmTitle="Delete App" confirmText="Do you really want to delete the app?" class="float-right" style="cursor: pointer; color: red;">
+	        <a *ngIf="isAdmin" (sqxConfirmClick)="deleteApp(app.name)" confirmTitle="Delete App" confirmText="Do you really want to delete the app?" class="float-right" style="cursor: pointer; color: red;">
 		        Delete
 	        </a>
         </div>

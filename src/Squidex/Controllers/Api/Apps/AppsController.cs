@@ -111,10 +111,10 @@ namespace Squidex.Controllers.Api.Apps
         /// 404 => App not found.
         /// </returns>
         [MustBeAdministrator]
-        [HttpPut]
-        [Route("apps/{app}")]
+        [HttpDelete]
+        [Route("apps/{app}/")]
         [ApiCosts(1)]
-        public async Task<IActionResult> DeleteApp([FromBody] AppDto app)
+        public async Task<IActionResult> DeleteApp(string app)
         {
             await CommandBus.PublishAsync(new DeleteApp());
 

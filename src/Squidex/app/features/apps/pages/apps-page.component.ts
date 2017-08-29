@@ -44,4 +44,14 @@ export class AppsPageComponent implements OnInit {
                 this.isAdmin = user.isAdmin;
             });
     }
+
+    public deleteApp(appName: string) {
+        this.appsStore.deleteApp(appName)
+            .subscribe(() => {
+                    console.log(appName);
+                },
+                error => {
+                    console.log(error);
+                });
+    }
 }

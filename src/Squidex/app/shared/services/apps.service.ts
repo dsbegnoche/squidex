@@ -76,12 +76,13 @@ export class AppsService {
                 .pretifyError('Failed to create app. Please reload.');
     }
 
-    public deleteApp(dto: AppDto): Observable<AppDto> {
-        const url = this.apiUrl.buildUrl(`api/apps/${dto.name}`);
+    public deleteApp(appName: string): Observable<any> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}`);
 
-        return HTTP.putVersioned(this.http, url, dto)
+        return HTTP.deleteVersioned(this.http, url)
             .do(() => {
-                return dto;
-            });
+                return appName;
+            })
+            .pretifyError('Failed to delete app. Please reload.');
     }
 }
