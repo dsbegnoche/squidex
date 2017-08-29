@@ -52,6 +52,17 @@ describe('ContentDto', () => {
         expect(content_2.lastModified).toEqual(now);
         expect(content_2.lastModifiedBy).toEqual('me');
     });
+
+    it('should update status property and user info when submitting', () => {
+        const now = DateTime.now();
+
+        const content_1 = new ContentDto('1', Status.Draft, 'other', 'other', DateTime.now(), DateTime.now(), { data: 1 }, null);
+        const content_2 = content_1.submit('me', now);
+
+        expect(content_2.status).toEqual(Status.Submitted);
+        expect(content_2.lastModified).toEqual(now);
+        expect(content_2.lastModifiedBy).toEqual('me');
+    });
 });
 
 describe('ContentsService', () => {
@@ -358,5 +369,18 @@ describe('ContentsService', () => {
         expect(req.request.headers.get('If-Match')).toEqual(version.value);
 
         req.flush({});
-    }));
+        }));
+
+    it('should make put request to submit content',
+        inject([ContentsService, HttpTestingController], (contentsService: ContentsService, httpMock: HttpTestingController) => {
+
+            contentsService.submitContent('my-app', 'my-schema', 'content1', version).subscribe();
+
+            const req = httpMock.expectOne('http://service/p/api/content/my-app/my-schema/content1/submit');
+
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toEqual(version.value);
+
+            req.flush({});
+        }));
 });

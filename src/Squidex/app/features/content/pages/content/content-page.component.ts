@@ -109,6 +109,20 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         }
     }
 
+    public saveAndPerformAction() {
+        if (this.isAppEditor()) {
+            this.saveAndPublish();
+        } else if (this.isAppAuthor()) {
+            this.saveAndSubmit()
+        } else {
+            this.saveAsDraft();
+        }
+    }
+
+    public saveAndSubmit() {
+        this.saveContent(Status.Submitted);
+    }
+
     public saveAndPublish() {
         this.saveContent(Status.Published);
     }

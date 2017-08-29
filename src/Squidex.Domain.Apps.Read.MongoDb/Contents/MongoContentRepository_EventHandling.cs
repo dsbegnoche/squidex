@@ -134,6 +134,18 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             });
         }
 
+        protected Task On(ContentSubmitted @event, EnvelopeHeaders headers)
+        {
+            return ForAppIdAsync(@event.AppId.Id, collection =>
+            {
+                return collection.UpdateAsync(@event, headers, x =>
+                {
+                    x.IsPublished = false;
+                    x.Status = Status.Submitted;
+                });
+            });
+        }
+
         protected Task On(AssetDeleted @event, EnvelopeHeaders headers)
         {
             return ForAppIdAsync(@event.AppId.Id, collection =>
