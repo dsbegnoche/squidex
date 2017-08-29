@@ -161,7 +161,7 @@ namespace Squidex.Controllers.Api.Assets
         /// <remarks>
         /// You can only upload one file at a time. The mime type of the file is not calculated by Squidex and must be defined correctly.
         /// </remarks>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPost]
         [Route("apps/{app}/assets/")]
         [ProducesResponseType(typeof(AssetCreatedDto), 201)]
