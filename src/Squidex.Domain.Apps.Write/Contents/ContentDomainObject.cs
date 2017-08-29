@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Events.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
@@ -22,7 +23,8 @@ namespace Squidex.Domain.Apps.Write.Contents
     {
         private bool isDeleted;
         private bool isCreated;
-        private bool isPublished;
+        private Status status;
+
         private NamedContentData data;
 
         public bool IsDeleted
@@ -32,7 +34,17 @@ namespace Squidex.Domain.Apps.Write.Contents
 
         public bool IsPublished
         {
-            get { return isPublished; }
+            get { return status == Status.Published; }
+        }
+
+        public bool IsSubmitted
+        {
+            get { return status == Status.Submitted; }
+        }
+
+        public Status Status
+        {
+            get { return status; }
         }
 
         public ContentDomainObject(Guid id, int version)
@@ -54,17 +66,22 @@ namespace Squidex.Domain.Apps.Write.Contents
 
         protected void On(ContentPublished @event)
         {
-            isPublished = true;
+            status = Status.Published;
         }
 
         protected void On(ContentUnpublished @event)
         {
-            isPublished = false;
+            status = Status.Draft;
         }
 
         protected void On(ContentDeleted @event)
         {
             isDeleted = true;
+        }
+
+        protected void On(ContentSubmitted @event)
+        {
+            status = Status.Submitted;
         }
 
         public ContentDomainObject Create(CreateContent command)
@@ -75,9 +92,13 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             RaiseEvent(SimpleMapper.Map(command, new ContentCreated()));
 
-            if (command.Status == Core.Apps.Status.Published)
+            if (command.Status == Status.Published)
             {
                 RaiseEvent(SimpleMapper.Map(command, new ContentPublished()));
+            }
+            else if (command.Status == Status.Submitted)
+            {
+                RaiseEvent(SimpleMapper.Map(command, new ContentSubmitted()));
             }
 
             return this;
@@ -110,6 +131,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
+            VerifyNotSubmitted();
 
             RaiseEvent(SimpleMapper.Map(command, new ContentUnpublished()));
 
@@ -146,6 +168,19 @@ namespace Squidex.Domain.Apps.Write.Contents
             return this;
         }
 
+        public ContentDomainObject Submit(SubmitContent command)
+        {
+            Guard.NotNull(command, nameof(command));
+
+            VerifyCreatedAndNotDeleted();
+            VerifyNotPublished();
+            VerifyNotSubmitted();
+
+            RaiseEvent(SimpleMapper.Map(command, new ContentSubmitted()));
+
+            return this;
+        }
+
         private void VerifyNotCreated()
         {
             if (isCreated)
@@ -159,6 +194,22 @@ namespace Squidex.Domain.Apps.Write.Contents
             if (isDeleted || !isCreated)
             {
                 throw new DomainException("Content has already been deleted or not created yet.");
+            }
+        }
+
+        private void VerifyNotPublished()
+        {
+            if (IsPublished)
+            {
+                throw new DomainException("Content has already been published.");
+            }
+        }
+
+        private void VerifyNotSubmitted()
+        {
+            if (IsSubmitted)
+            {
+                throw new DomainException("Content has already been submitted.");
             }
         }
 

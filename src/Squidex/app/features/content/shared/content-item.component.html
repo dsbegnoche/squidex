@@ -4,7 +4,7 @@
     </span>
 </td>
 <td>
-    <span class="item-published" [class.unpublished]="!content.isPublished"></span>
+    <span class="item-published" [class.unpublished]="!content.isPublished && !content.isSubmitted" [class.submitted]="content.isSubmitted"></span>
     
     <small class="item-modified">{{content.lastModified | sqxFromNow}}</small>
 </td>
@@ -17,10 +17,13 @@
             <i class="icon-dots"></i>
         </button>
         <div class="dropdown-menu" *sqxModalView="dropdown" closeAlways="true" [sqxModalTarget]="optionsButton" position="right" [@fade]>
-            <a class="dropdown-item" (click)="publishing.emit(); $event.stopPropagation()" *ngIf="!content.isPublished">
+            <a class="dropdown-item" (click)="publishing.emit(); $event.stopPropagation()" *ngIf="!content.isPublished && isAppEditor">
                 Publish
             </a>
-	        <a class="dropdown-item" (click)="unpublishing.emit(); $event.stopPropagation()" *ngIf="content.isPublished">
+            <a class="dropdown-item" (click)="submitting.emit(); $event.stopPropagation()" *ngIf="!content.isPublished && isAppAuthor()">
+                Submit
+            </a>
+	        <a class="dropdown-item" (click)="unpublishing.emit(); $event.stopPropagation()" *ngIf="content.isPublished && isAppEditor()">
 		        Unpublish
 	        </a>
 	        <a class="dropdown-item" (click)="copying.emit(); dropdown.hide(); $event.stopPropagation();">
@@ -37,6 +40,6 @@
 </td>
 <td *ngIf="isReference">
     <button type="button" class="btn btn-link btn-secondary" (click)="deleting.emit(); $event.stopPropagation()">
-        <i class="icon-close"></i>
+        <i class="icon-close"></i>  
     </button>
 </td>

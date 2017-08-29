@@ -8,6 +8,7 @@
 
 using System;
 using NodaTime;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Infrastructure;
 
@@ -30,6 +31,9 @@ namespace Squidex.Domain.Apps.Read.Contents.TestData
         public long Version { get; set; }
 
         public bool IsPublished { get; set; }
+
+        public Status Status { get; set; }
+
 
         public NamedContentData Data { get; set; }
     }

@@ -165,6 +165,21 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
+
+        [Fact]
+        [Fact]
+        public async Task Submit_should_submit_domain_object()
+        {
+            CreateContent();
+
+            var context = CreateContextForCommand(new SubmitContent {ContentId = contentId});
+
+            await TestUpdate(content, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
 		private ContentDomainObject CreateContent()
         {
             return content.Create(new CreateContent { Data = data });

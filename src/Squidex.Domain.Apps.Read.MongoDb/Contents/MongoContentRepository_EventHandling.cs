@@ -9,6 +9,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Events.Assets;
 using Squidex.Domain.Apps.Events.Contents;
@@ -102,6 +103,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 return collection.UpdateAsync(@event, headers, x =>
                 {
                     x.IsPublished = true;
+                    x.Status = Status.Published;
                 });
             });
         }
@@ -113,6 +115,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 return collection.UpdateAsync(@event, headers, x =>
                 {
                     x.IsPublished = false;
+                    x.Status = Status.Draft;
                 });
             });
         }
