@@ -125,7 +125,7 @@ namespace Squidex.Domain.Apps.Write.TestHelpers
 		    }
 	    }
 
-		protected TCommand CreateCommand<TCommand>(TCommand command) where TCommand : SquidexCommand
+        protected TCommand CreateCommand<TCommand>(TCommand command) where TCommand : SquidexCommand
         {
             if (command.Actor == null)
             {

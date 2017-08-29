@@ -40,7 +40,6 @@ export class ContentDto {
         public readonly version: Version
     ) {
     }
-
     public publish(user: string, now?: DateTime): ContentDto {
         return new ContentDto(
             this.id,
@@ -70,6 +69,19 @@ export class ContentDto {
             data,
             this.version);
     }
+
+    public submit(user: string, now?: DateTime): ContentDto {
+        return new ContentDto(
+            this.id,
+            Status.Submitted,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.data,
+            this.version);
+    }
+
+    public isPublished: boolean = this.status === Status.Published;
+    public isSubmitted: boolean = this.status === Status.Submitted;
 }
 
 @Injectable()
@@ -213,6 +225,13 @@ export class ContentsService {
             .pretifyError('Failed to unpublish content. Please reload.');
     }
 
+    public submitContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
+        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/submit`);
+
+        return HTTP.putVersioned(this.http, url, {}, version)
+            .pretifyError('Failed to submit content. Please reload.');
+    }
+
     public copyContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/copy`);
 
@@ -220,7 +239,7 @@ export class ContentsService {
             .map(response => {
                 return new ContentDto(
                     response.id,
-                    response.isPublished,
+                    response.status,
                     response.createdBy,
                     response.lastModifiedBy,
                     DateTime.parseISO_UTC(response.created),

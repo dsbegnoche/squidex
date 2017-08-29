@@ -154,15 +154,15 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
         public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] Status status = Status.Draft)
         {
             var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Status = status };
-			
-			var context = await CommandBus.PublishAsync(command);
+
+            var context = await CommandBus.PublishAsync(command);
 
             var result = context.Result<EntityCreatedResult<NamedContentData>>();
             var response = ContentDto.Create(command, result);
@@ -170,7 +170,7 @@ namespace Squidex.Controllers.ContentApi
             return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -183,7 +183,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPatch]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -222,6 +222,19 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppAuthor]
+        [HttpPut]
+        [Route("content/{app}/{name}/{id}/submit")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> SubmitContent(Guid id)
+        {
+            var command = new SubmitContent() { ContentId = id };
+
+            await CommandBus.PublishAsync(command);
+
+            return NoContent();
+        }
+
         [MustBeAppEditor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
@@ -235,23 +248,23 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-	    [MustBeAppEditor]
-	    [HttpPost]
-	    [Route("content/{app}/{name}/{id}/copy")]
-	    [ApiCosts(1)]
-	    public async Task<IActionResult> CopyContent(string name, Guid id)
-	    {
-		    var command = new CopyContent() { CopyFromId = id, App = App, SchemaName = name };
+        [MustBeAppAuthor]
+        [HttpPost]
+        [Route("content/{app}/{name}/{id}/copy")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> CopyContent(string name, Guid id)
+        {
+            var command = new CopyContent() { CopyFromId = id, App = App, SchemaName = name };
 
-		    var context = await CommandBus.PublishAsync(command);
+            var context = await CommandBus.PublishAsync(command);
 
-		    var result = context.Result<EntityCreatedResult<NamedContentData>>();
-		    var response = ContentDto.Create(command, result);
+            var result = context.Result<EntityCreatedResult<NamedContentData>>();
+            var response = ContentDto.Create(command, result);
 
-		    return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
-		}
+            return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
+        }
 
-		private async Task<ISchemaEntity> FindSchemaAsync(string name)
+        private async Task<ISchemaEntity> FindSchemaAsync(string name)
         {
             ISchemaEntity schemaEntity;
 

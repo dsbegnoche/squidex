@@ -15,6 +15,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json.Linq;
 using NodaTime;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Contents;
@@ -51,6 +52,10 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
         [BsonRequired]
         [BsonElement("pu")]
         public bool IsPublished { get; set; }
+
+        [BsonRequired]
+        [BsonElement("st")]
+        public Status Status { get; set; }
 
         [BsonRequired]
         [BsonElement("dt")]
