@@ -113,7 +113,7 @@ namespace Squidex.Controllers.Api.Apps
         [HttpDelete]
         [Route("apps/{app}/")]
         [ApiCosts(1)]
-        public async Task<IActionResult> DeleteSchema(string app)
+        public async Task<IActionResult> DeleteApp(string app)
         {
             await CommandBus.PublishAsync(new DeleteApp());
 

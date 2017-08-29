@@ -5,7 +5,8 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { HttpClient } from '@angular/common/http';
+// import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -73,5 +74,22 @@ export class AppsService {
                     return new AppDto(response.id, dto.name, PermissionEnum.Owner, now, now);
                 })
                 .pretifyError('Failed to create app. Please reload.');
+    }
+
+    public deleteApp(appName: string): any {
+        console.log('delete service reached');
+        // const url = this.apiUrl.buildUrl('api/apps/' + appName);
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}`);
+
+        let headers = new HttpHeaders();
+        this.http.delete(url, { observe: 'response', headers })
+            .do((response: HttpResponse<any>) => console.log(response));
+
+        return null;
+        /*
+        return HTTP.deleteVersioned(this.http, url)
+            .do(() => console.log('blah'))
+                .pretifyError('Failed to create app. Please reload.');
+            */
     }
 }
