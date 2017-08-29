@@ -21,7 +21,7 @@ namespace Squidex.Controllers.Api.History
     /// <summary>
     /// Readonly API to get an event stream.
     /// </summary>
-    [MustBeAppEditor]
+    [MustBeAppAuthor]
     [ApiExceptionFilter]
     [AppApi]
     [SwaggerTag("History")]
