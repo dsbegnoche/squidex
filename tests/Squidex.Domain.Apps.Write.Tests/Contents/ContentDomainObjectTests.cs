@@ -7,13 +7,16 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Events.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS;
+using Squidex.Shared.Identity;
 using Xunit;
 
 // ReSharper disable ConvertToConstant.Local
@@ -75,12 +78,24 @@ namespace Squidex.Domain.Apps.Write.Contents
         [Fact]
         public void Create_should_also_publish_if_set_to_true()
         {
-            sut.Create(CreateContentCommand(new CreateContent { Data = data, Publish = true }));
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Core.Apps.Status.Published }));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentCreated { Data = data }),
                     CreateContentEvent(new ContentPublished())
+                );
+        }
+
+        [Fact]
+        public void Create_should_sumbit_if_status_submitted()
+        {
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Status.Submitted}));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentCreated { Data = data }),
+                    CreateContentEvent(new ContentSubmitted())
                 );
         }
 
@@ -130,6 +145,20 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
+        public void Update_should_create_events_if_submitted_and_user_is_author()
+        {
+            CreateContent();
+            SubmitContent();
+
+            sut.Update(CreateContentCommandAuthor(new UpdateContent { Data = otherData }));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentUpdated { Data = otherData })
+                );
+        }
+
+        [Fact]
         public void Update_should_not_create_event_for_same_data()
         {
             CreateContent();
@@ -138,6 +167,18 @@ namespace Squidex.Domain.Apps.Write.Contents
             sut.Update(CreateContentCommand(new UpdateContent { Data = data }));
 
             sut.GetUncomittedEvents().Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Update_should_throw_exception_if_published_and_user_is_author()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Update(CreateContentCommandAuthor(new UpdateContent { Data = data }));
+            });
         }
 
         [Fact]
@@ -197,6 +238,18 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
+        public void Patch_should_throw_exception_if_published_and_user_is_author()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.Patch(CreateContentCommandAuthor(new PatchContent()));
+            });
+        }
+
+        [Fact]
         public void Publish_should_throw_exception_if_not_created()
         {
             Assert.Throws<DomainException>(() =>
@@ -214,6 +267,17 @@ namespace Squidex.Domain.Apps.Write.Contents
             Assert.Throws<DomainException>(() =>
             {
                 sut.Publish(CreateContentCommand(new PublishContent()));
+            });
+        }
+
+        [Fact]
+        public void Publish_should_throw_exception_if_user_not_editor_or_greater()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Publish(CreateContentCommandAuthor(new PublishContent()));
             });
         }
 
@@ -262,11 +326,24 @@ namespace Squidex.Domain.Apps.Write.Contents
             sut.Unpublish(CreateContentCommand(new UnpublishContent()));
 
             Assert.False(sut.IsPublished);
+            Assert.Equal(Status.Draft, sut.Status);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentUnpublished())
                 );
+        }
+
+        [Fact]
+        public void Unpublish_should_throw_exception_if_submitted()
+        {
+            CreateContent();
+            SubmitContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Unpublish(CreateContentCommandAuthor(new UnpublishContent()));
+            });
         }
 
         [Fact]
@@ -305,6 +382,99 @@ namespace Squidex.Domain.Apps.Write.Contents
                 );
         }
 
+        [Fact]
+        public void Delete_should_throw_exception_if_user_is_not_editor_or_greater()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Delete(CreateContentCommandAuthor(new DeleteContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_deleted()
+        {
+            CreateContent();
+            DeleteContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_published()
+        {
+            CreateContent();
+            PublishContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_not_created()
+        {
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_refresh_properties_and_create_events()
+        {
+            CreateContent();
+
+            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+
+            Assert.True(sut.Status == Status.Submitted);
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentPublished())
+                );
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_content_is_already_submitted()
+        {
+            CreateContent();
+            SubmitContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_user_is_not_author()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommandReader(new SubmitContent()));
+            });
+        }
+
+        [Fact]
+        public void Submit_should_throw_exception_if_user_is_owner()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommand(new SubmitContent()));
+            });
+        }
+
         private void CreateContent()
         {
             sut.Create(CreateContentCommand(new CreateContent { Data = data }));
@@ -333,6 +503,13 @@ namespace Squidex.Domain.Apps.Write.Contents
             ((IAggregate)sut).ClearUncommittedEvents();
         }
 
+        private void SubmitContent()
+        {
+            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+
+            ((IAggregate)sut).ClearUncommittedEvents();
+        }
+
         protected T CreateContentEvent<T>(T @event) where T : ContentEvent
         {
             @event.ContentId = ContentId;
@@ -343,6 +520,28 @@ namespace Squidex.Domain.Apps.Write.Contents
         protected T CreateContentCommand<T>(T command) where T : ContentCommand
         {
             command.ContentId = ContentId;
+
+            return CreateCommand(command);
+        }
+
+        /// <summary>
+        /// Creates content command with reader roles.
+        /// </summary>
+        protected T CreateContentCommandReader<T>(T command) where T : ContentCommand
+        {
+            command.ContentId = ContentId;
+            command.Roles = new List<string> { SquidexRoles.AppReader };
+
+            return CreateCommand(command);
+        }
+
+        /// <summary>
+        /// Creates content command with author roles.
+        /// </summary>
+        protected T CreateContentCommandAuthor<T>(T command) where T : ContentCommand
+        {
+            command.ContentId = ContentId;
+            command.Roles = new List<string> { SquidexRoles.AppReader, SquidexRoles.AppAuthor };
 
             return CreateCommand(command);
         }

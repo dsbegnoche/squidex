@@ -11,7 +11,7 @@ using Squidex.Infrastructure.CQRS.Commands;
 
 namespace Squidex.Domain.Apps.Write.Contents.Commands
 {
-    public abstract class ContentCommand : SchemaCommand, IAggregateCommand
+    public abstract class ContentCommand : RolesCommand, IAggregateCommand
     {
         public Guid ContentId { get; set; }
 

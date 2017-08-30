@@ -70,5 +70,6 @@ export * from './utils/math-helper';
 export * from './utils/modal-view';
 export * from './utils/pager';
 export * from './utils/permission';
+export * from './utils/status';
 export * from './utils/string-helper';
 export * from './utils/version';

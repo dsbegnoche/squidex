@@ -24,6 +24,7 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
+using Squidex.Domain.Apps.Core.Apps;
 
 // ReSharper disable PossibleNullReferenceException
 // ReSharper disable RedundantIfElseBlock
@@ -153,13 +154,13 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
-        public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] bool publish = false)
+        public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] Status status = Status.Draft)
         {
-            var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Publish = publish };
+            var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Status = status };
 
             var context = await CommandBus.PublishAsync(command);
 
@@ -169,7 +170,7 @@ namespace Squidex.Controllers.ContentApi
             return CreatedAtAction(nameof(GetContent), new { id = response.Id }, response);
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPut]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -182,7 +183,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPatch]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -221,7 +222,20 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
+        [HttpPut]
+        [Route("content/{app}/{name}/{id}/submit")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> SubmitContent(Guid id)
+        {
+            var command = new SubmitContent() { ContentId = id };
+
+            await CommandBus.PublishAsync(command);
+
+            return NoContent();
+        }
+
+        [MustBeAppAuthor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
@@ -234,7 +248,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-		private async Task<ISchemaEntity> FindSchemaAsync(string name)
+        private async Task<ISchemaEntity> FindSchemaAsync(string name)
         {
             ISchemaEntity schemaEntity;
 

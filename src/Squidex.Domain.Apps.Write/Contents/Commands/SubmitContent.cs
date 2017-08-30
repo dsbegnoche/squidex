@@ -1,15 +1,10 @@
 ﻿// ==========================================================================
-//  AppCreated.cs
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using Squidex.Infrastructure;
-
-namespace Squidex.Domain.Apps.Events.Apps
+namespace Squidex.Domain.Apps.Write.Contents.Commands
 {
-    [TypeName("AppCreatedEvent")]
-    public class AppCreated : AppEvent
+    public class SubmitContent : ContentCommand
     {
-        public string Name { get; set; }
     }
 }

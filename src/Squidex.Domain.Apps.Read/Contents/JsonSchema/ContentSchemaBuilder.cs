@@ -31,7 +31,8 @@ namespace Squidex.Domain.Apps.Read.Contents.JsonSchema
                     ["created"] = CreateProperty($"The date and time when the {schemaName} content has been created.", "date-time"),
                     ["createdBy"] = CreateProperty($"The user that has created the {schemaName} content."),
                     ["lastModified"] = CreateProperty($"The date and time when the {schemaName} content has been modified last.", "date-time"),
-                    ["lastModifiedBy"] = CreateProperty($"The user that has updated the {schemaName} content last.")
+                    ["lastModifiedBy"] = CreateProperty($"The user that has updated the {schemaName} content last."),
+                    ["status"] = CreateProperty($"The status of the {schemaName} content.", JsonObjectType.String)
                 },
                 Type = JsonObjectType.Object
             };

@@ -61,6 +61,11 @@ namespace Squidex.Domain.Apps.Read.Apps.Services.Implementations
                 }
             }
 
+            if (result != null && result.IsDeleted)
+            {
+                result = null;
+            }
+
             return result;
         }
 

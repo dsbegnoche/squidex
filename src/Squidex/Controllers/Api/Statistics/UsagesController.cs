@@ -23,7 +23,7 @@ namespace Squidex.Controllers.Api.Statistics
     /// <summary>
     /// Retrieves usage information for apps.
     /// </summary>
-    [MustBeAppEditor]
+    [MustBeAppAuthor]
     [ApiExceptionFilter]
     [AppApi]
     [SwaggerTag("Statistics")]

@@ -31,6 +31,10 @@ import {
     Version
 } from 'shared';
 
+import {
+    Status
+} from 'framework';
+
 @Component({
     selector: 'sqx-content-page',
     styleUrls: ['./content-page.component.scss'],
@@ -50,6 +54,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public contentId: string | null = null;
 
     public isNewMode = true;
+    public isViewOnly = false;
 
     public languages: AppLanguageDto[] = [];
 
@@ -105,15 +110,29 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         }
     }
 
+    public saveAndPerformAction() {
+        if (this.isAppEditor()) {
+            this.saveAndPublish();
+        } else if (this.isAppAuthor()) {
+            this.saveAndSubmit()
+        } else {
+            this.saveAsDraft();
+        }
+    }
+
+    public saveAndSubmit() {
+        this.saveContent(Status.Submitted);
+    }
+
     public saveAndPublish() {
-        this.saveContent(true);
+        this.saveContent(Status.Published);
     }
 
     public saveAsDraft() {
-        this.saveContent(false);
+        this.saveContent(Status.Draft);
     }
 
-    private saveContent(publish: boolean) {
+    private saveContent(status: Status) {
         this.contentFormSubmitted = true;
 
         if (this.contentForm.valid) {
@@ -123,7 +142,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
             if (this.isNewMode) {
                 this.appNameOnce()
-                    .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, publish, this.version))
+                    .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, status, this.version))
                     .subscribe(dto => {
                         this.content = dto;
 
@@ -225,18 +244,24 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             this.contentId = this.content.id;
             this.version = this.content.version;
             this.isNewMode = false;
-        }
+            if (this.content.status === Status.Published && this.isAppAuthor()) {
+                this.isViewOnly = true;
+            }
 
-        for (const field of this.schema.fields) {
-            const fieldValue = this.content.data[field.name] || {};
-            const fieldForm = <FormGroup>this.contentForm.get(field.name);
+            for (const field of this.schema.fields) {
+                const fieldValue = this.content.data[field.name] || {};
+                const fieldForm = <FormGroup>this.contentForm.get(field.name);
 
-             if (field.partitioning === 'language') {
-                for (let language of this.languages) {
-                    fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
+                if (field.partitioning === 'language') {
+                    for (let language of this.languages) {
+                        fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
+                    }
+                } else {
+                    fieldForm.controls['iv'].setValue(fieldValue['iv']);
                 }
-            } else {
-                fieldForm.controls['iv'].setValue(fieldValue['iv']);
+                if (this.isViewOnly) {
+                    fieldForm.disable();
+                }
             }
         }
     }

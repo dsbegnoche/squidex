@@ -1,15 +1,14 @@
 ﻿// ==========================================================================
-//  AppCreated.cs
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using Squidex.Infrastructure;
-
-namespace Squidex.Domain.Apps.Events.Apps
+namespace Squidex.Domain.Apps.Core.Apps
 {
-    [TypeName("AppCreatedEvent")]
-    public class AppCreated : AppEvent
+    public enum Status
     {
-        public string Name { get; set; }
+		Deleted = 0,
+		Draft = 1,
+        Submitted = 2,
+		Published = 10
     }
 }

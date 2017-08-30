@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Core;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
@@ -96,6 +97,11 @@ namespace Squidex.Domain.Apps.Write.Contents
 		{
 			return handler.UpdateAsync<ContentDomainObject>(context, c => c.Delete(command));
 		}
+
+        protected Task On(SubmitContent command, CommandContext context)
+        {
+            return handler.UpdateAsync<ContentDomainObject>(context, c => c.Submit(command));
+        }
 
 		public async Task HandleAsync(CommandContext context, Func<Task> next)
 		{

@@ -114,6 +114,12 @@ namespace Squidex.Domain.Apps.Write.Apps
             this.DispatchAction(@event.Payload);
         }
 
+        public AppDomainObject Delete(DeleteApp command)
+        {
+	        RaiseEvent(SimpleMapper.Map(command, new AppDeleted()));
+            return this;
+        }
+
         public AppDomainObject Create(CreateApp command)
         {
             Guard.Valid(command, nameof(command), () => "Cannot create app");
