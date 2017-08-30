@@ -161,8 +161,8 @@ namespace Squidex.Controllers.ContentApi
         public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] Status status = Status.Draft)
         {
             var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Status = status };
-			
-			var context = await CommandBus.PublishAsync(command);
+
+            var context = await CommandBus.PublishAsync(command);
 
             var result = context.Result<EntityCreatedResult<NamedContentData>>();
             var response = ContentDto.Create(command, result);
@@ -235,19 +235,6 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-        [MustBeAppEditor]
-        [HttpDelete]
-        [Route("content/{app}/{name}/{id}")]
-        [ApiCosts(1)]
-        public async Task<IActionResult> SubmitContent(Guid id)
-        {
-            var command = new SubmitContent() { ContentId = id };
-
-            await CommandBus.PublishAsync(command);
-
-            return NoContent();
-        }
-
         [MustBeAppAuthor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
@@ -261,7 +248,7 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
-		private async Task<ISchemaEntity> FindSchemaAsync(string name)
+        private async Task<ISchemaEntity> FindSchemaAsync(string name)
         {
             ISchemaEntity schemaEntity;
 
