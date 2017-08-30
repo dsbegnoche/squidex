@@ -80,7 +80,7 @@ export class AppsService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}`);
 
         return HTTP.deleteVersioned(this.http, url)
-            .do(() => {
+            .map((response) => {
                 return appName;
             })
             .pretifyError('Failed to delete app. Please reload.');

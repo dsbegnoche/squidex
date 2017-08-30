@@ -70,9 +70,10 @@ export class AppsStoreService {
 
     public deleteApp(appName: string): Observable<any> {
         return this.appsService.deleteApp(appName)
-            .do(app => {
+            .do((returnName) => {
                 this.apps$.first().subscribe(apps => {
-                    this.apps$.next(apps.splice(apps.findIndex(a => a.name === appName), 1));
+                    apps.splice(apps.findIndex(a => a.name === returnName), 1)
+                    this.apps$.next(apps);
                 });
             });
     }
