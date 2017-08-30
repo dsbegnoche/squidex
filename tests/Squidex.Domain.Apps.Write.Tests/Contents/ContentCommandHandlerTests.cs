@@ -167,14 +167,13 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
+        [Fact]
+        public async Task Delete_should_update_domain_object()
 
-        [Fact]
-        [Fact]
-        public async Task Submit_should_submit_domain_object()
         {
             CreateContent();
 
-            var context = CreateContextForCommand(new SubmitContent {ContentId = contentId});
+            var context = CreateContextForCommand(new DeleteContent() {ContentId = contentId});
 
             await TestUpdate(content, async _ =>
             {
