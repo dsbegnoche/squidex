@@ -30,3 +30,4 @@ export abstract class AppComponentBase extends ComponentBase {
         return this.appName$.first();
     }
 }
+
