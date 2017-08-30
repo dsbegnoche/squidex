@@ -475,6 +475,17 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
+        [Fact]
+        public void Decline_should_throw_exception_if_user_is_not_editor_or_higher()
+        {
+            CreateContent();
+
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.Submit(CreateContentCommandAuthor(new DeclineContent()));
+            });
+        }
+
         private void CreateContent()
         {
             sut.Create(CreateContentCommand(new CreateContent { Data = data }));
