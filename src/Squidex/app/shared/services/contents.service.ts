@@ -16,6 +16,7 @@ import {
     DateTime,
     LocalCacheService,
     HTTP,
+    Status,
     Version
 } from 'framework';
 
@@ -30,7 +31,7 @@ export class ContentsDto {
 export class ContentDto {
     constructor(
         public readonly id: string,
-        public readonly isPublished: boolean,
+        public readonly status: Status,
         public readonly createdBy: string,
         public readonly lastModifiedBy: string,
         public readonly created: DateTime,
@@ -39,11 +40,10 @@ export class ContentDto {
         public readonly version: Version
     ) {
     }
-
     public publish(user: string, now?: DateTime): ContentDto {
         return new ContentDto(
             this.id,
-            true,
+            Status.Published,
             this.createdBy, user,
             this.created, now || DateTime.now(),
             this.data,
@@ -53,7 +53,7 @@ export class ContentDto {
     public unpublish(user: string, now?: DateTime): ContentDto {
         return new ContentDto(
             this.id,
-            false,
+            Status.Draft,
             this.createdBy, user,
             this.created, now || DateTime.now(),
             this.data,
@@ -63,12 +63,25 @@ export class ContentDto {
     public update(data: any, user: string, now?: DateTime): ContentDto {
         return new ContentDto(
             this.id,
-            this.isPublished,
+            this.status,
             this.createdBy, user,
             this.created, now || DateTime.now(),
             data,
             this.version);
     }
+
+    public submit(user: string, now?: DateTime): ContentDto {
+        return new ContentDto(
+            this.id,
+            Status.Submitted,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.data,
+            this.version);
+    }
+
+    public isPublished: boolean = this.status === Status.Published;
+    public isSubmitted: boolean = this.status === Status.Submitted;
 }
 
 @Injectable()
@@ -110,106 +123,113 @@ export class ContentsService {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}?${fullQuery}`);
 
         return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    const items: any[] = response.items;
+            .map(response => {
+                const items: any[] = response.items;
 
-                    return new ContentsDto(response.total, items.map(item => {
-                        return new ContentDto(
-                            item.id,
-                            item.isPublished,
-                            item.createdBy,
-                            item.lastModifiedBy,
-                            DateTime.parseISO_UTC(item.created),
-                            DateTime.parseISO_UTC(item.lastModified),
-                            item.data,
-                            new Version(item.version.toString()));
-                    }));
-                })
-                .pretifyError('Failed to load contents. Please reload.');
+                return new ContentsDto(response.total, items.map(item => {
+                    return new ContentDto(
+                        item.id,
+                        item.status,
+                        item.createdBy,
+                        item.lastModifiedBy,
+                        DateTime.parseISO_UTC(item.created),
+                        DateTime.parseISO_UTC(item.lastModified),
+                        item.data,
+                        new Version(item.version.toString()));
+                }));
+            })
+            .pretifyError('Failed to load contents. Please reload.');
     }
 
     public getContent(appName: string, schemaName: string, id: string, version?: Version): Observable<ContentDto> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}`);
 
         return HTTP.getVersioned(this.http, url, version)
-                .map(response => {
-                    return new ContentDto(
-                        response.id,
-                        response.isPublished,
-                        response.createdBy,
-                        response.lastModifiedBy,
-                        DateTime.parseISO_UTC(response.created),
-                        DateTime.parseISO_UTC(response.lastModified),
-                        response.data,
-                        new Version(response.version.toString()));
-                })
-                .catch(error => {
-                    if (error instanceof HttpErrorResponse && error.status === 404) {
-                        const cached = this.localCache.get(`content.${id}`);
+            .map(response => {
+                return new ContentDto(
+                    response.id,
+                    response.status,
+                    response.createdBy,
+                    response.lastModifiedBy,
+                    DateTime.parseISO_UTC(response.created),
+                    DateTime.parseISO_UTC(response.lastModified),
+                    response.data,
+                    new Version(response.version.toString()));
+            })
+            .catch(error => {
+                if (error instanceof HttpErrorResponse && error.status === 404) {
+                    const cached = this.localCache.get(`content.${id}`);
 
-                        if (cached) {
-                            return Observable.of(cached);
-                        }
+                    if (cached) {
+                        return Observable.of(cached);
                     }
+                }
 
-                    return Observable.throw(error);
-                })
-                .pretifyError('Failed to load content. Please reload.');
+                return Observable.throw(error);
+            })
+            .pretifyError('Failed to load content. Please reload.');
     }
 
-    public postContent(appName: string, schemaName: string, dto: any, publish: boolean, version?: Version): Observable<ContentDto> {
-        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}?publish=${publish}`);
+    public postContent(appName: string, schemaName: string, dto: any, status: Status, version?: Version): Observable<ContentDto> {
+        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}?status=${status}`);
 
         return HTTP.postVersioned(this.http, url, dto, version)
-                .map(response => {
-                    return new ContentDto(
-                        response.id,
-                        response.isPublished,
-                        response.createdBy,
-                        response.lastModifiedBy,
-                        DateTime.parseISO_UTC(response.created),
-                        DateTime.parseISO_UTC(response.lastModified),
-                        response.data,
-                        new Version(response.version.toString()));
-                })
-                .do(content => {
-                    this.localCache.set(`content.${content.id}`, content, 5000);
-                })
-                .pretifyError('Failed to create content. Please reload.');
+            .map(response => {
+                return new ContentDto(
+                    response.id,
+                    response.status,
+                    response.createdBy,
+                    response.lastModifiedBy,
+                    DateTime.parseISO_UTC(response.created),
+                    DateTime.parseISO_UTC(response.lastModified),
+                    response.data,
+                    new Version(response.version.toString()));
+            })
+            .do(content => {
+                this.localCache.set(`content.${content.id}`, content, 5000);
+            })
+            .pretifyError('Failed to create content. Please reload.');
     }
 
     public putContent(appName: string, schemaName: string, id: string, dto: any, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .do(content => {
-                    this.localCache.set(`content.${id}`, dto, 5000);
-                })
-                .pretifyError('Failed to update content. Please reload.');
+            .do(content => {
+                this.localCache.set(`content.${id}`, dto, 5000);
+            })
+            .pretifyError('Failed to update content. Please reload.');
     }
 
     public deleteContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
-                .do(() => {
-                    this.localCache.remove(`content.${id}`);
-                })
-                .pretifyError('Failed to delete content. Please reload.');
+            .do(() => {
+                this.localCache.remove(`content.${id}`);
+            })
+            .pretifyError('Failed to delete content. Please reload.');
     }
 
     public publishContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/publish`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .pretifyError('Failed to publish content. Please reload.');
+            .pretifyError('Failed to publish content. Please reload.');
     }
 
     public unpublishContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/unpublish`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .pretifyError('Failed to unpublish content. Please reload.');
+            .pretifyError('Failed to unpublish content. Please reload.');
+    }
+
+    public submitContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
+        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/submit`);
+
+        return HTTP.putVersioned(this.http, url, {}, version)
+            .pretifyError('Failed to submit content. Please reload.');
     }
 
     public copyContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
@@ -219,7 +239,7 @@ export class ContentsService {
             .map(response => {
                 return new ContentDto(
                     response.id,
-                    response.isPublished,
+                    response.status,
                     response.createdBy,
                     response.lastModifiedBy,
                     DateTime.parseISO_UTC(response.created),

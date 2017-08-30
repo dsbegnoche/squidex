@@ -33,8 +33,7 @@ namespace Squidex.Config.Domain
                 new NamedLongIdConverter(),
                 new NamedStringIdConverter(),
                 new PropertiesBagConverter(),
-                new RefTokenConverter(),
-                new StringEnumConverter());
+                new RefTokenConverter());
 
             settings.NullValueHandling = NullValueHandling.Ignore;
 

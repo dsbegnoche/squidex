@@ -15,6 +15,7 @@ import {
     fadeAnimation,
     FieldDto,
     ModalView,
+    PermissionEnum,
     SchemaDto
 } from 'shared';
 
@@ -29,11 +30,15 @@ import {
     ]
 })
 export class ContentItemComponent extends AppComponentBase implements OnInit, OnChanges {
+    public PermissionEnum = PermissionEnum;
     @Output()
     public publishing = new EventEmitter<ContentDto>();
 
     @Output()
     public unpublishing = new EventEmitter<ContentDto>();
+
+    @Output()
+    public submitting = new EventEmitter<ContentDto>();
 
     @Output()
     public deleting = new EventEmitter<ContentDto>();

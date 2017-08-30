@@ -59,6 +59,10 @@ body {
     &.unpublished {
         background: $color-theme-error;
     }
+
+    &.submitted {
+        background: $color-theme-warning;
+    }
 }
 
 .dropdown-options {

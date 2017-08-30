@@ -1,6 +1,6 @@
 <sqx-title message="{app} | {schema} | Content" parameter1="app" parameter2="schema" value1="{{appName() | async}}" value2="{{schema.name}}"></sqx-title>
 
-<form [formGroup]="contentForm" (ngSubmit)="saveAndPublish()">
+<form [formGroup]="contentForm" (ngSubmit)="saveAndPerformAction()">
     <sqx-panel panelWidth="53rem">
         <div class="panel-header">
             <div class="panel-title-row">
@@ -9,25 +9,30 @@
                         <button type="button" class="btn btn-secondary" (click)="saveAsDraft()" title="CTRL + S">
                             Save as Draft
                         </button>
-
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" *ngIf="isAppEditor()">
                             Save and Publish
                         </button>
+                        <button type="submit" class="btn btn-primary" *ngIf="isAppAuthor()">
+                            Save and Submit
+                        </button>
                     </span>
-                    <span *ngIf="!isNewMode">
+                    <span *ngIf="!isNewMode && !isViewOnly">
                         <button type="submit" class="btn btn-primary" title="CTRL + S">
                             Save
                         </button>
                     </span>
                 </div>
                     
-                <sqx-shortcut keys="ctrl+s" (trigger)="saveAndPublish()"></sqx-shortcut>
+                <sqx-shortcut keys="ctrl+s" (trigger)="saveAndPerformAction()"></sqx-shortcut>
                 
                 <h3 class="panel-title" *ngIf="isNewMode">
                     New Content
                 </h3>
-                <h3 class="panel-title" *ngIf="!isNewMode">
+                <h3 class="panel-title" *ngIf="!isNewMode && !isViewOnly">
                     Edit Content
+                </h3>
+                <h3 class="panel-title" *ngIf="!isNewMode && isViewOnly">
+                    View Content
                 </h3>
             </div>
 

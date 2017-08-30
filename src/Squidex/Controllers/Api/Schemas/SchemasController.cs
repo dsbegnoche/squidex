@@ -48,7 +48,7 @@ namespace Squidex.Controllers.Api.Schemas
         /// 200 => Schemas returned.
         /// 404 => App not found.
         /// </returns>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpGet]
         [Route("apps/{app}/schemas/")]
         [ProducesResponseType(typeof(SchemaDto[]), 200)]
@@ -71,7 +71,7 @@ namespace Squidex.Controllers.Api.Schemas
         /// 200 => Schema found.
         /// 404 => Schema or app not found.
         /// </returns>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpGet]
         [Route("apps/{app}/schemas/{name}/")]
         [ProducesResponseType(typeof(SchemaDetailsDto[]), 200)]

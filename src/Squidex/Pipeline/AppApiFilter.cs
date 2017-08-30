@@ -96,7 +96,6 @@ namespace Squidex.Pipeline
 						defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
 	                case PermissionLevel.Author:
-		                defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppEditor)); //Temporary until role is fully developed
 						defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppAuthor));
 						defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
 		                break;

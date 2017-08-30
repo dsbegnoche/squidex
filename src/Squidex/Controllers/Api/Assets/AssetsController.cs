@@ -160,7 +160,7 @@ namespace Squidex.Controllers.Api.Assets
         /// <remarks>
         /// You can only upload one file at a time. The mime type of the file is not calculated by Squidex and must be defined correctly.
         /// </remarks>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPost]
         [Route("apps/{app}/assets/")]
         [ProducesResponseType(typeof(AssetCreatedDto), 201)]
@@ -189,7 +189,7 @@ namespace Squidex.Controllers.Api.Assets
         /// 404 => Asset or app not found.
         /// 400 => Asset exceeds the maximum size.
         /// </returns>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpPut]
         [Route("apps/{app}/assets/{id}/content")]
         [ProducesResponseType(typeof(AssetReplacedDto), 201)]
@@ -219,7 +219,7 @@ namespace Squidex.Controllers.Api.Assets
         /// 400 => Asset name not valid.
         /// 404 => Asset or app not found.
         /// </returns>
-        [MustBeAppReader]
+        [MustBeAppAuthor]
         [HttpPut]
         [Route("apps/{app}/assets/{id}")]
         [ProducesResponseType(typeof(ErrorDto), 400)]
@@ -242,7 +242,7 @@ namespace Squidex.Controllers.Api.Assets
         /// 204 => Asset has been deleted.
         /// 404 => Asset or app not found.
         /// </returns>
-        [MustBeAppEditor]
+        [MustBeAppAuthor]
         [HttpDelete]
         [Route("apps/{app}/assets/{id}/")]
         [ApiCosts(1)]

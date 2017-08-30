@@ -9,6 +9,7 @@
 using System;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Events.Assets;
 using Squidex.Domain.Apps.Events.Contents;
@@ -65,6 +66,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.SchemaId).Descending(x => x.LastModified));
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.ReferencedIds));
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.IsPublished));
+                await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.Status));
                 await collection.Indexes.CreateOneAsync(Index.Text(x => x.DataText));
             });
         }
@@ -102,6 +104,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 return collection.UpdateAsync(@event, headers, x =>
                 {
                     x.IsPublished = true;
+                    x.Status = Status.Published;
                 });
             });
         }
@@ -113,6 +116,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 return collection.UpdateAsync(@event, headers, x =>
                 {
                     x.IsPublished = false;
+                    x.Status = Status.Draft;
                 });
             });
         }
@@ -128,6 +132,18 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                     Update.AddToSet(x => x.ReferencedIdsDeleted, @event.ContentId));
 
                 await collection.DeleteOneAsync(x => x.Id == headers.AggregateId());
+            });
+        }
+
+        protected Task On(ContentSubmitted @event, EnvelopeHeaders headers)
+        {
+            return ForAppIdAsync(@event.AppId.Id, collection =>
+            {
+                return collection.UpdateAsync(@event, headers, x =>
+                {
+                    x.IsPublished = false;
+                    x.Status = Status.Submitted;
+                });
             });
         }
 

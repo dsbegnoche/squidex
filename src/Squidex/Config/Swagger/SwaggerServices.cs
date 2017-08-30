@@ -70,7 +70,7 @@ namespace Squidex.Config.Swagger
 
         private static SwaggerSettings ConfigureSchemaSettings(this SwaggerSettings settings)
         {
-            settings.DefaultEnumHandling = EnumHandling.String;
+            settings.DefaultEnumHandling = EnumHandling.Integer;
             settings.DefaultPropertyNameHandling = PropertyNameHandling.CamelCase;
 
             settings.TypeMappers = new List<ITypeMapper>
