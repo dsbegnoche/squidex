@@ -244,25 +244,26 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             this.contentId = this.content.id;
             this.version = this.content.version;
             this.isNewMode = false;
-        if (this.content.status === Status.Published && this.isAppAuthor()) {
-            this.isViewOnly = true;
-        }
-
-        for (const field of this.schema.fields) {
-            const fieldValue = this.content.data[field.name] || {};
-            const fieldForm = <FormGroup>this.contentForm.get(field.name);
-
-            if (field.partitioning === 'language') {
-                for (let language of this.languages) {
-                    fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
-                }
-            } else {
-                fieldForm.controls['iv'].setValue(fieldValue['iv']);
+            if (this.content.status === Status.Published && this.isAppAuthor()) {
+                this.isViewOnly = true;
             }
-            if (this.isViewOnly) {
-                fieldForm.disable();
+
+            for (const field of this.schema.fields) {
+                const fieldValue = this.content.data[field.name] || {};
+                const fieldForm = <FormGroup>this.contentForm.get(field.name);
+
+                if (field.partitioning === 'language') {
+                    for (let language of this.languages) {
+                        fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
+                    }
+                } else {
+                    fieldForm.controls['iv'].setValue(fieldValue['iv']);
+                }
+                if (this.isViewOnly) {
+                    fieldForm.disable();
+                }
+            }
         }
     }
-}
 }
 
