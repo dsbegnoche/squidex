@@ -235,6 +235,19 @@ namespace Squidex.Controllers.ContentApi
             return NoContent();
         }
 
+        [MustBeAppEditor]
+        [HttpPut]
+        [Route("content/{app}/{name}/{id}/decline")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> Decline(Guid id)
+        {
+            var command = new DeclineContent() { ContentId = id };
+
+            await CommandBus.PublishAsync(command);
+
+            return NoContent();
+        }
+
         [MustBeAppAuthor]
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]

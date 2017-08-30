@@ -80,8 +80,19 @@ export class ContentDto {
             this.version);
     }
 
+    public decline(user: string, now?: DateTime): ContentDto {
+        return new ContentDto(
+            this.id,
+            Status.Declined,
+            this.createdBy, user,
+            this.created, now || DateTime.now(),
+            this.data,
+            this.version);
+    }
+
     public isPublished: boolean = this.status === Status.Published;
     public isSubmitted: boolean = this.status === Status.Submitted;
+    public isDeclined: boolean = this.status === Status.Declined;
 }
 
 @Injectable()
@@ -230,6 +241,13 @@ export class ContentsService {
 
         return HTTP.putVersioned(this.http, url, {}, version)
             .pretifyError('Failed to submit content. Please reload.');
+    }
+
+    public declineContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
+        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/decline`);
+
+        return HTTP.putVersioned(this.http, url, {}, version)
+            .pretifyError('Failed to decline content. Please reload.');
     }
 
     public copyContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
