@@ -28,7 +28,11 @@ namespace Squidex.Domain.Users
 
 		public UserManagerExtensionsTests()
 		{
-			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), new List<ExternalLogin>(), testFirstName, testLastName);
+			var logins = new List<ExternalLogin>
+			{
+				new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
+			};
+			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), logins, testFirstName, testLastName);
 			store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Success));
 			mockFactory.Setup(u => u.Create(testEmail)).Returns(testUser);
 			userManager = new FakeUserManager(store);
@@ -77,6 +81,12 @@ namespace Squidex.Domain.Users
 		}
 
 		[Fact]
+		public void QueryByIdentityServerIdTest()
+		{
+			Assert.Equal(testUser.Id, userManager.QueryByIdentityServerId("53839115-F8DE-42A2-8911-9C1635D1F99F").Result.Id);
+		}
+
+		[Fact]
 		public async void CreateAsyncTestNoPassword()
 		{
 			var createdUser = await userManager.CreateAsync(mockFactory.Object, testEmail, testEmail, null);
@@ -119,7 +129,10 @@ namespace Squidex.Domain.Users
 					string testFirstName = "First";
 					string testLastName = "Last";
 					IReadOnlyList<Claim> testClaims = new List<Claim>();
-					IReadOnlyList<ExternalLogin> testLogins = new List<ExternalLogin>();
+					var testLogins = new List<ExternalLogin>
+					{
+						new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
+					};
 					UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins, testFirstName, testLastName);
 					UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins, testFirstName, testLastName);
 

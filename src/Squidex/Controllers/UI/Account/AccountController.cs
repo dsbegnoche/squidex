@@ -255,9 +255,9 @@ namespace Squidex.Controllers.UI.Account
 
 			var isLoggedIn = result.Succeeded;
 
-			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
-			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName).Value;
-			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname).Value;
+			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email)?.Value;
+			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName)?.Value;
+			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname)?.Value;
 
 			var user = await userManager.FindByEmailAsync(email);
 			if (!isLoggedIn)
@@ -270,7 +270,7 @@ namespace Squidex.Controllers.UI.Account
 				}
 				else
 				{
-					user = CreateUser(externalLogin, email, firstName, lastName);
+					user = CreateUser(externalLogin, email);
 
 					var isFirst = userManager.Users.LongCount() == 0;
 
@@ -346,7 +346,7 @@ namespace Squidex.Controllers.UI.Account
 			return MakeIdentityOperation(() => userManager.AddToRoleAsync(user, SquidexRoles.Administrator));
 		}
 
-		private IUser CreateUser(ExternalLoginInfo externalLogin, string email, string firstName, string lastName)
+		private IUser CreateUser(ExternalLoginInfo externalLogin, string email)
 		{
 			var user = userFactory.Create(email);
 
@@ -365,13 +365,16 @@ namespace Squidex.Controllers.UI.Account
 
 		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName)
 		{
-			var displayName = $"{firstName} {lastName[0]}";
+			if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
+			{
+				var displayName = $"{firstName} {lastName[0]}";
 
-			user.SetDisplayName(displayName);
-			user.SetFirstName(firstName);
-			user.SetLastName(lastName);
+				user.SetDisplayName(displayName);
+				user.SetFirstName(firstName);
+				user.SetLastName(lastName);
 
-			await userManager.UpdateAsync(user);
+				await userManager.UpdateAsync(user);
+			}
 		}
 
 		private async Task<bool> MakeIdentityOperation(Func<Task<IdentityResult>> action, [CallerMemberName] string operationName = null)

@@ -48,9 +48,17 @@ namespace Squidex.Domain.Users
             }
 
             return result;
-        }
+		}
 
-        public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
+		public static Task<IUser> QueryByIdentityServerId(this UserManager<IUser> userManager, string identityServerUserId)
+		{
+			var user = userManager.Users.ToList()
+				.FirstOrDefault(u => u.Logins.Any(l => l.ProviderKey == identityServerUserId));
+
+			return Task.FromResult(user);
+		}
+
+		public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
         {
             var user = factory.Create(email);
 
