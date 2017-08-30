@@ -23,7 +23,7 @@ namespace Squidex.Controllers.UI.Account
 			this.userManager = userManager;
 		}
 
-		/// <summary>Callback for Change Indeity Webhook for Identity Server.</summary>
+		/// <summary>Callback for Change Identity Webhook for Identity Server.</summary>
 		[Route("account/external/webhooks/identityserver/")]
 		public async Task<IActionResult> ChangeIdentity(WebHookResponse<ChangeIndentity> webHookObj)
 		{
@@ -69,6 +69,7 @@ namespace Squidex.Controllers.UI.Account
 				{
 					var displayName = $"{notification.FirstName} {notification.LastName[0]}";
 
+					user.UpdateEmail(notification.Email);
 					user.SetDisplayName(displayName);
 					user.SetFirstName(notification.FirstName);
 					user.SetLastName(notification.LastName);
