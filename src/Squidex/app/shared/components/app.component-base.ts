@@ -15,7 +15,7 @@ export abstract class AppComponentBase extends ComponentBase {
     private appName$: Observable<string>;
 
     constructor(dialogs: DialogService,
-        public readonly appsStore: AppsStoreService
+        private readonly appsStore: AppsStoreService
     ) {
         super(dialogs);
 
@@ -30,4 +30,3 @@ export abstract class AppComponentBase extends ComponentBase {
         return this.appName$.first();
     }
 }
-

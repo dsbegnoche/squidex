@@ -1,9 +1,6 @@
 ﻿// ==========================================================================
 //  AppCreated.cs
-//  Squidex Headless CMS
-// ==========================================================================
-//  Copyright (c) Squidex Group
-//  All rights reserved.
+//  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
 using Squidex.Infrastructure;
