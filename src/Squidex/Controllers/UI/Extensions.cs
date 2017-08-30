@@ -16,10 +16,12 @@ namespace Squidex.Controllers.UI
 {
     public static class Extensions
     {
-        public static Task<IdentityResult> UpdateAsync(this UserManager<IUser> userManager, IUser user, string email, string displayName)
+        public static Task<IdentityResult> UpdateAsync(this UserManager<IUser> userManager, IUser user, string email, string displayName, string firstName, string lastName)
         {
             user.UpdateEmail(email);
             user.SetDisplayName(displayName);
+            user.SetFirstName(firstName);
+            user.SetLastName(lastName);
 
             return userManager.UpdateAsync(user);
         }

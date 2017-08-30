@@ -255,12 +255,13 @@ namespace Squidex.Controllers.UI.Account
 
 			var isLoggedIn = result.Succeeded;
 
+			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
+			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName).Value;
+			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname).Value;
+
+			var user = await userManager.FindByEmailAsync(email);
 			if (!isLoggedIn)
 			{
-				var email = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
-
-				var user = await userManager.FindByEmailAsync(email);
-
 				if (user != null)
 				{
 					isLoggedIn =
@@ -269,7 +270,7 @@ namespace Squidex.Controllers.UI.Account
 				}
 				else
 				{
-					user = CreateUser(externalLogin, email);
+					user = CreateUser(externalLogin, email, firstName, lastName);
 
 					var isFirst = userManager.Users.LongCount() == 0;
 
@@ -285,7 +286,9 @@ namespace Squidex.Controllers.UI.Account
                         return View("LockedOut");
                     }
                 }
-            }
+			}
+
+			await SetCivicPlusPlatformClaims(user, firstName, lastName);
 
 			if (isLoggedIn)
 			{
@@ -343,7 +346,7 @@ namespace Squidex.Controllers.UI.Account
 			return MakeIdentityOperation(() => userManager.AddToRoleAsync(user, SquidexRoles.Administrator));
 		}
 
-		private IUser CreateUser(ExternalLoginInfo externalLogin, string email)
+		private IUser CreateUser(ExternalLoginInfo externalLogin, string email, string firstName, string lastName)
 		{
 			var user = userFactory.Create(email);
 
@@ -352,17 +355,23 @@ namespace Squidex.Controllers.UI.Account
 				user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, GravatarHelper.CreatePictureUrl(email));
 			}
 
-			if (!externalLogin.Principal.HasClaim(x => x.Type == SquidexClaimTypes.SquidexDisplayName))
-			{
-				user.SetClaim(SquidexClaimTypes.SquidexDisplayName, email);
-			}
-
 			foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix)))
 			{
 				user.AddClaim(squidexClaim);
 			}
 
 			return user;
+		}
+
+		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName)
+		{
+			var displayName = $"{firstName} {lastName[0]}";
+
+			user.SetDisplayName(displayName);
+			user.SetFirstName(firstName);
+			user.SetLastName(lastName);
+
+			await userManager.UpdateAsync(user);
 		}
 
 		private async Task<bool> MakeIdentityOperation(Func<Task<IdentityResult>> action, [CallerMemberName] string operationName = null)

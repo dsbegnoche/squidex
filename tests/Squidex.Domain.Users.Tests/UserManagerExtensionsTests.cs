@@ -20,14 +20,15 @@ namespace Squidex.Domain.Users
 		private readonly UserManager<IUser> userManager;
 		private string testEmail = "test@test.com";
 		private string testId = "ValidID";
-		private string testPassword = "password";
+		private string testFirstName = "First";
+		private string testLastName = "Last";
 		private readonly Mock<IQueryableUserStore<IUser>> store = new Mock<IQueryableUserStore<IUser>>();
 		private UserExtenstionsTests.TestUser testUser;
 		private readonly Mock<IUserFactory> mockFactory = new Mock<IUserFactory>();
 
 		public UserManagerExtensionsTests()
 		{
-			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), new List<ExternalLogin>());
+			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), new List<ExternalLogin>(), testFirstName, testLastName);
 			store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Success));
 			mockFactory.Setup(u => u.Create(testEmail)).Returns(testUser);
 			userManager = new FakeUserManager(store);
@@ -115,10 +116,12 @@ namespace Squidex.Domain.Users
 				get
 				{
 					string testEmail = "test@test.com";
+					string testFirstName = "First";
+					string testLastName = "Last";
 					IReadOnlyList<Claim> testClaims = new List<Claim>();
 					IReadOnlyList<ExternalLogin> testLogins = new List<ExternalLogin>();
-					UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins);
-					UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins);
+					UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins, testFirstName, testLastName);
+					UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins, testFirstName, testLastName);
 
 					var retVal = new List<IUser> {validUser, lockedUser};
 

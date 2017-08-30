@@ -23,7 +23,17 @@ namespace Squidex.Domain.Users
             user.SetClaim(SquidexClaimTypes.SquidexDisplayName, displayName);
         }
 
-        public static void SetPictureUrl(this IUser user, string pictureUrl)
+		public static void SetFirstName(this IUser user, string firstName)
+		{
+			user.SetClaim(SquidexClaimTypes.SquidexFirstName, firstName);
+		}
+
+		public static void SetLastName(this IUser user, string lastName)
+		{
+			user.SetClaim(SquidexClaimTypes.SquidexLastName, lastName);
+		}
+
+		public static void SetPictureUrl(this IUser user, string pictureUrl)
         {
             user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, pictureUrl);
         }
@@ -51,6 +61,16 @@ namespace Squidex.Domain.Users
         public static string DisplayName(this IUser user)
         {
             return user.Claims.FirstOrDefault(x => x.Type == SquidexClaimTypes.SquidexDisplayName)?.Value;
+        }
+
+        public static string FirstName(this IUser user)
+        {
+            return user.Claims.FirstOrDefault(x => x.Type == SquidexClaimTypes.SquidexFirstName)?.Value;
+        }
+
+        public static string LastName(this IUser user)
+        {
+            return user.Claims.FirstOrDefault(x => x.Type == SquidexClaimTypes.SquidexLastName)?.Value;
         }
 
         public static string PictureNormalizedUrl(this IUser user)

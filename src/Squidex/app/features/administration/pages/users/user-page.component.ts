@@ -77,7 +77,9 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                                 requestDto.email,
                                 requestDto.displayName,
                                 created.pictureUrl!,
-                                false);
+                                false,
+                                requestDto.firstName,
+                                requestDto.lastName);
 
                         this.emitUserCreated(this.user);
                         this.notifyInfo('User created successfully.');
@@ -91,7 +93,9 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                         this.user =
                             this.user.update(
                                 requestDto.email,
-                                requestDto.displayMessage);
+                                requestDto.displayMessage,
+                                requestDto.firstName,
+                                requestDto.lastName);
 
                         this.emitUserUpdated(this.user);
                         this.notifyInfo('User saved successfully.');

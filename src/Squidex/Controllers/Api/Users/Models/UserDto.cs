@@ -36,10 +36,22 @@ namespace Squidex.Controllers.Api.Users.Models
         [Required]
         public string DisplayName { get; set; }
 
-        /// <summary>
-        /// Determines if the user is locked.
-        /// </summary>
-        [Required]
+	    /// <summary>
+	    /// The  first name of the user from CPP
+	    /// </summary>
+	    [Required]
+	    public string FirstName { get; set; }
+
+		/// <summary>
+		/// The last name of the user from CPP
+		/// </summary>
+		[Required]
+	    public string LastName { get; set; }
+
+		/// <summary>
+		/// Determines if the user is locked.
+		/// </summary>
+		[Required]
         public bool IsLocked { get; set; }
     }
 }

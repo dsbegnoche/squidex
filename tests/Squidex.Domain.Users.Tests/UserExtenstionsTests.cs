@@ -16,6 +16,8 @@ namespace Squidex.Domain.Users
 	    private string testEmail = "test@test.com";
 	    private string testPictureUrl = "www.testpictureurl.com";
 	    private string testId = "TESTID";
+	    private string testFirstName = "First";
+	    private string testLastName = "Last";
 		private readonly IReadOnlyList<Claim> testClaims = new List<Claim>();
 		private readonly IReadOnlyList<ExternalLogin> testLogins = new List<ExternalLogin>();
 
@@ -27,6 +29,8 @@ namespace Squidex.Domain.Users
 			testUser.NormalizedEmail = testEmail;
 			testUser.Claims = testClaims;
 			testUser.Logins = testLogins;
+			testUser.FirstName = testFirstName;
+			testUser.LastName = testLastName;
 		}
 
 	    [Fact]
@@ -39,13 +43,29 @@ namespace Squidex.Domain.Users
 		    Assert.Equal(testId, testUser.Id);
 		    Assert.Equal(testClaims, testUser.Claims);
 		    Assert.Equal(testLogins, testUser.Logins);
+		    Assert.Equal(testFirstName, testUser.FirstName);
+		    Assert.Equal(testLastName, testUser.LastName);
 	    }
-		
+
 		[Fact]
 	    public void SetDisplayNameTest()
 		{
 			testUser.SetDisplayName(testUser.Email);
 			Assert.Equal(testEmail, testUser.DisplayName());
+		}
+
+		[Fact]
+	    public void SetFirstNameTest()
+		{
+			testUser.SetFirstName(testUser.FirstName);
+			Assert.Equal(testFirstName, testUser.FirstName());
+		}
+
+		[Fact]
+	    public void SetLastNameTest()
+		{
+			testUser.SetLastName(testUser.LastName);
+			Assert.Equal(testLastName, testUser.LastName());
 		}
 
 	    [Fact]
@@ -135,7 +155,7 @@ namespace Squidex.Domain.Users
 		    }
 
 		    public TestUser(string email, string id, bool isLocked, IReadOnlyList<Claim> claims,
-			    IReadOnlyList<ExternalLogin> logins)
+			    IReadOnlyList<ExternalLogin> logins, string firstName, string lastName)
 		    {
 			    this.Email = this.NormalizedEmail = email;
 			    this.Id = id;
@@ -143,7 +163,9 @@ namespace Squidex.Domain.Users
 			    this.Claims = claims;
 			    this.Logins = logins;
 			    ClaimsList = new List<IdentityUserClaim>();
-			}
+			    this.FirstName = firstName;
+			    this.LastName = lastName;
+		    }
 
 		    public void AddClaim(Claim claim)
 		    {
@@ -181,6 +203,10 @@ namespace Squidex.Domain.Users
 		    {
 			    return tokenValue;
 		    }
+
+			public string FirstName { get; set; }
+
+			public string LastName { get; set; }
 	    }
 	}
 }

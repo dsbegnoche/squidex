@@ -7,9 +7,9 @@
         <div class="panel-header">
             <div class="panel-title-row">
                 <div class="float-right">
-                    <button type="submit" class="btn btn-primary" title="CTRL + S">
+                    <!--<button type="submit" class="btn btn-primary" title="CTRL + S">
                         Save
-                    </button>
+                    </button>-->
                 </div>
                 
                 <sqx-shortcut keys="ctrl+s" (trigger)="save()"></sqx-shortcut>
@@ -22,7 +22,7 @@
                 </h3>
             </div>
                 
-            <sqx-shortcut keys="ctrl+s" (trigger)="save()"></sqx-shortcut>
+            <!--<sqx-shortcut keys="ctrl+s" (trigger)="save()"></sqx-shortcut>-->
 
             <a class="panel-close" sqxParentLink>
                 <i class="icon-close"></i>
@@ -50,6 +50,16 @@
                     <sqx-control-errors for="displayName" [submitted]="userFormSubmitted"></sqx-control-errors>
 
                     <input type="text" class="form-control" id="displayName" maxlength="100" formControlName="displayName" autocomplete="false"  />
+                </div>
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+
+                    <input type="text" class="form-control" id="firstName" maxlength="100" formControlName="firstName" autocomplete="false"  />
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+
+                    <input type="text" class="form-control" id="lastName" maxlength="100" formControlName="lastName" autocomplete="false"  />
                 </div>
 
                 <div class="form-group form-group-password" [class.hidden]="isCurrentUser">
