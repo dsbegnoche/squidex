@@ -30,6 +30,10 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
 
         [BsonRequired]
         [BsonElement]
+        public bool IsDeleted { get; set; }
+
+        [BsonRequired]
+        [BsonElement]
         public long Version { get; set; }
 
         [BsonIgnoreIfDefault]

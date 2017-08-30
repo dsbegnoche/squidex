@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Squidex.Controllers.Api.Apps.Models;
+using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Write.Apps.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
@@ -100,5 +101,26 @@ namespace Squidex.Controllers.Api.Apps
 
             return CreatedAtAction(nameof(GetApps), response);
         }
+
+        /// <summary>
+        /// Delete an App.
+        /// </summary>
+        /// <param name="appName">The name of the app to delete.</param>
+        /// <returns>
+        /// 204 => App has been deleted.
+        /// 404 => App not found.
+        /// </returns>
+        [MustBeAdministrator]
+        [HttpDelete]
+        [Route("apps/{appName}")]
+        [ApiCosts(1)]
+        public async Task<IActionResult> DeleteApp(string appName)
+        {
+	        var appId = appRepository.FindAppAsync(appName).Result.Id;
+
+            await CommandBus.PublishAsync(new DeleteApp(appName, appId));
+
+            return new ContentResult() { Content = appName };
+		}
     }
 }

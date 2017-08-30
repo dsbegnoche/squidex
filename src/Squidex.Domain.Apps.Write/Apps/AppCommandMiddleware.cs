@@ -182,6 +182,11 @@ namespace Squidex.Domain.Apps.Write.Apps
             });
         }
 
+        protected Task On(DeleteApp command, CommandContext context)
+        {
+            return handler.UpdateAsync<AppDomainObject>(context, a => a.Delete(command));
+        }
+
         protected Task On(AttachClient command, CommandContext context)
         {
             return handler.UpdateAsync<AppDomainObject>(context, a => a.AttachClient(command));

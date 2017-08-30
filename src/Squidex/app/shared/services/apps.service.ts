@@ -74,4 +74,14 @@ export class AppsService {
                 })
                 .pretifyError('Failed to create app. Please reload.');
     }
+
+    public deleteApp(appName: string): Observable<any> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}`);
+
+        return HTTP.deleteVersioned(this.http, url)
+            .map((response) => {
+                return appName;
+            })
+            .pretifyError('Failed to delete app. Please reload.');
+    }
 }

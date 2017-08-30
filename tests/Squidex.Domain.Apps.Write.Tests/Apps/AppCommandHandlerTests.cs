@@ -222,6 +222,19 @@ namespace Squidex.Domain.Apps.Write.Apps
         }
 
         [Fact]
+        public async Task DeleteApp_should_update_domain_object()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new DeleteApp(app.Name, app.Id));
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
         public async Task ChangePlan_should_update_domain_object()
         {
             A.CallTo(() => appPlansProvider.IsConfiguredPlan("my-plan"))
