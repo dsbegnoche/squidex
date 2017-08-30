@@ -482,7 +482,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommandAuthor(new DeclineContent()));
+                sut.Decline(CreateContentCommandAuthor(new DeclineContent()));
             });
         }
 

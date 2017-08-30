@@ -97,29 +97,28 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             });
         }
 
-        protected Task On(ContentPublished @event, EnvelopeHeaders headers)
-        {
-            return ForAppIdAsync(@event.AppId.Id, collection =>
+        /// <summary> Meta function for updating content status (called based on event type) </summary>
+        private Task SetContentStatus(ContentEvent @event, EnvelopeHeaders headers, bool isPublished, Status status) =>
+            ForAppIdAsync(@event.AppId.Id, collection =>
             {
                 return collection.UpdateAsync(@event, headers, x =>
                 {
-                    x.IsPublished = true;
-                    x.Status = Status.Published;
+                    x.IsPublished = isPublished;
+                    x.Status = status;
                 });
             });
-        }
 
-        protected Task On(ContentUnpublished @event, EnvelopeHeaders headers)
-        {
-            return ForAppIdAsync(@event.AppId.Id, collection =>
-            {
-                return collection.UpdateAsync(@event, headers, x =>
-                {
-                    x.IsPublished = false;
-                    x.Status = Status.Draft;
-                });
-            });
-        }
+        protected Task On(ContentPublished @event, EnvelopeHeaders headers) => 
+            SetContentStatus(@event, headers, true, Status.Published);
+
+        protected Task On(ContentUnpublished @event, EnvelopeHeaders headers) =>
+            SetContentStatus(@event, headers, false, Status.Draft);
+
+        protected Task On(ContentSubmitted @event, EnvelopeHeaders headers) =>
+            SetContentStatus(@event, headers, false, Status.Submitted);
+
+        protected Task On(ContentDeclined @event, EnvelopeHeaders headers) =>
+            SetContentStatus(@event, headers, false, Status.Declined);
 
         protected Task On(ContentDeleted @event, EnvelopeHeaders headers)
         {
@@ -132,18 +131,6 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                     Update.AddToSet(x => x.ReferencedIdsDeleted, @event.ContentId));
 
                 await collection.DeleteOneAsync(x => x.Id == headers.AggregateId());
-            });
-        }
-
-        protected Task On(ContentSubmitted @event, EnvelopeHeaders headers)
-        {
-            return ForAppIdAsync(@event.AppId.Id, collection =>
-            {
-                return collection.UpdateAsync(@event, headers, x =>
-                {
-                    x.IsPublished = false;
-                    x.Status = Status.Submitted;
-                });
             });
         }
 

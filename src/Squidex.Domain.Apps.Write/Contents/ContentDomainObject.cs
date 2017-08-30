@@ -137,7 +137,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             Guard.NotNull(command, nameof(command));
 
             VerifyCreatedAndNotDeleted();
-            VerifyNotSubmitted();
+            VerifySubmittedStatus(false);
 
             RaiseEvent(SimpleMapper.Map(command, new ContentUnpublished()));
 
@@ -189,12 +189,27 @@ namespace Squidex.Domain.Apps.Write.Contents
             VerifyHighestRightsAuthor(command);
             VerifyCreatedAndNotDeleted();
             VerifyNotPublished();
-            VerifyNotSubmitted();
+            VerifySubmittedStatus(false);
 
             RaiseEvent(SimpleMapper.Map(command, new ContentSubmitted()));
 
             return this;
         }
+
+        public ContentDomainObject Decline(DeclineContent command)
+        {
+            Guard.NotNull(command, nameof(command));
+
+            VerifyIsEditor(command);
+            VerifyCreatedAndNotDeleted();
+            VerifyNotPublished();
+            VerifySubmittedStatus(true);
+
+            RaiseEvent(SimpleMapper.Map(command, new ContentDeclined()));
+
+            return this;
+        }
+
 
         private void VerifyNotCreated()
         {
@@ -220,9 +235,9 @@ namespace Squidex.Domain.Apps.Write.Contents
             }
         }
 
-        private void VerifyNotSubmitted()
+        private void VerifySubmittedStatus(bool submitted)
         {
-            if (IsSubmitted)
+            if (submitted != IsSubmitted)
             {
                 throw new DomainException("Content has already been submitted.");
             }

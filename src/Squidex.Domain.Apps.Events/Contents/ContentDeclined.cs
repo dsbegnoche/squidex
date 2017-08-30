@@ -2,10 +2,12 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using Squidex.Infrastructure;
 
-namespace Squidex.Domain.Apps.Write.Contents.Commands
+namespace Squidex.Domain.Apps.Events.Contents
 {
-    public class DeclineContent : ContentCommand
+    [TypeName("ContentDeclinedEvent")]
+    public class ContentDeclined : ContentEvent
     {
     }
 }
