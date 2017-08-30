@@ -93,7 +93,7 @@ const routes: Routes = [
                             {
                                 path: 'assets',
                                 loadChildren: './../assets/module#SqxFeatureAssetsModule'
-                            },
+                            }
                         ]
                     },
                     {

@@ -40,7 +40,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     private contentDeletedSubscription: Subscription;
     private version = new Version('');
     private content: ContentDto;
-    private isCopy: boolean = false;
+    private isCopy = false;
 
     public schema: SchemaDetailsDto;
 
@@ -154,7 +154,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     }
 
     private back() {
-        let command: string = '../';
+        let command = '../';
 
 
         if (this.isCopy) {
