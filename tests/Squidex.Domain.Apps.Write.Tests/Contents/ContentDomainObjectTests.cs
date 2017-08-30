@@ -437,7 +437,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentPublished())
+                    CreateContentEvent(new ContentSubmitted())
                 );
         }
 
@@ -473,6 +473,22 @@ namespace Squidex.Domain.Apps.Write.Contents
             {
                 sut.Submit(CreateContentCommand(new SubmitContent()));
             });
+        }
+
+        [Fact]
+        public void Decline_should_refresh_properties_and_create_events()
+        {
+            CreateContent();
+            SubmitContent();
+
+            sut.Decline(CreateContentCommand(new DeclineContent()));
+
+            Assert.True(sut.Status == Status.Declined);
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateContentEvent(new ContentDeleted())
+                );
         }
 
         [Fact]
@@ -528,6 +544,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             return CreateEvent(@event);
         }
 
+        /// <summary> This creates command with owner roles </summary>
         protected T CreateContentCommand<T>(T command) where T : ContentCommand
         {
             command.ContentId = ContentId;

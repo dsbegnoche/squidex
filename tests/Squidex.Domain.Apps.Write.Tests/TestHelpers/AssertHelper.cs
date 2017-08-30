@@ -23,7 +23,9 @@ namespace Squidex.Domain.Apps.Write.TestHelpers
 
             for (var i = 0; i < source.Length; i++)
             {
+                source[i].Should().BeOfType(others[i].GetType());
                 ((object)source[i]).ShouldBeEquivalentTo(others[i], o => o.IncludingAllDeclaredProperties());
+
             }
         }
     }
