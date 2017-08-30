@@ -64,7 +64,7 @@ namespace Squidex.Controllers.UI.Account
 			//Process notification
 			foreach (var notification in webHookObj.Notifications)
 			{
-				var user = await userManager.QueryByIdentityServerId(notification.Id.ToString());
+				var user = await userManager.FindByIdentityServerId(notification.Id.ToString());
 				if (user != null)
 				{
 					var displayName = $"{notification.FirstName} {notification.LastName[0]}";

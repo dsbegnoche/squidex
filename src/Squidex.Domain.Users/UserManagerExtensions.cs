@@ -50,7 +50,7 @@ namespace Squidex.Domain.Users
             return result;
 		}
 
-		public static Task<IUser> QueryByIdentityServerId(this UserManager<IUser> userManager, string identityServerUserId)
+		public static Task<IUser> FindByIdentityServerId(this UserManager<IUser> userManager, string identityServerUserId)
 		{
 			var user = userManager.Users.ToList()
 				.FirstOrDefault(u => u.Logins.Any(l => l.ProviderKey == identityServerUserId));

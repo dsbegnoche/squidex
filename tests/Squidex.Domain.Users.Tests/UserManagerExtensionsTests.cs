@@ -83,7 +83,7 @@ namespace Squidex.Domain.Users
 		[Fact]
 		public void QueryByIdentityServerIdTest()
 		{
-			Assert.Equal(testUser.Id, userManager.QueryByIdentityServerId("53839115-F8DE-42A2-8911-9C1635D1F99F").Result.Id);
+			Assert.Equal(testUser.Id, userManager.FindByIdentityServerId("53839115-F8DE-42A2-8911-9C1635D1F99F").Result.Id);
 		}
 
 		[Fact]

@@ -258,8 +258,9 @@ namespace Squidex.Controllers.UI.Account
 			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email)?.Value;
 			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName)?.Value;
 			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname)?.Value;
+			var identityId = externalLogin.ProviderKey;
 
-			var user = await userManager.FindByEmailAsync(email);
+			var user = await userManager.FindByIdentityServerId(identityId);
 			if (!isLoggedIn)
 			{
 				if (user != null)
@@ -288,7 +289,7 @@ namespace Squidex.Controllers.UI.Account
                 }
 			}
 
-			await SetCivicPlusPlatformClaims(user, firstName, lastName);
+			await SetCivicPlusPlatformClaims(user, firstName, lastName, email);
 
 			if (isLoggedIn)
 			{
@@ -363,12 +364,13 @@ namespace Squidex.Controllers.UI.Account
 			return user;
 		}
 
-		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName)
+		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName, string email)
 		{
-			if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
+			if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName) && !string.IsNullOrWhiteSpace(email))
 			{
 				var displayName = $"{firstName} {lastName[0]}";
 
+				user.UpdateEmail(email);
 				user.SetDisplayName(displayName);
 				user.SetFirstName(firstName);
 				user.SetLastName(lastName);
