@@ -40,6 +40,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     private contentDeletedSubscription: Subscription;
     private version = new Version('');
     private content: ContentDto;
+    private isCopy: boolean = false;
 
     public schema: SchemaDetailsDto;
 
@@ -81,7 +82,14 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
         this.setupContentForm(routeData['schema']);
 
-        this.route.data.map(p => p['content'])
+        this.route.data
+            .map(p => p['isCopy'] || false)
+            .subscribe((isCopy: boolean) => {
+                this.isCopy = isCopy;
+            });
+
+        this.route.data
+            .map(p => p['content'])
             .subscribe((content: ContentDto) => {
                 this.content = content;
 
@@ -146,7 +154,14 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     }
 
     private back() {
-        this.router.navigate(['../'], { relativeTo: this.route, replaceUrl: true });
+        let command: string = '../';
+
+
+        if (this.isCopy) {
+            command = '../../';
+        }
+
+        this.router.navigate([command], { relativeTo: this.route, replaceUrl: true });
     }
 
     private emitContentCreated(content: ContentDto) {
@@ -201,10 +216,16 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             return;
         }
 
-        this.contentData = this.content.data;
-        this.contentId = this.content.id;
-        this.version = this.content.version;
-        this.isNewMode = false;
+        if (this.isCopy) {
+            this.contentData = this.content.data;
+            this.contentId = null;
+            this.isNewMode = true;
+        } else {
+            this.contentData = this.content.data;
+            this.contentId = this.content.id;
+            this.version = this.content.version;
+            this.isNewMode = false;
+        }
 
         for (const field of this.schema.fields) {
             const fieldValue = this.content.data[field.name] || {};

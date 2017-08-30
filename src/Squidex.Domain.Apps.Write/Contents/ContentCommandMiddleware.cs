@@ -97,29 +97,6 @@ namespace Squidex.Domain.Apps.Write.Contents
 			return handler.UpdateAsync<ContentDomainObject>(context, c => c.Delete(command));
 		}
 
-		protected async Task On(CopyContent command, CommandContext context)
-		{
-			Guard.NotNull(command.App, nameof(command.App));
-			Guard.NotEmpty(command.CopyFromId, nameof(command.CopyFromId));
-
-			var contentToCopy = await contentRepository.FindContentAsync(command.App, command.SchemaId.Id, command.CopyFromId);
-
-			Guard.NotNull<NullReferenceException>(contentToCopy, $"'{nameof(contentToCopy)}' cannot be null. A content item with id '{command.CopyFromId}' could not be found in a schema with id `{command.SchemaId.Id}`");
-
-			var createCommand = new CreateContent
-			{
-				ContentId = command.ContentId,
-				Data = contentToCopy.Data,
-				Publish = false,
-				AppId = command.AppId,
-				Actor = command.Actor,
-				SchemaId = command.SchemaId,
-				ExpectedVersion = null
-			};
-
-			await On(createCommand, context);
-		}
-
 		public async Task HandleAsync(CommandContext context, Func<Task> next)
 		{
 			if (!await this.DispatchActionAsync(context.Command, context))

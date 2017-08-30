@@ -50,7 +50,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             var assetsConfig = file.AssetConfig;
             var filename = file.FileName;
 
-            ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than ${assetsConfig.MaxSize}.");
+            ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
 
             ValidateCond(file.MaxAssetRepoSize > 0 && 
                          file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize, 
