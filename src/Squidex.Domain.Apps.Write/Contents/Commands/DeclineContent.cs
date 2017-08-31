@@ -2,14 +2,10 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-namespace Squidex.Domain.Apps.Core.Apps
+
+namespace Squidex.Domain.Apps.Write.Contents.Commands
 {
-    public enum Status
+    public class DeclineContent : ContentCommand
     {
-		Deleted = 0,
-		Draft = 1,
-        Submitted = 2,
-        Declined = 3,
-		Published = 10
     }
 }

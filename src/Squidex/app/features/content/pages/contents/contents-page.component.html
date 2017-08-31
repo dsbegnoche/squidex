@@ -15,7 +15,7 @@
                 <form class="form-inline" (ngSubmit)="search()">
                     <input class="form-control" #findInput [formControl]="contentsFilter" placeholder="Search for content" />
                 </form>
-                
+
                 <span *ngIf="!isReadOnly && languages.length > 1">
                     <sqx-language-selector class="languages-buttons" (selectedLanguageChanged)="selectLanguage($event)" [languages]="languages"></sqx-language-selector>
                 </span>
@@ -75,6 +75,7 @@
                             (unpublishing)="unpublishContent(content)"
                             (publishing)="publishContent(content)"
                             (submitting)="submitContent(content)"
+                            (declining)="declineContent(content)"
                             (deleting)="deleteContent(content)"
 							(copying)="copyContent(content)"></tr>
                         <tr class="spacer"></tr>
@@ -86,7 +87,7 @@
                         <tr [sqxContent]="content" dnd-draggable [dragData]="dropData(content)"
                             [languageCode]="languageSelected.iso2Code"
                             [schemaFields]="contentFields"
-                            [schema]="schema" 
+                            [schema]="schema"
                             isReadOnly="true"></tr>
                         <tr class="spacer"></tr>
                     </ng-template>
