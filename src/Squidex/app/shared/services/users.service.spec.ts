@@ -79,14 +79,16 @@ describe('UsersService', () => {
                 email: 'mail1@domain.com',
                 displayName: 'User1',
                 pictureUrl: 'path/to/image1',
-                isLocked: true
+                isLocked: true,
+                isAdministrator: false
             },
             {
                 id: '456',
                 email: 'mail2@domain.com',
                 displayName: 'User2',
                 pictureUrl: 'path/to/image2',
-                isLocked: true
+                isLocked: true,
+                isAdministrator: false
             }
         ]);
 
@@ -117,14 +119,16 @@ describe('UsersService', () => {
                 email: 'mail1@domain.com',
                 displayName: 'User1',
                 pictureUrl: 'path/to/image1',
-                isLocked: true
+                isLocked: true,
+                isAdministrator: false
             },
             {
                 id: '456',
                 email: 'mail2@domain.com',
                 displayName: 'User2',
                 pictureUrl: 'path/to/image2',
-                isLocked: true
+                isLocked: true,
+                isAdministrator: false
             }
         ]);
 
@@ -154,7 +158,8 @@ describe('UsersService', () => {
             email: 'mail1@domain.com',
             displayName: 'User1',
             pictureUrl: 'path/to/image1',
-            isLocked: true
+            isLocked: true,
+            isAdministrator: false
         });
 
         expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, false));
@@ -200,14 +205,16 @@ describe('UserManagementService', () => {
                     email: 'mail1@domain.com',
                     displayName: 'User1',
                     pictureUrl: 'path/to/image1',
-                    isLocked: true
+                    isLocked: true,
+                    isAdministrator: false
                 },
                 {
                     id: '456',
                     email: 'mail2@domain.com',
                     displayName: 'User2',
                     pictureUrl: 'path/to/image2',
-                    isLocked: true
+                    isLocked: true,
+                    isAdministrator: false
                 }
             ]
         });
@@ -241,14 +248,16 @@ describe('UserManagementService', () => {
                     email: 'mail1@domain.com',
                     displayName: 'User1',
                     pictureUrl: 'path/to/image1',
-                    isLocked: true
+                    isLocked: true,
+                    isAdministrator: false
                 },
                 {
                     id: '456',
                     email: 'mail2@domain.com',
                     displayName: 'User2',
                     pictureUrl: 'path/to/image2',
-                    isLocked: true
+                    isLocked: true,
+                    isAdministrator: false
                 }
             ]
         });
@@ -279,7 +288,8 @@ describe('UserManagementService', () => {
             email: 'mail1@domain.com',
             displayName: 'User1',
             pictureUrl: 'path/to/image1',
-            isLocked: true
+            isLocked: true,
+            isAdministrator: false
         });
 
         expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, false));
@@ -301,7 +311,10 @@ describe('UserManagementService', () => {
         expect(req.request.method).toEqual('POST');
         expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({ id: '123', pictureUrl: 'path/to/image1' });
+        req.flush({
+            id: '123', pictureUrl: 'path/to/image1',
+            isAdministrator: false
+        });
 
         expect(user).toEqual(new UserDto('123', dto.email, dto.displayName, 'path/to/image1', false, false));
     }));

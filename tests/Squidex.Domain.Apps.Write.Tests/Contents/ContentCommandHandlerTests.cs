@@ -39,8 +39,8 @@ namespace Squidex.Domain.Apps.Write.Contents
         private readonly ISchemaEntity schemaEntity = A.Fake<ISchemaEntity>();
         private readonly IAppProvider appProvider = A.Fake<IAppProvider>();
         private readonly IAppEntity appEntity = A.Fake<IAppEntity>();
-	    private readonly IContentRepository contentRepository = A.Fake<IContentRepository>();
-		private readonly NamedContentData data = new NamedContentData().AddField("my-field", new ContentFieldData().SetValue(1));
+        private readonly IContentRepository contentRepository = A.Fake<IContentRepository>();
+        private readonly NamedContentData data = new NamedContentData().AddField("my-field", new ContentFieldData().SetValue(1));
         private readonly LanguagesConfig languagesConfig = LanguagesConfig.Create(Language.DE);
         private readonly Guid contentId = Guid.NewGuid();
 
@@ -173,7 +173,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
 
-            var context = CreateContextForCommand(new DeleteContent() {ContentId = contentId});
+            var context = CreateContextForCommand(new DeleteContent() { ContentId = contentId });
 
             await TestUpdate(content, async _ =>
             {
@@ -189,7 +189,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             var context = CreateContextForCommand(new SubmitContent
             {
                 ContentId = contentId,
-                Roles = new List<string> {SquidexRoles.AppAuthor}
+                Roles = new List<string> { SquidexRoles.AppAuthor }
             });
 
             await TestUpdate(content, async _ =>
@@ -198,9 +198,28 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
-		private ContentDomainObject CreateContent()
+        [Fact]
+        public async Task Decline_should_submit_domain_object()
         {
-            return content.Create(new CreateContent { Data = data });
+            CreateContent();
+            SubmitContent();
+
+            var context = CreateContextForCommand(new DeclineContent
+            {
+                ContentId = contentId,
+                Roles = new List<string> { SquidexRoles.AppEditor }
+            });
+
+            await TestUpdate(content, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
         }
+
+        private ContentDomainObject CreateContent() =>
+            content.Create(new CreateContent { Data = data });
+
+        private ContentDomainObject SubmitContent() =>
+            content.Submit(new SubmitContent() { Roles = new List<string> { SquidexRoles.AppAuthor } } );
     }
 }

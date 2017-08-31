@@ -34,6 +34,9 @@ namespace Squidex.Domain.Apps.Read.Contents
             AddEventMessage<ContentUnpublished>(
                 "unpublished content element.");
 
+            AddEventMessage<ContentDeclined>(
+                "declined content element.");
+
             AddEventMessage<ContentSubmitted>(
                 "submitted content element.");
         }
