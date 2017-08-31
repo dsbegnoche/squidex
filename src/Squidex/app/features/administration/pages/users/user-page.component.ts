@@ -146,7 +146,7 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                 isAdministrator: [input['isAdministrator'],
                     [
 
-                    ]],
+                    ]]
             });
 
         this.isCurrentUser = this.userId === this.currentUserId;
