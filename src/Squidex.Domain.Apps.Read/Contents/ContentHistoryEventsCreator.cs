@@ -33,6 +33,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             AddEventMessage<ContentUnpublished>(
                 "unpublished content element.");
+
+            AddEventMessage<ContentDeclined>(
+                "declined content element.");
         }
 
         protected override Task<HistoryEventToStore> CreateEventCoreAsync(Envelope<IEvent> @event)
