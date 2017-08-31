@@ -25,7 +25,7 @@ namespace Squidex.Controllers.UI.Account
 
 		/// <summary>Callback for Change Identity Webhook for Identity Server.</summary>
 		[Route("account/external/webhooks/identityserver/")]
-		public async Task<IActionResult> ChangeIdentity(WebHookResponse<ChangeIndentity> webHookObj)
+		public async Task<IActionResult> ChangeIdentity([FromBody] WebHookResponse<ChangeIndentity> webHookObj)
 		{
 			if (Request.Method == "GET")
 			{
