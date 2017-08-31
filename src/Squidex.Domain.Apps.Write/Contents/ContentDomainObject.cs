@@ -88,6 +88,11 @@ namespace Squidex.Domain.Apps.Write.Contents
             status = Status.Submitted;
         }
 
+        protected void On(ContentDeclined @event)
+        {
+            status = Status.Declined;
+        }
+
         public ContentDomainObject Create(CreateContent command)
         {
             Guard.Valid(command, nameof(command), () => "Cannot create content");
