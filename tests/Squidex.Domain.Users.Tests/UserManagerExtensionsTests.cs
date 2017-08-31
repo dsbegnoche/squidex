@@ -10,153 +10,193 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Squidex.Infrastructure;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 using Xunit;
 
 namespace Squidex.Domain.Users
 {
     public class UserManagerExtensionsTests
-	{
-		private readonly UserManager<IUser> userManager;
-		private string testEmail = "test@test.com";
-		private string testId = "ValidID";
-		private string testFirstName = "First";
-		private string testLastName = "Last";
-		private readonly Mock<IQueryableUserStore<IUser>> store = new Mock<IQueryableUserStore<IUser>>();
-		private UserExtenstionsTests.TestUser testUser;
-		private readonly Mock<IUserFactory> mockFactory = new Mock<IUserFactory>();
+    {
+        private readonly UserManager<IUser> userManager;
+        private string testEmail = "test@test.com";
+        private string testId = "ValidID";
+        private string testFirstName = "First";
+        private string testLastName = "Last";
 
-		public UserManagerExtensionsTests()
-		{
-			var logins = new List<ExternalLogin>
-			{
-				new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
-			};
-			testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), logins, testFirstName, testLastName);
-			store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Success));
-			mockFactory.Setup(u => u.Create(testEmail)).Returns(testUser);
-			userManager = new FakeUserManager(store);
-		}
+        private readonly Mock<IQueryableUserStore<IUser>> store = new Mock<IQueryableUserStore<IUser>>();
+        private UserExtenstionsTests.TestUser testUser;
+        private readonly Mock<IUserFactory> mockFactory = new Mock<IUserFactory>();
 
-		[Fact]
-		public void QueryByEmailAsyncTestValidEmailSkip0Take1()
-		{
-			var userList = userManager.QueryByEmailAsync(testEmail, 1, 0);
+        public UserManagerExtensionsTests()
+        {
+            var logins = new List<ExternalLogin>
+            {
+                new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
+            };
+            testUser = new UserExtenstionsTests.TestUser(testEmail, testId, false, new List<Claim>(), logins, testFirstName, testLastName, new List<string>());
+            store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Success));
+            mockFactory.Setup(u => u.Create(testEmail)).Returns(testUser);
+            userManager = new FakeUserManager(store);
+        }
 
-			Assert.Equal(1, userList.Result.Count);
-			Assert.Equal(testEmail, userList.Result[0].Email);
-		}
+        [Fact]
+        public void QueryByEmailAsyncTestValidEmailSkip0Take1()
+        {
+            var userList = userManager.QueryByEmailAsync(testEmail, 1, 0);
 
-		[Fact]
-		public void QueryByEmailAsyncTestValidEmailSkip1Take10()
-		{
-			var userList = userManager.QueryByEmailAsync(testEmail, 10, 1);
+            Assert.Equal(1, userList.Result.Count);
+            Assert.Equal(testEmail, userList.Result[0].Email);
+        }
 
-			Assert.Equal(1, userList.Result.Count);
-			Assert.Equal(testEmail, userList.Result[0].Email);
-		}
+        [Fact]
+        public void QueryByEmailAsyncTestValidEmailSkip1Take10()
+        {
+            var userList = userManager.QueryByEmailAsync(testEmail, 10, 1);
 
-		[Fact]
-		public void QueryByEmailAsyncTestValidEmailSkip0Take2()
-		{
-			var userList = userManager.QueryByEmailAsync(testEmail, 2, 0);
+            Assert.Equal(1, userList.Result.Count);
+            Assert.Equal(testEmail, userList.Result[0].Email);
+        }
 
-			Assert.Equal(2, userList.Result.Count);
-			Assert.Equal(testEmail, userList.Result[0].Email);
-			Assert.Equal(testEmail, userList.Result[1].Email);
-		}
+        [Fact]
+        public void QueryByEmailAsyncTestValidEmailSkip0Take2()
+        {
+            var userList = userManager.QueryByEmailAsync(testEmail, 2, 0);
 
-		[Fact]
-		public void QueryByEmailAsyncTestInvalidEmail()
-		{
-			var userList = userManager.QueryByEmailAsync("BADEMAIL@bad.com");
+            Assert.Equal(2, userList.Result.Count);
+            Assert.Equal(testEmail, userList.Result[0].Email);
+            Assert.Equal(testEmail, userList.Result[1].Email);
+        }
 
-			Assert.Equal(0, userList.Result.Count);
-		}
+        [Fact]
+        public void QueryByEmailAsyncTestInvalidEmail()
+        {
+            var userList = userManager.QueryByEmailAsync("BADEMAIL@bad.com");
 
-		[Fact]
-		public void CountByEmailAsync()
-		{
-			Assert.Equal(2, userManager.CountByEmailAsync(testEmail).Result);
-		}
+            Assert.Equal(0, userList.Result.Count);
+        }
 
-		[Fact]
-		public void QueryByIdentityServerIdTest()
-		{
-			Assert.Equal(testUser.Id, userManager.FindByIdentityServerId("53839115-F8DE-42A2-8911-9C1635D1F99F").Result.Id);
-		}
+        [Fact]
+        public void CountByEmailAsync()
+        {
+            Assert.Equal(2, userManager.CountByEmailAsync(testEmail).Result);
+        }
 
-		[Fact]
-		public async void CreateAsyncTestNoPassword()
-		{
-			var createdUser = await userManager.CreateAsync(mockFactory.Object, testEmail, testEmail, null);
-			Assert.Equal(testEmail, createdUser.Email);
-		}
+        [Fact]
+        public void QueryByIdentityServerIdTest()
+        {
+            Assert.Equal(testUser.Id, userManager.FindByIdentityServerId("53839115-F8DE-42A2-8911-9C1635D1F99F").Result.Id);
+        }
 
-		[Fact]
-		public void CreateAsyncTestNoPasswordException()
-		{
-			store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Failed()));
-			var ex = Assert.ThrowsAsync<ValidationException>(() => userManager.CreateAsync(mockFactory.Object, testEmail, testEmail, null));
-			Assert.NotNull(ex);
-			Assert.Equal("Cannot create user.", ex.Result.Message);
-		}
+        [Fact]
+        public async void CreateAsyncTestNoPassword()
+        {
+            var createdUser = await userManager.CreateAsync(mockFactory.Object, testEmail, testEmail, null);
+            Assert.Equal(testEmail, createdUser.Email);
+        }
 
-		public class FakeUserManager : UserManager<IUser>
-		{
-			public FakeUserManager(Mock<IQueryableUserStore<IUser>> storeMock)
-				: base(storeMock.Object,
-					new Mock<IOptions<IdentityOptions>>().Object,
-					new Mock<IPasswordHasher<IUser>>().Object,
-					new IUserValidator<IUser>[0],
-					new IPasswordValidator<IUser>[0],
-					new Mock<ILookupNormalizer>().Object,
-					new Mock<IdentityErrorDescriber>().Object,
-					new Mock<IServiceProvider>().Object,
-					new Mock<ILogger<UserManager<IUser>>>().Object)
-			{ }
+        [Fact]
+        public void CreateAsyncTestNoPasswordException()
+        {
+            store.Setup(u => u.CreateAsync(testUser, new CancellationToken(false))).Returns(Task.FromResult(IdentityResult.Failed()));
+            var ex = Assert.ThrowsAsync<ValidationException>(() => userManager.CreateAsync(mockFactory.Object, testEmail, testEmail, null));
+            Assert.NotNull(ex);
+            Assert.Equal("Cannot create user.", ex.Result.Message);
+        }
 
-			public override async Task<IdentityResult> AddPasswordAsync(IUser user, string password)
-			{
-				return IdentityResult.Success;
-			}
+        [Fact]
+        public async void UpdateUserAsync()
+        {
+            string updatedEmail = "test2@test.com";
+            string updatedDisplayName = "displayname2";
 
-			public override IQueryable<IUser> Users
-			{
-				get
-				{
-					string testEmail = "test@test.com";
-					string testFirstName = "First";
-					string testLastName = "Last";
-					IReadOnlyList<Claim> testClaims = new List<Claim>();
-					var testLogins = new List<ExternalLogin>
-					{
-						new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
-					};
-					UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins, testFirstName, testLastName);
-					UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins, testFirstName, testLastName);
+            IUser user = await userManager.FindByIdAsync(testId);
 
-					var retVal = new List<IUser> {validUser, lockedUser};
+            await userManager.UpdateAsync(testId, updatedEmail, updatedDisplayName, null, null);
 
-					return retVal.AsQueryable();
-				}
-			}
+            Assert.Equal(updatedEmail, user.Email);
+            Assert.Equal(updatedDisplayName, user.DisplayName());
+        }
 
-			public override string NormalizeKey(string email)
-			{
-				return email;
-			}
+        [Fact]
+        public async void Update_user_so_that_they_are_an_administrator_Async()
+        {
+            IUser user = await userManager.FindByIdAsync(testId);
 
-			public override async Task<IUser> FindByIdAsync(string userId)
-			{
-				return Users.FirstOrDefault(u => u.Id == userId);
-			}
+            await userManager.UpdateAsync(testId, null, null, null, true);
 
-			public override async Task<IdentityResult> SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd)
-			{
-				return IdentityResult.Success;
-			}
-		}
-	}
-	
+            Assert.True(user.InRole(SquidexRoles.Administrator));
+        }
+
+        [Fact]
+        public async void Update_user_so_that_they_are_no_longer_an_administrator_Async()
+        {
+            IUser user = await userManager.FindByIdAsync(testId);
+
+            await userManager.UpdateAsync(testId, null, null, null, false);
+
+            Assert.False(user.InRole(SquidexRoles.Administrator));
+        }
+
+        public class FakeUserManager : UserManager<IUser>
+        {
+            public FakeUserManager(Mock<IQueryableUserStore<IUser>> storeMock)
+                : base(storeMock.Object,
+                    new Mock<IOptions<IdentityOptions>>().Object,
+                    new Mock<IPasswordHasher<IUser>>().Object,
+                    new IUserValidator<IUser>[0],
+                    new IPasswordValidator<IUser>[0],
+                    new Mock<ILookupNormalizer>().Object,
+                    new Mock<IdentityErrorDescriber>().Object,
+                    new Mock<IServiceProvider>().Object,
+                    new Mock<ILogger<UserManager<IUser>>>().Object)
+            { }
+
+            public override async Task<IdentityResult> AddPasswordAsync(IUser user, string password)
+            {
+                return IdentityResult.Success;
+            }
+
+            public override IQueryable<IUser> Users { get; } = CreateUsers();
+
+            private static IQueryable<IUser> CreateUsers()
+            {
+                string testEmail = "test@test.com";
+                string testFirstName = "First";
+                string testLastName = "Last";
+                IReadOnlyList<Claim> testClaims = new List<Claim>();
+                var testLogins = new List<ExternalLogin>
+                    {
+                        new ExternalLogin("CivicPlus", "53839115-F8DE-42A2-8911-9C1635D1F99F", "CivicPlus")
+                    };
+                List<string> roles = new List<string>();
+                UserExtenstionsTests.TestUser validUser = new UserExtenstionsTests.TestUser(testEmail, "ValidID", false, testClaims, testLogins, testFirstName, testLastName, roles);
+                UserExtenstionsTests.TestUser lockedUser = new UserExtenstionsTests.TestUser(testEmail, "LockedID", true, testClaims, testLogins, testFirstName, testLastName, roles);
+
+                var retVal = new List<IUser> { validUser, lockedUser };
+
+                return retVal.AsQueryable();
+            }
+
+            public override string NormalizeKey(string email)
+            {
+                return email;
+            }
+
+            public override async Task<IUser> FindByIdAsync(string userId)
+            {
+                return Users.FirstOrDefault(u => u.Id == userId);
+            }
+
+            public override async Task<IdentityResult> SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd)
+            {
+                return IdentityResult.Success;
+            }
+
+            public override async Task<IdentityResult> UpdateAsync(IUser user)
+            {
+                return IdentityResult.Success;
+            }
+        }
+    }
 }

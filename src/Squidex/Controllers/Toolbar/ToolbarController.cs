@@ -62,7 +62,6 @@ namespace Squidex.Controllers.Toolbar
 				return dto;
 			}).ToList();
 
-
 			return Ok(response);
 		}
 

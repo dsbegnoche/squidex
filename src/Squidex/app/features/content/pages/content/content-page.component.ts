@@ -58,12 +58,13 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
     public languages: AppLanguageDto[] = [];
 
-    constructor(apps: AppsStoreService, dialogs: DialogService,
-        private readonly authService: AuthService,
-        private readonly contentsService: ContentsService,
-        private readonly route: ActivatedRoute,
-        private readonly router: Router,
-        private readonly messageBus: MessageBus
+    constructor(apps: AppsStoreService,
+                dialogs: DialogService,
+                private readonly authService: AuthService,
+                private readonly contentsService: ContentsService,
+                private readonly route: ActivatedRoute,
+                private readonly router: Router,
+                private readonly messageBus: MessageBus
     ) {
         super(dialogs, apps);
     }
@@ -79,11 +80,11 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
         this.contentDeletedSubscription =
             this.messageBus.of(ContentDeleted)
-                .subscribe(message => {
-                    if (message.content.id === this.contentId) {
-                        this.router.navigate(['../'], { relativeTo: this.route });
-                    }
-                });
+            .subscribe(message => {
+                if (message.content.id === this.contentId) {
+                    this.router.navigate(['../'], { relativeTo: this.route });
+                }
+            });
 
         this.setupContentForm(routeData['schema']);
 
@@ -142,33 +143,44 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
             if (this.isNewMode) {
                 this.appNameOnce()
-                    .switchMap(app => this.contentsService.postContent(app, this.schema.name, requestDto, status, this.version))
+                    .switchMap(app => this.contentsService.postContent(app,
+                        this.schema.name,
+                        requestDto,
+                        status,
+                        this.version))
                     .subscribe(dto => {
-                        this.content = dto;
+                            this.content = dto;
 
-                        this.emitContentCreated(this.content);
-                        this.notifyInfo('Content created successfully.');
-                        this.back();
-                    }, error => {
-                        this.notifyError(error);
-                        this.enableContentForm();
-                    });
+                            this.emitContentCreated(this.content);
+                            this.notifyInfo('Content created successfully.');
+                            this.back();
+                        },
+                        error => {
+                            this.notifyError(error);
+                            this.enableContentForm();
+                        });
             } else {
                 this.appNameOnce()
-                    .switchMap(app => this.contentsService.putContent(app, this.schema.name, this.contentId!, requestDto, this.version))
+                    .switchMap(app => this.contentsService.putContent(app,
+                        this.schema.name,
+                        this.contentId!,
+                        requestDto,
+                        this.version))
                     .subscribe(() => {
-                        this.content = this.content.update(requestDto, this.authService.user.token);
+                            this.content = this.content.update(requestDto, this.authService.user.token);
 
-                        this.emitContentUpdated(this.content);
-                        this.notifyInfo('Content saved successfully.');
-                        this.enableContentForm();
-                    }, error => {
-                        this.notifyError(error);
-                        this.enableContentForm();
-                    });
+                            this.emitContentUpdated(this.content);
+                            this.notifyInfo('Content saved successfully.');
+                            this.enableContentForm();
+                        },
+                        error => {
+                            this.notifyError(error);
+                            this.enableContentForm();
+                        });
             }
         } else {
-            this.notifyError('Content element not valid, please check the field with the red bar on the left in all languages (if localizable).');
+            this.notifyError(
+                'Content element not valid, please check the field with the red bar on the left in all languages (if localizable).');
         }
     }
 
@@ -213,7 +225,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
             if (field.partitioning === 'language') {
                 for (let language of this.languages) {
-                    group.addControl(language.iso2Code, new FormControl(undefined, field.createValidators(language.isOptional)));
+                    group.addControl(language.iso2Code,
+                        new FormControl(undefined, field.createValidators(language.isOptional)));
                 }
             } else {
                 group.addControl('iv', new FormControl(undefined, field.createValidators(false)));
@@ -244,24 +257,24 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             this.contentId = this.content.id;
             this.version = this.content.version;
             this.isNewMode = false;
-            if (this.content.status === Status.Published && this.isAppAuthor()) {
-                this.isViewOnly = true;
+            this.isViewOnly = (this.content.status === Status.Published && this.isAppAuthor());
+        }
+
+        for (const field of this.schema.fields) {
+            const fieldValue = this.content.data[field.name] || {};
+            const fieldForm = <FormGroup>this.contentForm.get(field.name);
+
+            if (field.partitioning === 'language') {
+                for (let language of this.languages) {
+                    fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
+                }
+            } else {
+                fieldForm.controls['iv'].setValue(fieldValue['iv']);
             }
-
-            for (const field of this.schema.fields) {
-                const fieldValue = this.content.data[field.name] || {};
-                const fieldForm = <FormGroup>this.contentForm.get(field.name);
-
-                if (field.partitioning === 'language') {
-                    for (let language of this.languages) {
-                        fieldForm.controls[language.iso2Code].setValue(fieldValue[language.iso2Code]);
-                    }
-                } else {
-                    fieldForm.controls['iv'].setValue(fieldValue['iv']);
-                }
-                if (this.isViewOnly) {
-                    fieldForm.disable();
-                }
+            if (this.isViewOnly) {
+                fieldForm.disable();
+            } else {
+                fieldForm.enable();
             }
         }
     }

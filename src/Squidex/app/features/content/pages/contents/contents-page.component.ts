@@ -147,6 +147,16 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             });
     }
 
+    public declineContent(content: ContentDto) {
+        this.appNameOnce()
+            .switchMap(app => this.contentsService.declineContent(app, this.schema.name, content.id, content.version))
+            .subscribe(() => {
+                this.contentItems = this.contentItems.replaceBy('id', content.decline(this.authService.user.token));
+            }, error => {
+                this.notifyError(error);
+            });
+    }
+
     public deleteContent(content: ContentDto) {
         this.appNameOnce()
             .switchMap(app => this.contentsService.deleteContent(app, this.schema.name, content.id, content.version))

@@ -20,22 +20,22 @@ import {
 
 describe('UserDto', () => {
     it('should update email and display name property when unlocking', () => {
-        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', true, 'Alex', 'Van Dyke');
-        const user_2 = user_1.update('qaisar@squidex.io', 'Qaisar', 'Derek', 'Begnoche');
+        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', true, 'Alex', 'Van Dyke', false);
+        const user_2 = user_1.update('qaisar@squidex.io', 'Qaisar', 'Derek', 'Begnoche', false);
 
         expect(user_2.email).toEqual('qaisar@squidex.io');
         expect(user_2.displayName).toEqual('Qaisar');
     });
 
     it('should update isLocked property when locking', () => {
-        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', false, 'Alex', 'Van Dyke');
+        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', false, 'Alex', 'Van Dyke', false);
         const user_2 = user_1.lock();
 
         expect(user_2.isLocked).toBeTruthy();
     });
 
     it('should update isLocked property when unlocking', () => {
-        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', true, 'Alex', 'Van Dyke');
+        const user_1 = new UserDto('1', 'sebastian@squidex.io', 'Sebastian', 'picture', true, 'Alex', 'Van Dyke', false);
         const user_2 = user_1.unlock();
 
         expect(user_2.isLocked).toBeFalsy();
@@ -62,117 +62,122 @@ describe('UsersService', () => {
     it('should make get request to get many users',
         inject([UsersService, HttpTestingController], (usersService: UsersService, httpMock: HttpTestingController) => {
 
-        let users: UserDto[] | null = null;
+            let users: UserDto[] | null = null;
 
-        usersService.getUsers().subscribe(result => {
-            users = result;
-        });
+            usersService.getUsers().subscribe(result => {
+                users = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/users?query=');
+            const req = httpMock.expectOne('http://service/p/api/users?query=');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush([
-            {
-                id: '123',
-                email: 'mail1@domain.com',
-                displayName: 'User1',
-                pictureUrl: 'path/to/image1',
-                isLocked: true,
-                firstName: 'First1',
-                lastName: 'Last1'
-            },
-            {
-                id: '456',
-                email: 'mail2@domain.com',
-                displayName: 'User2',
-                pictureUrl: 'path/to/image2',
-                isLocked: true,
-                firstName: 'First2',
-                lastName: 'Last2'
-            }
-        ]);
-
-        expect(users).toEqual(
-            [
-                new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'),
-                new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2')
+            req.flush([
+                {
+                    id: '123',
+                    email: 'mail1@domain.com',
+                    displayName: 'User1',
+                    pictureUrl: 'path/to/image1',
+                    isLocked: true,
+                    firstName: 'First1',
+                    lastName: 'Last1',
+                    isAdministrator: false
+                },
+                {
+                    id: '456',
+                    email: 'mail2@domain.com',
+                    displayName: 'User2',
+                    pictureUrl: 'path/to/image2',
+                    isLocked: true,
+                    firstName: 'First2',
+                    lastName: 'Last2',
+                    isAdministrator: false
+                }
             ]);
-    }));
+
+            expect(users).toEqual(
+                [
+                    new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false),
+                    new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2', false)
+                ]);
+        }));
 
     it('should make get request with query to get many users',
         inject([UsersService, HttpTestingController], (usersService: UsersService, httpMock: HttpTestingController) => {
 
-        let users: UserDto[] | null = null;
+            let users: UserDto[] | null = null;
 
-        usersService.getUsers('my-query').subscribe(result => {
-            users = result;
-        });
+            usersService.getUsers('my-query').subscribe(result => {
+                users = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/users?query=my-query');
+            const req = httpMock.expectOne('http://service/p/api/users?query=my-query');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush([
-            {
+            req.flush([
+                {
+                    id: '123',
+                    email: 'mail1@domain.com',
+                    displayName: 'User1',
+                    pictureUrl: 'path/to/image1',
+                    isLocked: true,
+                    firstName: 'First1',
+                    lastName: 'Last1',
+                    isAdministrator: false,
+                },
+                {
+                    id: '456',
+                    email: 'mail2@domain.com',
+                    displayName: 'User2',
+                    pictureUrl: 'path/to/image2',
+                    isLocked: true,
+                    firstName: 'First2',
+                    lastName: 'Last2',
+                    isAdministrator: false
+                }
+            ]);
+
+            expect(users).toEqual(
+                [
+                    new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false),
+                    new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2', false)
+                ]);
+        }));
+
+    it('should make get request to get single user',
+        inject([UsersService, HttpTestingController], (usersService: UsersService, httpMock: HttpTestingController) => {
+
+            let user: UserDto | null = null;
+
+            usersService.getUser('123').subscribe(result => {
+                user = result;
+            });
+
+            const req = httpMock.expectOne('http://service/p/api/users/123');
+
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
+
+            req.flush({
                 id: '123',
                 email: 'mail1@domain.com',
                 displayName: 'User1',
                 pictureUrl: 'path/to/image1',
                 isLocked: true,
                 firstName: 'First1',
-                lastName: 'Last1'
-            },
-            {
-                id: '456',
-                email: 'mail2@domain.com',
-                displayName: 'User2',
-                pictureUrl: 'path/to/image2',
-                isLocked: true,
-                firstName: 'First2',
-                lastName: 'Last2'
-            }
-        ]);
+                lastName: 'Last1',
+                isAdministrator: false
+            });
 
-        expect(users).toEqual(
-            [
-                new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'),
-                new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2')
-            ]);
-    }));
-
-    it('should make get request to get single user',
-        inject([UsersService, HttpTestingController], (usersService: UsersService, httpMock: HttpTestingController) => {
-
-        let user: UserDto | null = null;
-
-        usersService.getUser('123').subscribe(result => {
-            user = result;
-        });
-
-        const req = httpMock.expectOne('http://service/p/api/users/123');
-
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
-
-        req.flush({
-            id: '123',
-            email: 'mail1@domain.com',
-            displayName: 'User1',
-            pictureUrl: 'path/to/image1',
-            isLocked: true,
-            firstName: 'First1',
-            lastName: 'Last1'
-        });
-
-        expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'));
-    }));
+            expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false));
+        }));
 });
 
 describe('UserManagementService', () => {
-     beforeEach(() => {
+    beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
                 HttpClientTestingModule
@@ -191,179 +196,187 @@ describe('UserManagementService', () => {
     it('should make get request to get many users',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        let users: UsersDto | null = null;
+            let users: UsersDto | null = null;
 
-        userManagementService.getUsers(20, 30).subscribe(result => {
-            users = result;
-        });
+            userManagementService.getUsers(20, 30).subscribe(result => {
+                users = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/user-management?take=20&skip=30&query=');
+            const req = httpMock.expectOne('http://service/p/api/user-management?take=20&skip=30&query=');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            total: 100,
-            items: [
-                {
-                    id: '123',
-                    email: 'mail1@domain.com',
-                    displayName: 'User1',
-                    pictureUrl: 'path/to/image1',
-                    isLocked: true,
-                    firstName: 'First1',
-                    lastName: 'Last1'
-                },
-                {
-                    id: '456',
-                    email: 'mail2@domain.com',
-                    displayName: 'User2',
-                    pictureUrl: 'path/to/image2',
-                    isLocked: true,
-                    firstName: 'First2',
-                    lastName: 'Last2'
-                }
-            ]
-        });
+            req.flush({
+                total: 100,
+                items: [
+                    {
+                        id: '123',
+                        email: 'mail1@domain.com',
+                        displayName: 'User1',
+                        pictureUrl: 'path/to/image1',
+                        isLocked: true,
+                        firstName: 'First1',
+                        lastName: 'Last1',
+                        isAdministrator: false
+                    },
+                    {
+                        id: '456',
+                        email: 'mail2@domain.com',
+                        displayName: 'User2',
+                        pictureUrl: 'path/to/image2',
+                        isLocked: true,
+                        firstName: 'First2',
+                        lastName: 'Last2',
+                        isAdministrator: false
+                    }
+                ]
+            });
 
-        expect(users).toEqual(
-            new UsersDto(100, [
-                new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'),
-                new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2')
-            ]));
-    }));
+            expect(users).toEqual(
+                new UsersDto(100, [
+                    new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false),
+                    new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2', false)
+                ]));
+        }));
 
     it('should make get request with query to get many users',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        let users: UsersDto | null = null;
+            let users: UsersDto | null = null;
 
-        userManagementService.getUsers(20, 30, 'my-query').subscribe(result => {
-            users = result;
-        });
+            userManagementService.getUsers(20, 30, 'my-query').subscribe(result => {
+                users = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/user-management?take=20&skip=30&query=my-query');
+            const req = httpMock.expectOne('http://service/p/api/user-management?take=20&skip=30&query=my-query');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            total: 100,
-            items: [
-                {
-                    id: '123',
-                    email: 'mail1@domain.com',
-                    displayName: 'User1',
-                    pictureUrl: 'path/to/image1',
-                    isLocked: true,
-                    firstName: 'First1',
-                    lastName: 'Last1'
-                },
-                {
-                    id: '456',
-                    email: 'mail2@domain.com',
-                    displayName: 'User2',
-                    pictureUrl: 'path/to/image2',
-                    isLocked: true,
-                    firstName: 'First2',
-                    lastName: 'Last2'
-                }
-            ]
-        });
+            req.flush({
+                total: 100,
+                items: [
+                    {
+                        id: '123',
+                        email: 'mail1@domain.com',
+                        displayName: 'User1',
+                        pictureUrl: 'path/to/image1',
+                        isLocked: true,
+                        firstName: 'First1',
+                        lastName: 'Last1',
+                        isAdministrator: false
+                    },
+                    {
+                        id: '456',
+                        email: 'mail2@domain.com',
+                        displayName: 'User2',
+                        pictureUrl: 'path/to/image2',
+                        isLocked: true,
+                        firstName: 'First2',
+                        lastName: 'Last2',
+                        isAdministrator: false
+                    }
+                ]
+            });
 
-        expect(users).toEqual(
-            new UsersDto(100, [
-                new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'),
-                new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2')
-            ]));
-    }));
+            expect(users).toEqual(
+                new UsersDto(100, [
+                    new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false),
+                    new UserDto('456', 'mail2@domain.com', 'User2', 'path/to/image2', true, 'First2', 'Last2', false)
+                ]));
+        }));
 
     it('should make get request to get single user',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        let user: UserDto | null = null;
+            let user: UserDto | null = null;
 
-        userManagementService.getUser('123').subscribe(result => {
-            user = result;
-        });
+            userManagementService.getUser('123').subscribe(result => {
+                user = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/user-management/123');
+            const req = httpMock.expectOne('http://service/p/api/user-management/123');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            id: '123',
-            email: 'mail1@domain.com',
-            displayName: 'User1',
-            pictureUrl: 'path/to/image1',
-            isLocked: true,
-            firstName: 'First1',
-            lastName: 'Last1'
-        });
+            req.flush({
+                id: '123',
+                email: 'mail1@domain.com',
+                displayName: 'User1',
+                pictureUrl: 'path/to/image1',
+                isLocked: true,
+                firstName: 'First1',
+                lastName: 'Last1',
+                isAdministrator: false
+            });
 
-        expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1'));
-    }));
+            expect(user).toEqual(new UserDto('123', 'mail1@domain.com', 'User1', 'path/to/image1', true, 'First1', 'Last1', false));
+        }));
 
     it('should make post request to create user',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        const dto = new CreateUserDto('mail@squidex.io', 'Squidex User', 'password', 'First1', 'Last1');
+            const dto = new CreateUserDto('mail@squidex.io', 'Squidex User', 'password', 'First1', 'Last1', false);
 
-        let user: UserDto | null = null;
+            let user: UserDto | null = null;
 
-        userManagementService.postUser(dto).subscribe(result => {
-            user = result;
-        });
+            userManagementService.postUser(dto).subscribe(result => {
+                user = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/user-management');
+            const req = httpMock.expectOne('http://service/p/api/user-management');
 
-        expect(req.request.method).toEqual('POST');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('POST');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({ id: '123', pictureUrl: 'path/to/image1' });
+            req.flush({
+                id: '123', pictureUrl: 'path/to/image1',
+                isAdministrator: false
+            });
 
-        expect(user).toEqual(new UserDto('123', dto.email, dto.displayName, 'path/to/image1', false, 'First1', 'Last1'));
-    }));
+            expect(user).toEqual(new UserDto('123', dto.email, dto.displayName, 'path/to/image1', false, 'First1', 'Last1', false));
+        }));
 
     it('should make put request to update user',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        const dto = new UpdateUserDto('mail@squidex.io', 'Squidex User', 'password', 'Squidex', 'User');
+            const dto = new UpdateUserDto('mail@squidex.io', 'Squidex User', 'password', 'Squidex', 'User', false);
 
-        userManagementService.putUser('123', dto).subscribe();
+            userManagementService.putUser('123', dto).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/user-management/123');
+            const req = httpMock.expectOne('http://service/p/api/user-management/123');
 
-        expect(req.request.method).toEqual('PUT');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({});
-    }));
+            req.flush({});
+        }));
 
     it('should make put request to lock user',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        userManagementService.lockUser('123').subscribe();
+            userManagementService.lockUser('123').subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/user-management/123/lock');
+            const req = httpMock.expectOne('http://service/p/api/user-management/123/lock');
 
-        expect(req.request.method).toEqual('PUT');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({});
-    }));
+            req.flush({});
+        }));
 
     it('should make put request to unlock user',
         inject([UserManagementService, HttpTestingController], (userManagementService: UserManagementService, httpMock: HttpTestingController) => {
 
-        userManagementService.unlockUser('123').subscribe();
+            userManagementService.unlockUser('123').subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/user-management/123/unlock');
+            const req = httpMock.expectOne('http://service/p/api/user-management/123/unlock');
 
-        expect(req.request.method).toEqual('PUT');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({});
-    }));
+            req.flush({});
+        }));
 });

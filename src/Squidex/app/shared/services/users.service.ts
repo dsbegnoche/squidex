@@ -29,20 +29,21 @@ export class UserDto {
         public readonly pictureUrl: string | null,
         public readonly isLocked: boolean,
         public readonly firstName: string,
-        public readonly lastName: string
+        public readonly lastName: string,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 
-    public update(email: string, displayName: string, firstName: string, lastName: string): UserDto {
-        return new UserDto(this.id, email, displayName, this.pictureUrl, this.isLocked, firstName, lastName);
+    public update(email: string, displayName: string, firstName: string, lastName: string, isAdministrator: boolean): UserDto {
+        return new UserDto(this.id, email, displayName, this.pictureUrl, this.isLocked, firstName, lastName, this.isAdministrator);
     }
 
     public lock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true, this.displayName, this.displayName);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true, this.displayName, this.displayName, this.isAdministrator);
     }
 
     public unlock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false, this.displayName, this.displayName);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false, this.displayName, this.displayName, this.isAdministrator);
     }
 }
 
@@ -52,7 +53,8 @@ export class CreateUserDto {
         public readonly displayName: string,
         public readonly password: string,
         public readonly firstName: string,
-        public readonly lastName: string
+        public readonly lastName: string,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 }
@@ -63,7 +65,8 @@ export class UpdateUserDto {
         public readonly displayName: string,
         public readonly password: string,
         public readonly firstName: string,
-        public readonly lastName: string
+        public readonly lastName: string,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 }
@@ -80,38 +83,40 @@ export class UsersService {
         const url = this.apiUrl.buildUrl(`api/users?query=${query || ''}`);
 
         return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    const items: any[] = response;
+            .map(response => {
+                const items: any[] = response;
 
-                    return items.map(item => {
-                        return new UserDto(
-                            item.id,
-                            item.email,
-                            item.displayName,
-                            item.pictureUrl,
-                            item.isLocked,
-                            item.firstName,
-                            item.lastName);
-                    });
-                })
-                .pretifyError('Failed to load users. Please reload.');
+                return items.map(item => {
+                    return new UserDto(
+                        item.id,
+                        item.email,
+                        item.displayName,
+                        item.pictureUrl,
+                        item.isLocked,
+                        item.firstName,
+                        item.lastName,
+                        item.isAdministrator);
+                });
+            })
+            .pretifyError('Failed to load users. Please reload.');
     }
 
     public getUser(id: string): Observable<UserDto> {
         const url = this.apiUrl.buildUrl(`api/users/${id}`);
 
         return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    return new UserDto(
-                        response.id,
-                        response.email,
-                        response.displayName,
-                        response.pictureUrl,
-                        response.isLocked,
-                        response.firstName,
-                        response.lastName);
-                })
-                .pretifyError('Failed to load user. Please reload.');
+            .map(response => {
+                return new UserDto(
+                    response.id,
+                    response.email,
+                    response.displayName,
+                    response.pictureUrl,
+                    response.isLocked,
+                    response.firstName,
+                    response.lastName,
+                    response.isAdministrator);
+            })
+            .pretifyError('Failed to load user. Please reload.');
     }
 }
 
@@ -127,70 +132,72 @@ export class UserManagementService {
         const url = this.apiUrl.buildUrl(`api/user-management?take=${take}&skip=${skip}&query=${query || ''}`);
 
         return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    const items: any[] = response.items;
+            .map(response => {
+                const items: any[] = response.items;
 
-                    const users = items.map(item => {
-                        return new UserDto(
-                            item.id,
-                            item.email,
-                            item.displayName,
-                            item.pictureUrl,
-                            item.isLocked,
-                            item.firstName,
-                            item.lastName);
-                    });
+                const users = items.map(item => {
+                    return new UserDto(
+                        item.id,
+                        item.email,
+                        item.displayName,
+                        item.pictureUrl,
+                        item.isLocked,
+                        item.firstName,
+                        item.lastName,
+                        item.isAdministrator);
+                });
 
-                    return new UsersDto(response.total, users);
-                })
-                .pretifyError('Failed to load users. Please reload.');
+                return new UsersDto(response.total, users);
+            })
+            .pretifyError('Failed to load users. Please reload.');
     }
 
     public getUser(id: string): Observable<UserDto> {
         const url = this.apiUrl.buildUrl(`api/user-management/${id}`);
 
         return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    return new UserDto(
-                        response.id,
-                        response.email,
-                        response.displayName,
-                        response.pictureUrl,
-                        response.isLocked,
-                        response.firstName,
-                        response.lastName);
-                })
-                .pretifyError('Failed to load user. Please reload.');
+            .map(response => {
+                return new UserDto(
+                    response.id,
+                    response.email,
+                    response.displayName,
+                    response.pictureUrl,
+                    response.isLocked,
+                    response.firstName,
+                    response.lastName,
+                    response.isAdministrator);
+            })
+            .pretifyError('Failed to load user. Please reload.');
     }
 
     public postUser(dto: CreateUserDto): Observable<UserDto> {
         const url = this.apiUrl.buildUrl('api/user-management');
 
         return HTTP.postVersioned(this.http, url, dto)
-                .map(response => {
-                    return new UserDto(response.id, dto.email, dto.displayName, response.pictureUrl, false, dto.firstName, dto.lastName);
-                })
-                .pretifyError('Failed to create user. Please reload.');
+            .map(response => {
+                return new UserDto(response.id, dto.email, dto.displayName, response.pictureUrl, false, dto.firstName, dto.lastName, response.isAdministrator);
+            })
+            .pretifyError('Failed to create user. Please reload.');
     }
 
     public putUser(id: string, dto: UpdateUserDto): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/user-management/${id}`);
 
         return HTTP.putVersioned(this.http, url, dto)
-                .pretifyError('Failed to update user. Please reload.');
+            .pretifyError('Failed to update user. Please reload.');
     }
 
     public lockUser(id: string): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/user-management/${id}/lock`);
 
         return HTTP.putVersioned(this.http, url, {})
-                .pretifyError('Failed to load users. Please retry.');
+            .pretifyError('Failed to load users. Please retry.');
     }
 
     public unlockUser(id: string): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/user-management/${id}/unlock`);
 
         return HTTP.putVersioned(this.http, url, {})
-                .pretifyError('Failed to load users. Please retry.');
+            .pretifyError('Failed to load users. Please retry.');
     }
 }

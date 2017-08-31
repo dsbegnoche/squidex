@@ -155,7 +155,7 @@ namespace Squidex.Domain.Users
 		    }
 
 		    public TestUser(string email, string id, bool isLocked, IReadOnlyList<Claim> claims,
-			    IReadOnlyList<ExternalLogin> logins, string firstName, string lastName)
+			    IReadOnlyList<ExternalLogin> logins, string firstName, string lastName, List<string> roles)
 		    {
 			    this.Email = this.NormalizedEmail = email;
 			    this.Id = id;
@@ -165,6 +165,7 @@ namespace Squidex.Domain.Users
 			    ClaimsList = new List<IdentityUserClaim>();
 			    this.FirstName = firstName;
 			    this.LastName = lastName;
+			    this._Roles = roles;
 		    }
 
 		    public void AddClaim(Claim claim)
@@ -184,6 +185,10 @@ namespace Squidex.Domain.Users
 		    public List<IdentityUserClaim> ClaimsList { get; set; }
 
 			public IReadOnlyList<ExternalLogin> Logins { get; set; }
+
+			private List<string> _Roles { get; }
+
+		    public IReadOnlyList<string> Roles => _Roles;
 
 		    public void UpdateEmail(string email)
 		    {
@@ -207,6 +212,27 @@ namespace Squidex.Domain.Users
 			public string FirstName { get; set; }
 
 			public string LastName { get; set; }
+
+		    public void AddRole(string role)
+		    {
+			    if (!InRole(role))
+			    {
+				    _Roles.Add(role);
+			    }
+		    }
+
+		    public void RemoveRole(string role)
+		    {
+			    if (InRole(role))
+			    {
+				    _Roles.Remove(role);
+			    }
+		    }
+
+		    public bool InRole(string role)
+		    {
+				return _Roles.Exists(x => string.Equals(x, role, StringComparison.OrdinalIgnoreCase));
+        }
 	    }
 	}
 }

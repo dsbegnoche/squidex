@@ -14,10 +14,12 @@ using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
 using Squidex.Controllers.Api.Users.Models;
 using Squidex.Domain.Users;
+using Squidex.Domain.Users.Base;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.Security;
 using Squidex.Pipeline;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
 namespace Squidex.Controllers.Api.Users
@@ -29,11 +31,14 @@ namespace Squidex.Controllers.Api.Users
     {
         private readonly UserManager<IUser> userManager;
         private readonly IUserFactory userFactory;
+	    private readonly ISignInManager<IUser> signInManager;
 
-        public UserManagementController(UserManager<IUser> userManager, IUserFactory userFactory)
+        public UserManagementController(UserManager<IUser> userManager, IUserFactory userFactory,
+	        ISignInManager<IUser> signInManager)
         {
             this.userManager = userManager;
             this.userFactory = userFactory;
+	        this.signInManager = signInManager;
         }
 
         [HttpGet]
@@ -89,7 +94,7 @@ namespace Squidex.Controllers.Api.Users
         [ApiCosts(0)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UpdateUserDto request)
         {
-            await userManager.UpdateAsync(id, request.Email, request.DisplayName, request.Password);
+	        await userManager.UpdateAsync(id, request.Email, request.DisplayName, request.Password, request.IsAdministrator);
 
             return NoContent();
         }
@@ -126,7 +131,15 @@ namespace Squidex.Controllers.Api.Users
 
         private static UserDto Map(IUser user)
         {
-            return SimpleMapper.Map(user, new UserDto { DisplayName = user.DisplayName(), PictureUrl = user.PictureUrl(), FirstName = user.FirstName(), LastName = user.LastName() });
+            return SimpleMapper.Map(user,
+              new UserDto
+              {
+                  DisplayName = user.DisplayName(),
+                  PictureUrl = user.PictureUrl(),
+                  FirstName = user.FirstName(),
+                  LastName = user.LastName(),
+                  IsAdministrator = user.InRole(SquidexRoles.Administrator)
+              });
         }
 
         private bool IsSelf(string id)

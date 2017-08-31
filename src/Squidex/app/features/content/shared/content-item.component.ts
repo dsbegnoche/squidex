@@ -41,6 +41,9 @@ export class ContentItemComponent extends AppComponentBase implements OnInit, On
     public submitting = new EventEmitter<ContentDto>();
 
     @Output()
+    public declining = new EventEmitter<ContentDto>();
+
+    @Output()
     public deleting = new EventEmitter<ContentDto>();
 
     @Output()
@@ -104,4 +107,3 @@ export class ContentItemComponent extends AppComponentBase implements OnInit, On
         }
     }
 }
-

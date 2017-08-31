@@ -39,7 +39,9 @@ export class CpProductsMenuComponent implements OnDestroy, OnInit {
 
     public ngOnInit() {
         this.productsSubscription =
-            this.productService.getPoducts().subscribe(products => {
+            this.productService.getProducts().retryWhen(err => {
+                return err.delay(1000);
+            }).subscribe(products => {
                 this.products = products;
             });
     }

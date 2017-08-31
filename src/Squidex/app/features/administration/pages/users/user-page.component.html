@@ -11,7 +11,7 @@
                         Save
                     </button>
                 </div>
-                
+
                 <sqx-shortcut keys="ctrl+s" (trigger)="save()"></sqx-shortcut>
 
                 <h3 class="panel-title" *ngIf="isNewMode">
@@ -21,7 +21,7 @@
                     Edit User
                 </h3>
             </div>
-                
+
             <sqx-shortcut keys="ctrl+s" (trigger)="save()"></sqx-shortcut>
 
             <a class="panel-close" sqxParentLink>
@@ -51,7 +51,15 @@
 
                     <input type="text" class="form-control" id="displayName" maxlength="100" formControlName="displayName" autocomplete="false" disabled/>
                 </div>
+
+	            <div class="form-group">
+		            <label for="isAdministrator">Administrator</label>
+
+		            <sqx-control-errors for="isAdministrator" [submitted]="userFormSubmitted"></sqx-control-errors>
+
+		            <input type="checkbox" class="form-control" id="isAdministrator" formControlName="isAdministrator"/>
+	            </div>
             </div>
         </div>
     </sqx-panel>
-</form>   
+</form>

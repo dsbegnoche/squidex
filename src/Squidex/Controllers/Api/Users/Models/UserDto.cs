@@ -53,5 +53,8 @@ namespace Squidex.Controllers.Api.Users.Models
 		/// </summary>
 		[Required]
         public bool IsLocked { get; set; }
-    }
+
+		[Required]
+		public bool IsAdministrator { get; set; }
+	}
 }

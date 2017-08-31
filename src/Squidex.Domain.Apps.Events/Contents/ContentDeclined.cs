@@ -2,14 +2,12 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-namespace Squidex.Domain.Apps.Core.Apps
+using Squidex.Infrastructure;
+
+namespace Squidex.Domain.Apps.Events.Contents
 {
-    public enum Status
+    [TypeName("ContentDeclinedEvent")]
+    public class ContentDeclined : ContentEvent
     {
-		Deleted = 0,
-		Draft = 1,
-        Submitted = 2,
-        Declined = 3,
-		Published = 10
     }
 }

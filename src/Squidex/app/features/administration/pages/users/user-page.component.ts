@@ -33,7 +33,7 @@ export class UserPageComponent extends ComponentBase implements OnInit {
     public userFormSubmitted = false;
     public userForm: FormGroup;
     public userId: string;
-    public userFormError? = '';
+    public userFormError?= '';
 
     public isCurrentUser = false;
     public isNewMode = false;
@@ -79,7 +79,8 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                                 created.pictureUrl!,
                                 false,
                                 requestDto.firstName,
-                                requestDto.lastName);
+                                requestDto.lastName,
+                                requestDto.isAdministrator);
 
                         this.emitUserCreated(this.user);
                         this.notifyInfo('User created successfully.');
@@ -95,7 +96,8 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                                 requestDto.email,
                                 requestDto.displayMessage,
                                 requestDto.firstName,
-                                requestDto.lastName);
+                                requestDto.lastName,
+                                requestDto.isAdministrator);
 
                         this.emitUserUpdated(this.user);
                         this.notifyInfo('User saved successfully.');
@@ -127,16 +129,16 @@ export class UserPageComponent extends ComponentBase implements OnInit {
         this.userForm =
             this.formBuilder.group({
                 email: [input['email'],
-                    [
-                        Validators.email,
-                        Validators.required,
-                        Validators.maxLength(100)
-                    ]],
+                [
+                    Validators.email,
+                    Validators.required,
+                    Validators.maxLength(100)
+                ]],
                 displayName: [input['displayName'],
-                    [
-                        Validators.required,
-                        Validators.maxLength(100)
-                    ]],
+                [
+                    Validators.required,
+                    Validators.maxLength(100)
+                ]],
                 password: ['',
                     [
                         this.isNewMode ? Validators.required : Validators.nullValidator
@@ -144,7 +146,11 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                 passwordConfirm: ['',
                     [
                         ValidatorsEx.match('password', 'Passwords must be the same.')
-                    ]]
+                    ]],
+                isAdministrator: [input['isAdministrator'],
+                [
+
+                ]]
             });
 
         this.isCurrentUser = this.userId === this.currentUserId;
@@ -160,4 +166,3 @@ export class UserPageComponent extends ComponentBase implements OnInit {
         this.userFormError = message;
     }
 }
-
