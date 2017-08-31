@@ -231,25 +231,4 @@ export class ContentsService {
         return HTTP.putVersioned(this.http, url, {}, version)
             .pretifyError('Failed to submit content. Please reload.');
     }
-
-    public copyContent(appName: string, schemaName: string, id: string, version?: Version): Observable<any> {
-        const url = this.apiUrl.buildUrl(`/api/content/${appName}/${schemaName}/${id}/copy`);
-
-        return HTTP.postVersioned(this.http, url, {}, version)
-            .map(response => {
-                return new ContentDto(
-                    response.id,
-                    response.status,
-                    response.createdBy,
-                    response.lastModifiedBy,
-                    DateTime.parseISO_UTC(response.created),
-                    DateTime.parseISO_UTC(response.lastModified),
-                    response.data,
-                    new Version(response.version.toString()));
-            })
-            .do(content => {
-                this.localCache.set(`content.${content.id}`, content, 5000);
-            })
-            .pretifyError('Failed to copy content. Please reload.');
-    }
 }
