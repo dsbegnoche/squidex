@@ -28,7 +28,7 @@ describe('UsersProviderService', () => {
     });
 
     it('should return users service when user not cached', () => {
-        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true);
+        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true, false);
 
         usersService.setup(x => x.getUser('123'))
             .returns(() => Observable.of(user)).verifiable(Times.once());
@@ -45,7 +45,7 @@ describe('UsersProviderService', () => {
     });
 
     it('should return provide user from cache', () => {
-        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true);
+        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true, false);
 
         usersService.setup(x => x.getUser('123'))
             .returns(() => Observable.of(user)).verifiable(Times.once());
@@ -64,7 +64,7 @@ describe('UsersProviderService', () => {
     });
 
     it('should return me when user is current user', () => {
-        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true);
+        const user = new UserDto('123', 'mail@domain.com', 'User1', 'path/to/image', true, false);
 
         authService.setup(x => x.user)
             .returns(() => new Profile(<any>{ profile: { sub: '123'}}));
@@ -78,7 +78,7 @@ describe('UsersProviderService', () => {
             resultingUser = result;
         }).unsubscribe();
 
-        expect(resultingUser).toEqual(new UserDto('123', 'mail@domain.com', 'Me', 'path/to/image', true));
+        expect(resultingUser).toEqual(new UserDto('123', 'mail@domain.com', 'Me', 'path/to/image', true, false));
 
         usersService.verifyAll();
     });
@@ -96,7 +96,7 @@ describe('UsersProviderService', () => {
             resultingUser = result;
         }).unsubscribe();
 
-        expect(resultingUser).toEqual(new UserDto('NOT FOUND', 'NOT FOUND', 'NOT FOUND', null, false));
+        expect(resultingUser).toEqual(new UserDto('NOT FOUND', 'NOT FOUND', 'NOT FOUND', null, false, false));
 
         usersService.verifyAll();
     });
