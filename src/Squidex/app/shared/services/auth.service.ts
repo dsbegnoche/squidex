@@ -47,11 +47,11 @@ export class Profile {
     }
 
     public get firstName(): string {
-        return this.user.profile['urn:squidex:name'];
+        return this.user.profile['urn:squidex:firstname'];
     }
 
     public get lastName(): string {
-        return this.user.profile['urn:squidex:name'];
+        return this.user.profile['urn:squidex:lastname'];
     }
 
     constructor(
