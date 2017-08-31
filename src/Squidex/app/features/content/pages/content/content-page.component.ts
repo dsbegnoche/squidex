@@ -261,7 +261,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
                 this.isViewOnly = true;
             }
         }
-        
+
         for (const field of this.schema.fields) {
             const fieldValue = this.content.data[field.name] || {};
             const fieldForm = <FormGroup>this.contentForm.get(field.name);
