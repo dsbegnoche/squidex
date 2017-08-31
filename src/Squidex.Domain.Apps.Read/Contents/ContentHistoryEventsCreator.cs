@@ -36,6 +36,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             AddEventMessage<ContentDeclined>(
                 "declined content element.");
+
+            AddEventMessage<ContentSubmitted>(
+                "submitted content element.");
         }
 
         protected override Task<HistoryEventToStore> CreateEventCoreAsync(Envelope<IEvent> @event)
