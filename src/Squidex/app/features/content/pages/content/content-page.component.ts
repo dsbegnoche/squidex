@@ -257,9 +257,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             this.contentId = this.content.id;
             this.version = this.content.version;
             this.isNewMode = false;
-            if (this.content.status === Status.Published && this.isAppAuthor()) {
-                this.isViewOnly = true;
-            }
+            this.isViewOnly = (this.content.status === Status.Published && this.isAppAuthor());
         }
 
         for (const field of this.schema.fields) {
@@ -275,6 +273,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             }
             if (this.isViewOnly) {
                 fieldForm.disable();
+            } else {
+                fieldForm.enable();
             }
         }
     }
