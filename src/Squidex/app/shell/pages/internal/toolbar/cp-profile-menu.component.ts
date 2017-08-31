@@ -31,6 +31,8 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
     public modalMenu = new ModalView(false, true);
 
     public profileDisplayName = '';
+    public profileFirstName = '';
+    public profileLastName = '';
     public profileId = '';
 
     public isAdmin = false;
@@ -57,6 +59,8 @@ export class CpProfileMenuComponent implements OnDestroy, OnInit {
                 .subscribe(user => {
                     this.profileId = user.id;
                     this.profileDisplayName = user.displayName;
+                    this.profileFirstName = user.firstName;
+                    this.profileLastName = user.lastName;
 
                     this.isAdmin = user.isAdmin;
                 });

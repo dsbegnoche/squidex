@@ -19,6 +19,10 @@ namespace Squidex.Controllers.UI.Profile
 
         public string DisplayName { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         public string ErrorMessage { get; set; }
 
         public string SuccessMessage { get; set; }

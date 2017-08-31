@@ -131,7 +131,15 @@ namespace Squidex.Controllers.Api.Users
 
         private static UserDto Map(IUser user)
         {
-            return SimpleMapper.Map(user, new UserDto { DisplayName = user.DisplayName(), PictureUrl = user.PictureUrl(), IsAdministrator = user.InRole(SquidexRoles.Administrator) });
+            return SimpleMapper.Map(user,
+              new UserDto
+              {
+                  DisplayName = user.DisplayName(),
+                  PictureUrl = user.PictureUrl(),
+                  FirstName = user.FirstName(),
+                  LastName = user.LastName(),
+                  IsAdministrator = user.InRole(SquidexRoles.Administrator)
+              });
         }
 
         private bool IsSelf(string id)

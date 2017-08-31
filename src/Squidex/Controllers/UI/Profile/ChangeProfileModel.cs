@@ -16,7 +16,13 @@ namespace Squidex.Controllers.UI.Profile
         [EmailAddress(ErrorMessage = "Email is not valid.")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "DisplayName is required.")]
+        [Required(ErrorMessage = "Display Name is required.")]
         public string DisplayName { get; set; }
+
+	    [Required(ErrorMessage = "First Name is required.")]
+		public string FirstName { get; set; }
+
+	    [Required(ErrorMessage = "Last Name is required.")]
+		public string LastName { get; set; }
     }
 }

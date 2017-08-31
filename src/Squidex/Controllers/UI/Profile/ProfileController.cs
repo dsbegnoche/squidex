@@ -90,7 +90,7 @@ namespace Squidex.Controllers.UI.Profile
         [Route("/account/profile/update")]
         public Task<IActionResult> Profile(ChangeProfileModel model)
         {
-            return MakeChangeAsync(user => userManager.UpdateAsync(user, model.Email, model.DisplayName),
+            return MakeChangeAsync(user => userManager.UpdateAsync(user, model.Email, model.DisplayName, model.FirstName, model.LastName),
                 "Account updated successfully.");
         }
 
@@ -196,7 +196,9 @@ namespace Squidex.Controllers.UI.Profile
                 DisplayName = user.DisplayName(),
                 HasPassword = await userManager.HasPasswordAsync(user),
                 HasPasswordAuth = identityOptions.Value.AllowPasswordAuth,
-                SuccessMessage = successMessage
+                SuccessMessage = successMessage,
+				FirstName = user.FirstName(),
+				LastName = user.LastName()
             };
 
             if (model != null)

@@ -255,12 +255,14 @@ namespace Squidex.Controllers.UI.Account
 
 			var isLoggedIn = result.Succeeded;
 
+			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email)?.Value;
+			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName)?.Value;
+			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname)?.Value;
+			var identityId = externalLogin.ProviderKey;
+
+			var user = await userManager.FindByIdentityServerId(identityId);
 			if (!isLoggedIn)
 			{
-				var email = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
-
-				var user = await userManager.FindByEmailAsync(email);
-
 				if (user != null)
 				{
 					isLoggedIn =
@@ -285,7 +287,9 @@ namespace Squidex.Controllers.UI.Account
                         return View("LockedOut");
                     }
                 }
-            }
+			}
+
+			await SetCivicPlusPlatformClaims(user, firstName, lastName, email);
 
 			if (isLoggedIn)
 			{
@@ -352,17 +356,27 @@ namespace Squidex.Controllers.UI.Account
 				user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, GravatarHelper.CreatePictureUrl(email));
 			}
 
-			if (!externalLogin.Principal.HasClaim(x => x.Type == SquidexClaimTypes.SquidexDisplayName))
-			{
-				user.SetClaim(SquidexClaimTypes.SquidexDisplayName, email);
-			}
-
 			foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix)))
 			{
 				user.AddClaim(squidexClaim);
 			}
 
 			return user;
+		}
+
+		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName, string email)
+		{
+			if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName) && !string.IsNullOrWhiteSpace(email))
+			{
+				var displayName = $"{firstName} {lastName[0]}";
+
+				user.UpdateEmail(email);
+				user.SetDisplayName(displayName);
+				user.SetFirstName(firstName);
+				user.SetLastName(lastName);
+
+				await userManager.UpdateAsync(user);
+			}
 		}
 
 		private async Task<bool> MakeIdentityOperation(Func<Task<IdentityResult>> action, [CallerMemberName] string operationName = null)

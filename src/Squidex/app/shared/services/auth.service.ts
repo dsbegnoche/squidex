@@ -46,6 +46,14 @@ export class Profile {
         return `subject:${this.id}`;
     }
 
+    public get firstName(): string {
+        return this.user.profile['urn:squidex:firstname'];
+    }
+
+    public get lastName(): string {
+        return this.user.profile['urn:squidex:lastname'];
+    }
+
     constructor(
         public readonly user: User
     ) {

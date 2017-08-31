@@ -29,7 +29,7 @@ export class UsersProviderService {
             const request =
                 this.usersService.getUser(id).retry(2)
                     .catch(error => {
-                        return Observable.of(new UserDto('NOT FOUND', 'NOT FOUND', 'NOT FOUND', null, false, false));
+                        return Observable.of(new UserDto('NOT FOUND', 'NOT FOUND', 'NOT FOUND', null, false, 'NOT FOUND', 'NOT FOUND', false));
                     })
                     .publishLast();
 
@@ -41,7 +41,7 @@ export class UsersProviderService {
         return result
             .map(dto => {
                 if (this.authService.user && dto.id === this.authService.user.id) {
-                    dto = new UserDto(dto.id, dto.email, me, dto.pictureUrl, dto.isLocked, dto.isAdministrator);
+                    dto = new UserDto(dto.id, dto.email, me, dto.pictureUrl, dto.isLocked, dto.firstName, dto.lastName, dto.isAdministrator);
                 }
                 return dto;
             }).share();
