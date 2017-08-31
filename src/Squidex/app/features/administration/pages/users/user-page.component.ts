@@ -77,7 +77,8 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                                 requestDto.email,
                                 requestDto.displayName,
                                 created.pictureUrl!,
-                                false);
+                                false,
+                                requestDto.isAdministrator);
 
                         this.emitUserCreated(this.user);
                         this.notifyInfo('User created successfully.');
@@ -91,7 +92,8 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                         this.user =
                             this.user.update(
                                 requestDto.email,
-                                requestDto.displayMessage);
+                                requestDto.displayMessage,
+                                requestDto.isAdministrator);
 
                         this.emitUserUpdated(this.user);
                         this.notifyInfo('User saved successfully.');
@@ -140,7 +142,11 @@ export class UserPageComponent extends ComponentBase implements OnInit {
                 passwordConfirm: ['',
                     [
                         ValidatorsEx.match('password', 'Passwords must be the same.')
-                    ]]
+                    ]],
+                isAdministrator: [input['isAdministrator'],
+                    [
+
+                    ]],
             });
 
         this.isCurrentUser = this.userId === this.currentUserId;

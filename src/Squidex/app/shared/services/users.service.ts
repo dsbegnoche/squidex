@@ -27,20 +27,21 @@ export class UserDto {
         public readonly email: string,
         public readonly displayName: string,
         public readonly pictureUrl: string | null,
-        public readonly isLocked: boolean
+        public readonly isLocked: boolean,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 
-    public update(email: string, displayName: string): UserDto {
-        return new UserDto(this.id, email, displayName, this.pictureUrl, this.isLocked);
+    public update(email: string, displayName: string, isAdministrator: boolean): UserDto {
+        return new UserDto(this.id, email, displayName, this.pictureUrl, this.isLocked, isAdministrator);
     }
 
     public lock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true, this.isAdministrator);
     }
 
     public unlock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false, this.isAdministrator);
     }
 }
 
@@ -48,7 +49,8 @@ export class CreateUserDto {
     constructor(
         public readonly email: string,
         public readonly displayName: string,
-        public readonly password: string
+        public readonly password: string,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 }
@@ -57,7 +59,8 @@ export class UpdateUserDto {
     constructor(
         public readonly email: string,
         public readonly displayName: string,
-        public readonly password: string
+        public readonly password: string,
+        public readonly isAdministrator: boolean | false
     ) {
     }
 }
@@ -83,7 +86,8 @@ export class UsersService {
                             item.email,
                             item.displayName,
                             item.pictureUrl,
-                            item.isLocked);
+                            item.isLocked,
+                            item.isAdministrator);
                     });
                 })
                 .pretifyError('Failed to load users. Please reload.');
@@ -99,7 +103,8 @@ export class UsersService {
                         response.email,
                         response.displayName,
                         response.pictureUrl,
-                        response.isLocked);
+                        response.isLocked,
+                        response.isAdministrator);
                 })
                 .pretifyError('Failed to load user. Please reload.');
     }
@@ -126,7 +131,8 @@ export class UserManagementService {
                             item.email,
                             item.displayName,
                             item.pictureUrl,
-                            item.isLocked);
+                            item.isLocked,
+                            item.isAdministrator);
                     });
 
                     return new UsersDto(response.total, users);
@@ -144,7 +150,8 @@ export class UserManagementService {
                         response.email,
                         response.displayName,
                         response.pictureUrl,
-                        response.isLocked);
+                        response.isLocked,
+                        response.isAdministrator);
                 })
                 .pretifyError('Failed to load user. Please reload.');
     }
@@ -154,7 +161,8 @@ export class UserManagementService {
 
         return HTTP.postVersioned(this.http, url, dto)
                 .map(response => {
-                    return new UserDto(response.id, dto.email, dto.displayName, response.pictureUrl, false);
+                    return new UserDto(response.id, dto.email, dto.displayName, response.pictureUrl, false,
+                        response.isAdministrator);
                 })
                 .pretifyError('Failed to create user. Please reload.');
     }

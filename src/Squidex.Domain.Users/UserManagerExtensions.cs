@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Squidex.Infrastructure;
+using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
 // ReSharper disable ImplicitlyCapturedClosure
@@ -20,122 +21,133 @@ using Squidex.Shared.Users;
 
 namespace Squidex.Domain.Users
 {
-    public static class UserManagerExtensions
-    {
-        public static Task<IReadOnlyList<IUser>> QueryByEmailAsync(this UserManager<IUser> userManager, string email = null, int take = 10, int skip = 0)
-        {
-            var users = QueryUsers(userManager, email).Skip(skip).Take(take).ToList();
+	public static class UserManagerExtensions
+	{
+		public static Task<IReadOnlyList<IUser>> QueryByEmailAsync(this UserManager<IUser> userManager, string email = null, int take = 10, int skip = 0)
+		{
+			var users = QueryUsers(userManager, email).Skip(skip).Take(take).ToList();
 
-            return Task.FromResult<IReadOnlyList<IUser>>(users);
-        }
+			return Task.FromResult<IReadOnlyList<IUser>>(users);
+		}
 
-        public static Task<long> CountByEmailAsync(this UserManager<IUser> userManager, string email = null)
-        {
-            var count = QueryUsers(userManager, email).LongCount();
+		public static Task<long> CountByEmailAsync(this UserManager<IUser> userManager, string email = null)
+		{
+			var count = QueryUsers(userManager, email).LongCount();
 
-            return Task.FromResult(count);
-        }
+			return Task.FromResult(count);
+		}
 
-        private static IQueryable<IUser> QueryUsers(UserManager<IUser> userManager, string email = null)
-        {
-            var result = userManager.Users;
+		private static IQueryable<IUser> QueryUsers(UserManager<IUser> userManager, string email = null)
+		{
+			var result = userManager.Users;
 
-            if (!string.IsNullOrWhiteSpace(email))
-            {
-                var normalizedEmail = userManager.NormalizeKey(email);
+			if (!string.IsNullOrWhiteSpace(email))
+			{
+				var normalizedEmail = userManager.NormalizeKey(email);
 
-                result = result.Where(x => x.NormalizedEmail.Contains(normalizedEmail));
-            }
+				result = result.Where(x => x.NormalizedEmail.Contains(normalizedEmail));
+			}
 
-            return result;
-        }
+			return result;
+		}
 
-        public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
-        {
-            var user = factory.Create(email);
+		public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
+		{
+			var user = factory.Create(email);
 
-            try
-            {
-                user.SetDisplayName(displayName);
-                user.SetPictureUrlFromGravatar(email);
+			try
+			{
+				user.SetDisplayName(displayName);
+				user.SetPictureUrlFromGravatar(email);
 
-                await DoChecked(() => userManager.CreateAsync(user), "Cannot create user.");
+				await DoChecked(() => userManager.CreateAsync(user), "Cannot create user.");
 
-                if (!string.IsNullOrWhiteSpace(password))
-                {
-                    await DoChecked(() => userManager.AddPasswordAsync(user, password), "Cannot create user.");
-                }
-            }
-            catch
-            {
-                await userManager.DeleteAsync(user);
+				if (!string.IsNullOrWhiteSpace(password))
+				{
+					await DoChecked(() => userManager.AddPasswordAsync(user, password), "Cannot create user.");
+				}
+			}
+			catch
+			{
+				await userManager.DeleteAsync(user);
 
-                throw;
-            }
+				throw;
+			}
 
-            return user;
-        }
+			return user;
+		}
 
-        public static async Task UpdateAsync(this UserManager<IUser> userManager, string id, string email, string displayName, string password)
-        {
-            var user = await userManager.FindByIdAsync(id);
+		public static async Task UpdateAsync(this UserManager<IUser> userManager, string id,
+			string email, string displayName, string password, bool? isAdministrator)
+		{
+			var user = await userManager.FindByIdAsync(id);
 
-            if (user == null)
-            {
-                throw new DomainObjectNotFoundException(id, typeof(IUser));
-            }
+			if (user == null)
+			{
+				throw new DomainObjectNotFoundException(id, typeof(IUser));
+			}
 
-            if (!string.IsNullOrWhiteSpace(email))
-            {
-                user.UpdateEmail(email);
-            }
+			if (!string.IsNullOrWhiteSpace(email))
+			{
+				user.UpdateEmail(email);
+			}
 
-            if (!string.IsNullOrWhiteSpace(displayName))
-            {
-                user.SetDisplayName(displayName);
-            }
+			if (!string.IsNullOrWhiteSpace(displayName))
+			{
+				user.SetDisplayName(displayName);
+			}
 
-            await DoChecked(() => userManager.UpdateAsync(user), "Cannot update user.");
+			if (isAdministrator.GetValueOrDefault(false) && !user.InRole(SquidexRoles.Administrator))
+			{
+				user.AddRole(SquidexRoles.Administrator);
+			}
 
-            if (!string.IsNullOrWhiteSpace(password))
-            {
-                await DoChecked(() => userManager.RemovePasswordAsync(user), "Cannot update user.");
-                await DoChecked(() => userManager.AddPasswordAsync(user, password), "Cannot update user.");
-            }
-        }
+			if (!isAdministrator.GetValueOrDefault(false) && user.InRole(SquidexRoles.Administrator))
+			{
+				user.RemoveRole(SquidexRoles.Administrator);
+			}
 
-        public static async Task LockAsync(this UserManager<IUser> userManager, string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
+			await DoChecked(() => userManager.UpdateAsync(user), "Cannot update user.");
 
-            if (user == null)
-            {
-                throw new DomainObjectNotFoundException(id, typeof(IUser));
-            }
+			if (!string.IsNullOrWhiteSpace(password))
+			{
+				await DoChecked(() => userManager.RemovePasswordAsync(user), "Cannot update user.");
+				await DoChecked(() => userManager.AddPasswordAsync(user, password), "Cannot update user.");
+			}
+		}
 
-            await DoChecked(() => userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100)), "Cannot lock user.");
-        }
+		public static async Task LockAsync(this UserManager<IUser> userManager, string id)
+		{
+			var user = await userManager.FindByIdAsync(id);
 
-        public static async Task UnlockAsync(this UserManager<IUser> userManager, string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
+			if (user == null)
+			{
+				throw new DomainObjectNotFoundException(id, typeof(IUser));
+			}
 
-            if (user == null)
-            {
-                throw new DomainObjectNotFoundException(id, typeof(IUser));
-            }
+			await DoChecked(() => userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100)), "Cannot lock user.");
+		}
 
-            await DoChecked(() => userManager.SetLockoutEndDateAsync(user, null), "Cannot unlock user.");
-        }
+		public static async Task UnlockAsync(this UserManager<IUser> userManager, string id)
+		{
+			var user = await userManager.FindByIdAsync(id);
 
-        private static async Task DoChecked(Func<Task<IdentityResult>> action, string message)
-        {
-            var result = await action();
+			if (user == null)
+			{
+				throw new DomainObjectNotFoundException(id, typeof(IUser));
+			}
 
-            if (!result.Succeeded)
-            {
-                throw new ValidationException(message, result.Errors.Select(x => new ValidationError(x.Description)).ToArray());
-            }
-        }
-    }
+			await DoChecked(() => userManager.SetLockoutEndDateAsync(user, null), "Cannot unlock user.");
+		}
+
+		private static async Task DoChecked(Func<Task<IdentityResult>> action, string message)
+		{
+			var result = await action();
+
+			if (!result.Succeeded)
+			{
+				throw new ValidationException(message, result.Errors.Select(x => new ValidationError(x.Description)).ToArray());
+			}
+		}
+	}
 }
