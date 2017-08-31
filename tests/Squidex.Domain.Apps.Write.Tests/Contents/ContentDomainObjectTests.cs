@@ -487,7 +487,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentDeleted())
+                    CreateContentEvent(new ContentDeclined())
                 );
         }
 
