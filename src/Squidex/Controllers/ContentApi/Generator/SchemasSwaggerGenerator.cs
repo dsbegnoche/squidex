@@ -20,7 +20,6 @@ using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Infrastructure;
 using Squidex.Pipeline.Swagger;
-using Squidex.Shared.Identity;
 
 // ReSharper disable InvertIf
 // ReSharper disable SuggestBaseTypeForParameter
@@ -55,7 +54,6 @@ namespace Squidex.Controllers.ContentApi.Generator
             swaggerGenerator = new SwaggerGenerator(schemaGenerator, settings, schemaResolver);
 
             GenerateSchemasOperations(schemas, app);
-            GenerateSecurityRequirements();
 
             await GenerateDefaultErrorsAsync();
 

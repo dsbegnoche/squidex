@@ -34,7 +34,7 @@ namespace Squidex.Controllers.ContentApi
     [ApiExceptionFilter]
     [AppApi]
     [SwaggerIgnore]
-    public class ContentsController : ControllerBase
+    public sealed class ContentsController : ControllerBase
     {
         private readonly ISchemaProvider schemas;
         private readonly IContentRepository contentRepository;
