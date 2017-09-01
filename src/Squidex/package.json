@@ -88,6 +88,7 @@
     "sass-loader": "6.0.6",
     "style-loader": "0.18.2",
     "tslint": "5.7.0",
+    "tsutils": "2.8.2",
     "tslint-loader": "3.5.3",
     "typemoq": "2.0.1",
     "typescript": "2.5.2",

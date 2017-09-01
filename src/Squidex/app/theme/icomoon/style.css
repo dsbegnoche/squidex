@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?dvzyif');
-  src:  url('fonts/icomoon.eot?dvzyif#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?dvzyif') format('truetype'),
-    url('fonts/icomoon.woff?dvzyif') format('woff'),
-    url('fonts/icomoon.svg?dvzyif#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?j4cq17');
+  src:  url('fonts/icomoon.eot?j4cq17#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?j4cq17') format('truetype'),
+    url('fonts/icomoon.woff?j4cq17') format('woff'),
+    url('fonts/icomoon.svg?j4cq17#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-CPLogo--new .path1:before {
+  content: "\e94a";
+  color: rgb(44, 45, 45);
+}
+.icon-CPLogo--new .path2:before {
+  content: "\e94b";
+  margin-left: -1.5263671875em;
+  color: rgb(174, 39, 46);
+}
 .icon-activity:before {
   content: "\e904";
 }
@@ -281,4 +290,13 @@
 }
 .icon-webhooks:before {
   content: "\e947";
+}
+.icon-CPLogo--new .path1:before {
+    content: "\e94a";
+    color: rgb(174, 39, 46);
+}
+.icon-CPLogo--new .path2:before {
+    content: "\e94b";
+    margin-left: -2em;
+    color: rgb(44, 45, 45);
 }
