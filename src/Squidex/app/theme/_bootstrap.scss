@@ -189,7 +189,7 @@ a {
 //
 // Tab control navigation.
 //
-.nav-field-tabs {
+.nav-tabs2 {
     & {
         @include absolute(auto, auto, 0, 1.25rem);
     }
@@ -198,9 +198,9 @@ a {
         & {
             color: $color-text;
             cursor: pointer;
-            padding: 1rem .625rem;
+            padding: 1rem 0;
             border-bottom: .25rem solid transparent;
-            width: 6.25rem;
+            margin: 0 1rem;
             text-align: center;
         }
 
@@ -315,6 +315,41 @@ a {
         }
     }
 
+    // Special button groups
+    &-group {
+
+        .btn-toggle {
+            & {
+                border: 2px solid $color-border;
+                background: $color-dark-foreground;
+            }
+
+            &.btn-primary {
+                @include build-toggle-button($color-theme-blue, $color-badge-primary-background);
+            }
+
+            &.btn-info {
+                @include build-toggle-button($color-theme-info, $color-badge-info-background);
+            }
+
+            &.btn-danger {
+                @include build-toggle-button($color-theme-error, $color-badge-danger-background);
+            }
+
+            &.btn-success {
+                @include build-toggle-button($color-theme-green, $color-badge-success-background);
+            }
+
+            &.btn-warning {
+                @include build-toggle-button($color-theme-orange, $color-badge-warning-background);
+            }
+        }
+
+        .btn + .btn-toggle {
+            margin-left: -2px;
+        }
+    }
+
     // Link buttons only exists with blue text color in bootstrap. Provide them for all colors.
     &-link {
         & {
@@ -414,7 +449,8 @@ a {
 
     // Remove all borders.
     &-borderless {
-        td {
+        td,
+        th {
             border: 0;
         }
     }

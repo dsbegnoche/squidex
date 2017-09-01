@@ -186,7 +186,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         }
 
         [Fact]
-        public void Delete_should_update_properties_create_events()
+        public void Delete_should_create_events_with_total_file_size()
         {
             CreateAsset();
             UpdateAsset();

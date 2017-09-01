@@ -24,7 +24,6 @@ namespace Squidex.Domain.Apps.Write.Schemas
     public class SchemaDomainObject : DomainObjectBase
     {
         private readonly FieldRegistry registry;
-        private readonly HashSet<Guid> webhookIds = new HashSet<Guid>();
         private bool isDeleted;
         private long totalFields;
         private Schema schema;
@@ -116,16 +115,6 @@ namespace Squidex.Domain.Apps.Write.Schemas
             schema = SchemaEventDispatcher.Dispatch(@event, schema);
         }
 
-        protected void On(WebhookAdded @event)
-        {
-            webhookIds.Add(@event.Id);
-        }
-
-        protected void On(WebhookDeleted @event)
-        {
-            webhookIds.Remove(@event.Id);
-        }
-
         protected void On(SchemaDeleted @event)
         {
             isDeleted = true;
@@ -172,29 +161,6 @@ namespace Squidex.Domain.Apps.Write.Schemas
 	        }
 
             RaiseEvent(@event);
-
-            return this;
-        }
-
-        public SchemaDomainObject DeleteWebhook(DeleteWebhook command)
-        {
-            Guard.NotNull(command, nameof(command));
-
-            VerifyCreatedAndNotDeleted();
-            VerifyWebhookExists(command.Id);
-
-            RaiseEvent(SimpleMapper.Map(command, new WebhookDeleted()));
-
-            return this;
-        }
-
-        public SchemaDomainObject AddWebhook(AddWebhook command)
-        {
-            Guard.Valid(command, nameof(command), () => "Cannot add webhook");
-
-            VerifyCreatedAndNotDeleted();
-
-            RaiseEvent(SimpleMapper.Map(command, new WebhookAdded()));
 
             return this;
         }
@@ -354,14 +320,6 @@ namespace Squidex.Domain.Apps.Write.Schemas
             }
 
             RaiseEvent(@event);
-        }
-
-        private void VerifyWebhookExists(Guid id)
-        {
-            if (!webhookIds.Contains(id))
-            {
-                throw new DomainObjectNotFoundException(id.ToString(), "Webhooks", typeof(Schema));
-            }
         }
 
         private void VerifyNotCreated()

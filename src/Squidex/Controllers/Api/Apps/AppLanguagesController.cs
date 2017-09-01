@@ -47,7 +47,7 @@ namespace Squidex.Controllers.Api.Apps
         [MustBeAppAuthor]
         [HttpGet]
         [Route("apps/{app}/languages/")]
-        [ProducesResponseType(typeof(LanguageDto[]), 200)]
+        [ProducesResponseType(typeof(AppLanguageDto[]), 200)]
         public IActionResult GetLanguages(string app)
         {
             var response = App.LanguagesConfig.OfType<LanguageConfig>().Select(x =>

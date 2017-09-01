@@ -13,6 +13,7 @@ using Squidex.Domain.Apps.Write.Apps;
 using Squidex.Domain.Apps.Write.Assets;
 using Squidex.Domain.Apps.Write.Contents;
 using Squidex.Domain.Apps.Write.Schemas;
+using Squidex.Domain.Apps.Write.Webhooks;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Pipeline.CommandHandlers;
 
@@ -75,6 +76,14 @@ namespace Squidex.Config.Domain
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
+            builder.RegisterType<WebhookCommandMiddleware>()
+                .As<ICommandMiddleware>()
+                .SingleInstance();
+
+            builder.RegisterType<ETagCommandMiddleware>()
+                .As<ICommandMiddleware>()
+                .SingleInstance();
+
             builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c => (id => new AppDomainObject(id, -1)))
                 .AsSelf()
                 .SingleInstance();
@@ -84,6 +93,10 @@ namespace Squidex.Config.Domain
                 .SingleInstance();
 
             builder.Register<DomainObjectFactoryFunction<ContentDomainObject>>(c => (id => new ContentDomainObject(id, -1)))
+                .AsSelf()
+                .SingleInstance();
+
+            builder.Register<DomainObjectFactoryFunction<WebhookDomainObject>>(c => (id => new WebhookDomainObject(id, -1)))
                 .AsSelf()
                 .SingleInstance();
 

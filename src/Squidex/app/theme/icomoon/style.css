@@ -1,10 +1,18 @@
 @font-face {
   font-family: 'icomoon';
+<<<<<<< HEAD
   src:  url('fonts/icomoon.eot?u1k2hv');
   src:  url('fonts/icomoon.eot?u1k2hv#iefix') format('embedded-opentype'),
     url('fonts/icomoon.ttf?u1k2hv') format('truetype'),
     url('fonts/icomoon.woff?u1k2hv') format('woff'),
     url('fonts/icomoon.svg?u1k2hv#icomoon') format('svg');
+=======
+  src:  url('fonts/icomoon.eot?ar7x0a');
+  src:  url('fonts/icomoon.eot?ar7x0a#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?ar7x0a') format('truetype'),
+    url('fonts/icomoon.woff?ar7x0a') format('woff'),
+    url('fonts/icomoon.svg?ar7x0a#icomoon') format('svg');
+>>>>>>> 4faec175b52ea7eac6d2aec1dd645fa978a209c5
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +32,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+<<<<<<< HEAD
 .icon-CPLogo--new .path1:before {
   content: "\e946";
   color: rgb(174, 39, 46);
@@ -32,12 +41,70 @@
   content: "\e945";
   margin-left: -2em;
   color: rgb(44, 45, 45);
+=======
+.icon-document-lock:before {
+  content: "\e949";
 }
-.icon-webhook:before {
+.icon-document-unpublish:before {
   content: "\e93f";
 }
-.icon-github:before {
-  content: "\e941";
+.icon-angle-down:before {
+  content: "\e900";
+}
+.icon-angle-left:before {
+  content: "\e901";
+}
+.icon-angle-right:before {
+  content: "\e931";
+}
+.icon-angle-up:before {
+  content: "\e903";
+}
+.icon-api:before {
+  content: "\e945";
+}
+.icon-assets:before {
+  content: "\e948";
+}
+.icon-bug:before {
+  content: "\e93d";
+}
+.icon-caret-down:before {
+  content: "\e92c";
+}
+.icon-caret-left:before {
+  content: "\e92a";
+}
+.icon-caret-right:before {
+  content: "\e929";
+}
+.icon-caret-up:before {
+  content: "\e92b";
+}
+.icon-contents:before {
+  content: "\e946";
+}
+.icon-control-Date:before {
+  content: "\e936";
+}
+.icon-control-DateTime:before {
+  content: "\e937";
+}
+.icon-control-Markdown:before {
+  content: "\e938";
+>>>>>>> 4faec175b52ea7eac6d2aec1dd645fa978a209c5
+}
+.icon-grid:before {
+  content: "\f00a";
+}
+.icon-list:before {
+  content: "\f0c9";
+}
+.icon-user-o:before {
+  content: "\e932";
+}
+.icon-webhooks:before {
+  content: "\e947";
 }
 .icon-activity:before {
   content: "\e904";
@@ -62,9 +129,6 @@
 }
 .icon-close:before {
   content: "\e908";
-}
-.icon-content:before {
-  content: "\e909";
 }
 .icon-type-References:before {
   content: "\e909";
@@ -117,14 +181,11 @@
 .icon-filter:before {
   content: "\e918";
 }
+.icon-github:before {
+  content: "\e941";
+}
 .icon-help:before {
   content: "\e919";
-}
-.icon-type-Json:before {
-  content: "\e91a";
-}
-.icon-json:before {
-  content: "\e91a";
 }
 .icon-location:before {
   content: "\e91b";
@@ -171,6 +232,7 @@
 .icon-type-DateTime:before {
   content: "\e925";
 }
+<<<<<<< HEAD
 .icon-type-Number:before {
   content: "\e926";
 }
@@ -212,10 +274,15 @@
 }
 .icon-reset:before {
   content: "\e92e";
+=======
+.icon-type-Json:before {
+  content: "\e91a";
+>>>>>>> 4faec175b52ea7eac6d2aec1dd645fa978a209c5
 }
 .icon-pause:before {
   content: "\e92f";
 }
+<<<<<<< HEAD
 .icon-play:before {
   content: "\e930";
 }
@@ -269,13 +336,71 @@
 }
 .icon-angle-left:before {
   content: "\e901";
+=======
+.icon-type-Number:before {
+  content: "\e926";
 }
-.icon-download:before {
-  content: "\e93e";
+.icon-type-String:before {
+  content: "\e927";
+}
+.icon-user:before {
+  content: "\e928";
+}
+.icon-bin2:before {
+  content: "\e902";
+}
+.icon-earth:before {
+  content: "\e9ca";
+}
+.icon-elapsed:before {
+  content: "\e943";
+}
+.icon-google:before {
+  content: "\e93b";
+}
+.icon-lock:before {
+  content: "\e934";
+}
+.icon-microsoft:before {
+  content: "\e940";
+}
+.icon-pause:before {
+  content: "\e92f";
+}
+.icon-play:before {
+  content: "\e930";
+}
+.icon-reset:before {
+  content: "\e92e";
+}
+.icon-settings2:before {
+  content: "\e92d";
+}
+.icon-timeout:before {
+  content: "\e944";
+}
+.icon-unlocked:before {
+  content: "\e933";
+}
+.icon-browser:before {
+  content: "\e935";
+}
+.icon-checkmark:before {
+  content: "\e942";
+>>>>>>> 4faec175b52ea7eac6d2aec1dd645fa978a209c5
+}
+.icon-control-Stars:before {
+  content: "\e93a";
 }
 .icon-control-RichText:before {
   content: "\e939";
 }
+<<<<<<< HEAD
+=======
+.icon-download:before {
+  content: "\e93e";
+}
+>>>>>>> 4faec175b52ea7eac6d2aec1dd645fa978a209c5
 .icon-info:before {
   content: "\e93c";
 }
