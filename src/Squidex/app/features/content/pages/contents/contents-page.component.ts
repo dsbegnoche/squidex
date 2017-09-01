@@ -87,7 +87,10 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.contentUpdatedSubscription =
             this.messageBus.of(ContentUpdated)
                 .subscribe(message => {
-                    this.contentItems = this.contentItems.replaceBy('id', message.content, (o, n) => o.update(n.data, n.lastModifiedBy));
+                    this.contentItems = this.contentItems.replaceBy('id', message.content, (o, n) => {
+                        o.version.update(message.content.version.value);
+                        return o.update(n.data, n.lastModifiedBy);
+                    });
                 });
 
         this.route.params.map(p => <string> p['language'])
