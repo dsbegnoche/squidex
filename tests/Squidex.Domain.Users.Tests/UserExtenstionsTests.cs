@@ -132,12 +132,12 @@ namespace Squidex.Domain.Users
 	    [Fact]
 	    public void TestUserRoles()
 	    {
-		    string admin = "ADMINISTRATOR";
-			string appOwner = "APP-OWNER";
-			string appEditor = "APP-EDITOR";
-		    string appReader = "APP-READER";
-		    string appDeveloper = "APP-DEVELOPER";
-		    string appAuthor = "APP-AUTHOR";
+		    string admin = "administrator";
+			string appOwner = "app:owner";
+			string appEditor = "app:editor";
+		    string appReader = "app:reader";
+		    string appDeveloper = "app:dev";
+		    string appAuthor = "app:author";
 
 			Assert.Equal(admin, SquidexRoles.Administrator);
 		    Assert.Equal(appOwner, SquidexRoles.AppOwner);
