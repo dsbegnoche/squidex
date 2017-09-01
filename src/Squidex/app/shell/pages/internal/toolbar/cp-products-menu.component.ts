@@ -25,6 +25,7 @@ export class CpProductsMenuComponent implements OnDestroy, OnInit {
     public modalMenu = new ModalView(false, true);
 
     public products: CpProductsDto[] = [];
+    public productCount = 0;
     public productUrl = this.apiUrl.buildUrl('/api/cptoolbar/products');
 
     constructor(
@@ -38,11 +39,16 @@ export class CpProductsMenuComponent implements OnDestroy, OnInit {
     }
 
     public ngOnInit() {
+        this.productCount = this.getProducts();
+    }
+
+    public getProducts() {
         this.productsSubscription =
-            this.productService.getProducts().retryWhen(err => {
-                return err.delay(1000);
-            }).subscribe(products => {
+            this.productService.getProducts().subscribe(products => {
                 this.products = products;
+                this.productCount = products.length;
             });
+
+        return this.products.length;
     }
 }

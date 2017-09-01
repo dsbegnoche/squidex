@@ -15,7 +15,7 @@
 		</span>
 
         <div class="dropdown-menu" *sqxModalView="modalMenu" closeAlways="true" [@fade] style=" padding: 0;">
-            <div *ngIf="products.length > 0">
+            <div *ngIf="productCount > 0 || getProducts() > 0">
                 <a class="dropdown-item cp-NavMenuList-itemLink cp-NavMenuList-itemLink--hasIcon" *ngFor="let product of products" href="{{product.productUri}}" [ngSwitch]="product.currentProduct">
 	                <div *ngIf="!product.isProductHidden">
 		                <img class="cp-NavMenuList-itemIcon" *ngIf="product.logoUri" [src]="product.logoUri"/>
