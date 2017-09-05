@@ -67,23 +67,23 @@ namespace Squidex.Controllers.ContentApi.Models
             return ContentDto.Create(command, result, command.Status);
         }
 
-	    public static ContentDto Create(ContentCommand command, EntityCreatedResult<NamedContentData> result, Status status = Status.Draft)
-	    {
-		    var now = SystemClock.Instance.GetCurrentInstant();
+        public static ContentDto Create(ContentCommand command, EntityCreatedResult<NamedContentData> result, Status status = Status.Draft)
+        {
+            var now = SystemClock.Instance.GetCurrentInstant();
 
-		    var response = new ContentDto
-		    {
-			    Id = command.ContentId,
-			    Data = result.IdOrValue,
-			    Version = result.Version,
-			    Created = now,
-			    CreatedBy = command.Actor,
-			    LastModified = now,
-			    LastModifiedBy = command.Actor,
-			    Status = status
-		    };
+            var response = new ContentDto
+            {
+                Id = command.ContentId,
+                Data = result.IdOrValue,
+                Version = result.Version,
+                Created = now,
+                CreatedBy = command.Actor,
+                LastModified = now,
+                LastModifiedBy = command.Actor,
+                Status = status
+            };
 
-		    return response;
-	    }
-	}
+            return response;
+        }
+    }
 }

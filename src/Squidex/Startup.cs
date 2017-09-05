@@ -82,7 +82,7 @@ namespace Squidex
             services.Configure<MyUsageOptions>(
                 Configuration.GetSection("usage"));
 
-			services.AddCivicPlusServices();
+            services.AddCivicPlusServices();
 
             var builder = new ContainerBuilder();
             builder.Populate(services);

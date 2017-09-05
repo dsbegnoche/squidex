@@ -23,17 +23,17 @@ namespace Squidex.Domain.Users
             user.SetClaim(SquidexClaimTypes.SquidexDisplayName, displayName);
         }
 
-		public static void SetFirstName(this IUser user, string firstName)
-		{
-			user.SetClaim(SquidexClaimTypes.SquidexFirstName, firstName);
-		}
+        public static void SetFirstName(this IUser user, string firstName)
+        {
+            user.SetClaim(SquidexClaimTypes.SquidexFirstName, firstName);
+        }
 
-		public static void SetLastName(this IUser user, string lastName)
-		{
-			user.SetClaim(SquidexClaimTypes.SquidexLastName, lastName);
-		}
+        public static void SetLastName(this IUser user, string lastName)
+        {
+            user.SetClaim(SquidexClaimTypes.SquidexLastName, lastName);
+        }
 
-		public static void SetPictureUrl(this IUser user, string pictureUrl)
+        public static void SetPictureUrl(this IUser user, string pictureUrl)
         {
             user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, pictureUrl);
         }

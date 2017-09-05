@@ -34,15 +34,15 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlansProvider appPlansProvider;
         private readonly IAppPlanBillingManager appPlansBillingManager;
         private readonly IUserResolver userResolver;
-		private readonly IAggregateHandler defaultSchemaHandler;
+        private readonly IAggregateHandler defaultSchemaHandler;
 
-		public AppCommandMiddleware(
+        public AppCommandMiddleware(
             IAggregateHandler handler,
             IAppRepository appRepository,
             IAppPlansProvider appPlansProvider,
             IAppPlanBillingManager appPlansBillingManager,
             IUserResolver userResolver,
-			IAggregateHandler defaultSchemaHandler)
+            IAggregateHandler defaultSchemaHandler)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(appRepository, nameof(appRepository));
@@ -51,8 +51,8 @@ namespace Squidex.Domain.Apps.Write.Apps
             Guard.NotNull(appPlansBillingManager, nameof(appPlansBillingManager));
 
             this.handler = handler;
-			this.defaultSchemaHandler = defaultSchemaHandler;
-			this.userResolver = userResolver;
+            this.defaultSchemaHandler = defaultSchemaHandler;
+            this.userResolver = userResolver;
             this.appRepository = appRepository;
             this.appPlansProvider = appPlansProvider;
             this.appPlansBillingManager = appPlansBillingManager;
@@ -76,53 +76,53 @@ namespace Squidex.Domain.Apps.Write.Apps
                 context.Complete(EntityCreatedResult.Create(a.Id, a.Version));
             });
 
-	        await AddDefaultSchemas(command);
+            await AddDefaultSchemas(command);
         }
 
-	    private async Task AddDefaultSchemas(CreateApp command)
-	    {
-		    string defaultSchemaFile = "DefaultSchema.json";
-			Dictionary<string, Guid> schemaIds = new Dictionary<string, Guid>();
+        private async Task AddDefaultSchemas(CreateApp command)
+        {
+            string defaultSchemaFile = "DefaultSchema.json";
+            Dictionary<string, Guid> schemaIds = new Dictionary<string, Guid>();
 
-			if (File.Exists(defaultSchemaFile))
-			{
-				string defaultSchemaJson = File.ReadAllText(defaultSchemaFile);
-				List<CreateSchema> defaultSchema =
-				    JsonConvert.DeserializeObject<List<CreateSchema>>(defaultSchemaJson);
+            if (File.Exists(defaultSchemaFile))
+            {
+                string defaultSchemaJson = File.ReadAllText(defaultSchemaFile);
+                List<CreateSchema> defaultSchema =
+                    JsonConvert.DeserializeObject<List<CreateSchema>>(defaultSchemaJson);
 
-				foreach (CreateSchema schema in defaultSchema)
-			    {
-				    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
-				    schema.Actor = command.Actor;
-				    CommandContext context = new CommandContext(schema);
-					schemaIds.Add(schema.Name, schema.SchemaId);
+                foreach (CreateSchema schema in defaultSchema)
+                {
+                    schema.AppId = new NamedId<Guid>(command.AppId, command.Name);
+                    schema.Actor = command.Actor;
+                    CommandContext context = new CommandContext(schema);
+                    schemaIds.Add(schema.Name, schema.SchemaId);
 
-				    var refFieldToUpdate =
-					    schema.Fields.FirstOrDefault(f => f.Properties is ReferencesFieldProperties);
+                    var refFieldToUpdate =
+                        schema.Fields.FirstOrDefault(f => f.Properties is ReferencesFieldProperties);
 
-					//Get reference schemas here
-					if (refFieldToUpdate != null)
-					{
-						ReferencesFieldProperties fieldProperties = (ReferencesFieldProperties)refFieldToUpdate.Properties;
-						string referenceSchemaLabel = fieldProperties.Label.ToLower();
-						fieldProperties.SchemaId = schemaIds[referenceSchemaLabel];
-				    }
+                    //Get reference schemas here
+                    if (refFieldToUpdate != null)
+                    {
+                        ReferencesFieldProperties fieldProperties = (ReferencesFieldProperties)refFieldToUpdate.Properties;
+                        string referenceSchemaLabel = fieldProperties.Label.ToLower();
+                        fieldProperties.SchemaId = schemaIds[referenceSchemaLabel];
+                    }
 
-					PublishSchema publishSchema = new PublishSchema
-				    {
-					    Actor = command.Actor,
-					    AppId = new NamedId<Guid>(command.AppId, command.Name),
-					    SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
-				    };
+                    PublishSchema publishSchema = new PublishSchema
+                    {
+                        Actor = command.Actor,
+                        AppId = new NamedId<Guid>(command.AppId, command.Name),
+                        SchemaId = new NamedId<Guid>(schema.SchemaId, schema.Name)
+                    };
 
-					await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
-				    {
-					    a.Create(schema);
-					    a.Publish(publishSchema);
-				    });
-			    }
-		    }
-	    }
+                    await defaultSchemaHandler.CreateAsync<SchemaDomainObject>(context, a =>
+                    {
+                        a.Create(schema);
+                        a.Publish(publishSchema);
+                    });
+                }
+            }
+        }
 
         protected async Task On(AssignContributor command, CommandContext context)
         {

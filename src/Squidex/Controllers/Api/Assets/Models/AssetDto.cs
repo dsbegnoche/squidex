@@ -90,14 +90,14 @@ namespace Squidex.Controllers.Api.Assets.Models
         /// </summary>
         public long Version { get; set; }
 
-		/// <summary>
-		/// The brief description of the asset, usually used for Alt Text for screen readers. Should be kept below 125 characters
-		/// </summary>
-		public string BriefDescription { get; set; }
+        /// <summary>
+        /// The brief description of the asset, usually used for Alt Text for screen readers. Should be kept below 125 characters
+        /// </summary>
+        public string BriefDescription { get; set; }
 
-		/// <summary>
-		/// The tags associated with this assets
-		/// </summary>
-		public string[] Tags { get; set; }
+        /// <summary>
+        /// The tags associated with this assets
+        /// </summary>
+        public string[] Tags { get; set; }
     }
 }

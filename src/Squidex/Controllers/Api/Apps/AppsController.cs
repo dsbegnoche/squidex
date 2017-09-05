@@ -116,11 +116,11 @@ namespace Squidex.Controllers.Api.Apps
         [ApiCosts(1)]
         public async Task<IActionResult> DeleteApp(string appName)
         {
-	        var appId = appRepository.FindAppAsync(appName).Result.Id;
+            var appId = appRepository.FindAppAsync(appName).Result.Id;
 
             await CommandBus.PublishAsync(new DeleteApp(appName, appId));
 
             return new ContentResult() { Content = appName };
-		}
+        }
     }
 }

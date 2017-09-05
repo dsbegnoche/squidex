@@ -31,14 +31,14 @@ namespace Squidex.Controllers.Api.Users
     {
         private readonly UserManager<IUser> userManager;
         private readonly IUserFactory userFactory;
-	    private readonly ISignInManager<IUser> signInManager;
+        private readonly ISignInManager<IUser> signInManager;
 
         public UserManagementController(UserManager<IUser> userManager, IUserFactory userFactory,
-	        ISignInManager<IUser> signInManager)
+            ISignInManager<IUser> signInManager)
         {
             this.userManager = userManager;
             this.userFactory = userFactory;
-	        this.signInManager = signInManager;
+            this.signInManager = signInManager;
         }
 
         [HttpGet]
@@ -94,7 +94,7 @@ namespace Squidex.Controllers.Api.Users
         [ApiCosts(0)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UpdateUserDto request)
         {
-	        await userManager.UpdateAsync(id, request.Email, request.DisplayName, request.Password, request.IsAdministrator);
+            await userManager.UpdateAsync(id, request.Email, request.DisplayName, request.Password, request.IsAdministrator);
 
             return NoContent();
         }

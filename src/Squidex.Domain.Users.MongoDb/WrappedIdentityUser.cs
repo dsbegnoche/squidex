@@ -32,12 +32,12 @@ namespace Squidex.Domain.Users.MongoDb
             get { return Logins.Select(x => new ExternalLogin(x.LoginProvider, x.ProviderKey, x.ProviderDisplayName)).ToList(); }
         }
 
-	    IReadOnlyList<string> IUser.Roles
-	    {
-		    get { return Roles; }
-	    }
+        IReadOnlyList<string> IUser.Roles
+        {
+            get { return Roles; }
+        }
 
-	    public void UpdateEmail(string email)
+        public void UpdateEmail(string email)
         {
             Email = UserName = email;
         }
@@ -48,9 +48,9 @@ namespace Squidex.Domain.Users.MongoDb
             Claims.Add(new IdentityUserClaim { Type = type, Value = value });
         }
 
-	    public bool InRole(string role)
-	    {
-		    return Roles.Exists(x => string.Equals(x, role, StringComparison.OrdinalIgnoreCase));
-	    }
+        public bool InRole(string role)
+        {
+            return Roles.Exists(x => string.Equals(x, role, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

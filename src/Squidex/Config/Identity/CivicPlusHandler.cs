@@ -15,6 +15,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 namespace Squidex.Config.Identity
 {
     public class CivicPlusHandler : OpenIdConnectEvents
-	{
-	}
+    {
+    }
 }

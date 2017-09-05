@@ -74,10 +74,10 @@ namespace Squidex.Controllers.Api.Users
 
             var models = entities.Select(x => SimpleMapper.Map(x, new UserDto
             {
-	            DisplayName = x.DisplayName(),
-				PictureUrl = x.PictureUrl(),
-				FirstName = x.FirstName(),
-				LastName = x.LastName()
+                DisplayName = x.DisplayName(),
+                PictureUrl = x.PictureUrl(),
+                FirstName = x.FirstName(),
+                LastName = x.LastName()
             })).ToArray();
 
             return Ok(models);
@@ -106,11 +106,11 @@ namespace Squidex.Controllers.Api.Users
 
             var response = SimpleMapper.Map(entity, new UserDto
             {
-	            DisplayName = entity.DisplayName(),
-				PictureUrl = entity.PictureUrl(),
-	            FirstName = entity.FirstName(),
-	            LastName = entity.LastName()
-			});
+                DisplayName = entity.DisplayName(),
+                PictureUrl = entity.PictureUrl(),
+                FirstName = entity.FirstName(),
+                LastName = entity.LastName()
+            });
 
             return Ok(response);
         }

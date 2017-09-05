@@ -12,51 +12,51 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Squidex.Domain.Users.Base
 {
-	public interface ISignInManager<TUser> where TUser : class
-	{
-		Task<bool> CanSignInAsync(TUser user);
+    public interface ISignInManager<TUser> where TUser : class
+    {
+        Task<bool> CanSignInAsync(TUser user);
 
-		Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure);
+        Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure);
 
-		AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null);
+        AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null);
 
-		Task<ClaimsPrincipal> CreateUserPrincipalAsync(TUser user);
+        Task<ClaimsPrincipal> CreateUserPrincipalAsync(TUser user);
 
-		Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent, bool bypassTwoFactor);
+        Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent, bool bypassTwoFactor);
 
-		Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent);
+        Task<SignInResult> ExternalLoginSignInAsync(string loginProvider, string providerKey, bool isPersistent);
 
-		Task ForgetTwoFactorClientAsync();
+        Task ForgetTwoFactorClientAsync();
 
-		IEnumerable<AuthenticationDescription> GetExternalAuthenticationSchemes();
+        IEnumerable<AuthenticationDescription> GetExternalAuthenticationSchemes();
 
-		Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null);
+        Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null);
 
-		Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(string expectedXsrf = null);
+        Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(string expectedXsrf = null);
 
-		Task<TUser> GetTwoFactorAuthenticationUserAsync();
+        Task<TUser> GetTwoFactorAuthenticationUserAsync();
 
-		bool IsSignedIn(ClaimsPrincipal principal);
-		Task<bool> IsTwoFactorClientRememberedAsync(TUser user);
+        bool IsSignedIn(ClaimsPrincipal principal);
+        Task<bool> IsTwoFactorClientRememberedAsync(TUser user);
 
-		Task<SignInResult> PasswordSignInAsync(TUser user, string password, bool isPersistent, bool lockoutOnFailure);
+        Task<SignInResult> PasswordSignInAsync(TUser user, string password, bool isPersistent, bool lockoutOnFailure);
 
-		Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool lockoutOnFailure);
+        Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool lockoutOnFailure);
 
-		Task RefreshSignInAsync(TUser user);
+        Task RefreshSignInAsync(TUser user);
 
-		Task RememberTwoFactorClientAsync(TUser user);
+        Task RememberTwoFactorClientAsync(TUser user);
 
-		Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null);
+        Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null);
 
-		Task SignInAsync(TUser user, bool isPersistent, string authenticationMethod = null);
+        Task SignInAsync(TUser user, bool isPersistent, string authenticationMethod = null);
 
-		Task SignOutAsync();
+        Task SignOutAsync();
 
-		Task<SignInResult> TwoFactorSignInAsync(string provider, string code, bool isPersistent, bool rememberClient);
+        Task<SignInResult> TwoFactorSignInAsync(string provider, string code, bool isPersistent, bool rememberClient);
 
-		Task<IdentityResult> UpdateExternalAuthenticationTokensAsync(ExternalLoginInfo externalLogin);
+        Task<IdentityResult> UpdateExternalAuthenticationTokensAsync(ExternalLoginInfo externalLogin);
 
-		Task<TUser> ValidateSecurityStampAsync(ClaimsPrincipal principal);
-	}
+        Task<TUser> ValidateSecurityStampAsync(ClaimsPrincipal principal);
+    }
 }

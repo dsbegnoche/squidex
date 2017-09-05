@@ -19,10 +19,10 @@ namespace Squidex.Controllers.UI.Profile
         [Required(ErrorMessage = "Display Name is required.")]
         public string DisplayName { get; set; }
 
-	    [Required(ErrorMessage = "First Name is required.")]
-		public string FirstName { get; set; }
+        [Required(ErrorMessage = "First Name is required.")]
+        public string FirstName { get; set; }
 
-	    [Required(ErrorMessage = "Last Name is required.")]
-		public string LastName { get; set; }
+        [Required(ErrorMessage = "Last Name is required.")]
+        public string LastName { get; set; }
     }
 }

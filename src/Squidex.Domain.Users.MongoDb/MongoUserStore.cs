@@ -36,11 +36,11 @@ namespace Squidex.Domain.Users.MongoDb
     {
         private readonly UserStore<WrappedIdentityUser> innerStore;
 
-		//This constructor is only for the unit tests because IndexChecks is not mockable.
-	    public MongoUserStore(UserStore<WrappedIdentityUser> innerStore)
-	    {
-		    this.innerStore = innerStore;
-	    }
+        //This constructor is only for the unit tests because IndexChecks is not mockable.
+        public MongoUserStore(UserStore<WrappedIdentityUser> innerStore)
+        {
+            this.innerStore = innerStore;
+        }
 
         public MongoUserStore(IMongoDatabase database)
         {

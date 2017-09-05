@@ -49,17 +49,17 @@ namespace Squidex.Domain.Users
             }
 
             return result;
-		}
+        }
 
-		public static Task<IUser> FindByIdentityServerId(this UserManager<IUser> userManager, string identityServerUserId)
-		{
-			var user = userManager.Users.ToList()
-				.FirstOrDefault(u => u.Logins.Any(l => l.ProviderKey == identityServerUserId));
+        public static Task<IUser> FindByIdentityServerId(this UserManager<IUser> userManager, string identityServerUserId)
+        {
+            var user = userManager.Users.ToList()
+                .FirstOrDefault(u => u.Logins.Any(l => l.ProviderKey == identityServerUserId));
 
-			return Task.FromResult(user);
-		}
+            return Task.FromResult(user);
+        }
 
-		public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
+        public static async Task<IUser> CreateAsync(this UserManager<IUser> userManager, IUserFactory factory, string email, string displayName, string password)
         {
             var user = factory.Create(email);
 

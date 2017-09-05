@@ -26,8 +26,8 @@ namespace Squidex.Domain.Apps.Read.Assets
 
         int? PixelHeight { get; }
 
-		string BriefDescription { get; }
+        string BriefDescription { get; }
 
-		string[] Tags { get; }
+        string[] Tags { get; }
     }
 }

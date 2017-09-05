@@ -33,385 +33,385 @@ using Squidex.Shared.Users;
 
 namespace Squidex.Controllers.UI.Account
 {
-	[SwaggerIgnore]
-	public sealed class AccountController : Controller
-	{
-		private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
-		private readonly UserManager<IUser> userManager;
-		private readonly IUserFactory userFactory;
-		private readonly IOptions<MyIdentityOptions> identityOptions;
-		private readonly IOptions<MyUrlsOptions> urlOptions;
-		private readonly ISemanticLog log;
-		private readonly IIdentityServerInteractionService interactions;
-		private readonly CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk;
+    [SwaggerIgnore]
+    public sealed class AccountController : Controller
+    {
+        private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
+        private readonly UserManager<IUser> userManager;
+        private readonly IUserFactory userFactory;
+        private readonly IOptions<MyIdentityOptions> identityOptions;
+        private readonly IOptions<MyUrlsOptions> urlOptions;
+        private readonly ISemanticLog log;
+        private readonly IIdentityServerInteractionService interactions;
+        private readonly CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk;
 
-		public AccountController(
-			Domain.Users.Base.ISignInManager<IUser> signInManager,
-			UserManager<IUser> userManager,
-			IUserFactory userFactory,
-			IOptions<MyIdentityOptions> identityOptions,
-			IOptions<MyUrlsOptions> urlOptions,
-			ISemanticLog log,
-			IIdentityServerInteractionService interactions,
-			CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk)
-		{
-			this.log = log;
-			this.urlOptions = urlOptions;
-			this.userManager = userManager;
-			this.userFactory = userFactory;
-			this.interactions = interactions;
-			this.identityOptions = identityOptions;
-			this.signInManager = signInManager;
-			this.civicplusIdentityServerSdk = civicplusIdentityServerSdk;
-		}
+        public AccountController(
+            Domain.Users.Base.ISignInManager<IUser> signInManager,
+            UserManager<IUser> userManager,
+            IUserFactory userFactory,
+            IOptions<MyIdentityOptions> identityOptions,
+            IOptions<MyUrlsOptions> urlOptions,
+            ISemanticLog log,
+            IIdentityServerInteractionService interactions,
+            CivicPlusIdentityServer.SDK.NetCore.Base.IActions civicplusIdentityServerSdk)
+        {
+            this.log = log;
+            this.urlOptions = urlOptions;
+            this.userManager = userManager;
+            this.userFactory = userFactory;
+            this.interactions = interactions;
+            this.identityOptions = identityOptions;
+            this.signInManager = signInManager;
+            this.civicplusIdentityServerSdk = civicplusIdentityServerSdk;
+        }
 
-		[HttpGet]
-		[Route("client-callback-silent/")]
-		public IActionResult ClientSilent()
-		{
-			return View();
-		}
+        [HttpGet]
+        [Route("client-callback-silent/")]
+        public IActionResult ClientSilent()
+        {
+            return View();
+        }
 
-		[HttpGet]
-		[Route("client-callback-popup/")]
-		public IActionResult ClientPopup()
-		{
-			return View();
-		}
+        [HttpGet]
+        [Route("client-callback-popup/")]
+        public IActionResult ClientPopup()
+        {
+            return View();
+        }
 
-		[HttpGet]
-		[Route("account/forbidden")]
-		public IActionResult Forbidden()
-		{
-			throw new SecurityException("User is not allowed to login.");
-		}
+        [HttpGet]
+        [Route("account/forbidden")]
+        public IActionResult Forbidden()
+        {
+            throw new SecurityException("User is not allowed to login.");
+        }
 
-		[HttpGet]
-		[Route("account/accessdenied")]
-		public IActionResult AccessDenied()
-		{
-			return View("AccessDenied");
-		}
+        [HttpGet]
+        [Route("account/accessdenied")]
+        public IActionResult AccessDenied()
+        {
+            return View("AccessDenied");
+        }
 
-		[HttpGet]
-		[Route("account/logout-completed/")]
-		public IActionResult LogoutCompleted()
-		{
-			return View();
-		}
+        [HttpGet]
+        [Route("account/logout-completed/")]
+        public IActionResult LogoutCompleted()
+        {
+            return View();
+        }
 
-		[HttpGet]
-		[Route("account/logout/")]
-		public async Task<IActionResult> Logout(string logoutId)
-		{
-			var context = await interactions.GetLogoutContextAsync(logoutId);
+        [HttpGet]
+        [Route("account/logout/")]
+        public async Task<IActionResult> Logout(string logoutId)
+        {
+            var context = await interactions.GetLogoutContextAsync(logoutId);
 
-			var logoutUrl = context.PostLogoutRedirectUri;
+            var logoutUrl = context.PostLogoutRedirectUri;
 
-			if (string.IsNullOrWhiteSpace(logoutUrl))
-			{
-				logoutUrl = urlOptions.Value.BuildUrl("logout");
-			}
+            if (string.IsNullOrWhiteSpace(logoutUrl))
+            {
+                logoutUrl = urlOptions.Value.BuildUrl("logout");
+            }
 
-			await signInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
 
-			logoutUrl = await LogoutCivicPlus(logoutUrl);
+            logoutUrl = await LogoutCivicPlus(logoutUrl);
 
-			return Redirect(logoutUrl);
-		}
+            return Redirect(logoutUrl);
+        }
 
-		[HttpGet]
-		[Route("account/logoutcleanup/")]
-		public async Task LogoutCleanup(string sid)
-		{
-			if (((ClaimsPrincipal)User).FindFirst("sid")?.Value == sid)
-			{
-				await signInManager.SignOutAsync();
-			}
-		}
+        [HttpGet]
+        [Route("account/logoutcleanup/")]
+        public async Task LogoutCleanup(string sid)
+        {
+            if (((ClaimsPrincipal)User).FindFirst("sid")?.Value == sid)
+            {
+                await signInManager.SignOutAsync();
+            }
+        }
 
-		private async Task<string> LogoutCivicPlus(string logoutUrl)
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				var user = await userManager.GetUserAsync(User);
+        private async Task<string> LogoutCivicPlus(string logoutUrl)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await userManager.GetUserAsync(User);
 
-				var idToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "id_token");
+                var idToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "id_token");
 
-				if (!string.IsNullOrWhiteSpace(idToken))
-				{
-					logoutUrl = $"{civicplusIdentityServerSdk.GetWellKnownConfiguration().EndSessionEndpoint}?" +
-								$"post_logout_redirect_uri={logoutUrl}&id_token_hint={idToken}";
-				}
-			}
+                if (!string.IsNullOrWhiteSpace(idToken))
+                {
+                    logoutUrl = $"{civicplusIdentityServerSdk.GetWellKnownConfiguration().EndSessionEndpoint}?" +
+                                $"post_logout_redirect_uri={logoutUrl}&id_token_hint={idToken}";
+                }
+            }
 
-			return logoutUrl;
-		}
+            return logoutUrl;
+        }
 
-		[HttpGet]
-		[Route("account/logout-redirect/")]
-		public async Task<IActionResult> LogoutRedirect()
-		{
-			await signInManager.SignOutAsync();
+        [HttpGet]
+        [Route("account/logout-redirect/")]
+        public async Task<IActionResult> LogoutRedirect()
+        {
+            await signInManager.SignOutAsync();
 
-			return RedirectToAction(nameof(LogoutCompleted));
-		}
+            return RedirectToAction(nameof(LogoutCompleted));
+        }
 
-		[HttpGet]
-		[Route("account/signup/")]
-		public IActionResult Signup(string returnUrl = null)
-		{
-			return LoginView(returnUrl, false, false);
-		}
+        [HttpGet]
+        [Route("account/signup/")]
+        public IActionResult Signup(string returnUrl = null)
+        {
+            return LoginView(returnUrl, false, false);
+        }
 
-		[HttpGet]
-		[Route("account/login/")]
-		public IActionResult Login(string returnUrl = null)
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				return Redirect(returnUrl ?? "~/../");
-			}
-			else
-			{
-				return External(Constants.CivicPlusAuthenticationScheme, returnUrl);
-			}
-		}
+        [HttpGet]
+        [Route("account/login/")]
+        public IActionResult Login(string returnUrl = null)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return Redirect(returnUrl ?? "~/../");
+            }
+            else
+            {
+                return External(Constants.CivicPlusAuthenticationScheme, returnUrl);
+            }
+        }
 
-		[HttpPost]
-		[Route("account/login/")]
-		public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
-		{
-			if (!ModelState.IsValid)
-			{
-				return LoginView(returnUrl, true, true);
-			}
+        [HttpPost]
+        [Route("account/login/")]
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                return LoginView(returnUrl, true, true);
+            }
 
-			var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, true, true);
+            var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, true, true);
 
-			if (!result.Succeeded)
-			{
-				return LoginView(returnUrl, true, true);
-			}
-			else if (!string.IsNullOrWhiteSpace(returnUrl))
-			{
-				return Redirect(returnUrl);
-			}
-			else
-			{
-				return Redirect("~/../");
-			}
-		}
+            if (!result.Succeeded)
+            {
+                return LoginView(returnUrl, true, true);
+            }
+            else if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return Redirect("~/../");
+            }
+        }
 
-		private IActionResult LoginView(string returnUrl, bool isLogin, bool isFailed)
-		{
-			var allowPasswordAuth = identityOptions.Value.AllowPasswordAuth;
+        private IActionResult LoginView(string returnUrl, bool isLogin, bool isFailed)
+        {
+            var allowPasswordAuth = identityOptions.Value.AllowPasswordAuth;
 
-			var providers =
-				signInManager.GetExternalAuthenticationSchemes()
-					.Select(x => new ExternalProvider(x.AuthenticationScheme, x.DisplayName)).ToList();
+            var providers =
+                signInManager.GetExternalAuthenticationSchemes()
+                    .Select(x => new ExternalProvider(x.AuthenticationScheme, x.DisplayName)).ToList();
 
-			var vm = new LoginVM
-			{
-				ExternalProviders = providers,
-				IsLogin = isLogin,
-				IsFailed = isFailed,
-				HasPasswordAuth = allowPasswordAuth,
-				HasPasswordAndExternal = allowPasswordAuth && providers.Any(),
-				ReturnUrl = returnUrl
-			};
+            var vm = new LoginVM
+            {
+                ExternalProviders = providers,
+                IsLogin = isLogin,
+                IsFailed = isFailed,
+                HasPasswordAuth = allowPasswordAuth,
+                HasPasswordAndExternal = allowPasswordAuth && providers.Any(),
+                ReturnUrl = returnUrl
+            };
 
-			return View("Login", vm);
-		}
+            return View("Login", vm);
+        }
 
-		[HttpPost]
-		[Route("account/external/")]
-		public IActionResult External(string provider, string returnUrl = null)
-		{
-			var properties =
-				signInManager.ConfigureExternalAuthenticationProperties(provider,
-					Url.Action(nameof(ExternalCallback), new { ReturnUrl = returnUrl }));
+        [HttpPost]
+        [Route("account/external/")]
+        public IActionResult External(string provider, string returnUrl = null)
+        {
+            var properties =
+                signInManager.ConfigureExternalAuthenticationProperties(provider,
+                    Url.Action(nameof(ExternalCallback), new { ReturnUrl = returnUrl }));
 
-			return Challenge(properties, provider);
-		}
+            return Challenge(properties, provider);
+        }
 
-		[HttpGet]
-		[Route("account/external-callback/")]
-		public async Task<IActionResult> ExternalCallback(string returnUrl = null, string remoteError = null)
-		{
-			var externalLogin = await signInManager.GetExternalLoginInfoWithDisplayNameAsync();
+        [HttpGet]
+        [Route("account/external-callback/")]
+        public async Task<IActionResult> ExternalCallback(string returnUrl = null, string remoteError = null)
+        {
+            var externalLogin = await signInManager.GetExternalLoginInfoWithDisplayNameAsync();
 
-			if (externalLogin == null)
-			{
-				return RedirectToAction(nameof(Login));
-			}
+            if (externalLogin == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
 
-			var result = await signInManager.ExternalLoginSignInAsync(externalLogin.LoginProvider, externalLogin.ProviderKey, true);
+            var result = await signInManager.ExternalLoginSignInAsync(externalLogin.LoginProvider, externalLogin.ProviderKey, true);
 
-			if (!result.Succeeded && result.IsLockedOut)
-			{
-				return View("LockedOut");
-			}
+            if (!result.Succeeded && result.IsLockedOut)
+            {
+                return View("LockedOut");
+            }
 
-			var isLoggedIn = result.Succeeded;
+            var isLoggedIn = result.Succeeded;
 
-			var email = externalLogin.Principal.FindFirst(ClaimTypes.Email)?.Value;
-			var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName)?.Value;
-			var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname)?.Value;
-			var identityId = externalLogin.ProviderKey;
+            var email = externalLogin.Principal.FindFirst(ClaimTypes.Email)?.Value;
+            var firstName = externalLogin.Principal.FindFirst(ClaimTypes.GivenName)?.Value;
+            var lastName = externalLogin.Principal.FindFirst(ClaimTypes.Surname)?.Value;
+            var identityId = externalLogin.ProviderKey;
 
-			var user = await userManager.FindByIdentityServerId(identityId);
-			if (!isLoggedIn)
-			{
-				if (user != null)
-				{
-					isLoggedIn =
-						await AddLoginAsync(user, externalLogin) &&
-						await LoginAsync(externalLogin);
-				}
-				else
-				{
-					user = CreateUser(externalLogin, email);
+            var user = await userManager.FindByIdentityServerId(identityId);
+            if (!isLoggedIn)
+            {
+                if (user != null)
+                {
+                    isLoggedIn =
+                        await AddLoginAsync(user, externalLogin) &&
+                        await LoginAsync(externalLogin);
+                }
+                else
+                {
+                    user = CreateUser(externalLogin, email);
 
-					var isFirst = userManager.Users.LongCount() == 0;
+                    var isFirst = userManager.Users.LongCount() == 0;
 
-					isLoggedIn =
-						await AddUserAsync(user) &&
-						await AddLoginAsync(user, externalLogin) &&
-						await MakeAdminAsync(user, isFirst) &&
-						await LockAsync(user, isFirst) &&
-						await LoginAsync(externalLogin);
+                    isLoggedIn =
+                        await AddUserAsync(user) &&
+                        await AddLoginAsync(user, externalLogin) &&
+                        await MakeAdminAsync(user, isFirst) &&
+                        await LockAsync(user, isFirst) &&
+                        await LoginAsync(externalLogin);
 
                     if (user.IsLocked)
                     {
                         return View("LockedOut");
                     }
                 }
-			}
+            }
 
-			await SetCivicPlusPlatformClaims(user, firstName, lastName, email);
+            await SetCivicPlusPlatformClaims(user, firstName, lastName, email);
 
-			if (isLoggedIn)
-			{
-				await signInManager.UpdateExternalAuthenticationTokensAsync(externalLogin);
-			}
+            if (isLoggedIn)
+            {
+                await signInManager.UpdateExternalAuthenticationTokensAsync(externalLogin);
+            }
 
-			if (!isLoggedIn)
-			{
-				return RedirectToAction(nameof(Login));
-			}
-			else if (!string.IsNullOrWhiteSpace(returnUrl))
-			{
-				return Redirect(returnUrl);
-			}
-			else
-			{
-				return Redirect("~/../");
-			}
-		}
+            if (!isLoggedIn)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+            else if (!string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return Redirect("~/../");
+            }
+        }
 
-		private Task<bool> AddLoginAsync(IUser user, UserLoginInfo externalLogin)
-		{
-			return MakeIdentityOperation(() => userManager.AddLoginAsync(user, externalLogin));
-		}
+        private Task<bool> AddLoginAsync(IUser user, UserLoginInfo externalLogin)
+        {
+            return MakeIdentityOperation(() => userManager.AddLoginAsync(user, externalLogin));
+        }
 
-		private Task<bool> AddUserAsync(IUser user)
-		{
-			return MakeIdentityOperation(() => userManager.CreateAsync(user));
-		}
+        private Task<bool> AddUserAsync(IUser user)
+        {
+            return MakeIdentityOperation(() => userManager.CreateAsync(user));
+        }
 
-		private async Task<bool> LoginAsync(UserLoginInfo externalLogin)
-		{
-			var result = await signInManager.ExternalLoginSignInAsync(externalLogin.LoginProvider, externalLogin.ProviderKey, true);
+        private async Task<bool> LoginAsync(UserLoginInfo externalLogin)
+        {
+            var result = await signInManager.ExternalLoginSignInAsync(externalLogin.LoginProvider, externalLogin.ProviderKey, true);
 
-			return result.Succeeded;
-		}
+            return result.Succeeded;
+        }
 
-		private Task<bool> LockAsync(IUser user, bool isFirst)
-		{
-			if (isFirst || !identityOptions.Value.LockAutomatically)
-			{
-				return TaskHelper.True;
-			}
+        private Task<bool> LockAsync(IUser user, bool isFirst)
+        {
+            if (isFirst || !identityOptions.Value.LockAutomatically)
+            {
+                return TaskHelper.True;
+            }
 
-			return MakeIdentityOperation(() => userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100)));
-		}
+            return MakeIdentityOperation(() => userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100)));
+        }
 
-		private Task<bool> MakeAdminAsync(IUser user, bool isFirst)
-		{
-			if (!isFirst)
-			{
-				return TaskHelper.True;
-			}
+        private Task<bool> MakeAdminAsync(IUser user, bool isFirst)
+        {
+            if (!isFirst)
+            {
+                return TaskHelper.True;
+            }
 
-			return MakeIdentityOperation(() => userManager.AddToRoleAsync(user, SquidexRoles.Administrator));
-		}
+            return MakeIdentityOperation(() => userManager.AddToRoleAsync(user, SquidexRoles.Administrator));
+        }
 
-		private IUser CreateUser(ExternalLoginInfo externalLogin, string email)
-		{
-			var user = userFactory.Create(email);
+        private IUser CreateUser(ExternalLoginInfo externalLogin, string email)
+        {
+            var user = userFactory.Create(email);
 
-			if (!externalLogin.Principal.HasClaim(x => x.Type == SquidexClaimTypes.SquidexPictureUrl))
-			{
-				user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, GravatarHelper.CreatePictureUrl(email));
-			}
+            if (!externalLogin.Principal.HasClaim(x => x.Type == SquidexClaimTypes.SquidexPictureUrl))
+            {
+                user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, GravatarHelper.CreatePictureUrl(email));
+            }
 
-			foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix)))
-			{
-				user.AddClaim(squidexClaim);
-			}
+            foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix)))
+            {
+                user.AddClaim(squidexClaim);
+            }
 
-			return user;
-		}
+            return user;
+        }
 
-		private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName, string email)
-		{
-			if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName) && !string.IsNullOrWhiteSpace(email))
-			{
-				var displayName = $"{firstName} {lastName[0]}";
+        private async Task SetCivicPlusPlatformClaims(IUser user, string firstName, string lastName, string email)
+        {
+            if (user != null && !string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName) && !string.IsNullOrWhiteSpace(email))
+            {
+                var displayName = $"{firstName} {lastName[0]}";
 
-				user.UpdateEmail(email);
-				user.SetDisplayName(displayName);
-				user.SetFirstName(firstName);
-				user.SetLastName(lastName);
+                user.UpdateEmail(email);
+                user.SetDisplayName(displayName);
+                user.SetFirstName(firstName);
+                user.SetLastName(lastName);
 
-				await userManager.UpdateAsync(user);
-			}
-		}
+                await userManager.UpdateAsync(user);
+            }
+        }
 
-		private async Task<bool> MakeIdentityOperation(Func<Task<IdentityResult>> action, [CallerMemberName] string operationName = null)
-		{
-			try
-			{
-				var result = await action();
+        private async Task<bool> MakeIdentityOperation(Func<Task<IdentityResult>> action, [CallerMemberName] string operationName = null)
+        {
+            try
+            {
+                var result = await action();
 
-				if (!result.Succeeded)
-				{
-					var errorMessageBuilder = new StringBuilder();
+                if (!result.Succeeded)
+                {
+                    var errorMessageBuilder = new StringBuilder();
 
-					foreach (var error in result.Errors)
-					{
-						errorMessageBuilder.Append(error.Code);
-						errorMessageBuilder.Append(": ");
-						errorMessageBuilder.AppendLine(error.Description);
-					}
+                    foreach (var error in result.Errors)
+                    {
+                        errorMessageBuilder.Append(error.Code);
+                        errorMessageBuilder.Append(": ");
+                        errorMessageBuilder.AppendLine(error.Description);
+                    }
 
-					log.LogError(w => w
-						.WriteProperty("action", operationName)
-						.WriteProperty("status", "Failed")
-						.WriteProperty("message", errorMessageBuilder.ToString()));
-				}
+                    log.LogError(w => w
+                        .WriteProperty("action", operationName)
+                        .WriteProperty("status", "Failed")
+                        .WriteProperty("message", errorMessageBuilder.ToString()));
+                }
 
-				return result.Succeeded;
-			}
-			catch (Exception ex)
-			{
-				log.LogError(ex, w => w
-					.WriteProperty("action", operationName)
-					.WriteProperty("status", "Failed"));
+                return result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, w => w
+                    .WriteProperty("action", operationName)
+                    .WriteProperty("status", "Failed"));
 
-				return false;
-			}
-		}
-	}
+                return false;
+            }
+        }
+    }
 }

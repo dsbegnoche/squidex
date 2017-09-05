@@ -246,9 +246,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                       myGeolocation {
                         iv
                       }
-					  myTags {
-						iv
-					  }
+                      myTags {
+                        iv
+                      }
                     }
                   }
                 }";
@@ -310,14 +310,14 @@ namespace Squidex.Domain.Apps.Read.Contents
                                         longitude = 20
                                     }
                                 },
-								myTags = new
-								{
-									iv = new[]
-									{
-										"value1",
-										"value2"
-									}
-								}
+                                myTags = new
+                                {
+                                    iv = new[]
+                                    {
+                                        "value1",
+                                        "value2"
+                                    }
+                                }
                             }
                         }
                     }

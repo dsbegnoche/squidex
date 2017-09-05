@@ -12,17 +12,17 @@ using Squidex.Shared.Users;
 
 namespace Squidex.Config.CivicPlus
 {
-	public static class CivicPlusDependencies
-	{
-		public static IServiceCollection AddCivicPlusServices(this IServiceCollection services)
-		{
-			var serviceProvider = services.BuildServiceProvider();
-			var options = serviceProvider.GetService<IOptions<MyIdentityOptions>>().Value;
+    public static class CivicPlusDependencies
+    {
+        public static IServiceCollection AddCivicPlusServices(this IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider();
+            var options = serviceProvider.GetService<IOptions<MyIdentityOptions>>().Value;
 
-			services.AddSingleton<CivicPlusIdentityServer.SDK.NetCore.Base.IActions>(new Actions(options.CivicPlusIdentityServerBaseUrl));
-			services.TryAddScoped<ISignInManager<IUser>, Squidex.Domain.Users.SignInManager<IUser>>();
+            services.AddSingleton<CivicPlusIdentityServer.SDK.NetCore.Base.IActions>(new Actions(options.CivicPlusIdentityServerBaseUrl));
+            services.TryAddScoped<ISignInManager<IUser>, Squidex.Domain.Users.SignInManager<IUser>>();
 
-			return services;
-		}
-	}
+            return services;
+        }
+    }
 }

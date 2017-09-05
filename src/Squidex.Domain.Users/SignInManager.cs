@@ -20,35 +20,35 @@ namespace Squidex.Domain.Users
 {
     public class SignInManager<TUser>: Microsoft.AspNetCore.Identity.SignInManager<IUser>, Base.ISignInManager<IUser>
     {
-	    public SignInManager(UserManager<IUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<IUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<IUser>> logger)
-			: base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)
-	    {
-	    }
+        public SignInManager(UserManager<IUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<IUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<IUser>> logger)
+            : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)
+        {
+        }
 
-		public async Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(string expectedXsrf = null)
-		{
-			var externalLogin = await GetExternalLoginInfoAsync(expectedXsrf);
+        public async Task<ExternalLoginInfo> GetExternalLoginInfoWithDisplayNameAsync(string expectedXsrf = null)
+        {
+            var externalLogin = await GetExternalLoginInfoAsync(expectedXsrf);
 
-			externalLogin.ProviderDisplayName = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
+            externalLogin.ProviderDisplayName = externalLogin.Principal.FindFirst(ClaimTypes.Email).Value;
 
-			return externalLogin;
-		}
+            return externalLogin;
+        }
 
-	    public override async Task SignInAsync(IUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null)
-	    {
-		    var externalLogin = await GetExternalLoginInfoWithDisplayNameAsync();
-		    var userPrincipal = await CreateUserPrincipalAsync(user);
-		    // Review: should we guard against CreateUserPrincipal returning null?
-		    if (authenticationMethod != null)
-		    {
-			    userPrincipal.Identities.First().AddClaim(new Claim(ClaimTypes.AuthenticationMethod, authenticationMethod));
-		    }
+        public override async Task SignInAsync(IUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null)
+        {
+            var externalLogin = await GetExternalLoginInfoWithDisplayNameAsync();
+            var userPrincipal = await CreateUserPrincipalAsync(user);
+            // Review: should we guard against CreateUserPrincipal returning null?
+            if (authenticationMethod != null)
+            {
+                userPrincipal.Identities.First().AddClaim(new Claim(ClaimTypes.AuthenticationMethod, authenticationMethod));
+            }
 
-			userPrincipal.Identities.First().AddClaim(new Claim("sid", externalLogin.Principal.FindFirstValue("sid")));
+            userPrincipal.Identities.First().AddClaim(new Claim("sid", externalLogin.Principal.FindFirstValue("sid")));
 
-		    await Context.Authentication.SignInAsync("Identity.Application",
-			    userPrincipal,
-			    authenticationProperties ?? new AuthenticationProperties());
-		}
+            await Context.Authentication.SignInAsync("Identity.Application",
+                userPrincipal,
+                authenticationProperties ?? new AuthenticationProperties());
+        }
     }
 }

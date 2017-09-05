@@ -29,15 +29,15 @@ namespace Squidex.Controllers.UI.Profile
     [SwaggerIgnore]
     public sealed class ProfileController : Controller
     {
-		private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
-		private readonly UserManager<IUser> userManager;
+        private readonly Domain.Users.Base.ISignInManager<IUser> signInManager;
+        private readonly UserManager<IUser> userManager;
         private readonly IUserPictureStore userPictureStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
         private readonly IOptions<MyIdentityOptions> identityOptions;
         private readonly IOptions<IdentityCookieOptions> identityCookieOptions;
 
         public ProfileController(
-	        Domain.Users.Base.ISignInManager<IUser> signInManager,
+            Domain.Users.Base.ISignInManager<IUser> signInManager,
             UserManager<IUser> userManager,
             IUserPictureStore userPictureStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
@@ -197,8 +197,8 @@ namespace Squidex.Controllers.UI.Profile
                 HasPassword = await userManager.HasPasswordAsync(user),
                 HasPasswordAuth = identityOptions.Value.AllowPasswordAuth,
                 SuccessMessage = successMessage,
-				FirstName = user.FirstName(),
-				LastName = user.LastName()
+                FirstName = user.FirstName(),
+                LastName = user.LastName()
             };
 
             if (model != null)

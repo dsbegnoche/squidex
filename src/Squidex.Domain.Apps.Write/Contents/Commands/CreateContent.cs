@@ -13,7 +13,7 @@ namespace Squidex.Domain.Apps.Write.Contents.Commands
 {
     public sealed class CreateContent : ContentDataCommand
     {
-		public Status Status { get; set; }
+        public Status Status { get; set; }
 
         public CreateContent()
         {

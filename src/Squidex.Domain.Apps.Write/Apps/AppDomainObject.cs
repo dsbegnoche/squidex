@@ -116,7 +116,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppDomainObject Delete(DeleteApp command)
         {
-	        RaiseEvent(SimpleMapper.Map(command, new AppDeleted()));
+            RaiseEvent(SimpleMapper.Map(command, new AppDeleted()));
             return this;
         }
 

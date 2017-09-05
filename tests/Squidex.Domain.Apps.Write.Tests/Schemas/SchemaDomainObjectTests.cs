@@ -96,7 +96,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                             {
                                 Properties = new TagFieldProperties
                                 {
-	                                Label = "Tags"
+                                    Label = "Tags"
                                 },
                                 Name = "tags",
                                 Partitioning = "Language",

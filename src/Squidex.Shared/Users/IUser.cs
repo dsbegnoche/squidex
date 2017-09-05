@@ -25,7 +25,7 @@ namespace Squidex.Shared.Users
 
         IReadOnlyList<ExternalLogin> Logins { get; }
 
-		IReadOnlyList<string> Roles { get; }
+        IReadOnlyList<string> Roles { get; }
 
         void UpdateEmail(string email);
 
@@ -33,12 +33,12 @@ namespace Squidex.Shared.Users
 
         void SetClaim(string type, string value);
 
-	    string GetTokenValue(string loginProvider, string name);
+        string GetTokenValue(string loginProvider, string name);
 
-	    void AddRole(string role);
+        void AddRole(string role);
 
-	    void RemoveRole(string role);
+        void RemoveRole(string role);
 
-	    bool InRole(string role);
+        bool InRole(string role);
     }
 }

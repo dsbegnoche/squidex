@@ -175,17 +175,17 @@ namespace Squidex.Infrastructure
             }
         }
 
-	    [DebuggerStepThrough]
-	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-	    public static void NotNull<T>(object target, string message) where T: Exception
-	    {
-		    if (target == null)
-		    {
-			    throw (T)Activator.CreateInstance(typeof(T), message);
-		    }
-	    }
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void NotNull<T>(object target, string message) where T: Exception
+        {
+            if (target == null)
+            {
+                throw (T)Activator.CreateInstance(typeof(T), message);
+            }
+        }
 
-		[DebuggerStepThrough]
+        [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotDefault<T>(T target, string parameterName)
         {

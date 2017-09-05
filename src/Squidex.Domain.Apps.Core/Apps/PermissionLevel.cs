@@ -13,7 +13,7 @@ namespace Squidex.Domain.Apps.Core.Apps
         Owner,
         Developer,
         Editor,
-		Author,
+        Author,
         Reader
     }
 }

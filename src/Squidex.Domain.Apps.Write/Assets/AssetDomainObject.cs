@@ -49,8 +49,8 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             fileVersion = @event.FileVersion;
             fileName = @event.FileName;
-	        briefDescription = @event.BriefDescription;
-	        tags = @event.Tags;
+            briefDescription = @event.BriefDescription;
+            tags = @event.Tags;
 
             totalSize += @event.FileSize;
         }
@@ -65,9 +65,9 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected void On(AssetRenamed @event)
         {
             fileName = @event.FileName;
-	        briefDescription = @event.BriefDescription;
-	        tags = @event.Tags;
-		}
+            briefDescription = @event.BriefDescription;
+            tags = @event.Tags;
+        }
 
         protected void On(AssetDeleted @event)
         {
@@ -135,7 +135,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             Guard.Valid(command, nameof(command), () => "Cannot rename asset.");
 
             VerifyCreatedAndNotDeleted();
-	        VerifyAssetFields(command.FileName, command.BriefDescription, command.Tags, () => "Cannot update asset.");
+            VerifyAssetFields(command.FileName, command.BriefDescription, command.Tags, () => "Cannot update asset.");
 
             RaiseEvent(SimpleMapper.Map(command, new AssetRenamed()));
 

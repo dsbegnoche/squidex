@@ -15,9 +15,9 @@ namespace Squidex.Domain.Apps.Write.Assets.Commands
     {
         public string FileName { get; set; }
 
-	    public string BriefDescription { get; set; }
+        public string BriefDescription { get; set; }
 
-	    public string[] Tags { get; set; }
+        public string[] Tags { get; set; }
 
         public void Validate(IList<ValidationError> errors)
         {
