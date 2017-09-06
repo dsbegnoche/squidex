@@ -8,12 +8,12 @@
 
 using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Squidex.Domain.Apps.Events;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
-using Squidex.Domain.Apps.Read.Contents.Repositories;
 using Squidex.Domain.Apps.Read.Schemas.Repositories;
 using Squidex.Domain.Apps.Read.Utils;
 using Squidex.Infrastructure;
@@ -26,7 +26,8 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 {
     public sealed class CachingGraphQLService : CachingProviderBase, IGraphQLService, IEventConsumer
     {
-        private readonly IContentRepository contentRepository;
+        private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(60);
+        private readonly IContentQueryService contentQuery;
         private readonly IGraphQLUrlGenerator urlGenerator;
         private readonly IAssetRepository assetRepository;
         private readonly ISchemaRepository schemaRepository;
@@ -41,18 +42,22 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
             get { return "^(schema-)|(apps-)"; }
         }
 
-        public CachingGraphQLService(IMemoryCache cache, ISchemaRepository schemaRepository, IAssetRepository assetRepository, IContentRepository contentRepository, IGraphQLUrlGenerator urlGenerator)
+        public CachingGraphQLService(IMemoryCache cache,
+            IAssetRepository assetRepository,
+            IContentQueryService contentQuery,
+            IGraphQLUrlGenerator urlGenerator,
+            ISchemaRepository schemaRepository)
             : base(cache)
         {
             Guard.NotNull(schemaRepository, nameof(schemaRepository));
             Guard.NotNull(assetRepository, nameof(assetRepository));
-            Guard.NotNull(contentRepository, nameof(contentRepository));
-            Guard.NotNull(urlGenerator, nameof(urlGenerator));
+            Guard.NotNull(contentQuery, nameof(urlGenerator));
+            Guard.NotNull(contentQuery, nameof(contentQuery));
 
-            this.contentRepository = contentRepository;
-            this.schemaRepository = schemaRepository;
             this.assetRepository = assetRepository;
+            this.contentQuery = contentQuery;
             this.urlGenerator = urlGenerator;
+            this.schemaRepository = schemaRepository;
         }
 
         public Task ClearAsync()
@@ -70,13 +75,13 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
             return TaskHelper.Done;
         }
 
-        public async Task<(object Data, object[] Errors)> QueryAsync(IAppEntity app, GraphQLQuery query)
+        public async Task<(object Data, object[] Errors)> QueryAsync(IAppEntity app, ClaimsPrincipal user, GraphQLQuery query)
         {
             Guard.NotNull(app, nameof(app));
             Guard.NotNull(query, nameof(query));
 
             var modelContext = await GetModelAsync(app);
-            var queryContext = new QueryContext(app, contentRepository, assetRepository, urlGenerator);
+            var queryContext = new QueryContext(app, assetRepository, contentQuery, urlGenerator, user);
 
             return await modelContext.ExecuteAsync(queryContext, query);
         }
@@ -89,11 +94,11 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
             if (modelContext == null)
             {
-                var schemas = await schemaRepository.QueryAllAsync(app.Id);
+                var allSchemas = await schemaRepository.QueryAllAsync(app.Id);
 
-                modelContext = new GraphQLModel(app, schemas.Where(x => x.IsPublished), urlGenerator);
+                modelContext = new GraphQLModel(app, allSchemas.Where(x => x.IsPublished), urlGenerator);
 
-                Cache.Set(cacheKey, modelContext);
+                Cache.Set(cacheKey, modelContext, CacheDuration);
             }
 
             return modelContext;

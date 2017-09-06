@@ -18,6 +18,7 @@ namespace Squidex.Domain.Users
 {
     public class UserManagerExtensionsTests
     {
+        /*
         private readonly UserManager<IUser> userManager;
         private string testEmail = "test@test.com";
         private string testId = "ValidID";
@@ -198,5 +199,6 @@ namespace Squidex.Domain.Users
                 return IdentityResult.Success;
             }
         }
+        */
     }
 }

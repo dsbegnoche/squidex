@@ -27,6 +27,7 @@ import {
     SchemaPropertiesDto,
     SchemasService,
     UpdateFieldDto,
+    UpdateSchemaScriptsDto,
     ValidatorsEx
 } from 'shared';
 
@@ -49,6 +50,8 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
 
     public exportSchemaDialog = new ModalView();
     public copySchemaDialog = new ModalView();
+
+    public configureScriptsDialog = new ModalView();
 
     public editOptionsDropdown = new ModalView();
     public editSchemaDialog = new ModalView();
@@ -238,6 +241,12 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.updateSchema(this.schema.update(properties, this.authService.user.token));
 
         this.editSchemaDialog.hide();
+    }
+
+    public onSchemaScriptsSaved(scripts: UpdateSchemaScriptsDto) {
+        this.updateSchema(this.schema.configureScripts(scripts, this.authService.user.token));
+
+        this.configureScriptsDialog.hide();
     }
 
     private resetFieldForm() {

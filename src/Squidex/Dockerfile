@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore-build
+FROM microsoft/aspnetcore:2.0.0-jessie
 
 WORKDIR /app
 

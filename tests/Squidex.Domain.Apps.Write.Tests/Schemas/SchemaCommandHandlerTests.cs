@@ -25,7 +25,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 {
     public class SchemaCommandMiddlewareTests : HandlerTestBase<SchemaDomainObject>
     {
-        private readonly ISchemaProvider schemaProvider = A.Fake<ISchemaProvider>();
+        private readonly ISchemaProvider schemas = A.Fake<ISchemaProvider>();
         private readonly SchemaCommandMiddleware sut;
         private readonly SchemaDomainObject schema;
         private readonly FieldRegistry registry = new FieldRegistry(new TypeNameRegistry());
@@ -35,7 +35,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
         {
             schema = new SchemaDomainObject(SchemaId, -1, registry);
 
-            sut = new SchemaCommandMiddleware(Handler, schemaProvider);
+            sut = new SchemaCommandMiddleware(Handler, schemas);
         }
 
         [Fact]
@@ -43,15 +43,15 @@ namespace Squidex.Domain.Apps.Write.Schemas
         {
             var context = CreateContextForCommand(new CreateSchema { Name = SchemaName, SchemaId = SchemaId });
 
-            A.CallTo(() => schemaProvider.FindSchemaByNameAsync(AppId, SchemaName))
-                .Returns(Task.FromResult(A.Dummy<ISchemaEntity>()));
+            A.CallTo(() => schemas.FindSchemaByNameAsync(AppId, SchemaName))
+                .Returns(A.Dummy<ISchemaEntity>());
 
             await TestCreate(schema, async _ =>
             {
                 await Assert.ThrowsAsync<ValidationException>(async () => await sut.HandleAsync(context));
             }, false);
 
-            A.CallTo(() => schemaProvider.FindSchemaByNameAsync(AppId, SchemaName)).MustHaveHappened();
+            A.CallTo(() => schemas.FindSchemaByNameAsync(AppId, SchemaName)).MustHaveHappened();
         }
 
         [Fact]
@@ -59,8 +59,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
         {
             var context = CreateContextForCommand(new CreateSchema { Name = SchemaName, SchemaId = SchemaId });
 
-            A.CallTo(() => schemaProvider.FindSchemaByNameAsync(AppId, SchemaName))
-                .Returns(Task.FromResult<ISchemaEntity>(null));
+            A.CallTo(() => schemas.FindSchemaByNameAsync(AppId, SchemaName))
+                .Returns((ISchemaEntity)null);
 
             await TestCreate(schema, async _ =>
             {
@@ -69,7 +69,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
 
             Assert.Equal(SchemaId, context.Result<EntityCreatedResult<Guid>>().IdOrValue);
 
-            A.CallTo(() => schemaProvider.FindSchemaByNameAsync(AppId, SchemaName)).MustHaveHappened();
+            A.CallTo(() => schemas.FindSchemaByNameAsync(AppId, SchemaName)).MustHaveHappened();
         }
 
         [Fact]
@@ -118,6 +118,19 @@ namespace Squidex.Domain.Apps.Write.Schemas
             PublishSchema();
 
             var context = CreateContextForCommand(new UnpublishSchema());
+
+            await TestUpdate(schema, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task ConfigureScripts_should_update_domain_object()
+        {
+            CreateSchema();
+
+            var context = CreateContextForCommand(new ConfigureScripts());
 
             await TestUpdate(schema, async _ =>
             {

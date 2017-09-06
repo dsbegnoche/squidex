@@ -56,6 +56,7 @@ namespace Squidex.Controllers.ContentApi.Models
         /// The status of the content element.
         /// </summary>
         public Status Status { get; set; }
+        public bool? IsPublished { get; set; }
 
         /// <summary>
         /// The version of the content.

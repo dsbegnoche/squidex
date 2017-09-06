@@ -9,7 +9,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using Squidex.Domain.Apps.Events.Schemas;
+using Squidex.Domain.Apps.Events;
 using Squidex.Domain.Apps.Read.Schemas.Repositories;
 using Squidex.Domain.Apps.Read.Utils;
 using Squidex.Infrastructure;
@@ -17,6 +17,7 @@ using Squidex.Infrastructure.Caching;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Tasks;
 
+// ReSharper disable ConvertIfStatementToSwitchStatement
 // ReSharper disable ConvertIfStatementToConditionalTernaryExpression
 // ReSharper disable InvertIf
 
@@ -51,7 +52,7 @@ namespace Squidex.Domain.Apps.Read.Schemas.Services.Implementations
 
             if (!Cache.TryGetValue(cacheKey, out ISchemaEntity result))
             {
-                result = await repository.FindSchemaAsync(id);
+                result = await repository.FindSchemaAsync(id, provideDeleted);
 
                 Cache.Set(cacheKey, result, CacheDuration);
 
@@ -109,21 +110,9 @@ namespace Squidex.Domain.Apps.Read.Schemas.Services.Implementations
                 Cache.Invalidate(cacheKeyByName);
             }
 
-            if (@event.Payload is FieldEvent fieldEvent)
+            if (@event.Payload is SchemaEvent schemaEvent)
             {
-                Remove(fieldEvent.AppId, fieldEvent.SchemaId);
-            }
-            else if (@event.Payload is SchemaCreated schemaCreatedEvent)
-            {
-                Remove(schemaCreatedEvent.AppId, schemaCreatedEvent.SchemaId);
-            }
-            else if (@event.Payload is SchemaDeleted schemaDeletedEvent)
-            {
-                Remove(schemaDeletedEvent.AppId, schemaDeletedEvent.SchemaId);
-            }
-            else if (@event.Payload is SchemaUpdated schemaUpdatedEvent)
-            {
-                Remove(schemaUpdatedEvent.AppId, schemaUpdatedEvent.SchemaId);
+                Remove(schemaEvent.AppId, schemaEvent.SchemaId);
             }
 
             return TaskHelper.Done;

@@ -51,7 +51,7 @@ namespace Squidex.Controllers.Toolbar
         {
             var user = await userManager.GetUserAsync(User);
             var emailAddress = user.Email;
-            var accessToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "access_token");
+            var accessToken = user.GetToken(Constants.CivicPlusAuthenticationScheme, "access_token");
 
             List<ClientInfo> products = civicplusIdentityServerSdk.GetClientList(accessToken, emailAddress);
 

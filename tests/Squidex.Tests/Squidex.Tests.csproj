@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CivicPlusIdentityServer.SDK.NetCore" Version="0.0.4" />
     <PackageReference Include="IdentityServer4" Version="1.5.2" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="1.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
@@ -17,6 +16,18 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Squidex.Domain.Users\Squidex.Domain.Users.csproj" />
     <ProjectReference Include="..\..\src\Squidex\Squidex.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CivicPlusIdentityServer.SDK.NetCore">
+      <HintPath>..\..\..\identityserver\CivicPlusIdentityServer.SDK.NetCore\bin\Debug\netcoreapp2.0\CivicPlusIdentityServer.SDK.NetCore.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\..\restsharp_core\RestSharp\bin\Debug\netstandard2.0\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp.NetCore">
+      <HintPath>..\..\..\..\Desktop\RestSharp.NetCore.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

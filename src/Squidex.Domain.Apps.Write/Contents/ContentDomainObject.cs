@@ -49,6 +49,11 @@ namespace Squidex.Domain.Apps.Write.Contents
             get { return status; }
         }
 
+        public NamedContentData Data
+        {
+            get { return data; }
+        }
+
         public ContentDomainObject(Guid id, int version)
             : base(id, version)
         {
@@ -159,7 +164,7 @@ namespace Squidex.Domain.Apps.Write.Contents
                 VerifyIsEditor(command);
             }
 
-            if (!command.Data.Equals(data))
+            if (!command.Data.Equals(Data))
             {
                 RaiseEvent(SimpleMapper.Map(command, new ContentUpdated()));
             }
@@ -177,9 +182,9 @@ namespace Squidex.Domain.Apps.Write.Contents
                 VerifyIsEditor(command);
             }
 
-            var newData = data.MergeInto(command.Data);
+            var newData = Data.MergeInto(command.Data);
 
-            if (!newData.Equals(data))
+            if (!newData.Equals(Data))
             {
                 RaiseEvent(SimpleMapper.Map(command, new ContentUpdated { Data = newData }));
             }

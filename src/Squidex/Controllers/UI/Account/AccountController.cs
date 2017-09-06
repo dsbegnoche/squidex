@@ -136,7 +136,7 @@ namespace Squidex.Controllers.UI.Account
             {
                 var user = await userManager.GetUserAsync(User);
 
-                var idToken = user.GetTokenValue(Constants.CivicPlusAuthenticationScheme, "id_token");
+                var idToken = user.GetToken(Constants.CivicPlusAuthenticationScheme, "id_token");
 
                 if (!string.IsNullOrWhiteSpace(idToken))
                 {

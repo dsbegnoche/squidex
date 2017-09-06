@@ -24,6 +24,8 @@
                     <div class="dropdown-menu" *sqxModalView="editOptionsDropdown" closeAlways="true" [sqxModalTarget]="optionsButton" position="right" [@fade]>
                         <a class="dropdown-item" (click)="copySchemaDialog.show()">
                             Copy
+                        <a class="dropdown-item" (click)="configureScriptsDialog.show()">
+                            Scripts
                         </a>
                         <a class="dropdown-item dropdown-item-delete" (sqxConfirmClick)="deleteSchema()" confirmTitle="Delete schema" confirmText="Do you really want to delete the schema?">
                             Delete
@@ -54,7 +56,7 @@
                     (hiding)="hideField(field)"
                     (saving)="saveField($event)"></sqx-field>
             </div>
-            
+
             <div class="table-items-footer">
                 <form [formGroup]="addFieldForm" (ngSubmit)="addField()">
                     <div class="row no-gutters">
@@ -65,7 +67,7 @@
                                 </ng-template>
                             </sqx-dropdown>
                         </div>
-                        
+
                         <div class="col-8 pl-1">
                             <sqx-control-errors for="name" [submitted]="addFieldFormSubmitted"></sqx-control-errors>
 
@@ -80,7 +82,7 @@
                                     <input class="form-check-input" type="checkbox" formControlName="isLocalizable"> Localizable
                                 </label>
                             </div>
-    
+
                             <small class="form-text text-muted">
                                 You can the field as localizable. It means that is dependent on the language, for example a city name.
                             </small>

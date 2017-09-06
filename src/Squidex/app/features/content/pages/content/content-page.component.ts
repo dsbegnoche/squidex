@@ -59,12 +59,12 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public languages: AppLanguageDto[] = [];
 
     constructor(apps: AppsStoreService,
-                dialogs: DialogService,
-                private readonly authService: AuthService,
-                private readonly contentsService: ContentsService,
-                private readonly route: ActivatedRoute,
-                private readonly router: Router,
-                private readonly messageBus: MessageBus
+        dialogs: DialogService,
+        private readonly authService: AuthService,
+        private readonly contentsService: ContentsService,
+        private readonly route: ActivatedRoute,
+        private readonly router: Router,
+        private readonly messageBus: MessageBus
     ) {
         super(dialogs, apps);
     }
@@ -80,11 +80,11 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
         this.contentDeletedSubscription =
             this.messageBus.of(ContentDeleted)
-            .subscribe(message => {
-                if (message.content.id === this.contentId) {
-                    this.router.navigate(['../'], { relativeTo: this.route });
-                }
-            });
+                .subscribe(message => {
+                    if (message.content.id === this.contentId) {
+                        this.router.navigate(['../'], { relativeTo: this.route });
+                    }
+                });
 
         this.setupContentForm(routeData['schema']);
 
@@ -149,16 +149,16 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
                         status,
                         this.version))
                     .subscribe(dto => {
-                            this.content = dto;
+                        this.content = dto;
 
-                            this.emitContentCreated(this.content);
-                            this.notifyInfo('Content created successfully.');
-                            this.back();
-                        },
-                        error => {
-                            this.notifyError(error);
-                            this.enableContentForm();
-                        });
+                        this.emitContentCreated(this.content);
+                        this.notifyInfo('Content created successfully.');
+                        this.back();
+                    },
+                    error => {
+                        this.notifyError(error);
+                        this.enableContentForm();
+                    });
             } else {
                 this.appNameOnce()
                     .switchMap(app => this.contentsService.putContent(app,
@@ -167,16 +167,16 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
                         requestDto,
                         this.version))
                     .subscribe(() => {
-                            this.content = this.content.update(requestDto, this.authService.user.token);
+                        this.content = this.content.update(requestDto, this.authService.user.token);
 
-                            this.emitContentUpdated(this.content);
-                            this.notifyInfo('Content saved successfully.');
-                            this.enableContentForm();
-                        },
-                        error => {
-                            this.notifyError(error);
-                            this.enableContentForm();
-                        });
+                        this.emitContentUpdated(this.content);
+                        this.notifyInfo('Content saved successfully.');
+                        this.enableContentForm();
+                    },
+                    error => {
+                        this.notifyError(error);
+                        this.enableContentForm();
+                    });
             }
         } else {
             this.notifyError(
@@ -279,4 +279,3 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         }
     }
 }
-

@@ -9,10 +9,10 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Squidex.Domain.Apps.Read.Contents.Repositories;
 using Squidex.Infrastructure;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Assets;
@@ -26,26 +26,35 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
     {
         private readonly ConcurrentDictionary<Guid, IContentEntity> cachedContents = new ConcurrentDictionary<Guid, IContentEntity>();
         private readonly ConcurrentDictionary<Guid, IAssetEntity> cachedAssets = new ConcurrentDictionary<Guid, IAssetEntity>();
-        private readonly IContentRepository contentRepository;
+        private readonly IContentQueryService contentQuery;
         private readonly IAssetRepository assetRepository;
         private readonly IGraphQLUrlGenerator urlGenerator;
         private readonly IAppEntity app;
+        private readonly ClaimsPrincipal user;
 
         public IGraphQLUrlGenerator UrlGenerator
         {
             get { return urlGenerator; }
         }
 
-        public QueryContext(IAppEntity app, IContentRepository contentRepository, IAssetRepository assetRepository, IGraphQLUrlGenerator urlGenerator)
+        public QueryContext(
+            IAppEntity app,
+            IAssetRepository assetRepository,
+            IContentQueryService contentQuery,
+            IGraphQLUrlGenerator urlGenerator,
+            ClaimsPrincipal user)
         {
-            Guard.NotNull(contentRepository, nameof(contentRepository));
             Guard.NotNull(assetRepository, nameof(assetRepository));
             Guard.NotNull(urlGenerator, nameof(urlGenerator));
+            Guard.NotNull(contentQuery, nameof(contentQuery));
             Guard.NotNull(app, nameof(app));
+            Guard.NotNull(user, nameof(user));
 
-            this.contentRepository = contentRepository;
             this.assetRepository = assetRepository;
+            this.contentQuery = contentQuery;
             this.urlGenerator = urlGenerator;
+
+            this.user = user;
 
             this.app = app;
         }
@@ -73,7 +82,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
             if (content == null)
             {
-                content = await contentRepository.FindContentAsync(app, schemaId, id).ConfigureAwait(false);
+                content = (await contentQuery.FindContentAsync(app, schemaId.ToString(), user, id).ConfigureAwait(false)).Content;
 
                 if (content != null)
                 {
@@ -98,7 +107,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
         public async Task<IReadOnlyList<IContentEntity>> QueryContentsAsync(Guid schemaId, string query)
         {
-            var contents = await contentRepository.QueryAsync(app, schemaId, false, null, query).ConfigureAwait(false);
+            var contents = (await contentQuery.QueryWithCountAsync(app, schemaId.ToString(), user, null, query).ConfigureAwait(false)).Items;
 
             foreach (var content in contents)
             {
@@ -149,7 +158,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
             if (notLoadedContents.Count > 0)
             {
-                var contents = await contentRepository.QueryAsync(app, schemaId, false, notLoadedContents, null).ConfigureAwait(false);
+                var contents = (await contentQuery.QueryWithCountAsync(app, schemaId.ToString(), user, notLoadedContents, null).ConfigureAwait(false)).Items;
 
                 foreach (var content in contents)
                 {

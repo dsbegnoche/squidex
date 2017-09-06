@@ -14,22 +14,24 @@ using GraphQL.Types;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Infrastructure;
 
+// ReSharper disable ImpureMethodCallOnReadonlyValueField
+
 namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
 {
     public sealed class ContentQueryGraphType : ObjectGraphType
     {
-        public ContentQueryGraphType(IGraphQLContext graphQLContext, IEnumerable<ISchemaEntity> schemaEntities)
+        public ContentQueryGraphType(IGraphQLContext graphQLContext, IEnumerable<ISchemaEntity> schemas)
         {
             AddAssetFind(graphQLContext);
             AddAssetsQuery(graphQLContext);
 
-            foreach (var schemaEntity in schemaEntities)
+            foreach (var schema in schemas)
             {
-                var schemaName = schemaEntity.Schema.Properties.Label.WithFallback(schemaEntity.Schema.Name);
-                var schemaType = graphQLContext.GetSchemaType(schemaEntity.Id);
+                var schemaName = schema.SchemaDef.Properties.Label.WithFallback(schema.SchemaDef.Name);
+                var schemaType = graphQLContext.GetSchemaType(schema.Id);
 
-                AddContentFind(schemaEntity, schemaType, schemaName);
-                AddContentQuery(schemaEntity, schemaType, schemaName);
+                AddContentFind(schema, schemaType, schemaName);
+                AddContentQuery(schema, schemaType, schemaName);
             }
 
             Description = "The app queries.";
@@ -61,11 +63,11 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
             });
         }
 
-        private void AddContentFind(ISchemaEntity schemaEntity, IGraphType schemaType, string schemaName)
+        private void AddContentFind(ISchemaEntity schema, IGraphType schemaType, string schemaName)
         {
             AddField(new FieldType
             {
-                Name = $"find{schemaEntity.Name.ToPascalCase()}Content",
+                Name = $"find{schema.Name.ToPascalCase()}Content",
                 Arguments = new QueryArguments
                 {
                     new QueryArgument(typeof(StringGraphType))
@@ -81,7 +83,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
                     var context = (QueryContext)c.UserContext;
                     var contentId = Guid.Parse(c.GetArgument("id", Guid.Empty.ToString()));
 
-                    return context.FindContentAsync(schemaEntity.Id, contentId);
+                    return context.FindContentAsync(schema.Id, contentId);
                 }),
                 Description = $"Find an {schemaName} content by id."
             });
@@ -128,11 +130,11 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
             });
         }
 
-        private void AddContentQuery(ISchemaEntity schemaEntity, IGraphType schemaType, string schemaName)
+        private void AddContentQuery(ISchemaEntity schema, IGraphType schemaType, string schemaName)
         {
             AddField(new FieldType
             {
-                Name = $"query{schemaEntity.Name.ToPascalCase()}Contents",
+                Name = $"query{schema.Name.ToPascalCase()}Contents",
                 Arguments = new QueryArguments
                 {
                     new QueryArgument(typeof(IntGraphType))
@@ -172,7 +174,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
                     var context = (QueryContext)c.UserContext;
                     var contentQuery = BuildODataQuery(c);
 
-                    return context.QueryContentsAsync(schemaEntity.Id, contentQuery);
+                    return context.QueryContentsAsync(schema.Id, contentQuery);
                 }),
                 Description = $"Query {schemaName} content items."
             });
