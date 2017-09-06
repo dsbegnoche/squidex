@@ -32,8 +32,8 @@ describe('WebhookDto', () => {
         const webhook_2 =
             webhook_1.update(new UpdateWebhookDto('http://squidex.io/hook2',
             [
-                new WebhookSchemaDto('1', true, true, true, true, true),
-                new WebhookSchemaDto('2', true, true, true, true, true)
+                new WebhookSchemaDto('1', true, true, true, true, true, true),
+                new WebhookSchemaDto('2', true, true, true, true, true, true)
             ]), user, now);
 
         expect(webhook_2.url).toEqual('http://squidex.io/hook2');
@@ -96,14 +96,16 @@ describe('WebhooksService', () => {
                     sendUpdate: true,
                     sendDelete: true,
                     sendPublish: true,
-                    sendUnpublish: true
+                    sendUnpublish: true,
+                    sendSubmit: true
                 }, {
                     schemaId: '2',
                     sendCreate: true,
                     sendUpdate: true,
                     sendDelete: true,
                     sendPublish: true,
-                    sendUnpublish: true
+                    sendUnpublish: true,
+                    sendSubmit: true
                 }]
             }
         ]);
@@ -114,8 +116,8 @@ describe('WebhooksService', () => {
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
                 version,
                 [
-                    new WebhookSchemaDto('1', true, true, true, true, true),
-                    new WebhookSchemaDto('2', true, true, true, true, true)
+                    new WebhookSchemaDto('1', true, true, true, true, true, true),
+                    new WebhookSchemaDto('2', true, true, true, true, true, true)
                 ],
                 'http://squidex.io/hook', 1, 2, 3, 4)
         ]);

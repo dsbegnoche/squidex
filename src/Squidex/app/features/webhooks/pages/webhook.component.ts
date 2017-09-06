@@ -24,6 +24,7 @@ export interface WebhookSchemaForm {
     sendDelete: boolean;
     sendPublish: boolean;
     sendUnpublish: boolean;
+    sendSubmit: boolean;
 }
 
 @Component({
@@ -86,8 +87,9 @@ export class WebhookComponent implements OnInit {
                             sendUpdate: webhookSchema.sendUpdate,
                             sendDelete: webhookSchema.sendDelete,
                             sendPublish: webhookSchema.sendPublish,
-                            sendUnpublish: webhookSchema.sendUnpublish
-                        });
+                            sendUnpublish: webhookSchema.sendUnpublish,
+                            sendSubmit: webhookSchema.sendSubmit
+                    });
                     } else {
                         return null;
                     }
@@ -118,7 +120,8 @@ export class WebhookComponent implements OnInit {
                     sendUpdate: false,
                     sendDelete: false,
                     sendPublish: false,
-                    sendUnpublish: false
+                    sendUnpublish: false,
+                    sendSubmit: false
                 })).sortByStringAsc(x => x.schema.name);
 
         this.schemasToAdd = this.schemasToAdd.remove(this.schemaToAdd).sortByStringAsc(x => x.name);
@@ -136,7 +139,8 @@ export class WebhookComponent implements OnInit {
                         schema.sendUpdate,
                         schema.sendDelete,
                         schema.sendPublish,
-                        schema.sendUnpublish)));
+                        schema.sendUnpublish,
+                        schema.sendSubmit)));
 
         this.emitUpdating(requestDto);
     }
@@ -164,6 +168,7 @@ export class WebhookComponent implements OnInit {
         schemaForm.sendDelete = value;
         schemaForm.sendPublish = value;
         schemaForm.sendUnpublish = value;
+        schemaForm.sendSubmit = value;
 
         return schemaForm;
     }
@@ -174,7 +179,8 @@ export class WebhookComponent implements OnInit {
             schemaForm.sendUpdate &&
             schemaForm.sendDelete &&
             schemaForm.sendPublish &&
-            schemaForm.sendUnpublish;
+            schemaForm.sendUnpublish &&
+            schemaForm.sendSubmit;
 
         return schemaForm;
     }
