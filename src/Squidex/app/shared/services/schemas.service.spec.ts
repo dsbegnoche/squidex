@@ -76,7 +76,7 @@ describe('SchemaDto', () => {
 
         const now = DateTime.now();
 
-        const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, 'other', 'other', DateTime.now(), DateTime.now(), null, [], []);
+        const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, 'other', 'other', DateTime.now(), DateTime.now(), null, []);
         const schema_2 = schema_1.configureScripts(newScripts, 'me', now);
 
         expect(schema_2.scriptQuery).toEqual('<script-query>');

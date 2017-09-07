@@ -1,101 +1,102 @@
 <sqx-title message="{app} | Dashboard" parameter1="app" value1="{{appName() | async}}"></sqx-title>
 
 <div class="dashboard" [@fade]>
-    <div class="dashboard-inner">
+	<div class="dashboard-inner">
     
-    <div>
-        <h1 class="dashboard-title">Hi {{profileDisplayName}}</h1>
+		<div>
+			<h1 class="dashboard-title">Hi {{profileFirstName}} {{profileLastName}}</h1>
 
-        <div class="subtext">
-            Welcome to <span class="app-name">{{appName() | async}}</span> dashboard.
-        </div>
-    </div>
+			<div class="subtext">
+				Welcome to <span class="app-name">{{appName() | async}}</span> dashboard.
+			</div>
+		</div>
 
-    <div class="clearfix">
-        <a class="card card-href" [routerLink]="['schemas', { showDialog: true }]">
-            <div class="card-block">
-                <div class="card-image">
-                    <img src="/images/dashboard-schema.png" />
-                </div>
+		<div class="clearfix">
+			<a class="card card-href" [routerLink]="['schemas', { showDialog: true }]">
+				<div class="card-block">
+					<div class="card-image">
+						<img src="/images/dashboard-schema.png" />
+					</div>
 
-                <h4 class="card-title">New Schema</h4>
+					<h4 class="card-title">New Schema</h4>
 
-                <div class="card-text">
-                    A schema defines the structure of your content element.
-                </div>
-            </div>
-        </a>
+					<div class="card-text">
+						A schema defines the structure of your content element.
+					</div>
+				</div>
+			</a>
 
-        <a class="card card-href" href="/api/docs" target="_blank">
-            <div class="card-block">
-                <div class="card-image">
-                    <img src="/images/dashboard-api.png" />
-                </div>
+			<a class="card card-href" href="/api/docs" target="_blank">
+				<div class="card-block">
+					<div class="card-image">
+						<img src="/images/dashboard-api.png" />
+					</div>
 
-                <h4 class="card-title">API Documentation</h4>
+					<h4 class="card-title">API Documentation</h4>
 
-                <div class="card-text">
-                    Swagger compatible documentation for app management.
-                </div>
-            </div>
-        </a>
+					<div class="card-text">
+						Swagger compatible documentation for app management.
+					</div>
+				</div>
+			</a>
 
-        <a class="card card-href" href="https://civicplus.tpondemand.com/helpdesk/widget?options=27227,0,1,1,1,0,2,5" target="_blank">
-            <div class="card-block">
-                <div class="card-image">
-                    <img src="/images/dashboard-feedback.png" />
-                </div>
+			<a class="card card-href" href="https://civicplus.tpondemand.com/helpdesk/widget?options=27227,0,1,1,1,0,2,5" target="_blank">
+				<div class="card-block">
+					<div class="card-image">
+						<img src="/images/dashboard-feedback.png" />
+					</div>
 
-                <h4 class="card-title">Feedback</h4>
+					<h4 class="card-title">Feedback</h4>
 
-                <div class="card-text">
-                    Provide feedback and request features to help us to improve Squidex.
-                </div>
-            </div>
-        </a>
+					<div class="card-text">
+						Provide feedback and request features to help us to improve Squidex.
+					</div>
+				</div>
+			</a>
 
-        <div class="card card-lg">
-            <div class="card-block">
-                <chart type="bar" [data]="chartCallsCount" [options]="chartOptions"></chart>
-            </div>
-        </div>
+			<div class="card card-lg">
+				<div class="card-block">
+					<chart type="bar" [data]="chartCallsCount" [options]="chartOptions"></chart>
+				</div>
+			</div>
 
-        <div class="card card-lg">
-            <div class="card-block">
-                <chart type="bar" [data]="chartCallsPerformance" [options]="chartOptions"></chart>
-            </div>
-        </div>
+			<div class="card card-lg">
+				<div class="card-block">
+					<chart type="bar" [data]="chartCallsPerformance" [options]="chartOptions"></chart>
+				</div>
+			</div>
 
-        <div class="card card">
-            <div class="card-block">
-                <div class="aggregation" *ngIf="callsCurrent >= 0">
-                    <div class="aggregation-label">API calls this month</div>
-                    <div class="aggregation-value">{{callsCurrent | sqxKNumber}}</div>
-                    <div class="aggregation-label" *ngIf="callsMax > 0">Monthly limit: {{callsMax | sqxKNumber}}</div>
-                </div>
-            </div>
-        </div>
+			<div class="card card">
+				<div class="card-block">
+					<div class="aggregation" *ngIf="callsCurrent >= 0">
+						<div class="aggregation-label">API calls this month</div>
+						<div class="aggregation-value">{{callsCurrent | sqxKNumber}}</div>
+						<div class="aggregation-label" *ngIf="callsMax > 0">Monthly limit: {{callsMax | sqxKNumber}}</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="card card-lg">
-            <div class="card-block">
-                <chart type="line" [data]="chartStorageCount" [options]="chartOptions"></chart>
-            </div>
-        </div>
+			<div class="card card-lg">
+				<div class="card-block">
+					<chart type="line" [data]="chartStorageCount" [options]="chartOptions"></chart>
+				</div>
+			</div>
 
-        <div class="card card">
-            <div class="card-block">
-                <div class="aggregation" *ngIf="assetsCurrent >= 0">
-                    <div class="aggregation-label">Asset size today</div>
-                    <div class="aggregation-value">{{assetsCurrent | sqxFileSize}}</div>
-                    <div class="aggregation-label" *ngIf="assetsMax > 0">Total limit: {{assetsMax | sqxFileSize}}</div>
-                </div>
-            </div>
-        </div>
+			<div class="card card">
+				<div class="card-block">
+					<div class="aggregation" *ngIf="assetsCurrent >= 0">
+						<div class="aggregation-label">Asset size today</div>
+						<div class="aggregation-value">{{assetsCurrent | sqxFileSize}}</div>
+						<div class="aggregation-label" *ngIf="assetsMax > 0">Total limit: {{assetsMax | sqxFileSize}}</div>
+					</div>
+				</div>
+			</div>
 
-        <div class="card card-lg">
-            <div class="card-block">
-                <chart type="line" [data]="chartStorageSize" [options]="chartOptions"></chart>
-            </div>
-        </div>
-    </div>
-</div> 
+			<div class="card card-lg">
+				<div class="card-block">
+					<chart type="line" [data]="chartStorageSize" [options]="chartOptions"></chart>
+				</div>
+			</div>
+		</div>
+	</div> 
+</div>

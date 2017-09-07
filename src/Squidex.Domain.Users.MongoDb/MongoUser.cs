@@ -151,7 +151,7 @@ namespace Squidex.Domain.Users.MongoDb
 
         public void RemoveClaim(Claim claim)
         {
-            Claims.RemoveAll(c => c.Type == claim.Type && c.Value == claim.Value);
+	        Claims.RemoveAll(x => string.Equals(x.Type, claim.Type, StringComparison.OrdinalIgnoreCase));
         }
 
         public void RemoveClaims(IEnumerable<Claim> claims)

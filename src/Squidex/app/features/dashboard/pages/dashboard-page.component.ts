@@ -28,7 +28,8 @@ declare var _urq: any;
     ]
 })
 export class DashboardPageComponent extends AppComponentBase implements OnInit {
-    public profileDisplayName = '';
+    public profileFirstName = '';
+    public profileLastName = '';
 
     public chartStorageCount: any;
     public chartStorageSize: any;
@@ -146,7 +147,8 @@ export class DashboardPageComponent extends AppComponentBase implements OnInit {
                 };
             });
 
-        this.profileDisplayName = this.authService.user.displayName;
+        this.profileFirstName = this.authService.user.firstName;
+        this.profileLastName = this.authService.user.lastName;
     }
 
     public showForum() {

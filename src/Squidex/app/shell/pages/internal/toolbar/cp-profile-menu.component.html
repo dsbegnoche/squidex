@@ -9,7 +9,7 @@
 		        <span class="user">
 			        <img class="user-picture" [attr.src]="profileId | sqxUserIdPicture" />
 		        </span>
-		        {{profileDisplayName}}
+		        {{profileFirstName}} {{profileLastName}}
 	        </a>
 
             <a class="dropdown-item cp-NavMenuList-itemLink" routerLink="/app/administration" *ngIf="isAdmin">
