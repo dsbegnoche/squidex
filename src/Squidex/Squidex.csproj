@@ -44,6 +44,7 @@
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="1.0.0-rc1-final" />
     <PackageReference Include="Autofac" Version="4.6.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.0" />
+    <PackageReference Include="CivicPlusIdentityServer.SDK.NetCore" Version="0.0.5" />
     <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.0.0-alpha-1" />
     <PackageReference Include="IdentityServer4" Version="1.5.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="1.2.1" />
@@ -80,15 +81,6 @@
     <PackageReference Include="StackExchange.Redis.StrongName" Version="1.2.6" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CivicPlusIdentityServer.SDK.NetCore">
-      <HintPath>..\..\..\identityserver\CivicPlusIdentityServer.SDK.NetCore\bin\Debug\netcoreapp2.0\CivicPlusIdentityServer.SDK.NetCore.dll</HintPath>
-    </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\..\..\identityserver\CivicPlusIdentityServer.SDK.NetCore\bin\Debug\netcoreapp2.0\RestSharp.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
