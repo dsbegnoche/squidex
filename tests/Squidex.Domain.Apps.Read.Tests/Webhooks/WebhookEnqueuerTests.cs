@@ -41,6 +41,12 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             A.CallTo(() => clock.GetCurrentInstant()).Returns(now);
 
             typeNameRegisty.Map(typeof(ContentCreated));
+            typeNameRegisty.Map(typeof(ContentUpdated));
+            typeNameRegisty.Map(typeof(ContentPublished));
+            typeNameRegisty.Map(typeof(ContentUnpublished));
+            typeNameRegisty.Map(typeof(ContentDeleted));
+            typeNameRegisty.Map(typeof(ContentSubmitted));
+            typeNameRegisty.Map(typeof(ContentDeclined));
 
             sut = new WebhookEnqueuer(
                 typeNameRegisty,
@@ -104,6 +110,162 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }
 
+        [Fact]
+        public async Task Should_send_update_event_on_content_updated()
+        {
+
+            var @event = Envelope.Create(new ContentUpdated { AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaUpdatedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task Should_send_delete_event_on_content_deleted()
+        {
+
+            var @event = Envelope.Create(new ContentDeleted { AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaDeletedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task Should_send_published_event_on_content_published()
+        {
+
+            var @event = Envelope.Create(new ContentPublished { AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaPublishedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task Should_send_unpublish_event_on_content_unpublished()
+        {
+
+            var @event = Envelope.Create(new ContentUnpublished { AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaUnpublishedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task Should_send_submit_event_on_content_submitted()
+        {
+
+            var @event = Envelope.Create(new ContentSubmitted { AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaSubmittedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
+        [Fact]
+        public async Task Should_send_decline_event_on_content_declined()
+        {
+
+            var @event = Envelope.Create(new ContentDeclined{ AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaDeclinedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
         private IWebhookEntity CreateWebhook(int offset)
         {
             var webhook = A.Dummy<IWebhookEntity>();
@@ -112,7 +274,12 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             {
                 SchemaId = schemaId.Id,
                 SendCreate = true,
-                SendUpdate = true
+                SendUpdate = true,
+                SendPublish = true,
+                SendDelete = true,
+                SendUnpublish = true,
+                SendSubmit = true,
+                SendDecline = true
             };
 
             A.CallTo(() => webhook.Id).Returns(Guid.NewGuid());

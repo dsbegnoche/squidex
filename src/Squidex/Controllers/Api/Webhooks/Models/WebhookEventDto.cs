@@ -8,6 +8,8 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NodaTime;
 using Squidex.Domain.Apps.Read.Webhooks;
 
@@ -55,11 +57,13 @@ namespace Squidex.Controllers.Api.Webhooks.Models
         /// <summary>
         /// The result of the event.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookResult Result { get; set; }
 
         /// <summary>
         /// The result of the job.
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public WebhookJobResult JobResult { get; set; }
     }
 }

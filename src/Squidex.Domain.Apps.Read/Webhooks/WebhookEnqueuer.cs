@@ -115,12 +115,14 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         private static bool Matchs(WebhookSchema webhookSchema, SchemaEvent @event)
         {
             return
-               (@event.SchemaId.Id == webhookSchema.SchemaId) &&
-               (@event is ContentCreated && webhookSchema.SendCreate ||
-                @event is ContentUpdated && webhookSchema.SendUpdate ||
-                @event is ContentDeleted && webhookSchema.SendDelete ||
-                @event is ContentPublished && webhookSchema.SendPublish ||
-                @event is ContentUnpublished && webhookSchema.SendUnpublish);
+                (@event.SchemaId.Id == webhookSchema.SchemaId) &&
+                (@event is ContentCreated && webhookSchema.SendCreate ||
+                 @event is ContentUpdated && webhookSchema.SendUpdate ||
+                 @event is ContentDeleted && webhookSchema.SendDelete ||
+                 @event is ContentPublished && webhookSchema.SendPublish ||
+                 @event is ContentUnpublished && webhookSchema.SendUnpublish ||
+                 @event is ContentSubmitted && webhookSchema.SendSubmit ||
+                 @event is ContentDeclined && webhookSchema.SendDecline);
         }
 
         private string CreatePayload(Envelope<IEvent> @event, string eventType)
