@@ -46,6 +46,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             typeNameRegisty.Map(typeof(ContentUnpublished));
             typeNameRegisty.Map(typeof(ContentDeleted));
             typeNameRegisty.Map(typeof(ContentSubmitted));
+            typeNameRegisty.Map(typeof(ContentDeclined));
 
             sut = new WebhookEnqueuer(
                 typeNameRegisty,
@@ -239,6 +240,32 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }
 
+        [Fact]
+        public async Task Should_send_decline_event_on_content_declined()
+        {
+
+            var @event = Envelope.Create(new ContentDeclined{ AppId = appId, SchemaId = schemaId });
+
+            var webhook1 = CreateWebhook(1);
+            var webhook2 = CreateWebhook(2);
+
+            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+                .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
+
+            await sut.On(@event);
+
+            A.CallTo(() => webhookEventRepository.EnqueueAsync(
+                A<WebhookJob>.That.Matches(webhookJob =>
+                    !string.IsNullOrWhiteSpace(webhookJob.RequestSignature)
+                    && !string.IsNullOrWhiteSpace(webhookJob.RequestBody)
+                    && webhookJob.Id != Guid.Empty
+                    && webhookJob.Expires == now.Plus(Duration.FromDays(2))
+                    && webhookJob.AppId == appId.Id
+                    && webhookJob.EventName == "MySchemaDeclinedEvent"
+                    && webhookJob.RequestUrl == webhook2.Url
+                    && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
+        }
+
         private IWebhookEntity CreateWebhook(int offset)
         {
             var webhook = A.Dummy<IWebhookEntity>();
@@ -251,7 +278,8 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                 SendPublish = true,
                 SendDelete = true,
                 SendUnpublish = true,
-                SendSubmit = true
+                SendSubmit = true,
+                SendDecline = true
             };
 
             A.CallTo(() => webhook.Id).Returns(Guid.NewGuid());

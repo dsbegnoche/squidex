@@ -57,6 +57,7 @@
                 <col style="width: 40px" />
                 <col style="width: 40px" />
                 <col style="width: 40px" />
+                <col style="width: 40px" />
             </colgroup>
 
             <tr>
@@ -67,22 +68,25 @@
                     All
                 </th>
                 <th class="text-center" title="Created">
-                    Cr
+                    Cre
                 </th>
                 <th class="text-center" title="Updated">
-                    Up
+                    Upd
                 </th>
                 <th class="text-center" title="Deleted">
-                    De
+                    Del
                 </th>
                 <th class="text-center" title="Published">
-                    Pu
+                    Pub
                 </th>
                 <th class="text-center" title="Unpublished">
-                    Un
+                    Unp
                 </th>
-                <th class="text-center" title="Unpublished">
-                    Su
+                <th class="text-center" title="Submitted">
+                    Sub
+                </th>
+                <th class="text-center" title="Declined">
+                    Dec
                 </th>
                 <th></th>
             </tr>
@@ -111,6 +115,9 @@
                 </td>
                 <td class="text-center" title="Submitted">
                     <input type="checkbox" [ngModel]="schema.sendSubmit" (ngModelChange)="toggle(schema, 'sendSubmit')" />
+                </td>
+                <td class="text-center" title="Declined">
+                    <input type="checkbox" [ngModel]="schema.sendDecline" (ngModelChange)="toggle(schema, 'sendDecline')" />
                 </td>
                 <td class="text-center">
                     <button type="button" class="btn btn-link btn-secondary"
