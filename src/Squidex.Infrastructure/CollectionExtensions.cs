@@ -10,9 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// ReSharper disable InvertIf
-// ReSharper disable LoopCanBeConvertedToQuery
-
 namespace Squidex.Infrastructure
 {
     public static class CollectionExtensions
@@ -28,9 +25,9 @@ namespace Squidex.Infrastructure
 
             foreach (var item in collection)
             {
-                if (item != null)
+                if (!Equals(item, null))
                 {
-                    hashCode = hashCode * 23 + comparer.GetHashCode(item);
+                    hashCode = (hashCode * 23) + comparer.GetHashCode(item);
                 }
             }
 
@@ -46,13 +43,13 @@ namespace Squidex.Infrastructure
         {
             Guard.NotNull(comparer, nameof(comparer));
 
-            var hashCodes = collection.Where(x => x != null).Select(x => x.GetHashCode()).OrderBy(x => x).ToArray();
+            var hashCodes = collection.Where(x => !Equals(x, null)).Select(x => x.GetHashCode()).OrderBy(x => x).ToArray();
 
             var hashCode = 17;
 
             foreach (var code in hashCodes)
             {
-                hashCode = hashCode * 23 + code;
+                hashCode = (hashCode * 23) + code;
             }
 
             return hashCode;
@@ -69,11 +66,11 @@ namespace Squidex.Infrastructure
 
             foreach (var kvp in dictionary.OrderBy(x => x.Key))
             {
-                hashCode = hashCode * 23 + keyComparer.GetHashCode(kvp.Key);
+                hashCode = (hashCode * 23) + keyComparer.GetHashCode(kvp.Key);
 
-                if (kvp.Value != null)
+                if (!Equals(kvp.Value, null))
                 {
-                    hashCode = hashCode * 23 + valueComparer.GetHashCode(kvp.Value);
+                    hashCode = (hashCode * 23) + valueComparer.GetHashCode(kvp.Value);
                 }
             }
 

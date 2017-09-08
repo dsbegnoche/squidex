@@ -13,8 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-// ReSharper disable InvertIf
-
 namespace Squidex.Infrastructure
 {
     public static class Guard
@@ -177,7 +175,7 @@ namespace Squidex.Infrastructure
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNull<T>(object target, string message) where T: Exception
+        public static void NotNull<T>(object target, string message) where T : Exception
         {
             if (target == null)
             {

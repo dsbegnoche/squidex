@@ -6,15 +6,15 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Squidex.Infrastructure;
-using Squidex.Domain.Apps.Core.Schemas.Json;
-
 namespace Squidex.Domain.Apps.Core.Schemas
 {
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using Squidex.Domain.Apps.Core.Schemas.Json;
+    using Squidex.Infrastructure;
+
     [JsonConverter(typeof(JsonInheritanceConverter), "fieldType")]
     [KnownType(typeof(AssetsFieldProperties))]
     [KnownType(typeof(BooleanFieldProperties))]
@@ -33,7 +33,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public bool IsRequired
         {
-            get { return isRequired; }
+            get
+            {
+                return isRequired;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -44,7 +47,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public bool IsListField
         {
-            get { return isListField; }
+            get
+            {
+                return isListField;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -55,7 +61,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public string Placeholder
         {
-            get { return placeholder; }
+            get
+            {
+                return placeholder;
+            }
             set
             {
                 ThrowIfFrozen();

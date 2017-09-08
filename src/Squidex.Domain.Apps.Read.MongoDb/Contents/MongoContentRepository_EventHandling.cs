@@ -18,9 +18,6 @@ using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Reflection;
 
-// ReSharper disable UnusedParameterGlobal
-// ReSharper disable ConvertToLambdaExpression
-
 namespace Squidex.Domain.Apps.Read.MongoDb.Contents
 {
     public partial class MongoContentRepository
@@ -98,6 +95,11 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
         }
 
         /// <summary> Meta function for updating content status (called based on event type) </summary>
+        /// <param name="event">event</param>
+        /// <param name="headers">headers</param>
+        /// <param name="isPublished">bool for published</param>
+        /// <param name="status">status</param>
+        /// <returns>void</returns>
         private Task SetContentStatus(ContentEvent @event, EnvelopeHeaders headers, bool isPublished, Status status) =>
             ForAppIdAsync(@event.AppId.Id, collection =>
             {
@@ -108,7 +110,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                 });
             });
 
-        protected Task On(ContentPublished @event, EnvelopeHeaders headers) => 
+        protected Task On(ContentPublished @event, EnvelopeHeaders headers) =>
             SetContentStatus(@event, headers, true, Status.Published);
 
         protected Task On(ContentUnpublished @event, EnvelopeHeaders headers) =>

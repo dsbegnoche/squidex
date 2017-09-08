@@ -19,10 +19,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
 using Xunit;
 
-// ReSharper disable MethodSupportsCancellation
-// ReSharper disable ImplicitlyCapturedClosure
-// ReSharper disable ConvertToConstant.Local
-
 namespace Squidex.Domain.Apps.Read.Webhooks
 {
     public class WebhookEnqueuerTests
@@ -76,7 +72,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_update_repositories_on_successful_requests()
         {
-
             var @event = Envelope.Create(new ContentCreated { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -113,7 +108,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_update_event_on_content_updated()
         {
-
             var @event = Envelope.Create(new ContentUpdated { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -139,7 +133,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_delete_event_on_content_deleted()
         {
-
             var @event = Envelope.Create(new ContentDeleted { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -165,7 +158,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_published_event_on_content_published()
         {
-
             var @event = Envelope.Create(new ContentPublished { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -191,7 +183,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_unpublish_event_on_content_unpublished()
         {
-
             var @event = Envelope.Create(new ContentUnpublished { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -217,7 +208,6 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_submit_event_on_content_submitted()
         {
-
             var @event = Envelope.Create(new ContentSubmitted { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
@@ -243,8 +233,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_decline_event_on_content_declined()
         {
-
-            var @event = Envelope.Create(new ContentDeclined{ AppId = appId, SchemaId = schemaId });
+            var @event = Envelope.Create(new ContentDeclined { AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);

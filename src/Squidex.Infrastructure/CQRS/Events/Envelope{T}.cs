@@ -8,32 +8,32 @@
 
 namespace Squidex.Infrastructure.CQRS.Events
 {
-    public class Envelope<TPayload> where TPayload : class
+    public class Envelope<T> where T : class
     {
         private readonly EnvelopeHeaders headers;
-        private readonly TPayload payload;
+        private readonly T payload;
 
         public EnvelopeHeaders Headers
         {
             get { return headers; }
         }
 
-        public TPayload Payload
+        public T Payload
         {
             get { return payload; }
         }
 
-        public Envelope(TPayload payload)
+        public Envelope(T payload)
             : this(payload, new EnvelopeHeaders())
         {
         }
 
-        public Envelope(TPayload payload, PropertiesBag bag)
+        public Envelope(T payload, PropertiesBag bag)
             : this(payload, new EnvelopeHeaders(bag))
         {
         }
 
-        public Envelope(TPayload payload, EnvelopeHeaders headers)
+        public Envelope(T payload, EnvelopeHeaders headers)
         {
             Guard.NotNull(payload, nameof(payload));
             Guard.NotNull(headers, nameof(headers));

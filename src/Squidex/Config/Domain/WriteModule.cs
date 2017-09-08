@@ -19,8 +19,6 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Pipeline.CommandHandlers;
 using Squidex.Pipeline.CommandMiddlewares;
 
-// ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Squidex.Config.Domain
 {
     public class WriteModule : Module
@@ -38,7 +36,7 @@ namespace Squidex.Config.Domain
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
-            builder.RegisterType<EnrichWithTimestampHandler>()
+            builder.RegisterType<EnrichWithTimestampCommandMiddleware>()
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
@@ -110,7 +108,7 @@ namespace Squidex.Config.Domain
                 {
                     var fieldRegistry = c.Resolve<FieldRegistry>();
 
-                    return (id => new SchemaDomainObject(id, -1, fieldRegistry));
+                    return id => new SchemaDomainObject(id, -1, fieldRegistry);
                 })
                 .AsSelf()
                 .SingleInstance();

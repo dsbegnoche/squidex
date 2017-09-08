@@ -75,7 +75,7 @@ namespace Squidex.Config.Identity
 
         public bool IsCivicPlusConfigured()
         {
-            return 
+            return
                 !string.IsNullOrWhiteSpace(CivicPlusIdentityServerBaseUrl) &&
                 !string.IsNullOrWhiteSpace(CivicPlusPlatformBaseUrl) &&
                 !string.IsNullOrWhiteSpace(CivicPlusAuthority) &&

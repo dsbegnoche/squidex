@@ -17,7 +17,7 @@ namespace Squidex.Domain.Users
 {
     public class MongoDbTests
     {
-        // [NRI] negating this because Microsoft.AspNetCore.Identity.MongoDB isn't in .net core 2.0 yet, 
+        // [NRI] negating this because Microsoft.AspNetCore.Identity.MongoDB isn't in .net core 2.0 yet,
         // and that breaks mocking layout we use.
         /*
         private readonly Mock<IMongoDatabase> mockMongoDb = new Mock<IMongoDatabase>();
@@ -439,4 +439,3 @@ namespace Squidex.Domain.Users
         */
     }
 }
-

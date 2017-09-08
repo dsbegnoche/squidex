@@ -1,22 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using CivicPlusIdentityServer.SDK.NetCore.Entities;
-using Microsoft.AspNetCore.Mvc;
-using NSwag.Annotations;
-using RestSharp;
-using Squidex.Controllers.Toolbar.Models;
-using Squidex.Pipeline;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Squidex.Shared.Users;
-using Squidex.Config;
-using Squidex.Config.Identity;
-using Squidex.Infrastructure.Reflection;
+﻿// ==========================================================================
+//  CivicPlus implementation of Squidex Headless CMS
+// ==========================================================================
 
 namespace Squidex.Controllers.Toolbar
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Threading.Tasks;
+    using CivicPlusIdentityServer.SDK.NetCore.Entities;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Options;
+    using NSwag.Annotations;
+    using RestSharp;
+    using Squidex.Config;
+    using Squidex.Config.Identity;
+    using Squidex.Controllers.Toolbar.Models;
+    using Squidex.Infrastructure.Reflection;
+    using Squidex.Pipeline;
+    using Squidex.Shared.Users;
+
     [SwaggerIgnore]
     public class ToolbarController : Controller
     {
@@ -94,6 +98,7 @@ namespace Squidex.Controllers.Toolbar
                 List<CpHelpLinksDto> helpLinks = Newtonsoft.Json.JsonConvert.DeserializeObject<List<CpHelpLinksDto>>(response.Content);
                 return Ok(helpLinks);
             }
+
             return BadRequest();
         }
 
@@ -130,7 +135,6 @@ namespace Squidex.Controllers.Toolbar
                 Title = "ResetPasswordLink",
                 Url = resetPasswordUrl
             });
-
 
             return Ok(response);
         }

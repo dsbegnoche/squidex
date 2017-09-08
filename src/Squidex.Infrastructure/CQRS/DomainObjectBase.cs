@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using Squidex.Infrastructure.CQRS.Events;
 
-// ReSharper disable ImpureMethodCallOnReadonlyValueField
-
 namespace Squidex.Infrastructure.CQRS
 {
     public abstract class DomainObjectBase : IAggregate, IEquatable<IAggregate>

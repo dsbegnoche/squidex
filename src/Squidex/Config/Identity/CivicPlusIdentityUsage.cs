@@ -2,7 +2,6 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

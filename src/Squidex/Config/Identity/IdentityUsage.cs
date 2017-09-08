@@ -19,9 +19,6 @@ using Squidex.Infrastructure.Log;
 using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
-// ReSharper disable ConvertIfStatementToConditionalTernaryExpression
-// ReSharper disable InvertIf
-
 namespace Squidex.Config.Identity
 {
     public static class IdentityUsage
@@ -66,11 +63,11 @@ namespace Squidex.Config.Identity
 
                 Task.Run(async () =>
                 {
-                    if ((userManager.SupportsQueryableUsers && !userManager.Users.Any()))
+                    if (userManager.SupportsQueryableUsers && !userManager.Users.Any())
                     {
                         try
                         {
-                            var user =  await userManager.CreateAsync(userFactory, adminEmail, adminEmail, adminPass);
+                            var user = await userManager.CreateAsync(userFactory, adminEmail, adminEmail, adminPass);
 
                             await userManager.AddToRoleAsync(user, SquidexRoles.Administrator);
                         }

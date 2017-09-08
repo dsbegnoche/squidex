@@ -26,9 +26,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.Security;
 
-// ReSharper disable InvertIf
-// ReSharper disable UnusedAutoPropertyAccessor.Local
-
 namespace Squidex.Domain.Apps.Read.Contents
 {
     public sealed class ContentQueryService : IContentQueryService
@@ -157,7 +154,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
         private sealed class Content : IContentEntity
         {
-            public Content() { }
+            public Content()
+            {
+            }
 
             public Guid Id { get; set; }
             public Guid AppId { get; set; }

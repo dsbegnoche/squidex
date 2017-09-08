@@ -10,8 +10,6 @@ using Jint.Native;
 using Jint.Runtime.Descriptors;
 using Newtonsoft.Json.Linq;
 
-// ReSharper disable InvertIf
-
 namespace Squidex.Domain.Apps.Core.Scripting.ContentWrapper
 {
     public sealed class ContentFieldProperty : PropertyDescriptor
@@ -23,7 +21,10 @@ namespace Squidex.Domain.Apps.Core.Scripting.ContentWrapper
 
         public override JsValue Value
         {
-            get { return value ?? (value = JsonMapper.Map(contentValue, contentField.Engine)); }
+            get
+            {
+                return value ?? (value = JsonMapper.Map(contentValue, contentField.Engine));
+            }
             set
             {
                 if (!Equals(this.value, value))

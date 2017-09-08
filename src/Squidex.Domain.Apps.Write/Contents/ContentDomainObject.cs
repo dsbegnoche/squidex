@@ -220,7 +220,6 @@ namespace Squidex.Domain.Apps.Write.Contents
             return this;
         }
 
-
         private void VerifyNotCreated()
         {
             if (isCreated)

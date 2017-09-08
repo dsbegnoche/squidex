@@ -6,8 +6,8 @@
 //  All rights reserved.
 // ==========================================================================
 
-using Squidex.Domain.Apps.Core.Apps;
 using System;
+using Squidex.Domain.Apps.Core.Apps;
 
 namespace Squidex.Domain.Apps.Write.Contents.Commands
 {

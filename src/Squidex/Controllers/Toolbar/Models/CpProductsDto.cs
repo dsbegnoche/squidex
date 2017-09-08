@@ -1,7 +1,8 @@
 ﻿namespace Squidex.Controllers.Toolbar.Models
 {
     public sealed class CpProductsDto
-    {        /// <summary>
+    {
+        /// <summary>
         /// The name of the product.
         /// </summary>
         public string Name { get; set; }
@@ -10,7 +11,7 @@
         /// The id of the product.
         /// </summary>
         public int Id { get; set; }
-        
+
         /// <summary>
         /// The description of the product.
         /// </summary>

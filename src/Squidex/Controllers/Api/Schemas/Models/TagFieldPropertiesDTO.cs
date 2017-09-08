@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿// ==========================================================================
+//  CivicPlus implementation of Squidex Headless CMS
+// ==========================================================================
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NJsonSchema.Annotations;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Infrastructure.Reflection;
-
 
 namespace Squidex.Controllers.Api.Schemas.Models
 {

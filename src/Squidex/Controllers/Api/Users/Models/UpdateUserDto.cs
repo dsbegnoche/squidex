@@ -22,6 +22,5 @@ namespace Squidex.Controllers.Api.Users.Models
         public string Password { get; set; }
 
         public bool? IsAdministrator { get; set; }
-
     }
 }

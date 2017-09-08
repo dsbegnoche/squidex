@@ -6,14 +6,14 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Squidex.Domain.Apps.Core.Schemas.Json;
-using Squidex.Domain.Apps.Core.Schemas;
-
 namespace Squidex.Controllers.Api.Schemas.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Runtime.Serialization;
+    using Newtonsoft.Json;
+    using Squidex.Domain.Apps.Core.Schemas;
+    using Squidex.Domain.Apps.Core.Schemas.Json;
+
     [JsonConverter(typeof(JsonInheritanceConverter), "fieldType")]
     [KnownType(typeof(AssetsFieldPropertiesDto))]
     [KnownType(typeof(BooleanFieldPropertiesDto))]

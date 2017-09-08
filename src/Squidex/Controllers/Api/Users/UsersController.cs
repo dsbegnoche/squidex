@@ -21,15 +21,13 @@ using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 using Squidex.Shared.Users;
 
-// ReSharper disable InvertIf
-
 namespace Squidex.Controllers.Api.Users
 {
     /// <summary>
     /// Readonly API to retrieve information about squidex users.
     /// </summary>
     [ApiExceptionFilter]
-    [SwaggerTag("Users")]
+    [SwaggerTag(nameof(Users))]
     public sealed class UsersController : Controller
     {
         private static readonly byte[] AvatarBytes;

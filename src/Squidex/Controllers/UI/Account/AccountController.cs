@@ -27,10 +27,6 @@ using Squidex.Infrastructure.Tasks;
 using Squidex.Shared.Identity;
 using Squidex.Shared.Users;
 
-// ReSharper disable InvertIf
-// ReSharper disable RedundantIfElseBlock
-// ReSharper disable ConvertIfStatementToReturnStatement
-
 namespace Squidex.Controllers.UI.Account
 {
     [SwaggerIgnore]
@@ -237,7 +233,7 @@ namespace Squidex.Controllers.UI.Account
 
         [HttpGet]
         [Route("account/external-callback/")]
-        public async Task<IActionResult> ExternalCallback(string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> ExternalCallback(string returnUrl = null)
         {
             var externalLogin = await signInManager.GetExternalLoginInfoWithDisplayNameAsync();
 
@@ -356,7 +352,7 @@ namespace Squidex.Controllers.UI.Account
                 user.SetClaim(SquidexClaimTypes.SquidexPictureUrl, GravatarHelper.CreatePictureUrl(email));
             }
 
-            foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix)))
+            foreach (var squidexClaim in externalLogin.Principal.Claims.Where(c => c.Type.StartsWith(SquidexClaimTypes.Prefix, StringComparison.Ordinal)))
             {
                 user.AddClaim(squidexClaim);
             }

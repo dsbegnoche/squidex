@@ -114,7 +114,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
             // ensure tag fields can't be renamed
             if (command.FieldId == 1 )
             {
-                command.Properties.Label = "";
+                command.Properties.Label = string.Empty;
             }
 
             return handler.UpdateAsync<SchemaDomainObject>(context, s => s.UpdateField(command));

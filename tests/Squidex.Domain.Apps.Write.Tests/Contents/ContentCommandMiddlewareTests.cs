@@ -29,8 +29,6 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Shared.Identity;
 using Xunit;
 
-// ReSharper disable ConvertToConstant.Local
-
 namespace Squidex.Domain.Apps.Write.Contents
 {
     public class ContentCommandMiddlewareTests : HandlerTestBase<ContentDomainObject>

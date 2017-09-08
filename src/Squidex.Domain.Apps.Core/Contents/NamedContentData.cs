@@ -15,9 +15,6 @@ using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Json;
 
-// ReSharper disable SuspiciousTypeConversion.Global
-// ReSharper disable InvertIf
-
 namespace Squidex.Domain.Apps.Core.Contents
 {
     public sealed class NamedContentData : ContentData<string>, IEquatable<NamedContentData>
@@ -90,7 +87,7 @@ namespace Squidex.Domain.Apps.Core.Contents
             return result;
         }
 
-        public NamedContentData ToApiModel(Schema schema, LanguagesConfig languagesConfig, IReadOnlyCollection<Language> languagePreferences = null, bool excludeHidden = true)
+        public NamedContentData ToApiModel(Schema schema, LanguagesConfig languagesConfig, bool excludeHidden = true)
         {
             Guard.NotNull(schema, nameof(schema));
             Guard.NotNull(languagesConfig, nameof(languagesConfig));

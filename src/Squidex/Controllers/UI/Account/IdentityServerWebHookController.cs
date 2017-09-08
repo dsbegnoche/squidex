@@ -24,8 +24,10 @@ namespace Squidex.Controllers.UI.Account
         }
 
         /// <summary>Callback for Change Identity Webhook for Identity Server.</summary>
+        /// <param name="webHookObj">webhook from CPP</param>
+        /// <returns>IActionResult if suceeded or failed</returns>
         [Route("account/external/webhooks/identityserver/")]
-        public async Task<IActionResult> ChangeIdentity([FromBody] WebHookResponse<ChangeIndentity> webHookObj)
+        public async Task<IActionResult> ChangeIdentity([FromBody] WebHookResponse<ChangeIdentity> webHookObj)
         {
             if (Request.Method == "GET")
             {
@@ -40,8 +42,8 @@ namespace Squidex.Controllers.UI.Account
             bool isValid = !(webHookObj?.Notifications == null || !webHookObj.Notifications.Any());
             if (isValid)
             {
-                //Extra sanity Validation
-                foreach (ChangeIndentity notification in webHookObj.Notifications)
+                // Extra sanity Validation
+                foreach (ChangeIdentity notification in webHookObj.Notifications)
                 {
                     if (notification == null
                         || notification.Action != "UserIdentityChanged"
@@ -55,13 +57,14 @@ namespace Squidex.Controllers.UI.Account
                     }
                 }
             }
+
             if (!isValid)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Content("Invalid Request.");
             }
 
-            //Process notification
+            // Process notification
             foreach (var notification in webHookObj.Notifications)
             {
                 var user = await userManager.FindByIdentityServerId(notification.Id.ToString());
@@ -76,6 +79,7 @@ namespace Squidex.Controllers.UI.Account
                     await userManager.UpdateAsync(user);
                 }
             }
+
             Response.StatusCode = (int)HttpStatusCode.Accepted;
             return Content(string.Empty);
         }

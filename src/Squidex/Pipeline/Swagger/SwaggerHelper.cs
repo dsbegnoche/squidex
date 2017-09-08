@@ -96,7 +96,7 @@ namespace Squidex.Pipeline.Swagger
                         { Constants.ApiScope, "Read and write access to the API" },
                         { SquidexRoles.AppOwner, "App contributor with Owner permission." },
                         { SquidexRoles.AppEditor, "Client (writer) or App contributor with Editor permission." },
-                        //{ SquidexRoles.AppReader, "Client (readonly) or App contributor with Editor permission." },
+                        { SquidexRoles.AppReader, "Client (readonly) or App contributor with Editor permission." },
                         { SquidexRoles.AppAuthor, "Client (Author) or App contributor with Author permission." },
                         { SquidexRoles.AppDeveloper, "App contributor with Developer permission." },
                     },

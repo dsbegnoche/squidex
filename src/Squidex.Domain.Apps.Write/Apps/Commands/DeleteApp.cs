@@ -12,7 +12,6 @@ namespace Squidex.Domain.Apps.Write.Apps.Commands
 {
     public sealed class DeleteApp : AppAggregateCommand
     {
-
         public DeleteApp(string name, Guid id)
         {
             AppId = new NamedId<Guid>(id, name);

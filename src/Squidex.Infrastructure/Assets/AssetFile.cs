@@ -31,9 +31,9 @@ namespace Squidex.Infrastructure.Assets
 
         public long CurrentAssetRepoSize { get; }
 
-        public AssetFile(string fileName, string mimeType, long fileSize, 
-                         Func<Stream> openAction, string briefDescription, 
-                         string[] tags, 
+        public AssetFile(string fileName, string mimeType, long fileSize,
+                         Func<Stream> openAction, string briefDescription,
+                         string[] tags,
                          AssetConfig assetConfig = null, long? maxAssetRepoSize = null, long? currentAssetRepoSize = null)
         {
             Guard.NotNullOrEmpty(fileName, nameof(fileName));

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Extensions.Primitives;
 using NSwag.Annotations;
 using Squidex.Controllers.ContentApi.Models;
+using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Read.Contents;
 using Squidex.Domain.Apps.Read.Contents.GraphQL;
@@ -23,11 +24,6 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
-using Squidex.Domain.Apps.Core.Apps;
-
-// ReSharper disable InvertIf
-// ReSharper disable PossibleNullReferenceException
-// ReSharper disable RedundantIfElseBlock
 
 namespace Squidex.Controllers.ContentApi
 {
@@ -98,7 +94,7 @@ namespace Squidex.Controllers.ContentApi
 
                     if (item.Data != null)
                     {
-                        itemModel.Data = item.Data.ToApiModel(contents.Schema.SchemaDef, App.LanguagesConfig, null, !isFrontendClient);
+                        itemModel.Data = item.Data.ToApiModel(contents.Schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);
                     }
 
                     return itemModel;
@@ -122,7 +118,7 @@ namespace Squidex.Controllers.ContentApi
             {
                 var isFrontendClient = User.IsFrontendClient();
 
-                response.Data = content.Content.Data.ToApiModel(content.Schema.SchemaDef, App.LanguagesConfig, null, !isFrontendClient);
+                response.Data = content.Content.Data.ToApiModel(content.Schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);
             }
 
             Response.Headers["ETag"] = new StringValues(content.Content.Version.ToString());

@@ -11,29 +11,25 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
-// ReSharper disable VirtualMemberCallInConstructor
-// ReSharper disable MemberCanBeProtected.Global
-
 namespace Squidex.Infrastructure.Assets
 {
     public abstract class AssetStoreTests<T> : IDisposable where T : IAssetStore
     {
-        private readonly T sut;
+        private readonly Lazy<T> sut;
 
         protected AssetStoreTests()
         {
-            sut = CreateStore();
+            sut = new Lazy<T>(CreateStore);
         }
 
         protected T Sut
         {
-            get { return sut; }
+            get { return sut.Value; }
         }
 
         public abstract T CreateStore();
 
         public abstract void Dispose();
-
 
         [Fact]
         public Task Should_throw_exception_if_asset_to_download_is_not_found()

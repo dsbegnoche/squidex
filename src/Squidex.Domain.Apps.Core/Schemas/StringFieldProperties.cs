@@ -11,8 +11,6 @@ using System.Collections.Immutable;
 using Newtonsoft.Json.Linq;
 using Squidex.Infrastructure;
 
-// ReSharper disable ObjectCreationAsStatement
-
 namespace Squidex.Domain.Apps.Core.Schemas
 {
     [TypeName("StringField")]
@@ -28,7 +26,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public int? MinLength
         {
-            get { return minLength; }
+            get
+            {
+                return minLength;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -39,7 +40,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public int? MaxLength
         {
-            get { return maxLength; }
+            get
+            {
+                return maxLength;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -50,7 +54,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public string DefaultValue
         {
-            get { return defaultValue; }
+            get
+            {
+                return defaultValue;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -61,7 +68,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public string Pattern
         {
-            get { return pattern; }
+            get
+            {
+                return pattern;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -72,7 +82,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public string PatternMessage
         {
-            get { return patternMessage; }
+            get
+            {
+                return patternMessage;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -83,7 +96,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public ImmutableList<string> AllowedValues
         {
-            get { return allowedValues; }
+            get
+            {
+                return allowedValues;
+            }
             set
             {
                 ThrowIfFrozen();
@@ -94,7 +110,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public StringFieldEditor Editor
         {
-            get { return editor; }
+            get
+            {
+                return editor;
+            }
             set
             {
                 ThrowIfFrozen();

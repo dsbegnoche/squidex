@@ -11,8 +11,6 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Squidex.Domain.Apps.Core.Contents;
 
-// ReSharper disable InvertIf
-
 namespace Squidex.Domain.Apps.Core.Scripting.ContentWrapper
 {
     public sealed class ContentDataProperty : PropertyDescriptor
@@ -23,7 +21,10 @@ namespace Squidex.Domain.Apps.Core.Scripting.ContentWrapper
 
         public override JsValue Value
         {
-            get { return value; }
+            get
+            {
+                return value;
+            }
             set
             {
                 if (!Equals(this.value, value))

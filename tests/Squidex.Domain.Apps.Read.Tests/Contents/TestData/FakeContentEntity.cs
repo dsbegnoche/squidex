@@ -34,7 +34,6 @@ namespace Squidex.Domain.Apps.Read.Contents.TestData
 
         public Status Status { get; set; }
 
-
         public NamedContentData Data { get; set; }
     }
 }

@@ -18,8 +18,6 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
-// ReSharper disable RedundantIfElseBlock
-
 namespace Squidex.Controllers.Api.Plans
 {
     /// <summary>
@@ -27,7 +25,7 @@ namespace Squidex.Controllers.Api.Plans
     /// </summary>
     [ApiExceptionFilter]
     [AppApi]
-    [SwaggerTag("Plans")]
+    [SwaggerTag(nameof(Plans))]
     public sealed class AppPlansController : ControllerBase
     {
         private readonly IAppPlansProvider appPlansProvider;

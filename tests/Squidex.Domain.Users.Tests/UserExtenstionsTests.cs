@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using IdentityServer4.Endpoints;
-//using Microsoft.AspNetCore.Identity.MongoDB;
+// using Microsoft.AspNetCore.Identity.MongoDB;
 using Microsoft.AspNetCore.Identity;
 using Squidex.Shared.Identity;
 using Squidex.Shared.Users;

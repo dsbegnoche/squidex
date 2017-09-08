@@ -24,11 +24,11 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public TagFieldEditor Editor { get; set; } = TagFieldEditor.Input;
 
-        public string DefaultValue { get; set; } = "";
+        public string DefaultValue { get; set; } = string.Empty;
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
-            // you have to have some kind of return value, and doing the 
+            // you have to have some kind of return value, and doing the
             // condition like this evades the unreachable code warning.
             var condition = false;
             if (condition)

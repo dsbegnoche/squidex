@@ -28,7 +28,7 @@ namespace Squidex.Infrastructure.CQRS.Commands
         public async Task Should_set_timestamp_for_timestamp_command()
         {
             var utc = Instant.FromUnixTimeSeconds(1000);
-            var sut = new EnrichWithTimestampHandler(clock);
+            var sut = new EnrichWithTimestampCommandMiddleware(clock);
 
             A.CallTo(() => clock.GetCurrentInstant())
                 .Returns(utc);
@@ -43,7 +43,7 @@ namespace Squidex.Infrastructure.CQRS.Commands
         [Fact]
         public async Task Should_do_nothing_for_normal_command()
         {
-            var sut = new EnrichWithTimestampHandler(clock);
+            var sut = new EnrichWithTimestampCommandMiddleware(clock);
 
             await sut.HandleAsync(new CommandContext(A.Dummy<ICommand>()));
 

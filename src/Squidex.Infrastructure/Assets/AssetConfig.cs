@@ -6,8 +6,6 @@
 //  All rights reserved.
 // ==========================================================================
 
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
-
 namespace Squidex.Infrastructure.Assets
 {
     public class AssetConfig

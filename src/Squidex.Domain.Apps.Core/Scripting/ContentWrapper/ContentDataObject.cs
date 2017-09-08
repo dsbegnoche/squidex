@@ -14,7 +14,7 @@ using Jint.Runtime.Descriptors;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Infrastructure;
 
-// ReSharper disable InvertIf
+#pragma warning disable RECS0133 // Parameter name differs in base declaration
 
 namespace Squidex.Domain.Apps.Core.Scripting.ContentWrapper
 {

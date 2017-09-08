@@ -145,8 +145,8 @@ namespace Squidex.Config.Identity
                 {
                     SquidexClaimTypes.SquidexDisplayName,
                     SquidexClaimTypes.SquidexPictureUrl,
-					SquidexClaimTypes.SquidexFirstName,
-					SquidexClaimTypes.SquidexLastName
+                    SquidexClaimTypes.SquidexFirstName,
+                    SquidexClaimTypes.SquidexLastName
                 });
         }
     }

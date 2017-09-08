@@ -6,18 +6,17 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Squidex.Domain.Apps.Write.Assets.Commands;
-using Squidex.Infrastructure;
-using Squidex.Infrastructure.Assets;
-using Squidex.Infrastructure.CQRS.Commands;
-using Squidex.Infrastructure.Dispatching;
-using System.Collections.Generic;
-
 namespace Squidex.Domain.Apps.Write.Assets
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Squidex.Domain.Apps.Write.Assets.Commands;
+    using Squidex.Infrastructure;
+    using Squidex.Infrastructure.Assets;
+    using Squidex.Infrastructure.CQRS.Commands;
+    using Squidex.Infrastructure.Dispatching;
+
     public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
@@ -38,11 +37,12 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetThumbnailGenerator = assetThumbnailGenerator;
         }
 
-
         private void ValidateCond(bool condition, string message)
         {
             if (condition)
+            {
                 throw new ValidationException("Cannot create asset.", new ValidationError(message));
+            }
         }
 
         private void CheckAssetFileAsync(AssetFile file)
@@ -52,8 +52,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
 
-            ValidateCond(file.MaxAssetRepoSize > 0 && 
-                         file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize, 
+            ValidateCond(file.MaxAssetRepoSize > 0 &&
+                         file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize,
                          "You have reached your max asset size.");
 
             ValidateCond(!filename.Contains("."), "Asset has no extensions found");

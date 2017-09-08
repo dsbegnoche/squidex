@@ -27,8 +27,6 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Reflection;
 
-// ReSharper disable ConvertToLambdaExpression
-
 namespace Squidex.Domain.Apps.Write.Contents
 {
     public class ContentCommandMiddleware : ICommandMiddleware
@@ -163,7 +161,6 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             return handler.UpdateAsync<ContentDomainObject>(context, c => c.Decline(command));
         }
-
 
         public async Task HandleAsync(CommandContext context, Func<Task> next)
         {

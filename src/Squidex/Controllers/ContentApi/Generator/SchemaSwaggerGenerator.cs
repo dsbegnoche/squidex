@@ -19,8 +19,6 @@ using Squidex.Infrastructure;
 using Squidex.Pipeline.Swagger;
 using Squidex.Shared.Identity;
 
-// ReSharper disable InvertIf
-
 namespace Squidex.Controllers.ContentApi.Generator
 {
     public sealed class SchemaSwaggerGenerator
@@ -64,8 +62,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             };
         }
 
-        public SchemaSwaggerGenerator(SwaggerDocument document, string path, Schema schema,
-            Func<string, JsonSchema4, JsonSchema4> schemaResolver, PartitionResolver partitionResolver)
+        public SchemaSwaggerGenerator(SwaggerDocument document, string path, Schema schema, Func<string, JsonSchema4, JsonSchema4> schemaResolver, PartitionResolver partitionResolver)
         {
             this.document = document;
 

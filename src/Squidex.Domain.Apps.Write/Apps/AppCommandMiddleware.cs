@@ -6,27 +6,25 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Squidex.Domain.Apps.Read.Apps.Repositories;
-using Squidex.Domain.Apps.Read.Apps.Services;
-using Squidex.Domain.Apps.Write.Apps.Commands;
-using Squidex.Domain.Apps.Write.Schemas;
-using Squidex.Domain.Apps.Write.Schemas.Commands;
-using Squidex.Infrastructure;
-using Squidex.Infrastructure.CQRS.Commands;
-using Squidex.Infrastructure.Dispatching;
-using Squidex.Shared.Users;
-using Newtonsoft.Json;
-using System.IO;
-using System.Linq;
-using Squidex.Domain.Apps.Core.Schemas;
-
-// ReSharper disable InvertIf
-
 namespace Squidex.Domain.Apps.Write.Apps
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Newtonsoft.Json;
+    using Squidex.Domain.Apps.Core.Schemas;
+    using Squidex.Domain.Apps.Read.Apps.Repositories;
+    using Squidex.Domain.Apps.Read.Apps.Services;
+    using Squidex.Domain.Apps.Write.Apps.Commands;
+    using Squidex.Domain.Apps.Write.Schemas;
+    using Squidex.Domain.Apps.Write.Schemas.Commands;
+    using Squidex.Infrastructure;
+    using Squidex.Infrastructure.CQRS.Commands;
+    using Squidex.Infrastructure.Dispatching;
+    using Squidex.Shared.Users;
+
     public class AppCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
@@ -100,7 +98,7 @@ namespace Squidex.Domain.Apps.Write.Apps
                     var refFieldToUpdate =
                         schema.Fields.FirstOrDefault(f => f.Properties is ReferencesFieldProperties);
 
-                    //Get reference schemas here
+                    // Get reference schemas here
                     if (refFieldToUpdate != null)
                     {
                         ReferencesFieldProperties fieldProperties = (ReferencesFieldProperties)refFieldToUpdate.Properties;

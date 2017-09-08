@@ -15,9 +15,7 @@ using Squidex.Domain.Apps.Read.Webhooks.Repositories;
 using Squidex.Infrastructure.Log;
 using Xunit;
 
-// ReSharper disable MethodSupportsCancellation
-// ReSharper disable ImplicitlyCapturedClosure
-// ReSharper disable ConvertToConstant.Local
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
 
 namespace Squidex.Domain.Apps.Read.Webhooks
 {

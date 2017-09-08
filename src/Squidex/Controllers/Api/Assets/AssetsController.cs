@@ -26,8 +26,6 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
 
-// ReSharper disable PossibleNullReferenceException
-
 namespace Squidex.Controllers.Api.Assets
 {
     /// <summary>
@@ -35,7 +33,7 @@ namespace Squidex.Controllers.Api.Assets
     /// </summary>
     [ApiExceptionFilter]
     [AppApi]
-    [SwaggerTag("Assets")]
+    [SwaggerTag(nameof(Assets))]
     public sealed class AssetsController : ControllerBase
     {
         private readonly IAssetRepository assetRepository;
@@ -263,13 +261,11 @@ namespace Squidex.Controllers.Api.Assets
             var formFile = formFiles[0];
 
             // validation of input happens on asset creation middleware
-            return new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length, 
-                                 formFile.OpenReadStream, "", new string[0], 
-                                 // Extended AssetFile to have context for validation
-                                 assetsConfig,  
+            return new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length,
+                                 formFile.OpenReadStream, string.Empty, new string[0],
+                                 assetsConfig, // Extended AssetFile to have context for validation
                                  appPlanProvider.GetPlanForApp(App).MaxAssetSize,
                                  await assetStatsRepository.GetTotalSizeAsync(App.Id));
         }
-
     }
 }

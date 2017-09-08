@@ -12,14 +12,11 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Squidex.Domain.Apps.Write.Assets.Commands;
 using Squidex.Domain.Apps.Write.TestHelpers;
+using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Tasks;
 using Xunit;
-using Squidex.Infrastructure;
-
-// ReSharper disable ImplicitlyCapturedClosure
-// ReSharper disable ConvertToConstant.Local
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
@@ -59,7 +56,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                     await sut.HandleAsync(context);
                 });
             });
-        } 
+        }
 
         [Fact]
         public async Task Create_should_validate_asset_size()
@@ -68,9 +65,9 @@ namespace Squidex.Domain.Apps.Write.Assets
             var sizeReference = configReference.MaxSize;
             var testSize = sizeReference + 1;
 
-            var invalidFile = 
-                new AssetFile("my-image.png", "image/png", testSize, () => stream, 
-                              "my-image description", new[] { "tag" }, configReference); 
+            var invalidFile =
+                new AssetFile("my-image.png", "image/png", testSize, () => stream,
+                              "my-image description", new[] { "tag" }, configReference);
 
             var context = CreateContextForCommand(new CreateAsset { AssetId = assetId, File = invalidFile });
 
@@ -84,7 +81,6 @@ namespace Squidex.Domain.Apps.Write.Assets
                     await sut.HandleAsync(context);
                 });
             });
-
         }
 
         [Fact]

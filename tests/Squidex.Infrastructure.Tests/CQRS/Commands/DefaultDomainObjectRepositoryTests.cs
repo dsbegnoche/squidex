@@ -14,9 +14,6 @@ using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Tasks;
 using Xunit;
 
-// ReSharper disable ImplicitlyCapturedClosure
-// ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
-
 namespace Squidex.Infrastructure.CQRS.Commands
 {
     public class DefaultDomainObjectRepositoryTests
@@ -56,7 +53,8 @@ namespace Squidex.Infrastructure.CQRS.Commands
                 get { return appliedEvents; }
             }
 
-            public MyDomainObject(Guid id, int version) : base(id, version)
+            public MyDomainObject(Guid id, int version)
+                : base(id, version)
             {
             }
 

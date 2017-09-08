@@ -6,21 +6,18 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System;
-using System.ComponentModel;
-using Squidex.Domain.Apps.Events.Assets;
-using Squidex.Domain.Apps.Write.Assets.Commands;
-using Squidex.Infrastructure;
-using Squidex.Infrastructure.CQRS;
-using Squidex.Infrastructure.CQRS.Events;
-using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Reflection;
-using System.Linq;
-
-// ReSharper disable UnusedParameter.Local
-
 namespace Squidex.Domain.Apps.Write.Assets
 {
+    using System;
+    using System.Linq;
+    using Squidex.Domain.Apps.Events.Assets;
+    using Squidex.Domain.Apps.Write.Assets.Commands;
+    using Squidex.Infrastructure;
+    using Squidex.Infrastructure.CQRS;
+    using Squidex.Infrastructure.CQRS.Events;
+    using Squidex.Infrastructure.Dispatching;
+    using Squidex.Infrastructure.Reflection;
+
     public class AssetDomainObject : DomainObjectBase
     {
         private bool isDeleted;
@@ -32,12 +29,18 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         public bool IsDeleted
         {
-            get { return isDeleted; }
+            get
+            {
+                return isDeleted;
+            }
         }
 
         public long FileVersion
         {
-            get { return fileVersion; }
+            get
+            {
+                return fileVersion;
+            }
         }
 
         public AssetDomainObject(Guid id, int version)

@@ -76,7 +76,7 @@ namespace Squidex.Controllers.UI.Profile
 
         [HttpGet]
         [Route("/account/profile/login-add-callback/")]
-        public Task<IActionResult> AddLoginCallback(string remoteError = null)
+        public Task<IActionResult> AddLoginCallback()
         {
             return MakeChangeAsync(async user =>
             {
@@ -88,7 +88,7 @@ namespace Squidex.Controllers.UI.Profile
 
         [HttpPost]
         [Route("/account/profile/update")]
-        public Task<IActionResult> Profile(ChangeProfileModel model)
+        public Task<IActionResult> UpdateProfile(ChangeProfileModel model)
         {
             return MakeChangeAsync(user => userManager.UpdateAsync(user, model.Email, model.DisplayName, model.FirstName, model.LastName),
                 "Account updated successfully.");
@@ -114,7 +114,7 @@ namespace Squidex.Controllers.UI.Profile
         [Route("/account/profile/password-change")]
         public Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
-            return MakeChangeAsync(user =>  userManager.ChangePasswordAsync(user, model.OldPassword, model.Password),
+            return MakeChangeAsync(user => userManager.ChangePasswordAsync(user, model.OldPassword, model.Password),
                 "Password changed successfully.");
         }
 

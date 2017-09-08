@@ -6,7 +6,7 @@ using System;
 
 namespace Squidex.Controllers.UI.Account
 {
-    public class ChangeIndentity
+    public class ChangeIdentity
     {
         /// <summary>Type of notification action.</summary>
         public string Action { get; set; }

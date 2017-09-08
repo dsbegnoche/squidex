@@ -16,8 +16,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS;
 using Xunit;
 
-// ReSharper disable ConvertToConstant.Local
-
 namespace Squidex.Domain.Apps.Write.Schemas
 {
     public class SchemaDomainObjectTests : HandlerTestBase<SchemaDomainObject>
@@ -91,8 +89,9 @@ namespace Squidex.Domain.Apps.Write.Schemas
                     {
                         Name = SchemaName,
                         Properties = properties,
-                        Fields = new[] {
-                         new SchemaCreatedField
+                        Fields = new[]
+                        {
+                            new SchemaCreatedField
                             {
                                 Properties = new TagFieldProperties
                                 {
@@ -102,7 +101,8 @@ namespace Squidex.Domain.Apps.Write.Schemas
                                 Partitioning = "Language",
                                 IsDisabled = false,
                                 IsHidden = false,
-                            }}.ToList()
+                            }
+                        }.ToList()
                     })
                 );
         }

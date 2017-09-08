@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Squidex.Infrastructure.CQRS.Commands
 {
-    public class LogExceptionHandlerTests
+    public class LogCommandMiddlewareTests
     {
         private readonly MyLog log = new MyLog();
         private readonly LogCommandMiddleware sut;
@@ -40,7 +40,7 @@ namespace Squidex.Infrastructure.CQRS.Commands
             }
         }
 
-        public LogExceptionHandlerTests()
+        public LogCommandMiddlewareTests()
         {
             sut = new LogCommandMiddleware(log);
         }

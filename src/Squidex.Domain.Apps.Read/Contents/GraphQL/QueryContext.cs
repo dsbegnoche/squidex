@@ -7,18 +7,16 @@
 // ==========================================================================
 
 using System;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using Squidex.Infrastructure;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Assets;
 using Squidex.Domain.Apps.Read.Assets.Repositories;
-
-// ReSharper disable InvertIf
+using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 {
@@ -145,7 +143,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
         public Task<IReadOnlyList<IContentEntity>> GetReferencedContentsAsync(Guid schemaId, JToken value)
         {
-            var ids =  ParseIds(value);
+            var ids = ParseIds(value);
 
             return GetReferencedContentsAsync(schemaId, ids);
         }

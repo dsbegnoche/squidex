@@ -25,8 +25,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.MongoDb;
 using Xunit;
 
-// ReSharper disable SpecifyACultureInStringConversionExplicitly
-
 namespace Squidex.Domain.Apps.Read.Contents
 {
     public class ODataQueryTests
@@ -326,7 +324,7 @@ namespace Squidex.Domain.Apps.Read.Contents
         [Fact]
         public void Should_set_default_top()
         {
-            var parser = edmModel.ParseQuery("");
+            var parser = edmModel.ParseQuery(string.Empty);
             var cursor = A.Fake<IFindFluent<MongoContentEntity, MongoContentEntity>>();
 
             cursor.Take(parser);
@@ -348,7 +346,7 @@ namespace Squidex.Domain.Apps.Read.Contents
         [Fact]
         public void Should_not_set_skip()
         {
-            var parser = edmModel.ParseQuery("");
+            var parser = edmModel.ParseQuery(string.Empty);
             var cursor = A.Fake<IFindFluent<MongoContentEntity, MongoContentEntity>>();
 
             cursor.Take(parser);

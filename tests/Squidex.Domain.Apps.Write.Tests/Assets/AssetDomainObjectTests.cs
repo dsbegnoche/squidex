@@ -16,15 +16,13 @@ using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS;
 using Xunit;
 
-// ReSharper disable ConvertToConstant.Local
-
 namespace Squidex.Domain.Apps.Write.Assets
 {
     public class AssetDomainObjectTests : HandlerTestBase<AssetDomainObject>
     {
         private readonly AssetDomainObject sut;
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
-        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), "", new[] { "tag" });
+        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), string.Empty, new[] { "tag" });
 
         public Guid AssetId { get; } = Guid.NewGuid();
 
@@ -147,7 +145,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             Assert.Throws<ValidationException>(() =>
             {
-                sut.Rename(CreateAssetCommand(new RenameAsset { FileName = file.FileName, BriefDescription = file.BriefDescription, Tags = file.Tags}));
+                sut.Rename(CreateAssetCommand(new RenameAsset { FileName = file.FileName, BriefDescription = file.BriefDescription, Tags = file.Tags }));
             });
         }
 

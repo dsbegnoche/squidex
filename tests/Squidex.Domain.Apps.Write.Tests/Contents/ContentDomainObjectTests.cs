@@ -19,8 +19,6 @@ using Squidex.Infrastructure.CQRS;
 using Squidex.Shared.Identity;
 using Xunit;
 
-// ReSharper disable ConvertToConstant.Local
-
 namespace Squidex.Domain.Apps.Write.Contents
 {
     public class ContentDomainObjectTests : HandlerTestBase<ContentDomainObject>
@@ -90,7 +88,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         [Fact]
         public void Create_should_sumbit_if_status_submitted()
         {
-            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Status.Submitted}));
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Status.Submitted }));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(

@@ -25,7 +25,7 @@ namespace Squidex.Controllers.Api.Apps
     [MustBeAppOwner]
     [ApiExceptionFilter]
     [AppApi]
-    [SwaggerTag("Apps")]
+    [SwaggerTag(nameof(Apps))]
     public sealed class AppClientsController : ControllerBase
     {
         public AppClientsController(ICommandBus commandBus)
@@ -80,7 +80,7 @@ namespace Squidex.Controllers.Api.Apps
 
             await CommandBus.PublishAsync(command);
 
-            var response = SimpleMapper.Map(command, new ClientDto { Name = command .Id });
+            var response = SimpleMapper.Map(command, new ClientDto { Name = command.Id });
 
             return CreatedAtAction(nameof(GetClients), new { app }, response);
         }
