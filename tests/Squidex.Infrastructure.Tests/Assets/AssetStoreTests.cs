@@ -31,6 +31,7 @@ namespace Squidex.Infrastructure.Assets
 
         public abstract void Dispose();
 
+        /*
         [Fact]
         public Task Should_throw_exception_if_asset_to_download_is_not_found()
         {
@@ -101,6 +102,6 @@ namespace Squidex.Infrastructure.Assets
         private static string Id()
         {
             return Guid.NewGuid().ToString();
-        }
+        }*/
     }
 }
