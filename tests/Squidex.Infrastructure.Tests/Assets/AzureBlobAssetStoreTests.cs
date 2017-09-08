@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Squidex.Infrastructure.Assets
 {
-    internal class AzureBlobAssetStoreTests : AssetStoreTests<AzureBlobAssetStore>
+    public class AzureBlobAssetStoreTests : AssetStoreTests<AzureBlobAssetStore>
     {
         public override AzureBlobAssetStore CreateStore()
         {

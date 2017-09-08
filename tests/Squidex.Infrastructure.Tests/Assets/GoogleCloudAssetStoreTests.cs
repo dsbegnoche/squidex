@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Squidex.Infrastructure.Assets
 {
-    internal class GoogleCloudAssetStoreTests : AssetStoreTests<GoogleCloudAssetStore>
+    public class GoogleCloudAssetStoreTests : AssetStoreTests<GoogleCloudAssetStore>
     {
         public override GoogleCloudAssetStore CreateStore()
         {
