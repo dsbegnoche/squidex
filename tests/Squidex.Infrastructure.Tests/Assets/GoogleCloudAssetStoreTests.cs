@@ -5,7 +5,7 @@
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
-
+/*
 using System;
 using Xunit;
 
@@ -32,4 +32,4 @@ namespace Squidex.Infrastructure.Assets
             Assert.Equal($"https://storage.cloud.google.com/squidex-test/{id}_1", Sut.GenerateSourceUrl(id, 1, null));
         }
     }
-}
+}*/
