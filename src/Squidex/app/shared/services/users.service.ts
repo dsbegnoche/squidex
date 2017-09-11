@@ -39,11 +39,11 @@ export class UserDto {
     }
 
     public lock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true, this.displayName, this.displayName, this.isAdministrator);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, true, this.firstName, this.lastName, this.isAdministrator);
     }
 
     public unlock(): UserDto {
-        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false, this.displayName, this.displayName, this.isAdministrator);
+        return new UserDto(this.id, this.email, this.displayName, this.pictureUrl, false, this.firstName, this.lastName, this.isAdministrator);
     }
 }
 
