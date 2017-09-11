@@ -13,13 +13,22 @@
 
     <div class="panel-main">
         <div class="panel-content panel-content-scroll">
-            <div *ngFor="let pattern of appPatterns">
-                <div>
-                    <input pattern.name/>
-                    <input pattern.pattern/>
+            <div class="table-items-row table-items-row-expandable language">
+                <div *ngFor="let pattern of appPatterns">
+                    <div class="table-items-row-summary">        
+                        <div class="row">
+                            <div class="col col-2">
+                                <span class="language-code">{{pattern.name}}</span>
+                            </div>
+                            <div class="col col-8">
+                                <span class="language-name table-cell">{{pattern.pattern}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="panel-sidebar">
             <a class="panel-link" routerLink="history" routerLinkActive="active">
                 <i class="icon-time"></i>
