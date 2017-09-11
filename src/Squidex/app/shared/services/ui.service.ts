@@ -17,8 +17,14 @@ export interface UISettingsDto {
     regexSuggestions: UIRegexSuggestionDto[];
 }
 
-export interface UIRegexSuggestionDto {
-    name: string; pattern: string;
+export class UIRegexSuggestionDto {
+    public name: string;
+    public pattern: string;
+
+    constructor(name: string, pattern: string) {
+        this.name = name;
+        this.pattern = pattern;
+    }
 }
 
 @Injectable()

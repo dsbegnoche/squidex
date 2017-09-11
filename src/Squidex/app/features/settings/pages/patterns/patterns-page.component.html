@@ -1,0 +1,34 @@
+﻿<sqx-title message="{app} | Patterns | Settings" parameter1="app" value1="{{appName() | async}}"></sqx-title>
+
+<sqx-panel panelWidth="42rem">
+    <div class="panel-header">
+        <div class="panel-title-row">
+            <h3 class="panel-title">Patterns</h3>
+        </div>
+
+        <a class="panel-close" sqxParentLink>
+            <i class="icon-close"></i>
+        </a>
+    </div>
+
+    <div class="panel-main">
+        <div class="panel-content panel-content-scroll">
+            <div *ngFor="let pattern of appPatterns">
+                <div>
+                    <input pattern.name/>
+                    <input pattern.pattern/>
+                </div>
+            </div>
+        </div>
+        <div class="panel-sidebar">
+            <a class="panel-link" routerLink="history" routerLinkActive="active">
+                <i class="icon-time"></i>
+            </a>
+            <a class="panel-link" routerLink="help" routerLinkActive="active">
+                <i class="icon-help"></i>
+            </a>
+        </div>
+    </div>
+</sqx-panel>
+
+<router-outlet></router-outlet>
