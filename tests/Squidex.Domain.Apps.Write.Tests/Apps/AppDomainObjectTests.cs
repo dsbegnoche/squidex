@@ -9,6 +9,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FakeItEasy;
+using Microsoft.Extensions.Options;
+using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Write.Apps.Commands;
@@ -21,6 +24,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 {
     public class AppDomainObjectTests : HandlerTestBase<AppDomainObject>
     {
+        private readonly IOptions<MyUIOptions> uiOptions = A.Fake<IOptions<MyUIOptions>>();
         private readonly AppDomainObject sut;
         private readonly string contributorId = Guid.NewGuid().ToString();
         private readonly string clientId = "client";
@@ -29,7 +33,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppDomainObjectTests()
         {
-            sut = new AppDomainObject(null, AppId, 0);
+            sut = new AppDomainObject(uiOptions, AppId, 0);
         }
 
         [Fact]
@@ -55,6 +59,12 @@ namespace Squidex.Domain.Apps.Write.Apps
         [Fact]
         public void Create_should_specify_name_and_owner()
         {
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions
+                {
+                    RegexSuggestions = new List<AppPattern> { new AppPattern { Name = "Pattern", Pattern = "[0-9]", DefaultMessage = "Default Message" } }
+                });
+
             sut.Create(CreateCommand(new CreateApp { Name = AppName, Actor = User, AppId = AppId }));
 
             Assert.Equal(AppName, sut.Name);
@@ -63,7 +73,8 @@ namespace Squidex.Domain.Apps.Write.Apps
                 .ShouldHaveSameEvents(
                     CreateEvent(new AppCreated { Name = AppName }),
                     CreateEvent(new AppContributorAssigned { ContributorId = User.Identifier, Permission = PermissionLevel.Owner }),
-                    CreateEvent(new AppLanguageAdded { Language = Language.EN })
+                    CreateEvent(new AppLanguageAdded { Language = Language.EN }),
+                    CreateEvent(new AppPatternAdded { Name = "Pattern", Pattern = "[0-9]", DefaultMessage = "Default Message" })
                 );
         }
 
@@ -617,7 +628,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             sut.AddPattern(CreateCommand(new AddPattern
             {
-                Name = "Pattern",
+                Name = "New Pattern",
                 Pattern = "[0-9]",
                 DefaultMessage = "Message"
             }));
@@ -626,7 +637,7 @@ namespace Squidex.Domain.Apps.Write.Apps
                 .ShouldHaveSameEvents(
                     CreateEvent(new AppPatternAdded
                     {
-                        Name = "Pattern",
+                        Name = "New Pattern",
                         Pattern = "[0-9]",
                         DefaultMessage = "Message"
                     })
@@ -635,6 +646,11 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         private void CreateApp()
         {
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions
+                {
+                    RegexSuggestions = new List<AppPattern> ()
+                });
             sut.Create(CreateCommand(new CreateApp { Name = AppName }));
 
             ((IAggregate)sut).ClearUncommittedEvents();

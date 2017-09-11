@@ -1,4 +1,8 @@
-﻿using Squidex.Infrastructure;
+﻿/*
+ * CivicPlus implementation of Squidex Headless CMS
+ */
+
+using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Events.Apps
 {

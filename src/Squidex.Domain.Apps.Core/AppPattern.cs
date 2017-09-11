@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/*
+ * CivicPlus implementation of Squidex Headless CMS
+ */
 
 namespace Squidex.Domain.Apps.Core
 {

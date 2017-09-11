@@ -49,11 +49,6 @@ namespace Squidex.Domain.Apps.Write.Apps
             get { return contributors.Count; }
         }
 
-        //public AppDomainObject(Guid id, int version)
-        //    : base(id, version)
-        //{
-        //}
-
         public AppDomainObject(IOptions<MyUIOptions> uiOptions, Guid id, int version)
             : base(id, version)
         {
@@ -145,7 +140,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             RaiseEvent(SimpleMapper.Map(command, CreateInitialOwner(appId, command)));
             RaiseEvent(SimpleMapper.Map(command, CreateInitialLanguage(appId)));
-            CreateInitialPatterns(appId);
+            CreateInitialPatterns(command);
 
             return this;
         }
@@ -288,17 +283,16 @@ namespace Squidex.Domain.Apps.Write.Apps
             return new AppContributorAssigned { AppId = id, ContributorId = command.Actor.Identifier, Permission = PermissionLevel.Owner };
         }
 
-        private void CreateInitialPatterns(NamedId<Guid> id)
+        private void CreateInitialPatterns(SquidexCommand command)
         {
             foreach (var option in uiOptions.Value.RegexSuggestions)
             {
-                RaiseEvent(new AppPatternAdded
+                RaiseEvent(SimpleMapper.Map(command, new AppPatternAdded
                 {
-                    AppId = id,
-                    Name = option.Key,
-                    Pattern = option.Value
-                    //DefaultMessage = option.DefaultMessage
-                });
+                    Name = option.Name,
+                    Pattern = option.Pattern,
+                    DefaultMessage = option.DefaultMessage
+                }));
             }
         }
 

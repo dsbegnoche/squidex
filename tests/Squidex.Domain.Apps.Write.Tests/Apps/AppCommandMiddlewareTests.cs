@@ -7,8 +7,11 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
+using Microsoft.Extensions.Options;
+using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Read.Apps.Services;
@@ -29,6 +32,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlanBillingManager appPlansBillingManager = A.Fake<IAppPlanBillingManager>();
         private readonly IUserResolver userResolver = A.Fake<IUserResolver>();
         private readonly IAggregateHandler defaultSchemaHandler = A.Fake<IAggregateHandler>();
+        private readonly IOptions<MyUIOptions> uiOptions = A.Fake<IOptions<MyUIOptions>>();
         private readonly AppCommandMiddleware sut;
         private readonly AppDomainObject app;
         private readonly Language language = Language.DE;
@@ -37,7 +41,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppCommandMiddlewareTests()
         {
-            app = new AppDomainObject(null, AppId, -1);
+            app = new AppDomainObject(uiOptions, AppId, -1);
 
             sut = new AppCommandMiddleware(Handler, appRepository, appPlansProvider, appPlansBillingManager, userResolver, defaultSchemaHandler);
         }
@@ -65,6 +69,8 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             A.CallTo(() => appRepository.FindAppAsync(AppName))
                 .Returns((IAppEntity)null);
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions { RegexSuggestions = new List<AppPattern>() });
 
             await TestCreate(app, async _ =>
             {
@@ -370,6 +376,11 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         private AppDomainObject CreateApp()
         {
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions
+                {
+                    RegexSuggestions = new List<AppPattern>()
+                });
             app.Create(CreateCommand(new CreateApp { Name = AppName }));
 
             return app;

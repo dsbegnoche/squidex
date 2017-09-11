@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * CivicPlus implementation of Squidex Headless CMS
+ */
+
+using System;
 using System.Collections.Generic;
 using Squidex.Infrastructure;
 

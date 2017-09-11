@@ -8,6 +8,7 @@
 
 using Autofac;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Core.Scripting;
 using Squidex.Domain.Apps.Write.Apps;
@@ -88,7 +89,12 @@ namespace Squidex.Config.Domain
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
-            builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c => (id => new AppDomainObject(null, id, -1)))
+            builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+                    return id =>
+                        new AppDomainObject(context.Resolve<IOptions<Squidex.Domain.Apps.Core.MyUIOptions>>(), id, -1);
+                })
                 .AsSelf()
                 .SingleInstance();
 
