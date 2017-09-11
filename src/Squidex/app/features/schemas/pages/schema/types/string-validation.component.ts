@@ -10,6 +10,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 
 import {
+    AppComponentBase,
+    AppsStoreService,
+    DialogService,
     ModalView,
     StringFieldPropertiesDto,
     UIRegexSuggestionDto,
@@ -21,7 +24,7 @@ import {
     styleUrls: ['string-validation.component.scss'],
     templateUrl: 'string-validation.component.html'
 })
-export class StringValidationComponent implements OnDestroy, OnInit {
+export class StringValidationComponent extends AppComponentBase implements OnDestroy, OnInit {
     private patternSubscription: Subscription;
     private uiSettingsSubscription: Subscription;
 
@@ -39,9 +42,10 @@ export class StringValidationComponent implements OnDestroy, OnInit {
 
     public regexSuggestionsModal = new ModalView(false, false);
 
-    constructor(
+    constructor(dialogs: DialogService, apps: AppsStoreService,
         private readonly uiService: UIService
     ) {
+        super(dialogs, apps);
     }
 
     public ngOnDestroy() {
@@ -81,10 +85,12 @@ export class StringValidationComponent implements OnDestroy, OnInit {
                 .map(x => !x || x.trim().length === 0);
 
         this.uiSettingsSubscription =
-            this.uiService.getSettings()
-                .subscribe(settings => {
-                    this.regexSuggestions = settings.regexSuggestions;
-                });
+            this.appNameOnce()
+            .switchMap(app =>
+                this.uiService.getSettings(app))
+            .subscribe(settings => {
+                this.regexSuggestions = settings.regexSuggestions;
+            });
 
         this.patternSubscription =
             this.editForm.controls['pattern'].valueChanges

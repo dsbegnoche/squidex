@@ -31,11 +31,11 @@ export class UIService {
     ) {
     }
 
-    public getSettings(): Observable<UISettingsDto> {
+    public getSettings(appName: string): Observable<UISettingsDto> {
         if (this.settings) {
             return Observable.of(this.settings);
         } else {
-            const url = this.apiUrl.buildUrl(`api/ui/settings`);
+            const url = this.apiUrl.buildUrl(`api/ui/${appName}/settings`);
 
             return this.http.get<UISettingsDto>(url)
                 .catch(error => {

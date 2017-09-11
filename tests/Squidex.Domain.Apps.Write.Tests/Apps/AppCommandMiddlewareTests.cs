@@ -37,7 +37,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppCommandMiddlewareTests()
         {
-            app = new AppDomainObject(AppId, -1);
+            app = new AppDomainObject(null, AppId, -1);
 
             sut = new AppCommandMiddleware(Handler, appRepository, appPlansProvider, appPlansBillingManager, userResolver, defaultSchemaHandler);
         }
@@ -327,6 +327,45 @@ namespace Squidex.Domain.Apps.Write.Apps
             {
                 await sut.HandleAsync(context);
             });
+        }
+
+        [Fact]
+        public async Task AddPattern_should_update_domain_object()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = "Numbers", Pattern = "[0-9]", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task AddPattern_should_throw_error_if_name_empty()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = string.Empty, Pattern = "[0-9]", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
+        [Fact]
+        public async Task AddPattern_should_throw_error_if_pattern_empty()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = "Name", Pattern = string.Empty, DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
         }
 
         private AppDomainObject CreateApp()

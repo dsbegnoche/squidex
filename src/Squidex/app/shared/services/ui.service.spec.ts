@@ -37,20 +37,20 @@ describe('UIService', () => {
         let settings1: UISettingsDto | null = null;
         let settings2: UISettingsDto | null = null;
 
-        uiService.getSettings().subscribe(result => {
+        uiService.getSettings('my-app').subscribe(result => {
             settings1 = result;
         });
 
         const response: UISettingsDto = { regexSuggestions: [] };
 
-        const req = httpMock.expectOne('http://service/p/api/ui/settings');
+        const req = httpMock.expectOne('http://service/p/api/ui/my-app/settings');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();
 
         req.flush(response);
 
-        uiService.getSettings().subscribe(result => {
+        uiService.getSettings('my-app').subscribe(result => {
             settings2 = result;
         });
 
@@ -63,11 +63,11 @@ describe('UIService', () => {
 
         let settings: UISettingsDto | null = null;
 
-        uiService.getSettings().subscribe(result => {
+            uiService.getSettings('my-app').subscribe(result => {
             settings = result;
         });
 
-        const req = httpMock.expectOne('http://service/p/api/ui/settings');
+        const req = httpMock.expectOne('http://service/p/api/ui/my-app/settings');
 
         expect(req.request.method).toEqual('GET');
         expect(req.request.headers.get('If-Match')).toBeNull();

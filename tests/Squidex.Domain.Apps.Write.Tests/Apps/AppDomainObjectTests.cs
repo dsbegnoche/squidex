@@ -29,7 +29,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppDomainObjectTests()
         {
-            sut = new AppDomainObject(AppId, 0);
+            sut = new AppDomainObject(null, AppId, 0);
         }
 
         [Fact]
@@ -568,6 +568,71 @@ namespace Squidex.Domain.Apps.Write.Apps
                 );
         }
 
+        [Fact]
+        public void AddPattern_should_throw_exception_if_app_not_created()
+        {
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.AddPattern(CreateCommand(new AddPattern
+                {
+                    Name = "Pattern",
+                    Pattern = "[0-9]",
+                    DefaultMessage = "Message"
+                }));
+            });
+        }
+
+        [Fact]
+        public void AddPattern_should_throw_exception_if_command_is_not_valid()
+        {
+            CreateApp();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.AddPattern(CreateCommand(new AddPattern()));
+            });
+        }
+
+        [Fact]
+        public void AddPattern_should_throw_exception_if_pattern_name_already_exists()
+        {
+            CreateApp();
+            CreatePattern();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.AddPattern(CreateCommand(new AddPattern
+                {
+                    Name = "Pattern",
+                    Pattern = "[0-9]",
+                    DefaultMessage = "Message"
+                }));
+            });
+        }
+
+        [Fact]
+        public void AddPattern_should_create_events()
+        {
+            CreateApp();
+
+            sut.AddPattern(CreateCommand(new AddPattern
+            {
+                Name = "Pattern",
+                Pattern = "[0-9]",
+                DefaultMessage = "Message"
+            }));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateEvent(new AppPatternAdded
+                    {
+                        Name = "Pattern",
+                        Pattern = "[0-9]",
+                        DefaultMessage = "Message"
+                    })
+                );
+        }
+
         private void CreateApp()
         {
             sut.Create(CreateCommand(new CreateApp { Name = AppName }));
@@ -587,6 +652,16 @@ namespace Squidex.Domain.Apps.Write.Apps
             sut.AddLanguage(CreateCommand(new AddLanguage { Language = language }));
 
             ((IAggregate)sut).ClearUncommittedEvents();
+        }
+
+        private void CreatePattern()
+        {
+            sut.AddPattern(CreateCommand(new AddPattern
+            {
+                Name = "Pattern",
+                Pattern = "[0-9]",
+                DefaultMessage = "Message"
+            }));
         }
     }
 }

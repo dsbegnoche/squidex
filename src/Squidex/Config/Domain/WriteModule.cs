@@ -88,7 +88,7 @@ namespace Squidex.Config.Domain
                 .As<ICommandMiddleware>()
                 .SingleInstance();
 
-            builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c => (id => new AppDomainObject(id, -1)))
+            builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c => (id => new AppDomainObject(null, id, -1)))
                 .AsSelf()
                 .SingleInstance();
 
