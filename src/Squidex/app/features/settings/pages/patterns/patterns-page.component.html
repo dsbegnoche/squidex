@@ -1,6 +1,6 @@
 ﻿<sqx-title message="{app} | Patterns | Settings" parameter1="app" value1="{{appName() | async}}"></sqx-title>
 
-<sqx-panel panelWidth="42rem">
+<sqx-panel panelWidth="60rem">
     <div class="panel-header">
         <div class="panel-title-row">
             <h3 class="panel-title">Patterns</h3>
@@ -13,19 +13,8 @@
 
     <div class="panel-main">
         <div class="panel-content panel-content-scroll">
-            <div class="table-items-row table-items-row-expandable language">
-                <div *ngFor="let pattern of appPatterns">
-                    <div class="table-items-row-summary">        
-                        <div class="row">
-                            <div class="col col-2">
-                                <span class="language-code">{{pattern.name}}</span>
-                            </div>
-                            <div class="col col-8">
-                                <span class="language-name table-cell">{{pattern.pattern}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div *ngFor="let pattern of appPatterns">
+                <sqx-pattern [pattern]="pattern"></sqx-pattern>
             </div>
         </div>
         

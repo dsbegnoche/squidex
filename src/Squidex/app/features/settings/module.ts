@@ -22,6 +22,8 @@ import {
     ContributorsPageComponent,
     LanguageComponent,
     LanguagesPageComponent,
+    PatternEditFormComponent,
+    PatternComponent,
     PatternsPageComponent,
     PlansPageComponent,
     SettingsAreaComponent
@@ -136,6 +138,8 @@ const routes: Routes = [
         ContributorsPageComponent,
         LanguageComponent,
         LanguagesPageComponent,
+        PatternEditFormComponent,
+        PatternComponent,
         PatternsPageComponent,
         PlansPageComponent,
         SettingsAreaComponent

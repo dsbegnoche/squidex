@@ -20,10 +20,12 @@ export interface UISettingsDto {
 export class UIRegexSuggestionDto {
     public name: string;
     public pattern: string;
+    public message: string;
 
-    constructor(name: string, pattern: string) {
+    constructor(name: string, pattern: string, message: string) {
         this.name = name;
         this.pattern = pattern;
+        this.message = message;
     }
 }
 

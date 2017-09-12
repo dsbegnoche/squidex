@@ -60,7 +60,8 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
             patterns.map(p => {
                 return new UIRegexSuggestionDto(
                     p.name,
-                    p.pattern
+                    p.pattern,
+                    p.message
                 );
             });
 
