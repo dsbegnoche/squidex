@@ -17,8 +17,16 @@ export interface UISettingsDto {
     regexSuggestions: UIRegexSuggestionDto[];
 }
 
-export interface UIRegexSuggestionDto {
-    name: string; pattern: string;
+export class UIRegexSuggestionDto {
+    public name: string;
+    public pattern: string;
+    public message: string;
+
+    constructor(name: string, pattern: string, message: string) {
+        this.name = name;
+        this.pattern = pattern;
+        this.message = message;
+    }
 }
 
 @Injectable()
@@ -31,11 +39,11 @@ export class UIService {
     ) {
     }
 
-    public getSettings(): Observable<UISettingsDto> {
+    public getSettings(appName: string): Observable<UISettingsDto> {
         if (this.settings) {
             return Observable.of(this.settings);
         } else {
-            const url = this.apiUrl.buildUrl(`api/ui/settings`);
+            const url = this.apiUrl.buildUrl(`api/ui/${appName}/settings`);
 
             return this.http.get<UISettingsDto>(url)
                 .catch(error => {

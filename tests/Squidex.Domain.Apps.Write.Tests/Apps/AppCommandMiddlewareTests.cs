@@ -7,8 +7,11 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
+using Microsoft.Extensions.Options;
+using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Read.Apps.Services;
@@ -29,6 +32,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly IAppPlanBillingManager appPlansBillingManager = A.Fake<IAppPlanBillingManager>();
         private readonly IUserResolver userResolver = A.Fake<IUserResolver>();
         private readonly IAggregateHandler defaultSchemaHandler = A.Fake<IAggregateHandler>();
+        private readonly IOptions<MyUIOptions> uiOptions = A.Fake<IOptions<MyUIOptions>>();
         private readonly AppCommandMiddleware sut;
         private readonly AppDomainObject app;
         private readonly Language language = Language.DE;
@@ -37,7 +41,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public AppCommandMiddlewareTests()
         {
-            app = new AppDomainObject(AppId, -1);
+            app = new AppDomainObject(uiOptions, AppId, -1);
 
             sut = new AppCommandMiddleware(Handler, appRepository, appPlansProvider, appPlansBillingManager, userResolver, defaultSchemaHandler);
         }
@@ -65,6 +69,8 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             A.CallTo(() => appRepository.FindAppAsync(AppName))
                 .Returns((IAppEntity)null);
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions { RegexSuggestions = new List<AppPattern>() });
 
             await TestCreate(app, async _ =>
             {
@@ -329,8 +335,52 @@ namespace Squidex.Domain.Apps.Write.Apps
             });
         }
 
+        [Fact]
+        public async Task AddPattern_should_update_domain_object()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = "Numbers", Pattern = "[0-9]", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task AddPattern_should_throw_error_if_name_empty()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = string.Empty, Pattern = "[0-9]", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
+        [Fact]
+        public async Task AddPattern_should_throw_error_if_pattern_empty()
+        {
+            CreateApp();
+
+            var context = CreateContextForCommand(new AddPattern { Name = "Name", Pattern = string.Empty, DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
         private AppDomainObject CreateApp()
         {
+            A.CallTo(() => uiOptions.Value)
+                .Returns(new MyUIOptions
+                {
+                    RegexSuggestions = new List<AppPattern>()
+                });
             app.Create(CreateCommand(new CreateApp { Name = AppName }));
 
             return app;

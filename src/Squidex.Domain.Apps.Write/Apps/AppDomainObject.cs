@@ -7,6 +7,8 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Events;
@@ -25,10 +27,12 @@ namespace Squidex.Domain.Apps.Write.Apps
         private static readonly Language DefaultLanguage = Language.EN;
         private readonly AppContributors contributors = new AppContributors();
         private readonly AppClients clients = new AppClients();
+        private readonly AppPatterns patterns = new AppPatterns();
         private LanguagesConfig languagesConfig = LanguagesConfig.Empty;
         private string name;
         private string planId;
         private RefToken planOwner;
+        private IOptions<MyUIOptions> uiOptions;
 
         public string Name
         {
@@ -45,9 +49,10 @@ namespace Squidex.Domain.Apps.Write.Apps
             get { return contributors.Count; }
         }
 
-        public AppDomainObject(Guid id, int version)
+        public AppDomainObject(IOptions<MyUIOptions> uiOptions, Guid id, int version)
             : base(id, version)
         {
+            this.uiOptions = uiOptions;
         }
 
         protected void On(AppCreated @event)
@@ -107,6 +112,11 @@ namespace Squidex.Domain.Apps.Write.Apps
             planOwner = string.IsNullOrWhiteSpace(planId) ? null : @event.Actor;
         }
 
+        protected void On(AppPatternAdded @event)
+        {
+            patterns.Add(@event.Name);
+        }
+
         protected override void DispatchEvent(Envelope<IEvent> @event)
         {
             this.DispatchAction(@event.Payload);
@@ -130,6 +140,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
             RaiseEvent(SimpleMapper.Map(command, CreateInitialOwner(appId, command)));
             RaiseEvent(SimpleMapper.Map(command, CreateInitialLanguage(appId)));
+            CreateInitialPatterns(command);
 
             return this;
         }
@@ -242,6 +253,16 @@ namespace Squidex.Domain.Apps.Write.Apps
             return this;
         }
 
+        public AppDomainObject AddPattern(AddPattern command)
+        {
+            Guard.Valid(command, nameof(command), () => "Cannot add pattern");
+            ThrowIfNotCreated();
+
+            RaiseEvent(SimpleMapper.Map(command, new AppPatternAdded()));
+
+            return this;
+        }
+
         private void RaiseEvent(AppEvent @event)
         {
             if (@event.AppId == null)
@@ -260,6 +281,19 @@ namespace Squidex.Domain.Apps.Write.Apps
         private static AppContributorAssigned CreateInitialOwner(NamedId<Guid> id, SquidexCommand command)
         {
             return new AppContributorAssigned { AppId = id, ContributorId = command.Actor.Identifier, Permission = PermissionLevel.Owner };
+        }
+
+        private void CreateInitialPatterns(SquidexCommand command)
+        {
+            foreach (var option in uiOptions.Value.RegexSuggestions)
+            {
+                RaiseEvent(SimpleMapper.Map(command, new AppPatternAdded
+                {
+                    Name = option.Name,
+                    Pattern = option.Pattern,
+                    DefaultMessage = option.DefaultMessage
+                }));
+            }
         }
 
         private void ThrowIfOtherUser(ChangePlan command)

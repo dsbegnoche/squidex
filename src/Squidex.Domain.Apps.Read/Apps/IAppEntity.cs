@@ -27,6 +27,8 @@ namespace Squidex.Domain.Apps.Read.Apps
 
         IReadOnlyCollection<IAppContributorEntity> Contributors { get; }
 
+        IReadOnlyCollection<IAppPatternEntity> Patterns { get; }
+
         PartitionResolver PartitionResolver { get; }
     }
 }

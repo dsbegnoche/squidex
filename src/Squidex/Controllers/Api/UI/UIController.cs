@@ -9,10 +9,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using NSwag.Annotations;
-using Squidex.Config;
 using Squidex.Controllers.Api.UI.Models;
+using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Pipeline;
 
 namespace Squidex.Controllers.Api.UI
@@ -21,21 +20,21 @@ namespace Squidex.Controllers.Api.UI
     /// Manages ui settings and configs.
     /// </summary>
     [ApiExceptionFilter]
+    [AppApi]
     [SwaggerTag(nameof(UI))]
-    public sealed class UIController : Controller
+    [MustBeAppReader]
+    public sealed class UIController : ControllerBase
     {
-        private readonly MyUIOptions uiOptions;
-
-        public UIController(IOptions<MyUIOptions> uiOptions)
+        public UIController(ICommandBus commandBus)
+            : base(commandBus)
         {
-            this.uiOptions = uiOptions.Value;
         }
 
         /// <summary>
         /// Get ui settings.
         /// </summary>
         [HttpGet]
-        [Route("ui/settings/")]
+        [Route("ui/{app}/settings/")]
         [ProducesResponseType(typeof(UISettingsDto), 200)]
         [ApiCosts(0)]
         public IActionResult GetSettings()
@@ -43,11 +42,13 @@ namespace Squidex.Controllers.Api.UI
             var dto = new UISettingsDto
             {
                 RegexSuggestions =
-                    uiOptions.RegexSuggestions?
+                    App.Patterns?
                         .Where(x =>
-                            !string.IsNullOrWhiteSpace(x.Key) &&
-                            !string.IsNullOrWhiteSpace(x.Value))
-                        .Select(x => new UIRegexSuggestionDto { Name = x.Key, Pattern = x.Value }).ToList()
+                            !string.IsNullOrWhiteSpace(x.Name) &&
+                            !string.IsNullOrWhiteSpace(x.Pattern))
+                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, Message = x.DefaultMessage })
+                        .OrderBy(x => x.Name)
+                        .ToList()
                     ?? new List<UIRegexSuggestionDto>()
             };
 

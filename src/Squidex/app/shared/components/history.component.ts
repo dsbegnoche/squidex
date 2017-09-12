@@ -66,7 +66,9 @@ export class HistoryComponent extends AppComponentBase {
     private userName(userId: string): Observable<string> {
         const parts = userId.split(':');
 
-        if (parts[0] === 'subject') {
+        if (parts.length === 1) {
+            return this.users.getUser(parts[0], 'Me').map(u => u.displayName);
+        } else if (parts[0] === 'subject') {
             return this.users.getUser(parts[1], 'Me').map(u => u.displayName);
         } else {
             if (parts[1].endsWith('client')) {

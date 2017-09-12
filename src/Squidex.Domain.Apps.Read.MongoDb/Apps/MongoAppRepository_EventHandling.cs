@@ -128,5 +128,13 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         {
             return Collection.UpdateAsync(@event, headers, e => e.IsDeleted = true);
         }
+
+        protected Task On(AppPatternAdded @event, EnvelopeHeaders headers)
+        {
+            return Collection.UpdateAsync(@event, headers, a =>
+            {
+                a.Patterns[@event.Name] = SimpleMapper.Map(@event, new MongoAppEntityPattern());
+            });
+        }
     }
 }

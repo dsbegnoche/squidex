@@ -57,6 +57,10 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         [BsonElement]
         public Dictionary<string, MongoAppEntityContributor> Contributors { get; set; } = new Dictionary<string, MongoAppEntityContributor>();
 
+        [BsonRequired]
+        [BsonElement]
+        public Dictionary<string, MongoAppEntityPattern> Patterns { get; set; } = new Dictionary<string, MongoAppEntityPattern>();
+
         public PartitionResolver PartitionResolver
         {
             get { return LanguagesConfig.ToResolver(); }
@@ -76,6 +80,8 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
         {
             get { return Contributors.Values; }
         }
+
+        IReadOnlyCollection<IAppPatternEntity> IAppEntity.Patterns => Patterns.Values;
 
         public void UpdateLanguages(Func<LanguagesConfig, LanguagesConfig> updater)
         {
