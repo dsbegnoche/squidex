@@ -72,4 +72,7 @@ export class PatternEditFormComponent extends ComponentBase implements OnInit {
         this.editForm.enable();
         this.editFormSubmitted = false;
     }
+
+    public savePattern() {
+    }
 }
