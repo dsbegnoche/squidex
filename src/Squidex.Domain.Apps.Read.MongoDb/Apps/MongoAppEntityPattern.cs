@@ -1,4 +1,8 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿/*
+ * CivicPlus implementation of Squidex Headless CMS
+ */
+
+using MongoDB.Bson.Serialization.Attributes;
 using Squidex.Domain.Apps.Read.Apps;
 
 namespace Squidex.Domain.Apps.Read.MongoDb.Apps

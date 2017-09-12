@@ -1,4 +1,6 @@
-﻿//*******ADD CP Header *****//
+﻿/*
+ * CivicPlus implementation of Squidex Headless CMS
+ */
 
 namespace Squidex.Domain.Apps.Read.Apps
 {
