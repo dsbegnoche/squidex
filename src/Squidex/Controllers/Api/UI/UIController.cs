@@ -46,7 +46,9 @@ namespace Squidex.Controllers.Api.UI
                         .Where(x =>
                             !string.IsNullOrWhiteSpace(x.Name) &&
                             !string.IsNullOrWhiteSpace(x.Pattern))
-                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, Message = x.DefaultMessage }).ToList()
+                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, Message = x.DefaultMessage })
+                        .OrderBy(x => x.Name)
+                        .ToList()
                     ?? new List<UIRegexSuggestionDto>()
             };
 
