@@ -27,7 +27,7 @@ namespace Squidex.Tests.Controllers.UI.Account
     using Squidex.Shared.Users;
     using Xunit;
 
-    public class AccountControllerTests
+    public class ContentsControllerTests
     {
         private readonly Mock<Domain.Users.Base.ISignInManager<IUser>> signInManager;
         private readonly Mock<UserManager<IUser>> userManager;
@@ -44,7 +44,7 @@ namespace Squidex.Tests.Controllers.UI.Account
 
         private readonly Squidex.Controllers.UI.Account.AccountController systemUnderTest;
 
-        public AccountControllerTests()
+        public ContentsControllerTests()
         {
             this.httpContext = new Mock<HttpContext>();
             this.httpContext.Setup(x => x.User.Identity.IsAuthenticated).Returns(true);

@@ -95,6 +95,10 @@ namespace Squidex.Config.Domain
                 .As<IUsageTracker>()
                 .SingleInstance();
 
+            builder.RegisterType<ContentUsageTracker>()
+                .As<IContentUsageTracker>()
+                .SingleInstance();
+
             builder.RegisterType<HttpContextAccessor>()
                 .As<IHttpContextAccessor>()
                 .SingleInstance();

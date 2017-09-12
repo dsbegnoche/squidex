@@ -1,0 +1,58 @@
+﻿// ==========================================================================
+//  BackgroundUsageTrackerTests.cs
+//  Squidex Headless CMS
+// ==========================================================================
+//  Copyright (c) Squidex Group
+//  All rights reserved.
+// ==========================================================================
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FakeItEasy;
+using FluentAssertions;
+using Squidex.Infrastructure.Log;
+using Squidex.Infrastructure.Tasks;
+using Xunit;
+
+namespace Squidex.Infrastructure.UsageTracking
+{
+    public class ContentUsageTrackerTests
+    {
+        private readonly IContentUsageStore usageStore = A.Fake<IContentUsageStore>();
+        private readonly ISemanticLog log = A.Fake<ISemanticLog>();
+        private readonly ContentUsageTracker sut;
+
+        public ContentUsageTrackerTests()
+        {
+            sut = new ContentUsageTracker(usageStore, log);
+        }
+
+        [Fact]
+        public Task Should_throw_exception_if_contentIds_is_null()
+        {
+            return Assert.ThrowsAsync<ArgumentNullException>(() => sut.TrackAsync(null, DateTime.UtcNow));
+        }
+
+        [Fact]
+        public Task Should_throw_exception_if_contentIds_is_empty()
+        {
+            return Assert.ThrowsAsync<ArgumentException>(() => sut.TrackAsync(new List<Guid>(), DateTime.UtcNow));
+        }
+
+        [Fact]
+        public async Task Should_store()
+        {
+            var now = DateTime.UtcNow;
+            Guid contentId = Guid.NewGuid();
+            List<Guid> contentIds = new List<Guid>()
+            {
+                contentId
+            };
+
+            await sut.TrackAsync(contentIds, now);
+
+            A.CallTo(() => usageStore.TrackUsagesAsync(contentIds, now)).MustHaveHappened();
+        }
+    }
+}

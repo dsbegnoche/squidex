@@ -114,6 +114,13 @@ namespace Squidex.Config.Domain
                 .AsSelf()
                 .SingleInstance();
 
+            builder.RegisterType<MongoContentUsageStore>()
+                .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
+                .As<IContentUsageStore>()
+                .As<IExternalSystem>()
+                .AsSelf()
+                .SingleInstance();
+
             builder.RegisterType<MongoHistoryEventRepository>()
                 .WithParameter(ResolvedParameter.ForNamed<IMongoDatabase>(MongoDatabaseRegistration))
                 .As<IHistoryEventRepository>()
