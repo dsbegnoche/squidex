@@ -12,8 +12,6 @@ namespace Squidex.Domain.Apps.Write.Apps
     {
         private readonly List<string> patterns = new List<string>();
 
-        public IReadOnlyList<string> Patterns => patterns;
-
         public void Add(string name)
         {
             ThrowIfFound(name, () => "Cannot add pattern");
