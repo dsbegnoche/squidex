@@ -35,7 +35,7 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
     public properties: StringFieldPropertiesDto;
 
     public showDefaultValue: Observable<boolean>;
-    public showPatternMessage: Observable<boolean>;
+    public showPatternMessage: boolean;
     public showPatternSuggestions: Observable<boolean>;
 
     public regexSuggestions: UIRegexSuggestionDto[] = [];
@@ -71,18 +71,19 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
 
         this.showDefaultValue =
             this.editForm.controls['isRequired'].valueChanges
-                .startWith(this.properties.isRequired)
-                .map(x => !x);
+            .startWith(this.properties.isRequired)
+            .map(x => !x);
 
         this.showPatternMessage =
-            this.editForm.controls['pattern'].valueChanges
-                .startWith('')
-                .map(x => x && x.trim().length > 0);
+            this.editForm.controls['pattern'].value && this.editForm.controls['pattern'].value.trim().length > 0;
+
+        this.editForm.controls['pattern'].valueChanges.subscribe(x => this.showPatternMessage = x);
+
 
         this.showPatternSuggestions =
             this.editForm.controls['pattern'].valueChanges
-                .startWith('')
-                .map(x => !x || x.trim().length === 0);
+            .startWith('')
+            .map(x => !x || x.trim().length === 0);
 
         this.uiSettingsSubscription =
             this.appNameOnce()
@@ -94,14 +95,16 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
 
         this.patternSubscription =
             this.editForm.controls['pattern'].valueChanges
-                .subscribe((value: string) => {
-                    if (!value || value.length === 0) {
-                        this.editForm.controls['patternMessage'].setValue(undefined);
-                    }
-                });
+            .subscribe((value: string) => {
+                if (!value || value.length === 0) {
+                    this.editForm.controls['patternMessage'].setValue(undefined);
+                }
+            });
     }
 
-    public setPattern(pattern: string) {
-        this.editForm.controls['pattern'].setValue(pattern);
+    public setPattern(pattern: UIRegexSuggestionDto) {
+        this.editForm.controls['pattern'].setValue(pattern.pattern);
+        this.editForm.controls['patternMessage'].setValue(pattern.message);
+        this.showPatternMessage = true;
     }
 }
