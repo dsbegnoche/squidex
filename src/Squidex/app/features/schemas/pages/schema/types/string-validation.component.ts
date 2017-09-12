@@ -37,6 +37,7 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
     public showDefaultValue: Observable<boolean>;
     public showPatternMessage: boolean;
     public showPatternSuggestions: Observable<boolean>;
+    public patternName: string;
 
     public regexSuggestions: UIRegexSuggestionDto[] = [];
 
@@ -76,9 +77,9 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
 
         this.showPatternMessage =
             this.editForm.controls['pattern'].value && this.editForm.controls['pattern'].value.trim().length > 0;
-
-        this.editForm.controls['pattern'].valueChanges.subscribe(x => this.showPatternMessage = x);
-
+        this.editForm.controls['pattern'].valueChanges.subscribe(() =>
+            this.showPatternMessage = this.editForm.controls['pattern'] &&
+            this.editForm.controls['pattern'].value.trim() !== '');
 
         this.showPatternSuggestions =
             this.editForm.controls['pattern'].valueChanges
@@ -91,6 +92,7 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
                 this.uiService.getSettings(app))
             .subscribe(settings => {
                 this.regexSuggestions = settings.regexSuggestions;
+                this.setPatternName();
             });
 
         this.patternSubscription =
@@ -99,12 +101,25 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
                 if (!value || value.length === 0) {
                     this.editForm.controls['patternMessage'].setValue(undefined);
                 }
+                this.setPatternName();
             });
     }
 
     public setPattern(pattern: UIRegexSuggestionDto) {
+        this.patternName = pattern.name;
         this.editForm.controls['pattern'].setValue(pattern.pattern);
         this.editForm.controls['patternMessage'].setValue(pattern.message);
         this.showPatternMessage = true;
+    }
+
+    private setPatternName() {
+        let matchingPattern = this.regexSuggestions.find(x => x.pattern === this.editForm.controls['pattern'].value);
+        if (matchingPattern) {
+            this.patternName = matchingPattern.name;
+        } else if (this.editForm.controls['pattern'].value && this.editForm.controls['pattern'].value.trim() !== '') {
+            this.patternName = 'Advanced';
+        } else {
+            this.patternName = undefined;
+        }
     }
 }

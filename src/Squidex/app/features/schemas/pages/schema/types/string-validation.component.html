@@ -25,10 +25,10 @@
 
         <div class="col col-6">
             <input type="text" class="form-control" id="field-pattern" formControlName="pattern" placeholder="Regex Pattern" #patternInput
-                autocomplete="off" 
-                autocorrect="off"
-                autocapitalize="off" 
-                (focus)="regexSuggestionsModal.show()" (blur)="regexSuggestionsModal.hide()" />
+                   autocomplete="off" 
+                   autocorrect="off"
+                   autocapitalize="off" 
+                   (focus)="regexSuggestionsModal.show()" (blur)="regexSuggestionsModal.hide()" />
 
             <div *ngIf="regexSuggestions.length > 0 && (regexSuggestionsModal.isOpen | async) && (showPatternSuggestions | async)" [sqxModalTarget]="patternInput" class="control-dropdown">
                 <h4>Suggestions</h4>
@@ -39,6 +39,9 @@
                 </div>
             </div>
         </div>
+        <small class="col col-3" style="align-self: center;">
+            {{patternName}}
+        </small>
     </div>
     <div class="form-group row" *ngIf="showPatternMessage">
         <label class="col col-3 col-form-label" for="field-pattern-message">Pattern Message</label>
