@@ -36,8 +36,7 @@ export class TextAnalyticsService {
     }
 
     public getKeyPhrases(bodyText: string): Observable<string[]> {
-        // const url = `https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases`;
-        const url = '';
+        const url = `https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases`;
         const options = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': this.key

@@ -289,9 +289,10 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         if ($event.text!.trim().length > 0) {
             this.textAnalyticsBody[$event.id] = $event.text;
         }
+        console.log(this.textAnalyticsBody.join(' '));
 
-        if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0) {
-            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody[$event.id]).subscribe(x => console.log(x));
+        if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0 && this.textAnalyticsBody.join(' ').length > 0) {
+            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).subscribe(x => console.log(x));
         }
     }
 }
