@@ -20,7 +20,8 @@ import {
 import {
     AppMustExistGuard,
     MustBeAuthenticatedGuard,
-    MustBeNotAuthenticatedGuard
+    MustBeNotAuthenticatedGuard,
+    MustHaveValidSessionGuard
 } from './shared';
 
 export const routes: Routes = [
@@ -32,7 +33,10 @@ export const routes: Routes = [
     {
         path: 'app',
         component: InternalAreaComponent,
-        canActivate: [MustBeAuthenticatedGuard],
+        canActivate: [
+            MustHaveValidSessionGuard,
+            MustBeAuthenticatedGuard
+        ],
         children: [
             {
                 path: '',
