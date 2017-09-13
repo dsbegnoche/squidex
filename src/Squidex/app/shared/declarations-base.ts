@@ -8,6 +8,7 @@
 export * from './guards/app-must-exist.guard';
 export * from './guards/must-be-authenticated.guard';
 export * from './guards/must-be-not-authenticated.guard';
+export * from './guards/must-have-valid-session.guard';
 export * from './guards/resolve-app-languages.guard';
 export * from './guards/resolve-content.guard';
 export * from './guards/resolve-published-schema.guard';
