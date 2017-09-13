@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { AppLanguageDto, FieldDto } from 'shared';
@@ -17,6 +17,9 @@ import { AppLanguageDto, FieldDto } from 'shared';
 })
 export class ContentFieldComponent implements OnInit {
     private masterLanguageCode: string;
+
+    @Output()
+    public onBlurEvent = new EventEmitter<object>();
 
     @Input()
     public field: FieldDto;
@@ -56,5 +59,12 @@ export class ContentFieldComponent implements OnInit {
     public selectFieldLanguage(partition: string) {
         return partition === 'iv' ? this.masterLanguageCode : partition;
     }
-}
 
+    public emitBlurEvent($event: any) {
+        if ($event.target) {
+            this.onBlurEvent.emit({ text: $event.target.value, id: this.field.fieldId });
+        } else if (typeof ($event) === typeof ('')) {
+            this.onBlurEvent.emit({ text: $event, id: this.field.fieldId });
+        }
+    }
+}

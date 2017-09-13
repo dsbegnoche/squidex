@@ -44,7 +44,11 @@
         <div class="panel-main">
             <div class="panel-content panel-content-scroll">
 	            <div *ngFor="let field of schema.fields | slice:1">
-		            <sqx-content-field [field]="field" [fieldForm]="contentForm.controls[field.name]" [languages]="languages" [contentFormSubmitted]="contentFormSubmitted"></sqx-content-field>
+	                <sqx-content-field [field]="field" 
+	                                   [fieldForm]="contentForm.controls[field.name]" 
+	                                   [languages]="languages" 
+	                                   [contentFormSubmitted]="contentFormSubmitted"
+	                                   (onBlurEvent)="analyzeForTags($event)"></sqx-content-field>
 	            </div>
 	            <sqx-content-field [field]="schema.fields[0]" [fieldForm]="contentForm.controls[schema.fields[0].name]" [languages]="languages" [contentFormSubmitted]="contentFormSubmitted"></sqx-content-field>
             </div>

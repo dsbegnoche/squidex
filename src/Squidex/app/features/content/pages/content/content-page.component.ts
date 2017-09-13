@@ -28,7 +28,8 @@ import {
     DialogService,
     MessageBus,
     SchemaDetailsDto,
-    Version
+    Version,
+    TextAnalyticsService
 } from 'shared';
 
 import {
@@ -58,13 +59,16 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
     public languages: AppLanguageDto[] = [];
 
+    public textAnalyticsBody: string[];
+
     constructor(apps: AppsStoreService,
         dialogs: DialogService,
         private readonly authService: AuthService,
         private readonly contentsService: ContentsService,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly messageBus: MessageBus
+        private readonly messageBus: MessageBus,
+        private readonly textAnalyticsService: TextAnalyticsService
     ) {
         super(dialogs, apps);
     }
@@ -101,6 +105,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
                 this.populateContentForm();
             });
+
+        this.textAnalyticsBody = new Array<string>(this.schema.fields.length);
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -276,6 +282,16 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
             } else {
                 fieldForm.enable();
             }
+        }
+    }
+
+    public analyzeForTags($event: any) {
+        if ($event.text!.trim().length > 0) {
+            this.textAnalyticsBody[$event.id] = $event.text;
+        }
+
+        if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0) {
+            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody[$event.id]).subscribe(x => console.log(x));
         }
     }
 }

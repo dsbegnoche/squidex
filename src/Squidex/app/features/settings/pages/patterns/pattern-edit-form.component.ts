@@ -74,5 +74,6 @@ export class PatternEditFormComponent extends ComponentBase implements OnInit {
     }
 
     public savePattern() {
+        console.log('cannot save yet');
     }
 }
