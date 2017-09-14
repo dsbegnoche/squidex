@@ -93,7 +93,7 @@ export class MarkdownEditorComponent implements ControlValueAccessor, AfterViewI
 
             this.simplemde.codemirror.on('blur', () => {
                 this.emitBlurEvent();
-                this.touchedCallback();
+                this.callTouched();
             });
 
             this.simplemde.codemirror.on('refresh', () => {
