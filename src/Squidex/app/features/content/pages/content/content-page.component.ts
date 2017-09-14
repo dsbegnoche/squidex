@@ -30,7 +30,8 @@ import {
     DateTime,
     MessageBus,
     SchemaDetailsDto,
-    Version
+    Version,
+    TextAnalyticsService
 } from 'shared';
 
 import {
@@ -58,13 +59,18 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
     public languages: AppLanguageDto[] = [];
 
+    public textAnalyticsBody: string[];
+    public recommendedTags: string[];
+    public allTags: string[];
+
     constructor(apps: AppsStoreService,
         dialogs: DialogService,
         private readonly authService: AuthService,
         private readonly contentsService: ContentsService,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly messageBus: MessageBus
+        private readonly messageBus: MessageBus,
+        private readonly textAnalyticsService: TextAnalyticsService
     ) {
         super(dialogs, apps);
     }
@@ -108,6 +114,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
                 this.populateContentForm();
             });
+
+        this.textAnalyticsBody = new Array<string>(this.schema.fields.length);
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -122,7 +130,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         if (this.isAppEditor()) {
             this.saveAndPublish();
         } else if (this.isAppAuthor()) {
-            this.saveAndSubmit()
+            this.saveAndSubmit();
         } else {
             this.saveAsDraft();
         }
@@ -294,5 +302,41 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
                 }
             }
         }
+    }
+
+    public analyzeForTags($event: any) {
+        if ($event.text!.trim().length > 0) {
+            this.textAnalyticsBody[$event.id] = $event.text;
+        }
+
+        if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0 && this.textAnalyticsBody.join(' ').length > 0) {
+            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).then((x: string[]) => {
+                    this.recommendedTags = x;
+
+                    let tagField = this.schema.fields[0];
+                    const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
+
+                    if (tagField.partitioning === 'language') {
+                        for (let language of this.languages) {
+                            this.allTags = tagFieldForm.controls[language.iso2Code].value;
+                            let formattedTags = this.updateTags();
+                            tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
+                        }
+                    } else {
+                        tagFieldForm.controls['iv'].setValue(this.recommendedTags);
+                    }
+                }
+            );
+        }
+    }
+
+    private updateTags() {
+        if (this.allTags && this.allTags.length > 0) {
+            let missing = this.recommendedTags.filter(tag => this.allTags.indexOf(tag) < 0);
+            missing.forEach(m => this.allTags.push(m));
+        } else {
+            this.allTags = this.recommendedTags;
+        }
+        return this.schema.fields[0].properties.formatValue(this.allTags);
     }
 }

@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { AfterViewInit, Component, forwardRef, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, forwardRef, ElementRef, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor,  NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Types } from './../utils/types';
@@ -30,6 +30,9 @@ export class MarkdownEditorComponent implements ControlValueAccessor, AfterViewI
     private simplemde: any;
     private value: string;
     private isDisabled = false;
+
+    @Output()
+    public onBlurEvent = new EventEmitter<string>();
 
     @ViewChild('editor')
     public editor: ElementRef;
@@ -89,7 +92,8 @@ export class MarkdownEditorComponent implements ControlValueAccessor, AfterViewI
             });
 
             this.simplemde.codemirror.on('blur', () => {
-                this.callTouched();
+                this.emitBlurEvent();
+                this.touchedCallback();
             });
 
             this.simplemde.codemirror.on('refresh', () => {
@@ -102,5 +106,9 @@ export class MarkdownEditorComponent implements ControlValueAccessor, AfterViewI
                 }
             });
         });
+    }
+
+    public emitBlurEvent() {
+        this.onBlurEvent.emit(this.value);
     }
 }
