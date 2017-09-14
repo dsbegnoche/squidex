@@ -122,7 +122,7 @@ namespace Squidex.Domain.Apps.Read.Contents
         [Fact]
         public async Task Should_return_non_archived_contents_from_repository_and_transform()
         {
-            await TestManyRequest(true, false, Status.Draft, Status.Published);
+            await TestManyRequest(true, false, Status.Draft, Status.Declined, Status.Published, Status.Submitted);
         }
 
         [Fact]

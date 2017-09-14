@@ -39,7 +39,7 @@ namespace Squidex.Controllers.ContentApi
         private readonly IContentUsageTracker contentUsageTracker;
 
         public ContentsController(ICommandBus commandBus,
-			IContentUsageTracker contentUsageTracker
+            IContentUsageTracker contentUsageTracker,
             IContentQueryService contentQuery,
             IContentVersionLoader contentVersionLoader,
             IGraphQLService graphQl)

@@ -2,55 +2,39 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using System;
-using System.Collections.Immutable;
-using System.Security.Principal;
-using FakeItEasy.Creation;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Http.Internal;
-using Squidex.Domain.Apps.Core;
-using Squidex.Domain.Apps.Core.Contents;
-using Squidex.Domain.Apps.Core.Schemas;
-using Squidex.Domain.Apps.Read.Apps;
-using Squidex.Domain.Apps.Read.Schemas;
-using Squidex.Infrastructure;
-using Squidex.Infrastructure.CQRS.Commands;
-using Squidex.Infrastructure.Security;
-using Squidex.Pipeline;
-
 namespace Squidex.Tests.Controllers.ContentApi
 {
+    using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using CivicPlusIdentityServer.SDK.NetCore.Base;
-    using CivicPlusIdentityServer.SDK.NetCore.Entities;
-    using IdentityServer4.Models;
-    using IdentityServer4.Services;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Controllers;
     using Microsoft.AspNetCore.Routing;
-    using Microsoft.Extensions.Options;
-    using Squidex.Config;
-    using Squidex.Config.Identity;
-    using Squidex.Controllers.ContentApi;
-    using Squidex.Controllers.UI.Account;
-    using Squidex.Domain.Users;
-    using Squidex.Domain.Users.MongoDb;
-    using Squidex.Infrastructure.Log;
-    using Squidex.Shared.Users;
-    using Xunit;
     using Moq;
+    using Squidex.Config;
+    using Squidex.Controllers.ContentApi;
+    using Squidex.Domain.Apps.Core;
+    using Squidex.Domain.Apps.Core.Contents;
+    using Squidex.Domain.Apps.Core.Schemas;
+    using Squidex.Domain.Apps.Read.Apps;
     using Squidex.Domain.Apps.Read.Contents;
     using Squidex.Domain.Apps.Read.Contents.GraphQL;
+    using Squidex.Domain.Apps.Read.Schemas;
+    using Squidex.Domain.Apps.Write.Contents;
+    using Squidex.Infrastructure;
+    using Squidex.Infrastructure.CQRS.Commands;
+    using Squidex.Infrastructure.Security;
     using Squidex.Infrastructure.UsageTracking;
-
+    using Squidex.Pipeline;
+    using Xunit;
 
     public class ContentsControllerTests
     {
         private readonly Mock<IContentQueryService> contentQuery = new Mock<IContentQueryService>();
+        private readonly Mock<IContentVersionLoader> contentVersionLoader = new Mock<IContentVersionLoader>();
         private readonly Mock<IGraphQLService> graphQl = new Mock<IGraphQLService>();
         private readonly Mock<IContentUsageTracker> contentUsageTracker = new Mock<IContentUsageTracker>();
         private readonly Mock<ClaimsPrincipal> user = new Mock<ClaimsPrincipal>();
@@ -66,9 +50,11 @@ namespace Squidex.Tests.Controllers.ContentApi
         {
             this.systemUnderTest = new ContentsController(
                 new Mock<ICommandBus>().Object,
+                this.contentUsageTracker.Object,
                 this.contentQuery.Object,
-                this.graphQl.Object,
-                this.contentUsageTracker.Object);
+                this.contentVersionLoader.Object,
+                this.graphQl.Object
+                );
 
             this.user.Setup(p => p.Claims).Returns(new List<Claim>()
             {
@@ -159,12 +145,11 @@ namespace Squidex.Tests.Controllers.ContentApi
                 new Claim(OpenIdClaims.ClientId, "app1")
             });
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(),
-                    this.user.Object, new HashSet<Guid>() {contentId}, It.IsAny<string>()))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() {contentId}, It.IsAny<string>()))
                 .ReturnsAsync((schema.Object, 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act
-            var result = await this.systemUnderTest.GetContents("test", contentId.ToString());
+            var result = await this.systemUnderTest.GetContents("test", false, contentId.ToString());
 
             // Assert
             this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Once);
@@ -182,12 +167,11 @@ namespace Squidex.Tests.Controllers.ContentApi
             schema.Setup(x => x.SchemaDef)
                 .Returns(new Schema("test", false, new SchemaProperties(), ImmutableList<Field>.Empty));
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(),
-                    this.user.Object, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
                 .ReturnsAsync((schema.Object, 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act
-            var result = await this.systemUnderTest.GetContents("test", contentId.ToString());
+            var result = await this.systemUnderTest.GetContents("test", false, contentId.ToString());
 
             // Assert
             this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Never);
