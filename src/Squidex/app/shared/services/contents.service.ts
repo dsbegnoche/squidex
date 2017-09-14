@@ -112,6 +112,7 @@ export class ContentDto {
     public isPublished: boolean = this.status === Status.Published;
     public isSubmitted: boolean = this.status === Status.Submitted;
     public isDeclined: boolean = this.status === Status.Declined;
+    public isArchived: boolean = this.status === Status.Archived;
 }
 
 @Injectable()
