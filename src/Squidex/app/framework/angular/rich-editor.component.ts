@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { AfterViewInit, Component, forwardRef, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, forwardRef, ElementRef, OnDestroy, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor,  NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ResourceLoaderService } from './../services/resource-loader.service';
@@ -30,6 +30,9 @@ export class RichEditorComponent implements ControlValueAccessor, AfterViewInit,
     private tinyEditor: any;
     private value: any;
     private isDisabled = false;
+
+    @Output()
+    public onBlurEvent = new EventEmitter<string>();
 
     @ViewChild('editor')
     public editor: ElementRef;
@@ -69,6 +72,10 @@ export class RichEditorComponent implements ControlValueAccessor, AfterViewInit,
         this.resourceLoader.loadScript('https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.4/tinymce.min.js').then(() => {
             tinymce.init({
                 setup: (editor: any) => {
+                    editor.on('blur',
+                        ($event: any) => {
+                            this.emitBlurEvent($event);
+                        });
                     self.tinyEditor = editor;
                     self.tinyEditor.setMode(this.isDisabled ? 'readonly' : 'design');
 
@@ -97,5 +104,9 @@ export class RichEditorComponent implements ControlValueAccessor, AfterViewInit,
 
     public ngOnDestroy() {
         tinymce.remove(this.editor);
+    }
+
+    public emitBlurEvent($event: any) {
+        this.onBlurEvent.emit($event.target.getContent({ format: 'text' }));
     }
 }
