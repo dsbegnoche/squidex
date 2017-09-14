@@ -1,9 +1,5 @@
 ﻿// ==========================================================================
-//  MongoUsage.cs
-//  Squidex Headless CMS
-// ==========================================================================
-//  Copyright (c) Squidex Group
-//  All rights reserved.
+//  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
 using System;
@@ -18,6 +14,10 @@ namespace Squidex.Infrastructure.UsageTracking
         [BsonElement]
         [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
         public DateTime AccessDate { get; set; }
+
+        [BsonRequired]
+        [BsonElement]
+        public Guid AppId { get; set; }
 
         [BsonRequired]
         [BsonElement]

@@ -10,6 +10,6 @@ namespace Squidex.Infrastructure.UsageTracking
 {
     public interface IContentUsageStore
     {
-        Task TrackUsagesAsync(List<Guid> contentIds, DateTime accessDate);
+        Task TrackUsagesAsync(List<Guid> contentIds, DateTime accessDate, Guid appId);
     }
 }

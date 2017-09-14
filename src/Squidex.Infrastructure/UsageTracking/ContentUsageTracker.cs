@@ -29,13 +29,15 @@ namespace Squidex.Infrastructure.UsageTracking
             this.log = log;
         }
 
-        public async Task TrackAsync(List<Guid> contentIds, DateTime accessDate)
+        public async Task TrackAsync(List<Guid> contentIds, DateTime accessDate, Guid appId)
         {
             Guard.NotEmpty(contentIds, nameof(contentIds));
 
+            Guard.NotEmpty(appId, nameof(appId));
+
             try
             {
-                await usageStore.TrackUsagesAsync(contentIds, accessDate);
+                await usageStore.TrackUsagesAsync(contentIds, accessDate, appId);
             }
             catch (Exception ex)
             {

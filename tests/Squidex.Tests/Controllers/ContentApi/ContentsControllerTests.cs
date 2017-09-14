@@ -116,7 +116,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             var result = await this.systemUnderTest.GetContent("test", contentId);
 
             // Assert
-            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>()), Times.Once);
+            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             var result = await this.systemUnderTest.GetContent("test", contentId);
 
             // Assert
-            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>()), Times.Never);
+            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Never);
         }
 
         [Fact]
@@ -167,7 +167,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             var result = await this.systemUnderTest.GetContents("test", contentId.ToString());
 
             // Assert
-            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>()), Times.Once);
+            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -190,7 +190,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             var result = await this.systemUnderTest.GetContents("test", contentId.ToString());
 
             // Assert
-            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>()), Times.Never);
+            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Never);
         }
     }
 }

@@ -27,10 +27,10 @@ namespace Squidex.Infrastructure.UsageTracking
 
         protected override Task SetupCollectionAsync(IMongoCollection<MongoContentUsage> collection)
         {
-            return collection.Indexes.CreateOneAsync(Index.Ascending(x => x.ContentId).Ascending(x => x.AccessDate));
+            return collection.Indexes.CreateOneAsync(Index.Ascending(x => x.AppId).Ascending(x => x.ContentId).Ascending(x => x.AccessDate));
         }
 
-        public async Task TrackUsagesAsync(List<Guid> contentIds, DateTime accessDate)
+        public async Task TrackUsagesAsync(List<Guid> contentIds, DateTime accessDate, Guid appId)
         {
             var requests = new List<WriteModel<MongoContentUsage>>();
 
@@ -38,7 +38,7 @@ namespace Squidex.Infrastructure.UsageTracking
             {
                 requests.Add(new UpdateOneModel<MongoContentUsage>(
                     Builders<MongoContentUsage>.Filter.Eq(x => x.ContentId, contentId),
-                    Update.Set(x => x.AccessDate, accessDate).SetOnInsert(x => x.ContentId, contentId))
+                    Update.Set(x => x.AccessDate, accessDate).SetOnInsert(x => x.ContentId, contentId).SetOnInsert(x => x.AppId, appId))
                 {
                     IsUpsert = true
                 });

@@ -92,7 +92,7 @@ namespace Squidex.Controllers.ContentApi
 
             if (!isFrontendClient && idsList.Count > 0)
             {
-                await contentUsageTracker.TrackAsync(idsList.ToList(), DateTime.UtcNow);
+                await contentUsageTracker.TrackAsync(idsList.ToList(), DateTime.UtcNow, AppId);
             }
 
             var response = new AssetsDto
@@ -130,7 +130,7 @@ namespace Squidex.Controllers.ContentApi
 
                 if (!isFrontendClient)
                 {
-                    await contentUsageTracker.TrackAsync(new List<Guid>() { id }, DateTime.UtcNow);
+                    await contentUsageTracker.TrackAsync(new List<Guid>() { id }, DateTime.UtcNow, AppId);
                 }
 
                 response.Data = content.Content.Data.ToApiModel(content.Schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);

@@ -1,9 +1,5 @@
 ﻿// ==========================================================================
-//  BackgroundUsageTrackerTests.cs
-//  Squidex Headless CMS
-// ==========================================================================
-//  Copyright (c) Squidex Group
-//  All rights reserved.
+//  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
 using System;
@@ -22,6 +18,7 @@ namespace Squidex.Infrastructure.UsageTracking
         private readonly IContentUsageStore usageStore = A.Fake<IContentUsageStore>();
         private readonly ISemanticLog log = A.Fake<ISemanticLog>();
         private readonly ContentUsageTracker sut;
+        private readonly Guid appId = Guid.NewGuid();
 
         public ContentUsageTrackerTests()
         {
@@ -31,13 +28,19 @@ namespace Squidex.Infrastructure.UsageTracking
         [Fact]
         public Task Should_throw_exception_if_contentIds_is_null()
         {
-            return Assert.ThrowsAsync<ArgumentNullException>(() => sut.TrackAsync(null, DateTime.UtcNow));
+            return Assert.ThrowsAsync<ArgumentNullException>(() => sut.TrackAsync(null, DateTime.UtcNow, appId));
         }
 
         [Fact]
         public Task Should_throw_exception_if_contentIds_is_empty()
         {
-            return Assert.ThrowsAsync<ArgumentException>(() => sut.TrackAsync(new List<Guid>(), DateTime.UtcNow));
+            return Assert.ThrowsAsync<ArgumentException>(() => sut.TrackAsync(new List<Guid>(), DateTime.UtcNow, appId));
+        }
+
+        [Fact]
+        public Task Should_throw_exception_if_appId_is_empty()
+        {
+            return Assert.ThrowsAsync<ArgumentException>(() => sut.TrackAsync(new List<Guid>(), DateTime.UtcNow, Guid.Empty));
         }
 
         [Fact]
@@ -50,9 +53,9 @@ namespace Squidex.Infrastructure.UsageTracking
                 contentId
             };
 
-            await sut.TrackAsync(contentIds, now);
+            await sut.TrackAsync(contentIds, now, appId);
 
-            A.CallTo(() => usageStore.TrackUsagesAsync(contentIds, now)).MustHaveHappened();
+            A.CallTo(() => usageStore.TrackUsagesAsync(contentIds, now, appId)).MustHaveHappened();
         }
     }
 }
