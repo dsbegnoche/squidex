@@ -61,7 +61,7 @@ export class ContentFieldComponent implements OnInit {
     }
 
     public emitBlurEvent($event: any) {
-        if ($event.target) {
+        if ($event && $event.target) {
             this.onBlurEvent.emit({ text: $event.target.value, id: this.field.fieldId });
         } else if (typeof ($event) === typeof ('')) {
             this.onBlurEvent.emit({ text: $event, id: this.field.fieldId });

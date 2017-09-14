@@ -50,7 +50,7 @@
                                 <sqx-rich-editor [formControlName]="partition" (onBlurEvent)="emitBlurEvent($event)"></sqx-rich-editor>
                             </div>
                             <div *ngSwitchCase="'Markdown'">
-                                <sqx-markdown-editor [formControlName]="partition" (focusout)="emitBlurEvent($event)"></sqx-markdown-editor>
+                                <sqx-markdown-editor [formControlName]="partition" (onBlurEvent)="emitBlurEvent($event)"></sqx-markdown-editor>
                             </div>
                             <div *ngSwitchCase="'Dropdown'">
                                 <select class="form-control" [formControlName]="partition">

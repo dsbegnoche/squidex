@@ -60,6 +60,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public languages: AppLanguageDto[] = [];
 
     public textAnalyticsBody: string[];
+    public recommendedTags: string[];
+    public allTags: string[];
 
     constructor(apps: AppsStoreService,
         dialogs: DialogService,
@@ -121,7 +123,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         if (this.isAppEditor()) {
             this.saveAndPublish();
         } else if (this.isAppAuthor()) {
-            this.saveAndSubmit()
+            this.saveAndSubmit();
         } else {
             this.saveAsDraft();
         }
@@ -292,7 +294,27 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         console.log(this.textAnalyticsBody.join(' '));
 
         if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0 && this.textAnalyticsBody.join(' ').length > 0) {
-            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).subscribe(x => console.log(x));
+            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).subscribe(x => this.recommendedTags = x);
+
+            let tagField = this.schema.fields[0];
+            const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
+
+            let formattedTags = this.schema.fields[0].properties.formatValue(this.recommendedTags);
+
+            if (tagField.partitioning === 'language') {
+                for (let language of this.languages) {
+                    this.allTags = tagFieldForm.controls[language.iso2Code].value;
+                    this.updateTags();
+                    tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
+                }
+            } else {
+                tagFieldForm.controls['iv'].setValue(this.recommendedTags);
+            }
         }
+    }
+
+    private updateTags() {
+        let missing = this.allTags.filter(tag => this.recommendedTags.indexOf(tag) < 0);
+        missing.forEach(m => this.allTags.push(m));
     }
 }
