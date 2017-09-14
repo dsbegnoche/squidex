@@ -23,6 +23,7 @@ using Squidex.Domain.Apps.Write.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
+using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
 
 namespace Squidex.Controllers.ContentApi
@@ -34,13 +35,17 @@ namespace Squidex.Controllers.ContentApi
     {
         private readonly IContentQueryService contentQuery;
         private readonly IGraphQLService graphQl;
+        private readonly IContentUsageTracker contentUsageTracker;
 
-        public ContentsController(ICommandBus commandBus, IContentQueryService contentQuery, IGraphQLService graphQl)
+        public ContentsController(ICommandBus commandBus, IContentQueryService contentQuery, IGraphQLService graphQl,
+            IContentUsageTracker contentUsageTracker)
             : base(commandBus)
         {
             this.contentQuery = contentQuery;
 
             this.graphQl = graphQl;
+
+            this.contentUsageTracker = contentUsageTracker;
         }
 
         [MustBeAppReader]
@@ -85,6 +90,11 @@ namespace Squidex.Controllers.ContentApi
 
             var contents = await contentQuery.QueryWithCountAsync(App, name, User, idsList, Request.QueryString.ToString());
 
+            if (!isFrontendClient && idsList.Count > 0)
+            {
+                await contentUsageTracker.TrackAsync(idsList.ToList(), DateTime.UtcNow, AppId);
+            }
+
             var response = new AssetsDto
             {
                 Total = contents.Total,
@@ -117,6 +127,11 @@ namespace Squidex.Controllers.ContentApi
             if (content.Content.Data != null)
             {
                 var isFrontendClient = User.IsFrontendClient();
+
+                if (!isFrontendClient)
+                {
+                    await contentUsageTracker.TrackAsync(new List<Guid>() { id }, DateTime.UtcNow, AppId);
+                }
 
                 response.Data = content.Content.Data.ToApiModel(content.Schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);
             }
