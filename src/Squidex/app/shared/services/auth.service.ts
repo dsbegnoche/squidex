@@ -181,8 +181,21 @@ export class AuthService {
                 .concat(Observable.throw(new Error('Retry limit exceeded.'))));
     }
 
-    private createProfile(user: User): Profile {
-        return new Profile(user);
+    public isValidSession(): Observable<boolean> {
+        return Observable.create((observer: Observer<boolean>) => {
+            this.userManager.querySessionStatus()
+                .then(state => {
+                    observer.next(true);
+                    observer.complete();
+                }, err => {
+                    observer.error(err);
+                    observer.complete();
+                });
+        });
+    }
+
+    private createProfile(user: User) {
+        return user ? new Profile(user) : null;
     }
 
     private checkState(promise: Promise<User | null>) {
