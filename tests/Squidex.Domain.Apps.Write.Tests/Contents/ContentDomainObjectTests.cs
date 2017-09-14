@@ -76,12 +76,12 @@ namespace Squidex.Domain.Apps.Write.Contents
         [Fact]
         public void Create_should_also_publish_if_set_to_true()
         {
-            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Core.Apps.Status.Published }));
+            sut.Create(CreateContentCommand(new CreateContent { Data = data, Status = Status.Published }));
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentCreated { Data = data }),
-                    CreateContentEvent(new ContentPublished())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Published })
                 );
         }
 
@@ -93,7 +93,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
                     CreateContentEvent(new ContentCreated { Data = data }),
-                    CreateContentEvent(new ContentSubmitted())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Submitted })
                 );
         }
 
@@ -171,7 +171,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         public void Update_should_throw_exception_if_published_and_user_is_author()
         {
             CreateContent();
-            PublishContent();
+            ChangeStatus(Status.Published);
 
             Assert.Throws<DomainException>(() =>
             {
@@ -239,7 +239,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         public void Patch_should_throw_exception_if_published_and_user_is_author()
         {
             CreateContent();
-            PublishContent();
+            ChangeStatus(Status.Published);
 
             Assert.Throws<ValidationException>(() =>
             {
@@ -248,23 +248,23 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
-        public void Publish_should_throw_exception_if_not_created()
+        public void ChangeStatus_should_throw_exception_if_not_created()
         {
             Assert.Throws<DomainException>(() =>
             {
-                sut.Publish(CreateContentCommand(new PublishContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus()));
             });
         }
 
         [Fact]
-        public void Publish_should_throw_exception_if_content_is_deleted()
+        public void ChangeStatus_should_throw_exception_if_content_is_deleted()
         {
             CreateContent();
             DeleteContent();
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Publish(CreateContentCommand(new PublishContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus()));
             });
         }
 
@@ -275,22 +275,22 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Publish(CreateContentCommandAuthor(new PublishContent()));
+                sut.ChangeStatus(CreateContentCommandAuthor(new ChangeContentStatus { Status = Status.Published }));
             });
         }
 
         [Fact]
-        public void Publish_should_refresh_properties_and_create_events()
+        public void ChangeStatus_should_refresh_properties_and_create_events()
         {
             CreateContent();
 
-            sut.Publish(CreateContentCommand(new PublishContent()));
+            sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Published }));
 
-            Assert.True(sut.IsPublished);
+            Assert.Equal(Status.Published, sut.Status);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentPublished())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Published })
                 );
         }
 
@@ -299,7 +299,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             Assert.Throws<DomainException>(() =>
             {
-                sut.Unpublish(CreateContentCommand(new UnpublishContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Draft }));
             });
         }
 
@@ -311,7 +311,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Unpublish(CreateContentCommand(new UnpublishContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Draft }));
             });
         }
 
@@ -319,16 +319,16 @@ namespace Squidex.Domain.Apps.Write.Contents
         public void Unpublish_should_refresh_properties_and_create_events()
         {
             CreateContent();
-            PublishContent();
+            ChangeStatus(Status.Published);
 
-            sut.Unpublish(CreateContentCommand(new UnpublishContent()));
+            sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Draft }));
 
             Assert.False(sut.IsPublished);
             Assert.Equal(Status.Draft, sut.Status);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentUnpublished())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Draft } )
                 );
         }
 
@@ -340,7 +340,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Unpublish(CreateContentCommandAuthor(new UnpublishContent()));
+                sut.ChangeStatus(CreateContentCommandAuthor(new ChangeContentStatus { Status = Status.Draft }));
             });
         }
 
@@ -399,7 +399,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommand(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -407,11 +407,11 @@ namespace Squidex.Domain.Apps.Write.Contents
         public void Submit_should_throw_exception_if_content_is_published()
         {
             CreateContent();
-            PublishContent();
+            ChangeStatus(Status.Published);
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommand(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -420,7 +420,7 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommand(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -429,13 +429,13 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
 
-            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+            sut.ChangeStatus(CreateContentCommandAuthor(new ChangeContentStatus { Status = Status.Submitted }));
 
             Assert.True(sut.Status == Status.Submitted);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentSubmitted())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Submitted })
                 );
         }
 
@@ -447,7 +447,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommandAuthor(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -458,7 +458,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommandReader(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommandReader(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -469,7 +469,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Submit(CreateContentCommand(new SubmitContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Submitted }));
             });
         }
 
@@ -479,13 +479,13 @@ namespace Squidex.Domain.Apps.Write.Contents
             CreateContent();
             SubmitContent();
 
-            sut.Decline(CreateContentCommand(new DeclineContent()));
+            sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Declined }));
 
             Assert.True(sut.Status == Status.Declined);
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateContentEvent(new ContentDeclined())
+                    CreateContentEvent(new ContentStatusChanged { Status = Status.Declined })
                 );
         }
 
@@ -496,7 +496,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             Assert.Throws<DomainException>(() =>
             {
-                sut.Decline(CreateContentCommandAuthor(new DeclineContent()));
+                sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = Status.Declined }));
             });
         }
 
@@ -514,9 +514,9 @@ namespace Squidex.Domain.Apps.Write.Contents
             ((IAggregate)sut).ClearUncommittedEvents();
         }
 
-        private void PublishContent()
+        private void ChangeStatus(Status status)
         {
-            sut.Publish(CreateContentCommand(new PublishContent()));
+            sut.ChangeStatus(CreateContentCommand(new ChangeContentStatus { Status = status }));
 
             ((IAggregate)sut).ClearUncommittedEvents();
         }
@@ -530,7 +530,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
         private void SubmitContent()
         {
-            sut.Submit(CreateContentCommandAuthor(new SubmitContent()));
+            sut.ChangeStatus(CreateContentCommandAuthor(new ChangeContentStatus { Status = Status.Submitted }));
 
             ((IAggregate)sut).ClearUncommittedEvents();
         }

@@ -1,17 +1,19 @@
 ﻿// ==========================================================================
-//  ContentPublished.cs
+//  ContentStatusChanged.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
-using Squidex.Infrastructure;
+using Squidex.Domain.Apps.Core.Contents;
+using Squidex.Infrastructure.CQRS.Events;
 
 namespace Squidex.Domain.Apps.Events.Contents
 {
-    [TypeName("ContentPublishedEvent")]
-    public sealed class ContentPublished : ContentEvent
+    [EventType(nameof(ContentStatusChanged))]
+    public sealed class ContentStatusChanged : ContentEvent
     {
+        public Status Status { get; set; }
     }
 }

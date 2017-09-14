@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Newtonsoft.Json;
 using NodaTime;
+using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Core.Webhooks;
 using Squidex.Domain.Apps.Events.Contents;
 using Squidex.Domain.Apps.Read.Webhooks.Repositories;
@@ -38,11 +39,8 @@ namespace Squidex.Domain.Apps.Read.Webhooks
 
             typeNameRegisty.Map(typeof(ContentCreated));
             typeNameRegisty.Map(typeof(ContentUpdated));
-            typeNameRegisty.Map(typeof(ContentPublished));
-            typeNameRegisty.Map(typeof(ContentUnpublished));
             typeNameRegisty.Map(typeof(ContentDeleted));
-            typeNameRegisty.Map(typeof(ContentSubmitted));
-            typeNameRegisty.Map(typeof(ContentDeclined));
+            typeNameRegisty.Map(typeof(ContentStatusChanged));
 
             sut = new WebhookEnqueuer(
                 typeNameRegisty,
@@ -158,7 +156,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_published_event_on_content_published()
         {
-            var @event = Envelope.Create(new ContentPublished { AppId = appId, SchemaId = schemaId });
+            var @event = Envelope.Create(new ContentStatusChanged { Status = Status.Published, AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
@@ -175,7 +173,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.Id != Guid.Empty
                     && webhookJob.Expires == now.Plus(Duration.FromDays(2))
                     && webhookJob.AppId == appId.Id
-                    && webhookJob.EventName == "MySchemaPublishedEvent"
+                    && webhookJob.EventName == "MySchemaStatusChangedEvent"
                     && webhookJob.RequestUrl == webhook2.Url
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }
@@ -183,7 +181,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_unpublish_event_on_content_unpublished()
         {
-            var @event = Envelope.Create(new ContentUnpublished { AppId = appId, SchemaId = schemaId });
+            var @event = Envelope.Create(new ContentStatusChanged { Status = Status.Draft, AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
@@ -200,7 +198,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.Id != Guid.Empty
                     && webhookJob.Expires == now.Plus(Duration.FromDays(2))
                     && webhookJob.AppId == appId.Id
-                    && webhookJob.EventName == "MySchemaUnpublishedEvent"
+                    && webhookJob.EventName == "MySchemaStatusChangedEvent"
                     && webhookJob.RequestUrl == webhook2.Url
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }
@@ -208,7 +206,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_submit_event_on_content_submitted()
         {
-            var @event = Envelope.Create(new ContentSubmitted { AppId = appId, SchemaId = schemaId });
+            var @event = Envelope.Create(new ContentStatusChanged { Status = Status.Submitted, AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
@@ -225,7 +223,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.Id != Guid.Empty
                     && webhookJob.Expires == now.Plus(Duration.FromDays(2))
                     && webhookJob.AppId == appId.Id
-                    && webhookJob.EventName == "MySchemaSubmittedEvent"
+                    && webhookJob.EventName == "MySchemaStatusChangedEvent"
                     && webhookJob.RequestUrl == webhook2.Url
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }
@@ -233,7 +231,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
         [Fact]
         public async Task Should_send_decline_event_on_content_declined()
         {
-            var @event = Envelope.Create(new ContentDeclined { AppId = appId, SchemaId = schemaId });
+            var @event = Envelope.Create(new ContentStatusChanged { Status = Status.Declined, AppId = appId, SchemaId = schemaId });
 
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
@@ -250,7 +248,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
                     && webhookJob.Id != Guid.Empty
                     && webhookJob.Expires == now.Plus(Duration.FromDays(2))
                     && webhookJob.AppId == appId.Id
-                    && webhookJob.EventName == "MySchemaDeclinedEvent"
+                    && webhookJob.EventName == "MySchemaStatusChangedEvent"
                     && webhookJob.RequestUrl == webhook2.Url
                     && webhookJob.WebhookId == webhook2.Id), now)).MustHaveHappened();
         }

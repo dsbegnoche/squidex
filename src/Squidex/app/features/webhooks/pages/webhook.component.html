@@ -57,7 +57,6 @@
                 <col style="width: 40px" />
                 <col style="width: 40px" />
                 <col style="width: 40px" />
-                <col style="width: 40px" />
             </colgroup>
 
             <tr>
@@ -109,9 +108,6 @@
                 </td>
                 <td class="text-center" title="Published">
                     <input type="checkbox" [ngModel]="schema.sendPublish" (ngModelChange)="toggle(schema, 'sendPublish')" />
-                </td>
-                <td class="text-center" title="Unpublished">
-                    <input type="checkbox" [ngModel]="schema.sendUnpublish" (ngModelChange)="toggle(schema, 'sendUnpublish')" />
                 </td>
                 <td class="text-center" title="Submitted">
                     <input type="checkbox" [ngModel]="schema.sendSubmit" (ngModelChange)="toggle(schema, 'sendSubmit')" />

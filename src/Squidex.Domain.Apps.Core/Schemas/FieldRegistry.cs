@@ -59,10 +59,6 @@ namespace Squidex.Domain.Apps.Core.Schemas
                 (id, name, partitioning, properties) =>
                     new StringField(id, name, partitioning, (StringFieldProperties)properties));
 
-            Add<DateTimeFieldProperties>(
-                (id, name, partitioning, properties) =>
-                    new DateTimeField(id, name, partitioning, (DateTimeFieldProperties)properties));
-
             Add<JsonFieldProperties>(
                 (id, name, partitioning, properties) =>
                     new JsonField(id, name, partitioning, (JsonFieldProperties)properties));
@@ -71,13 +67,21 @@ namespace Squidex.Domain.Apps.Core.Schemas
                 (id, name, partitioning, properties) =>
                     new AssetsField(id, name, partitioning, (AssetsFieldProperties)properties));
 
+            Add<GeolocationFieldProperties>(
+                (id, name, partitioning, properties) =>
+                    new GeolocationField(id, name, partitioning, (GeolocationFieldProperties)properties));
+
             Add<ReferencesFieldProperties>(
                 (id, name, partitioning, properties) =>
                     new ReferencesField(id, name, partitioning, (ReferencesFieldProperties)properties));
 
-            Add<GeolocationFieldProperties>(
+            Add<DateTimeFieldProperties>(
                 (id, name, partitioning, properties) =>
-                    new GeolocationField(id, name, partitioning, (GeolocationFieldProperties)properties));
+                    new DateTimeField(id, name, partitioning, (DateTimeFieldProperties)properties));
+
+            typeNameRegistry.MapObsolete(typeof(ReferencesFieldProperties), "DateTime");
+
+            typeNameRegistry.MapObsolete(typeof(DateTimeFieldProperties), "References");
 
             Add<TagFieldProperties>(
                 (id, name, partitioning, properties) =>

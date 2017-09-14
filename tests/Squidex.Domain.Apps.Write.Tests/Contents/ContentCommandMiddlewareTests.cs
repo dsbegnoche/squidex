@@ -179,39 +179,21 @@ namespace Squidex.Domain.Apps.Write.Contents
         }
 
         [Fact]
-        public async Task Publish_should_publish_domain_object()
+        public async Task ChangeStatus_should_publish_domain_object()
         {
-            A.CallTo(() => schema.ScriptPublish)
-                .Returns("<publish-script>");
+            A.CallTo(() => schema.ScriptChange)
+                .Returns("<change-script>");
 
             CreateContent();
 
-            var context = CreateContextForCommand(new PublishContent { ContentId = contentId, User = user });
+            var context = CreateContextForCommand(new ChangeContentStatus { ContentId = contentId, User = user, Status = Status.Published });
 
             await TestUpdate(content, async _ =>
             {
                 await sut.HandleAsync(context);
             });
 
-            A.CallTo(() => scriptEngine.Execute(A<ScriptContext>.Ignored, "<publish-script>", "publish content")).MustHaveHappened();
-        }
-
-        [Fact]
-        public async Task Unpublish_should_unpublish_domain_object()
-        {
-            A.CallTo(() => schema.ScriptUnpublish)
-                .Returns("<unpublish-script>");
-
-            CreateContent();
-
-            var context = CreateContextForCommand(new UnpublishContent { ContentId = contentId, User = user });
-
-            await TestUpdate(content, async _ =>
-            {
-                await sut.HandleAsync(context);
-            });
-
-            A.CallTo(() => scriptEngine.Execute(A<ScriptContext>.Ignored, "<unpublish-script>", "unpublish content")).MustHaveHappened();
+            A.CallTo(() => scriptEngine.Execute(A<ScriptContext>.Ignored, "<change-script>", "change content status")).MustHaveHappened();
         }
 
         [Fact]
@@ -238,8 +220,9 @@ namespace Squidex.Domain.Apps.Write.Contents
         {
             CreateContent();
 
-            var context = CreateContextForCommand(new SubmitContent
+            var context = CreateContextForCommand(new ChangeContentStatus
             {
+                Status = Status.Submitted,
                 ContentId = contentId,
                 Roles = new List<string> { SquidexRoles.AppAuthor }
             });
@@ -256,8 +239,9 @@ namespace Squidex.Domain.Apps.Write.Contents
             CreateContent();
             SubmitContent();
 
-            var context = CreateContextForCommand(new DeclineContent
+            var context = CreateContextForCommand(new ChangeContentStatus()
             {
+                Status = Status.Declined,
                 ContentId = contentId,
                 Roles = new List<string> { SquidexRoles.AppEditor }
             });
@@ -272,6 +256,6 @@ namespace Squidex.Domain.Apps.Write.Contents
             content.Create(new CreateContent { Data = data });
 
         private ContentDomainObject SubmitContent() =>
-            content.Submit(new SubmitContent() { Roles = new List<string> { SquidexRoles.AppAuthor } } );
+            content.ChangeStatus(new ChangeContentStatus { Status = Status.Submitted, Roles = new List<string> { SquidexRoles.AppAuthor } } );
     }
 }

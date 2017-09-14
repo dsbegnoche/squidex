@@ -9,9 +9,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Events.Contents;
+using Squidex.Domain.Apps.Events.Contents.Old;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS;
@@ -26,33 +26,17 @@ namespace Squidex.Domain.Apps.Write.Contents
     {
         private bool isCreated;
         private Status status;
-
         private NamedContentData data;
 
-        public bool IsDeleted
-        {
-            get { return status == Status.Deleted; }
-        }
+        public bool IsDeleted => status == Status.Deleted;
 
-        public bool IsPublished
-        {
-            get { return status == Status.Published; }
-        }
+        public bool IsPublished => status == Status.Published;
 
-        public bool IsSubmitted
-        {
-            get { return status == Status.Submitted; }
-        }
+        public bool IsSubmitted => status == Status.Submitted;
 
-        public Status Status
-        {
-            get { return status; }
-        }
+        public Status Status => status;
 
-        public NamedContentData Data
-        {
-            get { return data; }
-        }
+        public NamedContentData Data => data;
 
         public ContentDomainObject(Guid id, int version)
             : base(id, version)
@@ -73,29 +57,9 @@ namespace Squidex.Domain.Apps.Write.Contents
             data = @event.Data;
         }
 
-        protected void On(ContentPublished @event)
+        protected void On(ContentStatusChanged @event)
         {
-            status = Status.Published;
-        }
-
-        protected void On(ContentUnpublished @event)
-        {
-            status = Status.Draft;
-        }
-
-        protected void On(ContentDeleted @event)
-        {
-            status = Status.Deleted;
-        }
-
-        protected void On(ContentSubmitted @event)
-        {
-            status = Status.Submitted;
-        }
-
-        protected void On(ContentDeclined @event)
-        {
-            status = Status.Declined;
+            status = @event.Status;
         }
 
         public ContentDomainObject Create(CreateContent command)
@@ -108,11 +72,11 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             if (command.Status == Status.Published)
             {
-                RaiseEvent(SimpleMapper.Map(command, new ContentPublished()));
+                RaiseEvent(SimpleMapper.Map(command, new ContentStatusChanged { Status = Status.Published }));
             }
             else if (command.Status == Status.Submitted)
             {
-                RaiseEvent(SimpleMapper.Map(command, new ContentSubmitted()));
+                RaiseEvent(SimpleMapper.Map(command, new ContentStatusChanged { Status = Status.Submitted }));
             }
 
             return this;
@@ -124,32 +88,31 @@ namespace Squidex.Domain.Apps.Write.Contents
 
             VerifyIsEditor(command);
             VerifyCreatedAndNotDeleted();
+            status = Status.Deleted;
 
             RaiseEvent(SimpleMapper.Map(command, new ContentDeleted()));
 
             return this;
         }
 
-        public ContentDomainObject Publish(PublishContent command)
+        public ContentDomainObject ChangeStatus(ChangeContentStatus command)
         {
             Guard.NotNull(command, nameof(command));
 
-            VerifyIsEditor(command);
+            VerifyCanChangeStatus(command.Status, command.Roles);
+
+            if (command.Status == Status.Submitted)
+            {
+                VerifyHighestRightsAuthor(command);
+            }
+            else
+            {
+                VerifyIsEditor(command);
+            }
+
             VerifyCreatedAndNotDeleted();
 
-            RaiseEvent(SimpleMapper.Map(command, new ContentPublished()));
-
-            return this;
-        }
-
-        public ContentDomainObject Unpublish(UnpublishContent command)
-        {
-            Guard.NotNull(command, nameof(command));
-
-            VerifyCreatedAndNotDeleted();
-            VerifySubmittedStatus(false);
-
-            RaiseEvent(SimpleMapper.Map(command, new ContentUnpublished()));
+            RaiseEvent(SimpleMapper.Map(command, new ContentStatusChanged()));
 
             return this;
         }
@@ -192,32 +155,12 @@ namespace Squidex.Domain.Apps.Write.Contents
             return this;
         }
 
-        public ContentDomainObject Submit(SubmitContent command)
+        private void VerifyCanChangeStatus(Status newStatus, List<string> roles)
         {
-            Guard.NotNull(command, nameof(command));
-
-            VerifyHighestRightsAuthor(command);
-            VerifyCreatedAndNotDeleted();
-            VerifyNotPublished();
-            VerifySubmittedStatus(false);
-
-            RaiseEvent(SimpleMapper.Map(command, new ContentSubmitted()));
-
-            return this;
-        }
-
-        public ContentDomainObject Decline(DeclineContent command)
-        {
-            Guard.NotNull(command, nameof(command));
-
-            VerifyIsEditor(command);
-            VerifyCreatedAndNotDeleted();
-            VerifyNotPublished();
-            VerifySubmittedStatus(true);
-
-            RaiseEvent(SimpleMapper.Map(command, new ContentDeclined()));
-
-            return this;
+            if (!StatusFlow.Exists(newStatus) || !StatusFlow.CanChange(status, newStatus, roles))
+            {
+                throw new DomainException($"Content cannot be changed from status {status} to {newStatus}.");
+            }
         }
 
         private void VerifyNotCreated()
@@ -233,22 +176,6 @@ namespace Squidex.Domain.Apps.Write.Contents
             if (IsDeleted || !isCreated)
             {
                 throw new DomainException("Content has already been deleted or not created yet.");
-            }
-        }
-
-        private void VerifyNotPublished()
-        {
-            if (IsPublished)
-            {
-                throw new DomainException("Content has already been published.");
-            }
-        }
-
-        private void VerifySubmittedStatus(bool submitted)
-        {
-            if (submitted != IsSubmitted)
-            {
-                throw new DomainException("Content has already been submitted.");
             }
         }
 

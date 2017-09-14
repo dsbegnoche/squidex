@@ -11,41 +11,56 @@ using Squidex.Domain.Apps.Events.Contents;
 using Squidex.Domain.Apps.Read.History;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
+using Squidex.Infrastructure.Dispatching;
 
 namespace Squidex.Domain.Apps.Read.Contents
 {
-    public sealed class ContentHistoryEventsCreator : HistoryEventsCreatorBase
+    public class ContentHistoryEventsCreator : HistoryEventsCreatorBase
     {
         public ContentHistoryEventsCreator(TypeNameRegistry typeNameRegistry)
             : base(typeNameRegistry)
         {
             AddEventMessage<ContentCreated>(
-                "created content element.");
+                "created content item.");
 
             AddEventMessage<ContentUpdated>(
-                "updated content element.");
+                "updated content item.");
 
             AddEventMessage<ContentDeleted>(
-                "deleted content element.");
+                "deleted content item.");
 
-            AddEventMessage<ContentPublished>(
-                "published content element.");
+            AddEventMessage<ContentStatusChanged>(
+                "changed status of content item to {[Status]}.");
+        }
 
-            AddEventMessage<ContentUnpublished>(
-                "unpublished content element.");
+        protected Task<HistoryEventToStore> On(ContentCreated @event, EnvelopeHeaders headers)
+        {
+            return Task.FromResult(HandleEvent(@event, headers));
+        }
 
-            AddEventMessage<ContentDeclined>(
-                "declined content element.");
+        protected Task<HistoryEventToStore> On(ContentUpdated @event, EnvelopeHeaders headers)
+        {
+            return Task.FromResult(HandleEvent(@event, headers));
+        }
 
-            AddEventMessage<ContentSubmitted>(
-                "submitted content element.");
+        protected Task<HistoryEventToStore> On(ContentDeleted @event, EnvelopeHeaders headers)
+        {
+            return Task.FromResult(HandleEvent(@event, headers));
+        }
+
+        protected Task<HistoryEventToStore> On(ContentStatusChanged @event, EnvelopeHeaders headers)
+        {
+            return Task.FromResult(HandleEvent(@event, headers).AddParameter("Status", @event.Status));
         }
 
         protected override Task<HistoryEventToStore> CreateEventCoreAsync(Envelope<IEvent> @event)
         {
-            var channel = $"contents.{@event.Headers.AggregateId()}";
+            return this.DispatchFuncAsync(@event.Payload, @event.Headers, (HistoryEventToStore)null);
+        }
 
-            return Task.FromResult(ForEvent(@event.Payload, channel));
+        private HistoryEventToStore HandleEvent(ContentEvent @event, EnvelopeHeaders headers)
+        {
+            return ForEvent(@event, $"contents.{headers.AggregateId()}");
         }
     }
 }

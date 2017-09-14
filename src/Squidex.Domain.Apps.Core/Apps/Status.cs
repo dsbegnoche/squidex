@@ -1,15 +1,15 @@
-﻿// ==========================================================================
-//  CivicPlus implementation of Squidex Headless CMS
-// ==========================================================================
+﻿//// ==========================================================================
+////  CivicPlus implementation of Squidex Headless CMS
+//// ==========================================================================
 
-namespace Squidex.Domain.Apps.Core.Apps
-{
-    public enum Status
-    {
-        Deleted = 0,
-        Draft = 1,
-        Submitted = 2,
-        Declined = 3,
-        Published = 10
-    }
-}
+//namespace Squidex.Domain.Apps.Core.Apps
+//{
+//    public enum Status
+//    {
+//        Deleted = 0,
+//        Draft = 1,
+//        Submitted = 2,
+//        Declined = 3,
+//        Published = 10
+//    }
+//}

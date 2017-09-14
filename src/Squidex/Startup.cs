@@ -156,7 +156,7 @@ namespace Squidex
                 identityApp.UseMyCivicPlusPlatform();
                 identityApp.UseStaticFiles();
 
-                identityApp.MapWhen(x => IsIdentityRequest(x), mvcApp =>
+                identityApp.MapWhen(IsIdentityRequest, mvcApp =>
                 {
                     mvcApp.UseMvc();
                 });
@@ -215,7 +215,7 @@ namespace Squidex
 
         private static bool IsIdentityRequest(HttpContext context)
         {
-            return IdentityServerPaths.Any(p => context.Request.Path.StartsWithSegments(p));
+            return IdentityServerPaths.Any(p => context.Request.Path.StartsWithSegments(p, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

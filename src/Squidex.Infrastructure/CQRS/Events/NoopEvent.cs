@@ -1,17 +1,14 @@
 ﻿// ==========================================================================
-//  ContentUnpublished.cs
+//  NoopEvent.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
 
-using Squidex.Infrastructure;
-
-namespace Squidex.Domain.Apps.Events.Contents
+namespace Squidex.Infrastructure.CQRS.Events
 {
-    [TypeName("ContentUnpublishedEvent")]
-    public sealed class ContentUnpublished : ContentEvent
+    public sealed class NoopEvent : IEvent
     {
     }
 }

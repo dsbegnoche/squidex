@@ -21,24 +21,27 @@ import {
 } from './../';
 
 describe('AssetDto', () => {
-    it('should update name property and user info when renaming', () => {
-        const now = DateTime.now();
+    const creation = DateTime.today();
+    const creator = 'not-me';
+    const modified = DateTime.now();
+    const modifier = 'me';
+    const version = new Version('2');
 
-        const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
-        const asset_2 = asset_1.rename('new-name.png', 'me', 'new description', ['tag'], now);
+    it('should update name property and user info when renaming', () => {
+
+        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, version, 'name.png', ['tag']);
+        const asset_2 = asset_1.rename('new-name.png', modifier, 'new description', ['tag'], modified);
 
         expect(asset_2.fileName).toEqual('new-name.png');
-        expect(asset_2.lastModified).toEqual(now);
-        expect(asset_2.lastModifiedBy).toEqual('me');
+        expect(asset_2.lastModified).toEqual(modified);
+        expect(asset_2.lastModifiedBy).toEqual(modifier);
     });
 
     it('should update file properties when uploading', () => {
-        const now = DateTime.now();
-
         const update = new AssetReplacedDto(2, 2, 'image/jpeg', true, 2, 2, null, 'new description', ['tag']);
 
-		    const asset_1 = new AssetDto('1', 'other', 'other', DateTime.today(), DateTime.today(), 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
-        const asset_2 = asset_1.update(update, 'me', now);
+        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
+        const asset_2 = asset_1.update(update, modifier, modified);
 
         expect(asset_2.fileSize).toEqual(2);
         expect(asset_2.fileVersion).toEqual(2);
@@ -46,8 +49,8 @@ describe('AssetDto', () => {
         expect(asset_2.isImage).toBeTruthy();
         expect(asset_2.pixelWidth).toEqual(2);
         expect(asset_2.pixelHeight).toEqual(2);
-        expect(asset_2.lastModified).toEqual(now);
-        expect(asset_2.lastModifiedBy).toEqual('me');
+        expect(asset_2.lastModified).toEqual(modified);
+        expect(asset_2.lastModifiedBy).toEqual(modifier);
     });
 });
 
@@ -76,61 +79,127 @@ describe('AssetsService', () => {
     it('should make get request to get assets',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        let assets: AssetsDto | null = null;
+            let assets: AssetsDto | null = null;
 
-        assetsService.getAssets('my-app', 17, 13).subscribe(result => {
-            assets = result;
-        });
+            assetsService.getAssets('my-app', 17, 13).subscribe(result => {
+                assets = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?take=17&skip=13');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?take=17&skip=13');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            total: 10,
-            items: [
-                {
-                    id: 'id1',
-                    created: '2016-12-12T10:10',
-                    createdBy: 'Created1',
-                    lastModified: '2017-12-12T10:10',
-                    lastModifiedBy: 'LastModifiedBy1',
-                    fileName: 'my-asset1.png',
-                    fileType: 'png',
-                    fileSize: 1024,
-                    fileVersion: 2000,
-                    mimeType: 'image/png',
-                    isImage: true,
-                    pixelWidth: 1024,
-                    pixelHeight: 2048,
-                    version: 11,
-                    briefDescription: 'my-asset1.png',
-                    tags: ['tag']
-                },
-                {
-                    id: 'id2',
-                    created: '2016-10-12T10:10',
-                    createdBy: 'Created2',
-                    lastModified: '2017-10-12T10:10',
-                    lastModifiedBy: 'LastModifiedBy2',
-                    fileName: 'my-asset2.png',
-                    fileType: 'png',
-                    fileSize: 1024,
-                    fileVersion: 2000,
-                    mimeType: 'image/png',
-                    isImage: true,
-                    pixelWidth: 1024,
-                    pixelHeight: 2048,
-                    version: 22,
-                    briefDescription: 'my-asset2.png',
-                    tags: ['tag']
-                }
-            ]
-        });
+            req.flush({
+                total: 10,
+                items: [
+                    {
+                        id: 'id1',
+                        created: '2016-12-12T10:10',
+                        createdBy: 'Created1',
+                        lastModified: '2017-12-12T10:10',
+                        lastModifiedBy: 'LastModifiedBy1',
+                        fileName: 'my-asset1.png',
+                        fileType: 'png',
+                        fileSize: 1024,
+                        fileVersion: 2000,
+                        mimeType: 'image/png',
+                        isImage: true,
+                        pixelWidth: 1024,
+                        pixelHeight: 2048,
+                        version: 11,
+                        briefDescription: 'my-asset1.png',
+                        tags: ['tag']
+                    },
+                    {
+                        id: 'id2',
+                        created: '2016-10-12T10:10',
+                        createdBy: 'Created2',
+                        lastModified: '2017-10-12T10:10',
+                        lastModifiedBy: 'LastModifiedBy2',
+                        fileName: 'my-asset2.png',
+                        fileType: 'png',
+                        fileSize: 1024,
+                        fileVersion: 2000,
+                        mimeType: 'image/png',
+                        isImage: true,
+                        pixelWidth: 1024,
+                        pixelHeight: 2048,
+                        version: 22,
+                        briefDescription: 'my-asset2.png',
+                        tags: ['tag']
+                    }
+                ]
+            });
 
-        expect(assets).toEqual(
-            new AssetsDto(10, [
+            expect(assets).toEqual(
+                new AssetsDto(10, [
+                    new AssetDto(
+                        'id1', 'Created1', 'LastModifiedBy1',
+                        DateTime.parseISO_UTC('2016-12-12T10:10'),
+                        DateTime.parseISO_UTC('2017-12-12T10:10'),
+                        'my-asset1.png',
+                        'png',
+                        1024,
+                        2000,
+                        'image/png',
+                        true,
+                        1024,
+                        2048,
+                        new Version('11'),
+                        'my-asset1.png',
+                        ['tag']),
+                    new AssetDto('id2', 'Created2', 'LastModifiedBy2',
+                        DateTime.parseISO_UTC('2016-10-12T10:10'),
+                        DateTime.parseISO_UTC('2017-10-12T10:10'),
+                        'my-asset2.png',
+                        'png',
+                        1024,
+                        2000,
+                        'image/png',
+                        true,
+                        1024,
+                        2048,
+                        new Version('22'),
+                        'my-asset2.png',
+                        ['tag'])
+                ]));
+        }));
+
+    it('should make get request to get asset',
+        inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
+
+            let asset: AssetDto | null = null;
+
+            assetsService.getAsset('my-app', '123', version).subscribe(result => {
+                asset = result;
+            });
+
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
+
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
+
+            req.flush({
+                id: 'id1',
+                created: '2016-12-12T10:10',
+                createdBy: 'Created1',
+                lastModified: '2017-12-12T10:10',
+                lastModifiedBy: 'LastModifiedBy1',
+                fileName: 'my-asset1.png',
+                fileType: 'png',
+                fileSize: 1024,
+                fileVersion: 2000,
+                mimeType: 'image/png',
+                isImage: true,
+                pixelWidth: 1024,
+                pixelHeight: 2048,
+                version: 11,
+                briefDescription: 'my-asset1.png',
+                tags: ['tag']
+            });
+
+            expect(asset).toEqual(
                 new AssetDto(
                     'id1', 'Created1', 'LastModifiedBy1',
                     DateTime.parseISO_UTC('2016-12-12T10:10'),
@@ -143,250 +212,184 @@ describe('AssetsService', () => {
                     true,
                     1024,
                     2048,
-					new Version('11'),
-					          'my-asset1.png',
-                ['tag']),
-                new AssetDto('id2', 'Created2', 'LastModifiedBy2',
-                    DateTime.parseISO_UTC('2016-10-12T10:10'),
-                    DateTime.parseISO_UTC('2017-10-12T10:10'),
-                    'my-asset2.png',
-                    'png',
-                    1024,
-                    2000,
-                    'image/png',
-                    true,
-                    1024,
-                    2048,
-					new Version('22'),
-					                   'my-asset2.png',
-                            ['tag'])
-        ]));
-    }));
-
-    it('should make get request to get asset',
-        inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
-
-        let asset: AssetDto | null = null;
-
-        assetsService.getAsset('my-app', '123').subscribe(result => {
-            asset = result;
-        });
-
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
-
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
-
-        req.flush({
-            id: 'id1',
-            created: '2016-12-12T10:10',
-            createdBy: 'Created1',
-            lastModified: '2017-12-12T10:10',
-            lastModifiedBy: 'LastModifiedBy1',
-            fileName: 'my-asset1.png',
-            fileType: 'png',
-            fileSize: 1024,
-            fileVersion: 2000,
-            mimeType: 'image/png',
-            isImage: true,
-            pixelWidth: 1024,
-            pixelHeight: 2048,
-            version: 11,
-            briefDescription: 'my-asset1.png',
-            tags: ['tag']
-        });
-
-        expect(asset).toEqual(
-            new AssetDto(
-                'id1', 'Created1', 'LastModifiedBy1',
-                DateTime.parseISO_UTC('2016-12-12T10:10'),
-                DateTime.parseISO_UTC('2017-12-12T10:10'),
-                'my-asset1.png',
-                'png',
-                1024,
-                2000,
-                'image/png',
-                true,
-                1024,
-                2048,
-				new Version('11'),
-				        'my-asset1.png',
-                ['tag']));
-    }));
+                    new Version('11'),
+                    'my-asset1.png',
+                    ['tag']));
+        }));
 
     it('should provide entry from cache if not found',
         inject([LocalCacheService, AssetsService, HttpTestingController], (localCache: LocalCacheService, assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        const cached = {};
+            const cached = {};
 
-        localCache.set('asset.123', cached, 10000);
+            localCache.set('asset.123', cached, 10000);
 
-        let asset: AssetDto | null = null;
+            let asset: AssetDto | null = null;
 
-        assetsService.getAsset('my-app', '123').subscribe(result => {
-            asset = result;
-        });
+            assetsService.getAsset('my-app', '123', version).subscribe(result => {
+                asset = result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({}, { status: 404, statusText: '404' });
+            req.flush({}, { status: 404, statusText: '404' });
 
-        expect(asset).toBe(cached);
-    }));
+            expect(asset).toBe(cached);
+        }));
 
     it('should append query to find by name',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        assetsService.getAssets('my-app', 17, 13, 'my-query').subscribe();
+            assetsService.getAssets('my-app', 17, 13, 'my-query').subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?query=my-query&take=17&skip=13');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?query=my-query&take=17&skip=13');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({ total: 10, items: [] });
-    }));
+            req.flush({ total: 10, items: [] });
+        }));
 
     it('should append mime types to find by types',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        assetsService.getAssets('my-app', 17, 13, undefined, ['image/png', 'image/png']).subscribe();
+            assetsService.getAssets('my-app', 17, 13, undefined, ['image/png', 'image/png']).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?mimeTypes=image/png,image/png&take=17&skip=13');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?mimeTypes=image/png,image/png&take=17&skip=13');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({ total: 10, items: [] });
-    }));
+            req.flush({ total: 10, items: [] });
+        }));
 
     it('should append mime types to find by ids',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        assetsService.getAssets('my-app', 17, 13, undefined, undefined, ['12', '23']).subscribe();
+            assetsService.getAssets('my-app', 17, 13, undefined, undefined, ['12', '23']).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?ids=12,23&take=17&skip=13');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets?ids=12,23&take=17&skip=13');
 
-        expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('GET');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({ total: 10, items: [] });
-    }));
+            req.flush({ total: 10, items: [] });
+        }));
 
     it('should make post request to create asset',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        let asset: AssetDto | null = null;
+            let asset: AssetDto | null = null;
 
-        assetsService.uploadFile('my-app', null!, user, now).subscribe(result => {
-            asset = <AssetDto>result;
-        });
+            assetsService.uploadFile('my-app', null!, user, now).subscribe(result => {
+                asset = <AssetDto>result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets');
 
-        expect(req.request.method).toEqual('POST');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.method).toEqual('POST');
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            id: 'id1',
-            fileName: 'my-asset1.png',
-            fileType: 'png',
-            fileSize: 1024,
-            fileVersion: 2,
-            mimeType: 'image/png',
-            isImage: true,
-            pixelWidth: 1024,
-            pixelHeight: 2048,
-            version: 11,
-            briefDescription: 'my-asset1.png',
-            tags: ['tag']
-        });
+            req.flush({
+                id: 'id1',
+                fileName: 'my-asset1.png',
+                fileType: 'png',
+                fileSize: 1024,
+                fileVersion: 2,
+                mimeType: 'image/png',
+                isImage: true,
+                pixelWidth: 1024,
+                pixelHeight: 2048,
+                version: 11,
+                briefDescription: 'my-asset1.png',
+                tags: ['tag']
+            });
 
-        expect(asset).toEqual(
-            new AssetDto(
-                'id1',
-                user,
-                user,
-                now,
-                now,
-                'my-asset1.png',
-                'png',
-                1024, 2,
-                'image/png',
-                true,
-                1024,
-                2048,
-                new Version('11'),
-				        'my-asset1.png',
-                ['tag']));
-    }));
+            expect(asset).toEqual(
+                new AssetDto(
+                    'id1',
+                    user,
+                    user,
+                    now,
+                    now,
+                    'my-asset1.png',
+                    'png',
+                    1024, 2,
+                    'image/png',
+                    true,
+                    1024,
+                    2048,
+                    new Version('11'),
+                    'my-asset1.png',
+                    ['tag']));
+        }));
 
     it('should make put request to replace asset content',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        let asset: AssetReplacedDto | null = null;
+            let asset: AssetReplacedDto | null = null;
 
-        assetsService.replaceFile('my-app', '123', null!, version).subscribe(result => {
-            asset = <AssetReplacedDto>result;
-        });
+            assetsService.replaceFile('my-app', '123', null!, version).subscribe(result => {
+                asset = <AssetReplacedDto>result;
+            });
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123/content');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123/content');
 
-        expect(req.request.method).toEqual('PUT');
-        expect(req.request.headers.get('If-Match')).toEqual(version.value);
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toEqual(version.value);
 
-        req.flush({
-            fileSize: 1024,
-            fileVersion: 2,
-            mimeType: 'image/png',
-            isImage: true,
-            pixelWidth: 1024,
-            pixelHeight: 2048,
-            version: 11,
-            briefDescription: 'my-asset1.png',
-            tags: ['tag']
-        });
+            req.flush({
+                fileSize: 1024,
+                fileVersion: 2,
+                mimeType: 'image/png',
+                isImage: true,
+                pixelWidth: 1024,
+                pixelHeight: 2048,
+                version: 11,
+                briefDescription: 'my-asset1.png',
+                tags: ['tag']
+            });
 
-        expect(asset).toEqual(
-            new AssetReplacedDto(
-                1024, 2,
-                'image/png',
-                true,
-                1024,
-                2048,
-				new Version('11'),
-				        'my-asset1.png',
-            ['tag']));
-    }));
+            expect(asset).toEqual(
+                new AssetReplacedDto(
+                    1024, 2,
+                    'image/png',
+                    true,
+                    1024,
+                    2048,
+                    new Version('11'),
+                    'my-asset1.png',
+                    ['tag']));
+        }));
 
     it('should make put request to update asset',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        const dto = new UpdateAssetDto('My-Asset.pdf', 'My-Asset brief description', ['tag']);
+            const dto = new UpdateAssetDto('My-Asset.pdf', 'My-Asset brief description', ['tag']);
 
-        assetsService.putAsset('my-app', '123', dto, version).subscribe();
+            assetsService.putAsset('my-app', '123', dto, version).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
 
-        expect(req.request.method).toEqual('PUT');
-        expect(req.request.headers.get('If-Match')).toEqual(version.value);
+            expect(req.request.method).toEqual('PUT');
+            expect(req.request.headers.get('If-Match')).toEqual(version.value);
 
-        req.flush({});
-    }));
+            req.flush({});
+        }));
 
     it('should make delete request to delete asset',
         inject([AssetsService, HttpTestingController], (assetsService: AssetsService, httpMock: HttpTestingController) => {
 
-        assetsService.deleteAsset('my-app', '123', version).subscribe();
+            assetsService.deleteAsset('my-app', '123', version).subscribe();
 
-        const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
+            const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123');
 
-        expect(req.request.method).toEqual('DELETE');
-        expect(req.request.headers.get('If-Match')).toEqual(version.value);
+            expect(req.request.method).toEqual('DELETE');
+            expect(req.request.headers.get('If-Match')).toEqual(version.value);
 
-        req.flush({});
-    }));
+            req.flush({});
+        }));
 });

@@ -6,21 +6,21 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using FakeItEasy;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Read.Schemas;
+using Squidex.Domain.Apps.Read.Schemas.Services;
+using Squidex.Domain.Apps.Write.Schemas.Commands;
+using Squidex.Domain.Apps.Write.TestHelpers;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.CQRS.Commands;
+using Xunit;
+
 namespace Squidex.Domain.Apps.Write.Schemas
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using Squidex.Domain.Apps.Core.Schemas;
-    using Squidex.Domain.Apps.Read.Schemas;
-    using Squidex.Domain.Apps.Read.Schemas.Services;
-    using Squidex.Domain.Apps.Write.Schemas.Commands;
-    using Squidex.Domain.Apps.Write.TestHelpers;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Xunit;
-
     public class SchemaCommandMiddlewareTests : HandlerTestBase<SchemaDomainObject>
     {
         private readonly ISchemaProvider schemas = A.Fake<ISchemaProvider>();

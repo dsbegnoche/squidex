@@ -10,9 +10,11 @@ using System;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using Squidex.Domain.Apps.Core.Apps;
+using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Events.Assets;
 using Squidex.Domain.Apps.Events.Contents;
+using Squidex.Domain.Apps.Events.Contents.Old;
 using Squidex.Domain.Apps.Read.MongoDb.Utils;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
@@ -62,7 +64,6 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             {
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.SchemaId).Descending(x => x.LastModified));
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.ReferencedIds));
-                await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.IsPublished));
                 await collection.Indexes.CreateOneAsync(Index.Ascending(x => x.Status));
                 await collection.Indexes.CreateOneAsync(Index.Text(x => x.DataText));
             });
@@ -77,7 +78,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                     x.SchemaId = @event.SchemaId.Id;
 
                     SimpleMapper.Map(@event, x);
-
+                    x.Status = Status.Draft;
                     x.SetData(schema.SchemaDef, @event.Data);
                 });
             });
@@ -94,33 +95,28 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             });
         }
 
-        /// <summary> Meta function for updating content status (called based on event type) </summary>
-        /// <param name="event">event</param>
-        /// <param name="headers">headers</param>
-        /// <param name="isPublished">bool for published</param>
-        /// <param name="status">status</param>
-        /// <returns>void</returns>
-        private Task SetContentStatus(ContentEvent @event, EnvelopeHeaders headers, bool isPublished, Status status) =>
-            ForAppIdAsync(@event.AppId.Id, collection =>
+        protected Task On(AssetDeleted @event, EnvelopeHeaders headers)
+        {
+            return ForAppIdAsync(@event.AppId.Id, collection =>
+            {
+                return collection.UpdateManyAsync(
+                    Filter.And(
+                        Filter.AnyEq(x => x.ReferencedIds, @event.AssetId),
+                        Filter.AnyNe(x => x.ReferencedIdsDeleted, @event.AssetId)),
+                    Update.AddToSet(x => x.ReferencedIdsDeleted, @event.AssetId));
+            });
+        }
+
+        protected Task On(ContentStatusChanged @event, EnvelopeHeaders headers)
+        {
+            return ForAppIdAsync(@event.AppId.Id, collection =>
             {
                 return collection.UpdateAsync(@event, headers, x =>
                 {
-                    x.IsPublished = isPublished;
-                    x.Status = status;
+                    x.Status = @event.Status;
                 });
             });
-
-        protected Task On(ContentPublished @event, EnvelopeHeaders headers) =>
-            SetContentStatus(@event, headers, true, Status.Published);
-
-        protected Task On(ContentUnpublished @event, EnvelopeHeaders headers) =>
-            SetContentStatus(@event, headers, false, Status.Draft);
-
-        protected Task On(ContentSubmitted @event, EnvelopeHeaders headers) =>
-            SetContentStatus(@event, headers, false, Status.Submitted);
-
-        protected Task On(ContentDeclined @event, EnvelopeHeaders headers) =>
-            SetContentStatus(@event, headers, false, Status.Declined);
+        }
 
         protected Task On(ContentDeleted @event, EnvelopeHeaders headers)
         {
@@ -132,19 +128,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                         Filter.AnyNe(x => x.ReferencedIdsDeleted, @event.ContentId)),
                     Update.AddToSet(x => x.ReferencedIdsDeleted, @event.ContentId));
 
-                await collection.DeleteOneAsync(x => x.Id == headers.AggregateId());
-            });
-        }
-
-        protected Task On(AssetDeleted @event, EnvelopeHeaders headers)
-        {
-            return ForAppIdAsync(@event.AppId.Id, collection =>
-            {
-                return collection.UpdateManyAsync(
-                    Filter.And(
-                        Filter.AnyEq(x => x.ReferencedIds, @event.AssetId),
-                        Filter.AnyNe(x => x.ReferencedIdsDeleted, @event.AssetId)),
-                    Update.AddToSet(x => x.ReferencedIdsDeleted, @event.AssetId));
+                await collection.DeleteOneAsync(x => x.Id == @event.ContentId);
             });
         }
 

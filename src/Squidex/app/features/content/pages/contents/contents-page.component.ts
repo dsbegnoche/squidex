@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 
 import {
     ContentCreated,
-    ContentDeleted,
+    ContentRemoved,
     ContentUpdated
 } from './../messages';
 
@@ -28,6 +28,7 @@ import {
     FieldDto,
     ImmutableArray,
     MessageBus,
+    ModalView,
     Pager,
     SchemaDetailsDto
 } from 'shared';
@@ -43,6 +44,8 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
 
     public schema: SchemaDetailsDto;
 
+    public searchModal = new ModalView();
+
     public contentItems: ImmutableArray<ContentDto>;
     public contentFields: FieldDto[];
     public contentsFilter = new FormControl();
@@ -54,6 +57,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
     public languageParameter: string;
 
     public isReadOnly = false;
+    public isArchive = false;
 
     public columnWidth: number;
 
@@ -113,18 +117,11 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         return { content, schemaId: this.schema.id };
     }
 
-    public search() {
-        this.contentsQuery = this.contentsFilter.value;
-        this.contentsPager = new Pager(0);
-
-        this.load();
-    }
-
     public publishContent(content: ContentDto) {
         this.appNameOnce()
             .switchMap(app => this.contentsService.publishContent(app, this.schema.name, content.id, content.version))
             .subscribe(() => {
-                this.contentItems = this.contentItems.replaceBy('id', content.publish(this.authService.user.token));
+                this.contentItems = this.contentItems.replaceBy('id', content.publish(this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -134,7 +131,31 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.appNameOnce()
             .switchMap(app => this.contentsService.unpublishContent(app, this.schema.name, content.id, content.version))
             .subscribe(() => {
-                this.contentItems = this.contentItems.replaceBy('id', content.unpublish(this.authService.user.token));
+                this.contentItems = this.contentItems.replaceBy('id', content.unpublish(this.authService.user!.token));
+            }, error => {
+                this.notifyError(error);
+            });
+    }
+
+    public archiveContent(content: ContentDto) {
+        this.appNameOnce()
+            .switchMap(app => this.contentsService.archiveContent(app, this.schema.name, content.id, content.version))
+            .subscribe(() => {
+                content = content.archive(this.authService.user!.token);
+
+                this.removeContent(content);
+            }, error => {
+                this.notifyError(error);
+            });
+    }
+
+    public restoreContent(content: ContentDto) {
+        this.appNameOnce()
+            .switchMap(app => this.contentsService.restoreContent(app, this.schema.name, content.id, content.version))
+            .subscribe(() => {
+                content = content.restore(this.authService.user!.token);
+
+                this.removeContent(content);
             }, error => {
                 this.notifyError(error);
             });
@@ -164,10 +185,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.appNameOnce()
             .switchMap(app => this.contentsService.deleteContent(app, this.schema.name, content.id, content.version))
             .subscribe(() => {
-                this.contentItems = this.contentItems.removeAll(x => x.id === content.id);
-                this.contentsPager = this.contentsPager.decrementCount();
-
-                this.emitContentDeleted(content);
+                this.removeContent(content);
             }, error => {
                 this.notifyError(error);
             });
@@ -179,7 +197,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
 
     public load(showInfo = false) {
         this.appNameOnce()
-            .switchMap(app => this.contentsService.getContents(app, this.schema.name, this.contentsPager.pageSize, this.contentsPager.skip, this.contentsQuery))
+            .switchMap(app => this.contentsService.getContents(app, this.schema.name, this.contentsPager.pageSize, this.contentsPager.skip, this.contentsQuery, null, this.isArchive))
             .subscribe(dtos => {
                 this.contentItems = ImmutableArray.of(dtos.items);
                 this.contentsPager = this.contentsPager.setCount(dtos.total);
@@ -192,8 +210,22 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             });
     }
 
-    public selectLanguage(language: AppLanguageDto) {
-        this.languageSelected = language;
+    public updateArchive(isArchive: boolean) {
+        this.contentsQuery = this.contentsFilter.value;
+        this.contentsPager = new Pager(0);
+
+        this.isArchive = isArchive;
+
+        this.searchModal.hide();
+
+        this.load();
+    }
+
+    public search() {
+        this.contentsQuery = this.contentsFilter.value;
+        this.contentsPager = new Pager(0);
+
+        this.load();
     }
 
     public goNext() {
@@ -208,8 +240,12 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.load();
     }
 
-    private emitContentDeleted(content: ContentDto) {
-        this.messageBus.emit(new ContentDeleted(content));
+    public selectLanguage(language: AppLanguageDto) {
+        this.languageSelected = language;
+    }
+
+    private emitContentRemoved(content: ContentDto) {
+        this.messageBus.emit(new ContentRemoved(content));
     }
 
     private resetContents() {
@@ -221,6 +257,13 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
         this.loadFields();
     }
 
+    private removeContent(content: ContentDto) {
+        this.contentItems = this.contentItems.removeAll(x => x.id === content.id);
+        this.contentsPager = this.contentsPager.decrementCount();
+
+        this.emitContentRemoved(content);
+    }
+
     private loadFields() {
         this.contentFields = this.schema.fields.filter(x => x.properties.isListField);
 
@@ -230,6 +273,10 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             } else {
                 this.contentFields = [this.schema.fields[0]];
             }
+        }
+
+        if (this.contentFields.length === 0) {
+            this.contentFields = [<any>{}];
         }
 
         if (this.contentFields.length > 0) {

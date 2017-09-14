@@ -20,7 +20,6 @@ using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Infrastructure;
 using Squidex.Pipeline.Swagger;
-using Squidex.Shared.Identity;
 
 namespace Squidex.Controllers.ContentApi.Generator
 {
@@ -55,31 +54,6 @@ namespace Squidex.Controllers.ContentApi.Generator
             await GenerateDefaultErrorsAsync();
 
             return document;
-        }
-
-        private void GenerateSecurityRequirements()
-        {
-            var securityRequirements = new List<SwaggerSecurityRequirement>
-            {
-                new SwaggerSecurityRequirement
-                {
-                    {
-                        Constants.SecurityDefinition,
-                        new List<string>
-                        {
-                            SquidexRoles.AppOwner,
-                            SquidexRoles.AppDeveloper,
-                            SquidexRoles.AppEditor,
-                            SquidexRoles.AppAuthor
-                        }
-                    }
-                }
-            };
-
-            foreach (var operation in document.Paths.Values.SelectMany(x => x.Values))
-            {
-                operation.Security = securityRequirements;
-            }
         }
 
         private void GenerateSchemasOperations(IEnumerable<ISchemaEntity> schemas, IAppEntity app)

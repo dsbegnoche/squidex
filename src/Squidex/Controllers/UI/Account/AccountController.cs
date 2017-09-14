@@ -83,10 +83,17 @@ namespace Squidex.Controllers.UI.Account
         }
 
         [HttpGet]
+        [Route("account/lockedout")]
+        public IActionResult LockedOut()
+        {
+            return View();
+        }
+
+        [HttpGet]
         [Route("account/accessdenied")]
         public IActionResult AccessDenied()
         {
-            return View("AccessDenied");
+            return View();
         }
 
         [HttpGet]
@@ -217,7 +224,7 @@ namespace Squidex.Controllers.UI.Account
                 ReturnUrl = returnUrl
             };
 
-            return View("Login", vm);
+            return View(nameof(Login), vm);
         }
 
         [HttpPost]
@@ -246,7 +253,7 @@ namespace Squidex.Controllers.UI.Account
 
             if (!result.Succeeded && result.IsLockedOut)
             {
-                return View("LockedOut");
+                return View(nameof(LockedOut));
             }
 
             var isLoggedIn = result.Succeeded;
@@ -280,7 +287,7 @@ namespace Squidex.Controllers.UI.Account
 
                     if (user.IsLocked)
                     {
-                        return View("LockedOut");
+                        return View(nameof(LockedOut));
                     }
                 }
             }

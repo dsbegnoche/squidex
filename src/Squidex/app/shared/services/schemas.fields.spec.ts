@@ -16,7 +16,7 @@ import {
     JsonFieldPropertiesDto,
     NumberFieldPropertiesDto,
     ReferencesFieldPropertiesDto,
-    StringFieldPropertiesDto,
+    StringFieldPropertiesDto
 } from './../';
 
 describe('FieldDto', () => {

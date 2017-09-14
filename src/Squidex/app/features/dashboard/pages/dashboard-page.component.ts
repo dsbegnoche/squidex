@@ -147,8 +147,8 @@ export class DashboardPageComponent extends AppComponentBase implements OnInit {
                 };
             });
 
-        this.profileFirstName = this.authService.user.firstName;
-        this.profileLastName = this.authService.user.lastName;
+        this.profileFirstName = this.authService.user!.firstName;
+        this.profileLastName = this.authService.user!.lastName;
     }
 
     public showForum() {

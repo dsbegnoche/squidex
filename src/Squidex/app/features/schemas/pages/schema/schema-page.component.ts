@@ -111,7 +111,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.publishSchema(app, this.schema.name, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.publish(this.authService.user.token));
+                this.updateSchema(this.schema.publish(this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -121,7 +121,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.unpublishSchema(app, this.schema.name, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.unpublish(this.authService.user.token));
+                this.updateSchema(this.schema.unpublish(this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -131,7 +131,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.enableField(app, this.schema.name, field.fieldId, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.updateField(field.enable(), this.authService.user.token));
+                this.updateSchema(this.schema.updateField(field.enable(), this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -141,7 +141,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.disableField(app, this.schema.name, field.fieldId, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.updateField(field.disable(), this.authService.user.token));
+                this.updateSchema(this.schema.updateField(field.disable(), this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -151,7 +151,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.lockField(app, this.schema.name, field.fieldId, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.updateField(field.lock(), this.authService.user.token));
+                this.updateSchema(this.schema.updateField(field.lock(), this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -161,7 +161,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.hideField(app, this.schema.name, field.fieldId, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.updateField(field.hide(), this.authService.user.token));
+                this.updateSchema(this.schema.updateField(field.hide(), this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -171,7 +171,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.deleteField(app, this.schema.name, field.fieldId, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.removeField(field, this.authService.user.token));
+                this.updateSchema(this.schema.removeField(field, this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -181,7 +181,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.putFieldOrdering(app, this.schema.name, fields.map(t => t.fieldId), this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.replaceFields(fields, this.authService.user.token));
+                this.updateSchema(this.schema.replaceFields(fields, this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -193,7 +193,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.schemasService.putField(app, this.schema.name, field.fieldId, requestDto, this.schema.version)).retry(2)
             .subscribe(() => {
-                this.updateSchema(this.schema.updateField(field, this.authService.user.token));
+                this.updateSchema(this.schema.updateField(field, this.authService.user!.token));
             }, error => {
                 this.notifyError(error);
             });
@@ -224,7 +224,7 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
             this.appNameOnce()
                 .switchMap(app => this.schemasService.postField(app, this.schema.name, requestDto, this.schema.version))
                 .subscribe(dto => {
-                    this.updateSchema(this.schema.addField(dto, this.authService.user.token));
+                    this.updateSchema(this.schema.addField(dto, this.authService.user!.token));
                     this.resetFieldForm();
                 }, error => {
                     this.notifyError(error);
@@ -238,13 +238,13 @@ export class SchemaPageComponent extends AppComponentBase implements OnInit {
     }
 
     public onSchemaSaved(properties: SchemaPropertiesDto) {
-        this.updateSchema(this.schema.update(properties, this.authService.user.token));
+        this.updateSchema(this.schema.update(properties, this.authService.user!.token));
 
         this.editSchemaDialog.hide();
     }
 
     public onSchemaScriptsSaved(scripts: UpdateSchemaScriptsDto) {
-        this.updateSchema(this.schema.configureScripts(scripts, this.authService.user.token));
+        this.updateSchema(this.schema.configureScripts(scripts, this.authService.user!.token));
 
         this.configureScriptsDialog.hide();
     }

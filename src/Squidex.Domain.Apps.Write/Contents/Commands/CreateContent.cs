@@ -7,7 +7,7 @@
 // ==========================================================================
 
 using System;
-using Squidex.Domain.Apps.Core.Apps;
+using Squidex.Domain.Apps.Core.Contents;
 
 namespace Squidex.Domain.Apps.Write.Contents.Commands
 {

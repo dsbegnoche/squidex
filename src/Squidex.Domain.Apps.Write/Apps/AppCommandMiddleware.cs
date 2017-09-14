@@ -5,26 +5,25 @@
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Read.Apps.Repositories;
+using Squidex.Domain.Apps.Read.Apps.Services;
+using Squidex.Domain.Apps.Write.Apps.Commands;
+using Squidex.Domain.Apps.Write.Schemas;
+using Squidex.Domain.Apps.Write.Schemas.Commands;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Dispatching;
+using Squidex.Shared.Users;
 
 namespace Squidex.Domain.Apps.Write.Apps
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Newtonsoft.Json;
-    using Squidex.Domain.Apps.Core.Schemas;
-    using Squidex.Domain.Apps.Read.Apps.Repositories;
-    using Squidex.Domain.Apps.Read.Apps.Services;
-    using Squidex.Domain.Apps.Write.Apps.Commands;
-    using Squidex.Domain.Apps.Write.Schemas;
-    using Squidex.Domain.Apps.Write.Schemas.Commands;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Squidex.Infrastructure.Dispatching;
-    using Squidex.Shared.Users;
-
     public class AppCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
@@ -101,7 +100,8 @@ namespace Squidex.Domain.Apps.Write.Apps
                     // Get reference schemas here
                     if (refFieldToUpdate != null)
                     {
-                        ReferencesFieldProperties fieldProperties = (ReferencesFieldProperties)refFieldToUpdate.Properties;
+                        ReferencesFieldProperties fieldProperties =
+                            (ReferencesFieldProperties)refFieldToUpdate.Properties;
                         string referenceSchemaLabel = fieldProperties.Label.ToLower();
                         fieldProperties.SchemaId = schemaIds[referenceSchemaLabel];
                     }
@@ -140,7 +140,8 @@ namespace Squidex.Domain.Apps.Write.Apps
 
                 a.AssignContributor(command);
 
-                if (maxContributors > 0 && a.ContributorCount > oldContributors && a.ContributorCount > maxContributors)
+                if (maxContributors > 0 && a.ContributorCount > oldContributors &&
+                    a.ContributorCount > maxContributors)
                 {
                     var error = new ValidationError("You have reached your max number of contributors");
 
@@ -168,7 +169,9 @@ namespace Squidex.Domain.Apps.Write.Apps
                 }
                 else
                 {
-                    var result = await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name, command.PlanId);
+                    var result =
+                        await appPlansBillingManager.ChangePlanAsync(command.Actor.Identifier, a.Id, a.Name,
+                            command.PlanId);
 
                     if (result is PlanChangedResult)
                     {

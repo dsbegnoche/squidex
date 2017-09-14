@@ -25,7 +25,6 @@ using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Reflection;
 
 namespace Squidex.Domain.Apps.Write.Contents
 {
@@ -113,29 +112,16 @@ namespace Squidex.Domain.Apps.Write.Contents
             });
         }
 
-        protected Task On(PublishContent command, CommandContext context)
+        protected Task On(ChangeContentStatus command, CommandContext context)
         {
             return handler.UpdateAsync<ContentDomainObject>(context, async content =>
             {
                 var schemaAndApp = await ResolveSchemaAndAppAsync(command);
-                var scriptContext = CreateScriptContext(content, command);
+                var scriptContext = CreateScriptContext(content, command, command.Status.ToString());
 
-                scriptEngine.Execute(scriptContext, schemaAndApp.SchemaEntity.ScriptPublish, "publish content");
+                scriptEngine.Execute(scriptContext, schemaAndApp.SchemaEntity.ScriptChange, "change content status");
 
-                content.Publish(command);
-            });
-        }
-
-        protected Task On(UnpublishContent command, CommandContext context)
-        {
-            return handler.UpdateAsync<ContentDomainObject>(context, async content =>
-            {
-                var schemaAndApp = await ResolveSchemaAndAppAsync(command);
-                var scriptContext = CreateScriptContext(content, command);
-
-                scriptEngine.Execute(scriptContext, schemaAndApp.SchemaEntity.ScriptUnpublish, "unpublish content");
-
-                content.Unpublish(command);
+                content.ChangeStatus(command);
             });
         }
 
@@ -144,22 +130,12 @@ namespace Squidex.Domain.Apps.Write.Contents
             return handler.UpdateAsync<ContentDomainObject>(context, async content =>
             {
                 var schemaAndApp = await ResolveSchemaAndAppAsync(command);
-                var scriptContext = CreateScriptContext(content, command);
+                var scriptContext = CreateScriptContext(content, command, "Delete");
 
                 scriptEngine.Execute(scriptContext, schemaAndApp.SchemaEntity.ScriptDelete, "delete content");
 
                 content.Delete(command);
             });
-        }
-
-        protected Task On(SubmitContent command, CommandContext context)
-        {
-            return handler.UpdateAsync<ContentDomainObject>(context, c => c.Submit(command));
-        }
-
-        protected Task On(DeclineContent command, CommandContext context)
-        {
-            return handler.UpdateAsync<ContentDomainObject>(context, c => c.Decline(command));
         }
 
         public async Task HandleAsync(CommandContext context, Func<Task> next)
@@ -204,9 +180,14 @@ namespace Squidex.Domain.Apps.Write.Contents
             }
         }
 
-        private static ScriptContext CreateScriptContext(ContentDomainObject content, ContentCommand command, NamedContentData data = null)
+        private static ScriptContext CreateScriptContext(ContentDomainObject content, ContentCommand command, string operation)
         {
-            return new ScriptContext { ContentId = content.Id, Data = data, OldData = content.Data, User = command.User };
+            return new ScriptContext { ContentId = content.Id, OldData = content.Data, User = command.User, Operation = operation };
+        }
+
+        private static ScriptContext CreateScriptContext(ContentDomainObject content, ContentCommand command, NamedContentData data)
+        {
+            return new ScriptContext { ContentId = content.Id, OldData = content.Data, User = command.User, Data = data };
         }
 
         private async Task<(ISchemaEntity SchemaEntity, IAppEntity AppEntity)> ResolveSchemaAndAppAsync(SchemaCommand command)

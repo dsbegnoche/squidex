@@ -7,14 +7,19 @@
 // ==========================================================================
 
 using System;
-using Squidex.Infrastructure;
+using Squidex.Infrastructure.CQRS.Events;
 
 namespace Squidex.Domain.Apps.Events.Schemas.Old
 {
-    [TypeName("WebhookDeletedEvent")]
+    [EventType(nameof(WebhookDeleted))]
     [Obsolete]
-    public sealed class WebhookDeleted : SchemaEvent
+    public sealed class WebhookDeleted : SchemaEvent, IMigratedEvent
     {
         public Guid Id { get; set; }
+
+        public IEvent Migrate()
+        {
+            return new NoopEvent();
+        }
     }
 }
