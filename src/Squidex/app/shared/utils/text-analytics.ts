@@ -4,7 +4,6 @@
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 
 let uuidv4 = require('uuid/v4');
 
@@ -35,25 +34,23 @@ export class TextAnalyticsService {
     ) {
     }
 
-    public getKeyPhrases(bodyText: string): Observable<string[]> {
+    public getKeyPhrases(bodyText: string): Promise<string[]> {
         const url = `https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases`;
         const options = {
             headers: new HttpHeaders({
-                'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': this.key
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': this.key
             })
         };
 
         this.documents[0] = new AzureDocumentDto(uuidv4(), 'en', bodyText);
         this.body = new AzureAnalyticsDto(this.documents);
 
-        return this.http.post(url, this.body, options)
-            .map((response: any) => {
+        return this.http.post(url, this.body, options).toPromise()
+            .then((response: any) => {
                 let result: string[] = [];
-
                 result = response.documents[0]!.keyPhrases;
-
                 return result;
-            })
-            .catch(error => Observable.of([]));
+            });
     }
 }

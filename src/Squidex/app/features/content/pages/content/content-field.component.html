@@ -17,7 +17,7 @@
                 <div [ngSwitch]="field.properties.fieldType">
                     <div *ngSwitchCase="'Number'">
                         <div [ngSwitch]="field.properties.editor">
-                            <div *ngSwitchCase="'Input'" (focusout)="emitBlurEvent($event)">
+                            <div *ngSwitchCase="'Input'">
                                 <input class="form-control" type="number" [formControlName]="partition">
                             </div>
                             <div *ngSwitchCase="'Stars'">

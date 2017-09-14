@@ -291,30 +291,35 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         if ($event.text!.trim().length > 0) {
             this.textAnalyticsBody[$event.id] = $event.text;
         }
-        console.log(this.textAnalyticsBody.join(' '));
 
         if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0 && this.textAnalyticsBody.join(' ').length > 0) {
-            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).subscribe(x => this.recommendedTags = x);
+            this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).then((x: string[]) => {
+                    this.recommendedTags = x;
 
-            let tagField = this.schema.fields[0];
-            const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
+                    let tagField = this.schema.fields[0];
+                    const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
 
-            let formattedTags = this.schema.fields[0].properties.formatValue(this.recommendedTags);
-
-            if (tagField.partitioning === 'language') {
-                for (let language of this.languages) {
-                    this.allTags = tagFieldForm.controls[language.iso2Code].value;
-                    this.updateTags();
-                    tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
+                    if (tagField.partitioning === 'language') {
+                        for (let language of this.languages) {
+                            this.allTags = tagFieldForm.controls[language.iso2Code].value;
+                            let formattedTags = this.updateTags();
+                            tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
+                        }
+                    } else {
+                        tagFieldForm.controls['iv'].setValue(this.recommendedTags);
+                    }
                 }
-            } else {
-                tagFieldForm.controls['iv'].setValue(this.recommendedTags);
-            }
+            );
         }
     }
 
     private updateTags() {
-        let missing = this.allTags.filter(tag => this.recommendedTags.indexOf(tag) < 0);
-        missing.forEach(m => this.allTags.push(m));
+        if (this.allTags && this.allTags.length > 0) {
+            let missing = this.recommendedTags.filter(tag => this.allTags.indexOf(tag) < 0);
+            missing.forEach(m => this.allTags.push(m));
+        } else {
+            this.allTags = this.recommendedTags;
+        }
+        return this.schema.fields[0].properties.formatValue(this.allTags);
     }
 }
