@@ -105,6 +105,38 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return entities;
         }
 
+        public async Task<IReadOnlyList<IContentEntity>> QueryAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status)
+        {
+            var collection = GetCollection(app.Id);
+
+            IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
+            try
+            {
+                cursor =
+                    collection
+                        .Find(status);
+            }
+            catch (NotSupportedException)
+            {
+                throw new ValidationException("This odata operation is not supported");
+            }
+            catch (NotImplementedException)
+            {
+                throw new ValidationException("This odata operation is not supported");
+            }
+
+            var entities = await cursor.ToListAsync();
+
+            foreach (var entity in entities)
+            {
+                var schema = allSchemas.First(x => x.Id == entity.SchemaId);
+
+                entity.ParseData(schema.SchemaDef);
+            }
+
+            return entities;
+        }
+
         public Task<long> CountAsync(IAppEntity app, ISchemaEntity schema, Status[] status, HashSet<Guid> ids, ODataUriParser odataQuery)
         {
             var collection = GetCollection(app.Id);
@@ -113,6 +145,27 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             try
             {
                 cursor = collection.Find(odataQuery, ids, schema.Id, schema.SchemaDef, status);
+            }
+            catch (NotSupportedException)
+            {
+                throw new ValidationException("This odata operation is not supported");
+            }
+            catch (NotImplementedException)
+            {
+                throw new ValidationException("This odata operation is not supported");
+            }
+
+            return cursor.CountAsync();
+        }
+
+        public Task<long> CountAsync(IAppEntity app, Status[] status)
+        {
+            var collection = GetCollection(app.Id);
+
+            IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
+            try
+            {
+                cursor = collection.Find(status);
             }
             catch (NotSupportedException)
             {

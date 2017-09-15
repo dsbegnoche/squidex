@@ -97,5 +97,33 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents.Visitors
                 return new BsonDocument();
             }
         }
+
+        public static IFindFluent<MongoContentEntity, MongoContentEntity> Find(this IMongoCollection<MongoContentEntity> cursor, Status[] status)
+        {
+            var filter = BuildQuery(status);
+
+            return cursor.Find(filter);
+        }
+
+        public static FilterDefinition<MongoContentEntity> BuildQuery(Status[] status)
+        {
+            var filters = new List<FilterDefinition<MongoContentEntity>>
+            {
+                Filter.In(x => x.Status, status)
+            };
+
+            if (filters.Count > 1)
+            {
+                return Filter.And(filters);
+            }
+            else if (filters.Count == 1)
+            {
+                return filters[0];
+            }
+            else
+            {
+                return new BsonDocument();
+            }
+        }
     }
 }

@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Squidex.Domain.Apps.Events;
@@ -40,6 +41,11 @@ namespace Squidex.Domain.Apps.Read.Schemas.Services.Implementations
             Guard.NotNull(repository, nameof(repository));
 
             this.repository = repository;
+        }
+
+        public async Task<IReadOnlyList<ISchemaEntity>> QueryAllAsync(Guid appId)
+        {
+            return await this.repository.QueryAllAsync(appId);
         }
 
         public async Task<ISchemaEntity> FindSchemaByIdAsync(Guid id, bool provideDeleted = false)

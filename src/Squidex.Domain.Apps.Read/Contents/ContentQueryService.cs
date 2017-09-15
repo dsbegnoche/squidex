@@ -115,6 +115,37 @@ namespace Squidex.Domain.Apps.Read.Contents
             return (schema, taskForCount.Result, list);
         }
 
+        public async Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user)
+        {
+            Guard.NotNull(app, nameof(app));
+            Guard.NotNull(user, nameof(user));
+
+            var allSchemas = await schemas.QueryAllAsync(app.Id);
+
+            var status = new List<Status>();
+
+            if (user.IsInClient("squidex-frontend"))
+            {
+                status.Add(Status.Draft);
+                status.Add(Status.Declined);
+                status.Add(Status.Published);
+                status.Add(Status.Submitted);
+            }
+            else
+            {
+                status.Add(Status.Published);
+            }
+
+            var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray());
+            var taskForCount = contentRepository.CountAsync(app, status.ToArray());
+
+            await Task.WhenAll(taskForItems, taskForCount);
+
+            var list = TransformContent(user, allSchemas, taskForItems.Result.ToList());
+
+            return (allSchemas, taskForCount.Result, list);
+        }
+
         private List<IContentEntity> TransformContent(ClaimsPrincipal user, ISchemaEntity schema, List<IContentEntity> contents)
         {
             var scriptText = schema.ScriptQuery;
@@ -126,8 +157,20 @@ namespace Squidex.Domain.Apps.Read.Contents
                     var content = contents[i];
                     var contentData = scriptEngine.Transform(new ScriptContext { User = user, Data = content.Data, ContentId = content.Id }, scriptText);
 
-                    contents[i] = SimpleMapper.Map(content, new Content { Data = contentData });
+                    contents[i] = SimpleMapper.Map(content, new Content { Data = contentData, SchemaId = content.SchemaId });
                 }
+            }
+
+            return contents;
+        }
+
+        private List<IContentEntity> TransformContent(ClaimsPrincipal user, IEnumerable<ISchemaEntity> allSchemas, List<IContentEntity> contents)
+        {
+            for (int i = 0; i < allSchemas.Count(); i++)
+            {
+                var schema = allSchemas.ElementAt(i);
+
+                TransformContent(user, schema, contents.Where(x => x.SchemaId == schema.Id).ToList());
             }
 
             return contents;
@@ -189,6 +232,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             public RefToken LastModifiedBy { get; set; }
 
             public NamedContentData Data { get; set; }
+            public Guid SchemaId { get; set; }
 
             public Status Status { get; set; }
         }
