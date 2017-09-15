@@ -57,6 +57,8 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
     public isNewMode = true;
     public isViewOnly = false;
 
+    public Status: typeof Status = Status;
+
     public languages: AppLanguageDto[] = [];
 
     public textAnalyticsBody: string[];
