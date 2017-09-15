@@ -57,6 +57,22 @@ namespace Squidex.Domain.Apps.Write.Contents
             source.Migrate().ShouldBeSameEvent(CreateEvent(new ContentStatusChanged { Status = Status.Archived }));
         }
 
+        [Fact]
+        public void Should_migrate_content_submitted_to_content_status_changed()
+        {
+            var source = CreateEvent(new ContentSubmitted());
+
+            source.Migrate().ShouldBeSameEvent(CreateEvent(new ContentStatusChanged { Status = Status.Submitted }));
+        }
+
+        [Fact]
+        public void Should_migrate_content_declined_to_content_status_changed()
+        {
+            var source = CreateEvent(new ContentDeclined());
+
+            source.Migrate().ShouldBeSameEvent(CreateEvent(new ContentStatusChanged { Status = Status.Declined }));
+        }
+
         private T CreateEvent<T>(T contentEvent) where T : ContentEvent
         {
             contentEvent.Actor = actor;
