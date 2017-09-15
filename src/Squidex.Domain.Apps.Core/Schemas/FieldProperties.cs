@@ -6,6 +6,14 @@
 //  All rights reserved.
 // ==========================================================================
 
+<<<<<<< HEAD
+=======
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.Json;
+
+>>>>>>> fd5d8754fc5163bc1c54044f58cdc4b700aac5a2
 namespace Squidex.Domain.Apps.Core.Schemas
 {
     using System.Collections.Generic;
@@ -74,6 +82,11 @@ namespace Squidex.Domain.Apps.Core.Schemas
         }
 
         public abstract JToken GetDefaultValue();
+
+        public virtual bool ShouldApplyDefaultValue(JToken value)
+        {
+            return value.IsNull();
+        }
 
         public void Validate(IList<ValidationError> errors)
         {
