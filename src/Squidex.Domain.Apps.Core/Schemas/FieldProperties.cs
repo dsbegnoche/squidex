@@ -6,23 +6,16 @@
 //  All rights reserved.
 // ==========================================================================
 
-<<<<<<< HEAD
-=======
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Json;
 
->>>>>>> fd5d8754fc5163bc1c54044f58cdc4b700aac5a2
 namespace Squidex.Domain.Apps.Core.Schemas
 {
-    using System.Collections.Generic;
-    using System.Runtime.Serialization;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using Squidex.Domain.Apps.Core.Schemas.Json;
-    using Squidex.Infrastructure;
-
     [JsonConverter(typeof(JsonInheritanceConverter), "fieldType")]
     [KnownType(typeof(AssetsFieldProperties))]
     [KnownType(typeof(BooleanFieldProperties))]

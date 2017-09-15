@@ -110,7 +110,7 @@ namespace Squidex.Domain.Apps.Write.Contents
             A.CallTo(() => scriptEngine.ExecuteAndTransform(A<ScriptContext>.Ignored, A<string>.Ignored))
                 .Returns(data);
 
-            var context = CreateContextForCommand(new CreateContent { ContentId = contentId, Data = data, User = user, Publish = true });
+            var context = CreateContextForCommand(new CreateContent { ContentId = contentId, Data = data, User = user, Status = Status.Published });
 
             await TestCreate(content, async _ =>
             {

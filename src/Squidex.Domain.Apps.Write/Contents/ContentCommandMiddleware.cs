@@ -68,7 +68,7 @@ namespace Squidex.Domain.Apps.Write.Contents
 
                 ExecuteScriptAndTransform(command, content, schemaAndApp.SchemaEntity.ScriptCreate, "Create");
 
-                if (command.Publish)
+                if (command.Status == Status.Published)
                 {
                     ExecuteScript(command, content, schemaAndApp.SchemaEntity.ScriptChange, "Published");
                 }
