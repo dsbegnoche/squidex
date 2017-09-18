@@ -62,6 +62,11 @@ namespace Squidex.Controllers.ContentApi.Models
         /// </summary>
         public long Version { get; set; }
 
+        /// <summary>
+        /// The name of the schema the content belongs to.
+        /// </summary>
+        public string SchemaName { get; set; }
+
         public static ContentDto Create(CreateContent command, EntityCreatedResult<NamedContentData> result)
         {
             return ContentDto.Create(command, result, command.Status);

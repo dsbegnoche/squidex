@@ -105,7 +105,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return entities;
         }
 
-        public async Task<IReadOnlyList<IContentEntity>> QueryAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status)
+        public async Task<IReadOnlyList<IContentEntity>> QueryAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids)
         {
             var collection = GetCollection(app.Id);
 
@@ -114,7 +114,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             {
                 cursor =
                     collection
-                        .Find(status);
+                        .Find(status, ids);
             }
             catch (NotSupportedException)
             {
@@ -158,14 +158,14 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return cursor.CountAsync();
         }
 
-        public Task<long> CountAsync(IAppEntity app, Status[] status)
+        public Task<long> CountAsync(IAppEntity app, Status[] status, HashSet<Guid> ids)
         {
             var collection = GetCollection(app.Id);
 
             IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
             try
             {
-                cursor = collection.Find(status);
+                cursor = collection.Find(status, ids);
             }
             catch (NotSupportedException)
             {

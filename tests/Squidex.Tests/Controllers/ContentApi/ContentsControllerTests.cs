@@ -176,5 +176,32 @@ namespace Squidex.Tests.Controllers.ContentApi
             // Assert
             this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Never);
         }
+
+        [Fact]
+        public async Task GetContents_across_schemas_tracks_content_usage()
+        {
+            // Arrange
+            Guid contentId = Guid.NewGuid();
+            Mock<ISchemaEntity> schema = new Mock<ISchemaEntity>();
+            Mock<IContentEntity> content = new Mock<IContentEntity>();
+
+            content.Setup(x => x.Data).Returns(new NamedContentData());
+            schema.Setup(x => x.SchemaDef)
+                .Returns(new Schema("test", false, new SchemaProperties(), ImmutableList<Field>.Empty));
+
+            this.user.Setup(p => p.Claims).Returns(new List<Claim>()
+            {
+                new Claim(OpenIdClaims.ClientId, "app1")
+            });
+
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), this.user.Object, new HashSet<Guid>() { contentId }))
+                .ReturnsAsync((new List<ISchemaEntity> { schema.Object }.AsReadOnly(), 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
+
+            // Act
+            var result = await this.systemUnderTest.GetContentsFromAllSchemas(contentId.ToString());
+
+            // Assert
+            this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Once);
+        }
     }
 }

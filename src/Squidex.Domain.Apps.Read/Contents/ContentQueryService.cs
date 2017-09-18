@@ -115,7 +115,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             return (schema, taskForCount.Result, list);
         }
 
-        public async Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user)
+        public async Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user, HashSet<Guid> ids)
         {
             Guard.NotNull(app, nameof(app));
             Guard.NotNull(user, nameof(user));
@@ -136,8 +136,8 @@ namespace Squidex.Domain.Apps.Read.Contents
                 status.Add(Status.Published);
             }
 
-            var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray());
-            var taskForCount = contentRepository.CountAsync(app, status.ToArray());
+            var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray(), ids);
+            var taskForCount = contentRepository.CountAsync(app, status.ToArray(), ids);
 
             await Task.WhenAll(taskForItems, taskForCount);
 

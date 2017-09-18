@@ -123,7 +123,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpGet]
         [Route("content/{app}")]
         [ApiCosts(2)]
-        public async Task<IActionResult> GetContents([FromQuery] bool archived = false, [FromQuery] string ids = null)
+        public async Task<IActionResult> GetContentsFromAllSchemas([FromQuery] string ids = null)
         {
             var idsList = new HashSet<Guid>();
 
@@ -140,7 +140,7 @@ namespace Squidex.Controllers.ContentApi
 
             var isFrontendClient = User.IsFrontendClient();
 
-            var contents = await contentQuery.QueryWithCountAsync(App, User);
+            var contents = await contentQuery.QueryWithCountAsync(App, User, idsList);
 
             if (!isFrontendClient && idsList.Count > 0)
             {
@@ -154,9 +154,13 @@ namespace Squidex.Controllers.ContentApi
                 {
                     var itemModel = SimpleMapper.Map(item, new ContentDto());
 
+                    var schema = contents.Schemas.First(x => x.Id == item.SchemaId);
+
+                    itemModel.SchemaName = schema.Name;
+
                     if (item.Data != null)
                     {
-                        itemModel.Data = item.Data.ToApiModel(contents.Schemas.First(x => x.Id == item.SchemaId).SchemaDef, App.LanguagesConfig, !isFrontendClient);
+                        itemModel.Data = item.Data.ToApiModel(schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);
                     }
 
                     return itemModel;
