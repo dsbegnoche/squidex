@@ -14,9 +14,15 @@
     <div class="panel-main">
         <div class="panel-content panel-content-scroll">
             <div *ngFor="let pattern of appPatterns">
-                <sqx-pattern [pattern]="pattern"></sqx-pattern>
+                <sqx-pattern [pattern]="pattern"
+                             (removing)="removePattern($event)"></sqx-pattern>
+            </div>
+            <div class="table-items-footer">
+                <sqx-pattern [pattern]="" [isNew]="true"
+                                 (created)="patternAdded($event)"></sqx-pattern>
             </div>
         </div>
+
         
         <div class="panel-sidebar">
             <a class="panel-link" routerLink="history" routerLinkActive="active">

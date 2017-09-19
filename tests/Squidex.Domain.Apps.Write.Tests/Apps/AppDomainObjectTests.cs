@@ -644,6 +644,52 @@ namespace Squidex.Domain.Apps.Write.Apps
                 );
         }
 
+        [Fact]
+        public void DeletePattern_should_throw_exception_if_app_not_created()
+        {
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.DeletePattern(CreateCommand(new DeletePattern
+                {
+                    Name = "Pattern"
+                }));
+            });
+        }
+
+        [Fact]
+        public void DeletePattern_should_throw_exception_if_pattern_does_not_exist()
+        {
+            CreateApp();
+
+            Assert.Throws<DomainObjectNotFoundException>(() =>
+            {
+                sut.DeletePattern(CreateCommand(new DeletePattern
+                {
+                    Name = "Pattern Not Found"
+                }));
+            });
+        }
+
+        [Fact]
+        public void DeletePattern_should_create_events()
+        {
+            CreateApp();
+            CreatePattern();
+
+            sut.DeletePattern(CreateCommand(new DeletePattern
+            {
+                Name = "Pattern"
+            }));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateEvent(new AppPatternDeleted
+                    {
+                        Name = "Pattern",
+                    })
+                );
+        }
+
         private void CreateApp()
         {
             A.CallTo(() => uiOptions.Value)
@@ -678,6 +724,7 @@ namespace Squidex.Domain.Apps.Write.Apps
                 Pattern = "[0-9]",
                 DefaultMessage = "Message"
             }));
+            ((IAggregate)sut).ClearUncommittedEvents();
         }
     }
 }

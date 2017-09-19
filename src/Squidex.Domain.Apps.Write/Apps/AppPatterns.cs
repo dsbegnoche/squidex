@@ -19,6 +19,13 @@ namespace Squidex.Domain.Apps.Write.Apps
             patterns.Add(name);
         }
 
+        public void Remove(string name)
+        {
+            ThrowIfNotFound(name);
+
+            patterns.Remove(name);
+        }
+
         private void ThrowIfFound(string name, Func<string> message)
         {
             if (patterns.Contains(name))
@@ -26,6 +33,14 @@ namespace Squidex.Domain.Apps.Write.Apps
                 var error = new ValidationError("Pattern name is already assigned.", "Name");
 
                 throw new ValidationException(message(), error);
+            }
+        }
+
+        private void ThrowIfNotFound(string name)
+        {
+            if (!patterns.Contains(name))
+            {
+                throw new DomainObjectNotFoundException(name, "Patterns", typeof(AppDomainObject));
             }
         }
     }

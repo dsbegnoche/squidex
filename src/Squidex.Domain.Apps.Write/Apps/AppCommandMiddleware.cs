@@ -228,6 +228,11 @@ namespace Squidex.Domain.Apps.Write.Apps
             return handler.UpdateAsync<AppDomainObject>(context, a => a.AddPattern(command));
         }
 
+        protected Task On(DeletePattern command, CommandContext context)
+        {
+            return handler.UpdateAsync<AppDomainObject>(context, a => a.DeletePattern(command));
+        }
+
         public async Task HandleAsync(CommandContext context, Func<Task> next)
         {
             if (!await this.DispatchActionAsync(context.Command, context))

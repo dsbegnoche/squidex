@@ -118,6 +118,40 @@ namespace Squidex.Domain.Apps.Read.Apps
             A.CallTo(() => repository.FindAppAsync(appId.Name)).MustHaveHappened(Repeated.Exactly.Times(2));
         }
 
+        [Fact]
+        public async Task Should_clear_cache_for_name_after_add_pattern_event()
+        {
+            A.CallTo(() => repository.FindAppAsync(appId.Name))
+                .Returns(appV2);
+            A.CallTo(() => repository.FindAppAsync(appId.Name))
+                .Returns(appV1).Once();
+
+            await ProvideAppByNameAsync(appV1);
+
+            sut.On(Envelope.Create(new AppPatternAdded { AppId = appId, Name = "Pattern1", Pattern = "Pattern1" }).To<IEvent>()).Wait();
+
+            await ProvideAppByNameAsync(appV2);
+
+            A.CallTo(() => repository.FindAppAsync(appId.Name)).MustHaveHappened(Repeated.Exactly.Times(2));
+        }
+
+        [Fact]
+        public async Task Should_clear_cache_for_name_after_delete_pattern_event()
+        {
+            A.CallTo(() => repository.FindAppAsync(appId.Name))
+                .Returns(appV2);
+            A.CallTo(() => repository.FindAppAsync(appId.Name))
+                .Returns(appV1).Once();
+
+            await ProvideAppByNameAsync(appV1);
+
+            sut.On(Envelope.Create(new AppPatternDeleted { AppId = appId, Name = "Pattern1" }).To<IEvent>()).Wait();
+
+            await ProvideAppByNameAsync(appV2);
+
+            A.CallTo(() => repository.FindAppAsync(appId.Name)).MustHaveHappened(Repeated.Exactly.Times(2));
+        }
+
         private async Task ProvideAppByIdAsync(IAppEntity app)
         {
             Assert.Equal(app, await sut.FindAppByIdAsync(appId.Id));

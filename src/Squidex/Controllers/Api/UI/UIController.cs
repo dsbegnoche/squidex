@@ -5,6 +5,7 @@
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
+// CivicPlus - Functionality moved to AppPatternsController.cs
 
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace Squidex.Controllers.Api.UI
                         .Where(x =>
                             !string.IsNullOrWhiteSpace(x.Name) &&
                             !string.IsNullOrWhiteSpace(x.Pattern))
-                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, Message = x.DefaultMessage })
+                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, DefaultMessage = x.DefaultMessage })
                         .OrderBy(x => x.Name)
                         .ToList()
                     ?? new List<UIRegexSuggestionDto>()
