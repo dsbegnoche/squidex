@@ -10,9 +10,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using NSwag.Annotations;
+using Squidex.Config;
 using Squidex.Controllers.Api.UI.Models;
-using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Domain.Apps.Core;
 using Squidex.Pipeline;
 
 namespace Squidex.Controllers.Api.UI
@@ -21,21 +23,21 @@ namespace Squidex.Controllers.Api.UI
     /// Manages ui settings and configs.
     /// </summary>
     [ApiExceptionFilter]
-    [AppApi]
     [SwaggerTag(nameof(UI))]
-    [MustBeAppReader]
-    public sealed class UIController : ControllerBase
+    public sealed class UIController : Controller
     {
-        public UIController(ICommandBus commandBus)
-            : base(commandBus)
+        private readonly MyUIOptions uiOptions;
+
+        public UIController(IOptions<MyUIOptions> uiOptions)
         {
+            this.uiOptions = uiOptions.Value;
         }
 
         /// <summary>
         /// Get ui settings.
         /// </summary>
         [HttpGet]
-        [Route("ui/{app}/settings/")]
+        [Route("ui/settings/")]
         [ProducesResponseType(typeof(UISettingsDto), 200)]
         [ApiCosts(0)]
         public IActionResult GetSettings()
@@ -43,13 +45,11 @@ namespace Squidex.Controllers.Api.UI
             var dto = new UISettingsDto
             {
                 RegexSuggestions =
-                    App.Patterns?
+                    uiOptions.RegexSuggestions?
                         .Where(x =>
                             !string.IsNullOrWhiteSpace(x.Name) &&
                             !string.IsNullOrWhiteSpace(x.Pattern))
-                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, DefaultMessage = x.DefaultMessage })
-                        .OrderBy(x => x.Name)
-                        .ToList()
+                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern }).ToList()
                     ?? new List<UIRegexSuggestionDto>()
             };
 

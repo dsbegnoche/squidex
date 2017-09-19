@@ -17,7 +17,7 @@ using Squidex.Pipeline;
 namespace Squidex.Controllers.Api.Apps
 {
     /// <summary>
-    /// Manages and configures apps.
+    /// Manages and configures app patterns.
     /// </summary>
     [MustBeAppOwner]
     [ApiExceptionFilter]
