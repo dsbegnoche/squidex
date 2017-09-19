@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FakeItEasy;
@@ -31,7 +32,9 @@ namespace Squidex.Domain.Apps.Read.Contents
         private readonly IScriptEngine scriptEngine = A.Fake<IScriptEngine>();
         private readonly ISchemaProvider schemas = A.Fake<ISchemaProvider>();
         private readonly ISchemaEntity schema = A.Fake<ISchemaEntity>();
+        private readonly ISchemaEntity schema2 = A.Fake<ISchemaEntity>();
         private readonly IContentEntity content = A.Fake<IContentEntity>();
+        private readonly IContentEntity content2 = A.Fake<IContentEntity>();
         private readonly IAppEntity app = A.Fake<IAppEntity>();
         private readonly Guid appId = Guid.NewGuid();
         private readonly Guid schemaId = Guid.NewGuid();
@@ -52,6 +55,11 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => content.Id).Returns(contentId);
             A.CallTo(() => content.Data).Returns(data);
             A.CallTo(() => content.Status).Returns(Status.Published);
+            A.CallTo(() => content.SchemaId).Returns(schema.Id);
+
+            A.CallTo(() => content2.Data).Returns(data);
+            A.CallTo(() => content2.Status).Returns(Status.Draft);
+            A.CallTo(() => content2.SchemaId).Returns(schema2.Id);
 
             sut = new ContentQueryService(contentRepository, schemas, scriptEngine, modelBuilder);
         }
@@ -141,6 +149,115 @@ namespace Squidex.Domain.Apps.Read.Contents
         public async Task Should_return_draft_contents_from_repository_and_transform_when_requesting_archive_as_non_frontend()
         {
             await TestManyRequest(false, true, Status.Published);
+        }
+
+        [Fact]
+        public async Task QueryWithCount_Should_throw_if_app_is_null()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(null, user, new HashSet<Guid>()));
+        }
+
+        [Fact]
+        public async Task QueryWithCount_Should_throw_if_user_is_null()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(app, null, new HashSet<Guid>()));
+        }
+
+        [Fact]
+        public async Task QueryWithCount_Should_return_just_published_items()
+        {
+            var status = new Status[] { Status.Published };
+            var schemaList = new ISchemaEntity[] { schema, schema2 };
+
+            var ids = new HashSet<Guid>();
+
+            A.CallTo(() => schemas.QueryAllAsync(app.Id))
+                .Returns(schemaList);
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(new List<IContentEntity> { content });
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(123);
+
+            A.CallTo(() => schema.ScriptQuery)
+                .Returns("<script-query>");
+
+            A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
+                .Returns(transformedData);
+
+            var result = await sut.QueryWithCountAsync(app, user, ids);
+
+            Assert.Equal(123, result.Total);
+            Assert.Equal(schemaList, result.Schemas);
+            Assert.Equal(data, result.Items[0].Data);
+            Assert.Equal(content.Id, result.Items[0].Id);
+            Assert.Equal(0, result.Items.Count(x => x.Status != Status.Published));
+        }
+
+        [Fact]
+        public async Task QueryWithCount_Should_return_all_status_items()
+        {
+            identity.AddClaim(new Claim(OpenIdClaims.ClientId, "squidex-frontend"));
+
+            var status = new Status[] { Status.Draft, Status.Declined, Status.Published, Status.Submitted };
+            var schemaList = new ISchemaEntity[] { schema, schema2 };
+
+            var ids = new HashSet<Guid>() { content.Id };
+
+            A.CallTo(() => schemas.QueryAllAsync(app.Id))
+                .Returns(schemaList);
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(new List<IContentEntity> { content, content2 });
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(123);
+
+            A.CallTo(() => schema.ScriptQuery)
+                .Returns("<script-query>");
+
+            A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
+                .Returns(transformedData);
+
+            var result = await sut.QueryWithCountAsync(app, user, ids);
+
+            Assert.Equal(123, result.Total);
+            Assert.Equal(schemaList, result.Schemas);
+            Assert.Equal(data, result.Items[0].Data);
+            Assert.Equal(content.Id, result.Items[0].Id);
+            Assert.Equal(2, result.Items.Count);
+            Assert.Equal(1, result.Items.Count(x => x.Status == Status.Published));
+            Assert.Equal(1, result.Items.Count(x => x.Status == Status.Draft));
+        }
+
+        [Fact]
+        public async Task QueryWithCount_Should_return_only_ids_asked_for()
+        {
+            identity.AddClaim(new Claim(OpenIdClaims.ClientId, "squidex-frontend"));
+
+            var status = new Status[] { Status.Draft, Status.Declined, Status.Published, Status.Submitted };
+            var schemaList = new ISchemaEntity[] { schema, schema2 };
+
+            var ids = new HashSet<Guid>() { content.Id };
+
+            A.CallTo(() => schemas.QueryAllAsync(app.Id))
+                .Returns(schemaList);
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(new List<IContentEntity> { content });
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+                .Returns(123);
+
+            A.CallTo(() => schema.ScriptQuery)
+                .Returns("<script-query>");
+
+            A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
+                .Returns(transformedData);
+
+            var result = await sut.QueryWithCountAsync(app, user, ids);
+
+            Assert.Equal(123, result.Total);
+            Assert.Equal(schemaList, result.Schemas);
+            Assert.Equal(data, result.Items[0].Data);
+            Assert.Equal(content.Id, result.Items[0].Id);
+            Assert.Equal(1, result.Items.Count);
+            Assert.Equal(1, result.Items.Count(x => x.Status == Status.Published));
         }
 
         private async Task TestManyRequest(bool isFrontend, bool archive, params Status[] status)

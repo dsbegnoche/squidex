@@ -17,6 +17,8 @@ namespace Squidex.Domain.Apps.Read.Contents
 {
     public interface IContentQueryService
     {
+        Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user, HashSet<Guid> ids);
+
         Task<(ISchemaEntity Schema, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, string schemaIdOrName, ClaimsPrincipal user, bool archived, HashSet<Guid> ids, string query);
 
         Task<(ISchemaEntity Schema, IContentEntity Content)> FindContentAsync(IAppEntity app, string schemaIdOrName, ClaimsPrincipal user, Guid id);

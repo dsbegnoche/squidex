@@ -8,7 +8,6 @@
 
 using System;
 using NodaTime;
-using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Infrastructure;
 
@@ -28,6 +27,7 @@ namespace Squidex.Domain.Apps.Read.Contents.TestData
         public RefToken LastModifiedBy { get; set; }
 
         public NamedContentData Data { get; set; }
+        public Guid SchemaId { get; set; }
 
         public Core.Contents.Status Status { get; set; }
     }

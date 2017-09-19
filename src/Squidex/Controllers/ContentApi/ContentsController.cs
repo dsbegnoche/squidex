@@ -121,6 +121,57 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppReader]
         [HttpGet]
+        [Route("content/{app}")]
+        [ApiCosts(2)]
+        public async Task<IActionResult> GetContentsFromAllSchemas([FromQuery] string ids = null)
+        {
+            var idsList = new HashSet<Guid>();
+
+            if (!string.IsNullOrWhiteSpace(ids))
+            {
+                foreach (var id in ids.Split(','))
+                {
+                    if (Guid.TryParse(id, out var guid))
+                    {
+                        idsList.Add(guid);
+                    }
+                }
+            }
+
+            var isFrontendClient = User.IsFrontendClient();
+
+            var contents = await contentQuery.QueryWithCountAsync(App, User, idsList);
+
+            if (!isFrontendClient && idsList.Count > 0)
+            {
+                await contentUsageTracker.TrackAsync(idsList.ToList(), DateTime.UtcNow, AppId);
+            }
+
+            var response = new AssetsDto
+            {
+                Total = contents.Total,
+                Items = contents.Items.Take(200).Select(item =>
+                {
+                    var itemModel = SimpleMapper.Map(item, new ContentDto());
+
+                    var schema = contents.Schemas.First(x => x.Id == item.SchemaId);
+
+                    itemModel.SchemaName = schema.Name;
+
+                    if (item.Data != null)
+                    {
+                        itemModel.Data = item.Data.ToApiModel(schema.SchemaDef, App.LanguagesConfig, !isFrontendClient);
+                    }
+
+                    return itemModel;
+                }).ToArray()
+            };
+
+            return Ok(response);
+        }
+
+        [MustBeAppReader]
+        [HttpGet]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
         public async Task<IActionResult> GetContent(string name, Guid id)
