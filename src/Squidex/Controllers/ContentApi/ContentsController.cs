@@ -140,7 +140,7 @@ namespace Squidex.Controllers.ContentApi
 
             var isFrontendClient = User.IsFrontendClient();
 
-            var contents = await contentQuery.QueryWithCountAsync(App, User, idsList);
+            var contents = await contentQuery.QueryWithCountAsync(App, User, idsList, Request.QueryString.ToString());
 
             if (!isFrontendClient && idsList.Count > 0)
             {
