@@ -261,7 +261,7 @@ namespace Squidex.Controllers.Api.Assets
             var formFile = formFiles[0];
 
             // validation of input happens on asset creation middleware
-            return new AssetFile(formFile.FileName, formFile.ContentType, formFile.Length,
+            return new AssetFile(formFile.FileName, formFile.ContentType ?? "application/octet-stream", formFile.Length,
                                  formFile.OpenReadStream, string.Empty, new string[0],
                                  assetsConfig, // Extended AssetFile to have context for validation
                                  appPlanProvider.GetPlanForApp(App).MaxAssetSize,
