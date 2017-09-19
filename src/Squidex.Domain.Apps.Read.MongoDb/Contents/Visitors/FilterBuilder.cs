@@ -34,5 +34,17 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents.Visitors
 
             return null;
         }
+
+        public static FilterDefinition<MongoContentEntity> Build(ODataUriParser query)
+        {
+            var search = query.ParseSearch();
+
+            if (search != null)
+            {
+                return Filter.Text(SearchTermVisitor.Visit(search.Expression).ToString());
+            }
+
+            return null;
+        }
     }
 }

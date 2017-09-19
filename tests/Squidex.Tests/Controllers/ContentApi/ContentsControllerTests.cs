@@ -194,7 +194,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 new Claim(OpenIdClaims.ClientId, "app1")
             });
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), this.user.Object, new HashSet<Guid>() { contentId }))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), this.user.Object, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
                 .ReturnsAsync((new List<ISchemaEntity> { schema.Object }.AsReadOnly(), 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act
