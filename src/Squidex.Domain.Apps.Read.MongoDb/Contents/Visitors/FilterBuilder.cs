@@ -55,7 +55,15 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents.Visitors
 
         public static FilterDefinition<MongoContentEntity> Build(ODataUriParser query)
         {
-            var search = query.ParseSearch();
+            SearchClause search;
+            try
+            {
+                search = query.ParseSearch();
+            }
+            catch (ODataException ex)
+            {
+                throw new ValidationException("Query $search clause not valid", new ValidationError(ex.Message));
+            }
 
             if (search != null)
             {
