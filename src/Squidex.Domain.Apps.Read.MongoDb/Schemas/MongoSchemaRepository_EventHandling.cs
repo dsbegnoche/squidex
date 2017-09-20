@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Events;
 using Squidex.Domain.Apps.Events.Schemas;
+using Squidex.Domain.Apps.Events.Schemas.Old;
 using Squidex.Domain.Apps.Events.Schemas.Utils;
 using Squidex.Domain.Apps.Read.MongoDb.Utils;
 using Squidex.Infrastructure.CQRS.Events;
@@ -127,5 +128,17 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Schemas
         {
             entity.SerializeSchema(schema, serializer);
         }
+
+#pragma warning disable CS0612 // Type or member is obsolete
+        protected Task On(WebhookAdded @event, EnvelopeHeaders headers)
+        {
+            return Collection.UpdateAsync(@event, headers, e => { });
+        }
+
+        protected Task On(WebhookDeleted @event, EnvelopeHeaders headers)
+        {
+            return Collection.UpdateAsync(@event, headers, e => { });
+        }
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 }

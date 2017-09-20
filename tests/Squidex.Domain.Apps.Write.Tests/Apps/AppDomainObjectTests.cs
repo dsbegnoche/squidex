@@ -649,7 +649,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             A.CallTo(() => uiOptions.Value)
                 .Returns(new MyUIOptions
                 {
-                    RegexSuggestions = new List<AppPattern> ()
+                    RegexSuggestions = new List<AppPattern>()
                 });
             sut.Create(CreateCommand(new CreateApp { Name = AppName }));
 
