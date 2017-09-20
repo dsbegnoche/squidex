@@ -40,7 +40,7 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
         this.appNameOnce()
             .switchMap(app => this.patternService.getPatterns(app).retry(2))
             .subscribe(dtos => {
-                this.updatePatterns(ImmutableArray.of(dtos.regexSuggestions));
+                this.updatePatterns(ImmutableArray.of(dtos));
             }, error => {
                 this.notifyError(error);
             });

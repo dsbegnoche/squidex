@@ -47,20 +47,14 @@ namespace Squidex.Controllers.Api.Apps
         [ApiCosts(1)]
         public IActionResult GetPatterns(string app)
         {
-            var dto = new UISettingsDto
-            {
-                RegexSuggestions =
-                    App.Patterns?
+            return Ok(App.Patterns?
                         .Where(x =>
                             !string.IsNullOrWhiteSpace(x.Name) &&
                             !string.IsNullOrWhiteSpace(x.Pattern))
                         .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern, DefaultMessage = x.DefaultMessage })
                         .OrderBy(x => x.Name)
                         .ToList()
-                    ?? new List<UIRegexSuggestionDto>()
-            };
-
-            return Ok(dto);
+                    ?? new List<UIRegexSuggestionDto>());
         }
 
         /// <summary>

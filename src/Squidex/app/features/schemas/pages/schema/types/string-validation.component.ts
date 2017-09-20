@@ -91,7 +91,7 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
             .switchMap(app =>
                 this.uiService.getPatterns(app))
             .subscribe(settings => {
-                this.regexSuggestions = settings.regexSuggestions;
+                this.regexSuggestions = settings;
                 this.setPatternName();
             });
 

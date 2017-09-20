@@ -13,10 +13,6 @@ import { ApiUrlConfig,
     Version
     } from 'framework';
 
-export interface AppPatternsDto {
-    regexSuggestions: AppPatternsSuggestionDto[];
-}
-
 export class AppPatternsSuggestionDto {
     public name: string;
     public pattern: string;
@@ -31,7 +27,7 @@ export class AppPatternsSuggestionDto {
 
 @Injectable()
 export class AppPatternsService {
-    private settings: AppPatternsDto;
+    private patterns: AppPatternsSuggestionDto[];
 
     constructor(
         private readonly http: HttpClient,
@@ -39,18 +35,19 @@ export class AppPatternsService {
     ) {
     }
 
-    public getPatterns(appName: string): Observable<AppPatternsDto> {
-        if (this.settings) {
-            return Observable.of(this.settings);
+    public getPatterns(appName: string): Observable<AppPatternsSuggestionDto[]> {
+        if (this.patterns) {
+            return Observable.of(this.patterns);
         } else {
             const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns`);
 
-            return this.http.get<AppPatternsDto>(url)
+            return this.http.get<AppPatternsSuggestionDto[]>(url)
                 .catch(error => {
-                    return Observable.of({ regexSuggestions: [] });
+                    return Observable.of({ AppPatternsSuggestionDto: [] });
                 })
-                .do(settings => {
-                    this.settings = settings;
+                .map((response: AppPatternsSuggestionDto[]) => response)
+                .do(patterns => {
+                    this.patterns = patterns;
                 });
         }
     }
