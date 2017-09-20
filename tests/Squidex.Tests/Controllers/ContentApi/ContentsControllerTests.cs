@@ -53,8 +53,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 this.contentUsageTracker.Object,
                 this.contentQuery.Object,
                 this.contentVersionLoader.Object,
-                this.graphQl.Object
-                );
+                this.graphQl.Object);
 
             this.user.Setup(p => p.Claims).Returns(new List<Claim>()
             {
@@ -94,8 +93,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 new Claim(OpenIdClaims.ClientId, "app1")
             });
 
-            this.contentQuery.Setup(x => x.FindContentAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(),
-                    this.user.Object, contentId))
+            this.contentQuery.Setup(x => x.FindContentAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, contentId))
                 .ReturnsAsync((schema.Object, content.Object));
 
             // Act
@@ -117,8 +115,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             schema.Setup(x => x.SchemaDef)
                 .Returns(new Schema("test", false, new SchemaProperties(), ImmutableList<Field>.Empty));
 
-            this.contentQuery.Setup(x => x.FindContentAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(),
-                    this.user.Object, contentId))
+            this.contentQuery.Setup(x => x.FindContentAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, contentId))
                 .ReturnsAsync((schema.Object, content.Object));
 
             // Act
@@ -145,7 +142,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 new Claim(OpenIdClaims.ClientId, "app1")
             });
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() {contentId}, It.IsAny<string>()))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
                 .ReturnsAsync((schema.Object, 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act

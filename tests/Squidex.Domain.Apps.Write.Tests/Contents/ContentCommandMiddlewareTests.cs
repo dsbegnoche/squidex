@@ -215,7 +215,6 @@ namespace Squidex.Domain.Apps.Write.Contents
 
         [Fact]
         public async Task Delete_should_update_domain_object()
-
         {
             CreateContent();
 
