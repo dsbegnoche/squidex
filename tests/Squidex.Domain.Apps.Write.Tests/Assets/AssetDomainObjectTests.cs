@@ -22,7 +22,8 @@ namespace Squidex.Domain.Apps.Write.Assets
     {
         private readonly AssetDomainObject sut;
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
-        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", 1024, () => new MemoryStream(), string.Empty, new[] { "tag" });
+        private static readonly long MaxFileSize = (long)Math.Pow(1024, 3);
+        private readonly AssetFile file = new AssetFile("my-image.png", "image/png", MaxFileSize, () => new MemoryStream(), string.Empty, new[] { "tag" });
 
         public Guid AssetId { get; } = Guid.NewGuid();
 
@@ -195,7 +196,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             sut.GetUncomittedEvents()
                 .ShouldHaveSameEvents(
-                    CreateAssetEvent(new AssetDeleted { DeletedSize = 2048 })
+                    CreateAssetEvent(new AssetDeleted { DeletedSize = MaxFileSize * 2 })
                 );
         }
 

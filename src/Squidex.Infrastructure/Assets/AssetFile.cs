@@ -51,8 +51,8 @@ namespace Squidex.Infrastructure.Assets
             this.openAction = openAction;
 
             // default values for testing purposes
-            AssetConfig = assetConfig ?? new AssetConfig() { MaxSize = 1024 * 1024 * 50 };
-            MaxAssetRepoSize = maxAssetRepoSize ?? AssetConfig.MaxSize * 1000;
+            AssetConfig = assetConfig ?? new AssetConfig();
+            MaxAssetRepoSize = maxAssetRepoSize ?? AssetConfig.MaxSize * 100;
             CurrentAssetRepoSize = currentAssetRepoSize ?? AssetConfig.MaxSize * 1;
         }
 

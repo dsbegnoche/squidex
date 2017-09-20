@@ -30,10 +30,11 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly Stream stream = new MemoryStream();
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
         private readonly AssetFile file;
+        private readonly int maxFileSize = (int)Math.Pow(1024, 3);
 
         public AssetCommandMiddlewareTests()
         {
-            file = new AssetFile("my-image.png", "image/png", 1024, () => stream, "my-image description", new[] { "tag" });
+            file = new AssetFile("my-image.png", "image/png", maxFileSize, () => stream, "my-image description", new[] { "tag" });
 
             asset = new AssetDomainObject(assetId, -1);
 
@@ -43,7 +44,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         [Fact]
         public async Task Create_should_validate_asset_extension()
         {
-            var invalidFile = new AssetFile("my-image.invalidExtension", "image/png", 1024, () => stream, "my-image description", new[] { "tag" });
+            var invalidFile = new AssetFile("my-image.invalidExtension", "image/png", maxFileSize, () => stream, "my-image description", new[] { "tag" });
             var context = CreateContextForCommand(new CreateAsset { AssetId = assetId, File = invalidFile });
 
             SetupStore(0, context.ContextId);

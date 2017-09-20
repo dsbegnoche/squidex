@@ -6,10 +6,14 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+
 namespace Squidex.Infrastructure.Assets
 {
     public class AssetConfig
     {
-        public long MaxSize { get; set; } = 5 * 1024 * 1024;
+        // 1 * 1024 ^ 3 = 1 GB
+        // 1 * 1024 ^ 2 = 1 MB
+        public long MaxSize { get; set; } = (long)Math.Pow(1024, 3);
     }
 }
