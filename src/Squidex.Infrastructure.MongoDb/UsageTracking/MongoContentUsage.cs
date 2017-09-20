@@ -17,10 +17,12 @@ namespace Squidex.Infrastructure.UsageTracking
 
         [BsonRequired]
         [BsonElement]
+        [BsonRepresentation(BsonType.String)]
         public Guid AppId { get; set; }
 
         [BsonRequired]
         [BsonElement]
+        [BsonRepresentation(BsonType.String)]
         public Guid ContentId { get; set; }
     }
 }
