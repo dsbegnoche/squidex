@@ -34,6 +34,7 @@ import {
 })
 export class AssetComponent extends AppComponentBase implements OnInit {
     private assetVersion: Version;
+    private maxFileSize = Math.pow(1024, 3);
 
     @Input()
     public initFile: File;
@@ -86,21 +87,30 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         const initFile = this.initFile;
 
         if (initFile) {
-            this.appNameOnce()
-                .switchMap(app => this.assetsService.uploadFile(app, initFile, this.authService.user!.token, DateTime.now()))
-                .subscribe(dto => {
-                    if (dto instanceof AssetDto) {
-                        this.emitLoaded(dto);
-                    } else {
-                        this.progress = dto;
-                    }
-                }, error => {
-                    this.notifyError(error);
-                });
+            if (initFile.size <= this.maxFileSize) {
+                this.appNameOnce()
+                    .switchMap(app => this.assetsService.uploadFile(app,
+                        initFile,
+                        this.authService.user!.token,
+                        DateTime.now()))
+                    .subscribe(dto => {
+                            if (dto instanceof AssetDto) {
+                                this.emitLoaded(dto);
+                            } else {
+                                this.progress = dto;
+                            }
+                        },
+                        error => {
+                            this.notifyError(error);
+                        });
+            } else {
+                this.notifyError('Files must be smaller than 1 GB.');
+            }
         } else {
             this.updateAsset(this.asset, false);
         }
     }
+
 
     public updateFile(files: FileList) {
         if (files.length === 1) {
