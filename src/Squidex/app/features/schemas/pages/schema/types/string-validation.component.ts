@@ -15,8 +15,8 @@ import {
     DialogService,
     ModalView,
     StringFieldPropertiesDto,
-    UIRegexSuggestionDto,
-    UIService
+    AppPatternsService,
+    AppPatternsSuggestionDto
 } from 'shared';
 
 @Component({
@@ -39,12 +39,12 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
     public showPatternSuggestions: Observable<boolean>;
     public patternName: string;
 
-    public regexSuggestions: UIRegexSuggestionDto[] = [];
+    public regexSuggestions: AppPatternsSuggestionDto[] = [];
 
     public regexSuggestionsModal = new ModalView(false, false);
 
     constructor(dialogs: DialogService, apps: AppsStoreService,
-        private readonly uiService: UIService
+        private readonly uiService: AppPatternsService
     ) {
         super(dialogs, apps);
     }
@@ -89,9 +89,9 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
         this.uiSettingsSubscription =
             this.appNameOnce()
             .switchMap(app =>
-                this.uiService.getSettings(app))
+                this.uiService.getPatterns(app))
             .subscribe(settings => {
-                this.regexSuggestions = settings.regexSuggestions;
+                this.regexSuggestions = settings;
                 this.setPatternName();
             });
 
@@ -105,10 +105,10 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
             });
     }
 
-    public setPattern(pattern: UIRegexSuggestionDto) {
+    public setPattern(pattern: AppPatternsSuggestionDto) {
         this.patternName = pattern.name;
         this.editForm.controls['pattern'].setValue(pattern.pattern);
-        this.editForm.controls['patternMessage'].setValue(pattern.message);
+        this.editForm.controls['patternMessage'].setValue(pattern.defaultMessage);
         this.showPatternMessage = true;
     }
 

@@ -4,6 +4,7 @@
  * @license
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
+// CivicPlus - Functionality moved to app-patterns.service.spec.ts
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -17,16 +18,8 @@ export interface UISettingsDto {
     regexSuggestions: UIRegexSuggestionDto[];
 }
 
-export class UIRegexSuggestionDto {
-    public name: string;
-    public pattern: string;
-    public message: string;
-
-    constructor(name: string, pattern: string, message: string) {
-        this.name = name;
-        this.pattern = pattern;
-        this.message = message;
-    }
+export interface UIRegexSuggestionDto {
+    name: string; pattern: string;
 }
 
 @Injectable()
@@ -39,11 +32,11 @@ export class UIService {
     ) {
     }
 
-    public getSettings(appName: string): Observable<UISettingsDto> {
+    public getSettings(): Observable<UISettingsDto> {
         if (this.settings) {
             return Observable.of(this.settings);
         } else {
-            const url = this.apiUrl.buildUrl(`api/ui/${appName}/settings`);
+            const url = this.apiUrl.buildUrl(`api/ui/settings`);
 
             return this.http.get<UISettingsDto>(url)
                 .catch(error => {

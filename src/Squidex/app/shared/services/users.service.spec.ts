@@ -126,7 +126,7 @@ describe('UsersService', () => {
                     isLocked: true,
                     firstName: 'First1',
                     lastName: 'Last1',
-                    isAdministrator: false,
+                    isAdministrator: false
                 },
                 {
                     id: '456',

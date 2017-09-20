@@ -46,6 +46,12 @@ namespace Squidex.Domain.Apps.Read.Apps
 
             AddEventMessage<AppMasterLanguageSet>(
                 "changed master language to {[Language]}");
+
+            AddEventMessage<AppPatternAdded>(
+                "added pattern {[Pattern]}");
+
+            AddEventMessage<AppPatternDeleted>(
+                "removed pattern {[Pattern]}");
         }
 
         protected Task<HistoryEventToStore> On(AppContributorRemoved @event, EnvelopeHeaders headers)
@@ -127,6 +133,24 @@ namespace Squidex.Domain.Apps.Read.Apps
             return Task.FromResult(
                 ForEvent(@event, channel)
                     .AddParameter("Language", @event.Language));
+        }
+
+        protected Task<HistoryEventToStore> On(AppPatternAdded @event, EnvelopeHeaders headers)
+        {
+            const string channel = "settings.patterns";
+
+            return Task.FromResult(
+                ForEvent(@event, channel)
+                    .AddParameter("Pattern", @event.Name));
+        }
+
+        protected Task<HistoryEventToStore> On(AppPatternDeleted @event, EnvelopeHeaders headers)
+        {
+            const string channel = "settings.patterns";
+
+            return Task.FromResult(
+                ForEvent(@event, channel)
+                    .AddParameter("Pattern", @event.Name));
         }
 
         protected override Task<HistoryEventToStore> CreateEventCoreAsync(Envelope<IEvent> @event)
