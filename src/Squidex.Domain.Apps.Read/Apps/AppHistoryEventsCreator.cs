@@ -52,6 +52,9 @@ namespace Squidex.Domain.Apps.Read.Apps
 
             AddEventMessage<AppPatternDeleted>(
                 "removed pattern {[Pattern]}");
+
+            AddEventMessage<AppPatternUpdated>(
+                "updated pattern {[Pattern]}");
         }
 
         protected Task<HistoryEventToStore> On(AppContributorRemoved @event, EnvelopeHeaders headers)
@@ -145,6 +148,15 @@ namespace Squidex.Domain.Apps.Read.Apps
         }
 
         protected Task<HistoryEventToStore> On(AppPatternDeleted @event, EnvelopeHeaders headers)
+        {
+            const string channel = "settings.patterns";
+
+            return Task.FromResult(
+                ForEvent(@event, channel)
+                    .AddParameter("Pattern", @event.Name));
+        }
+
+        protected Task<HistoryEventToStore> On(AppPatternUpdated @event, EnvelopeHeaders headers)
         {
             const string channel = "settings.patterns";
 
