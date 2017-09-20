@@ -105,7 +105,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return entities;
         }
 
-        public async Task<IReadOnlyList<IContentEntity>> QueryAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids)
+        public async Task<IReadOnlyList<IContentEntity>> QueryAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids, ODataUriParser odataQuery)
         {
             var collection = GetCollection(app.Id);
 
@@ -114,7 +114,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             {
                 cursor =
                     collection
-                        .Find(status, ids);
+                        .Find(odataQuery, status, ids)
+                        .Take(odataQuery)
+                        .Skip(odataQuery);
             }
             catch (NotSupportedException)
             {
@@ -127,12 +129,12 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
 
             var entities = await cursor.ToListAsync();
 
-            foreach (var entity in entities)
+            entities.ForEach(entity =>
             {
                 var schema = allSchemas.First(x => x.Id == entity.SchemaId);
 
                 entity.ParseData(schema.SchemaDef);
-            }
+            });
 
             return entities;
         }
@@ -158,14 +160,14 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return cursor.CountAsync();
         }
 
-        public Task<long> CountAsync(IAppEntity app, Status[] status, HashSet<Guid> ids)
+        public Task<long> CountAsync(IAppEntity app, Status[] status, HashSet<Guid> ids, ODataUriParser odataQuery)
         {
             var collection = GetCollection(app.Id);
 
             IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
             try
             {
-                cursor = collection.Find(status, ids);
+                cursor = collection.Find(odataQuery, status, ids);
             }
             catch (NotSupportedException)
             {

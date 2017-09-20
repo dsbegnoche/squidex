@@ -115,12 +115,14 @@ namespace Squidex.Domain.Apps.Read.Contents
             return (schema, taskForCount.Result, list);
         }
 
-        public async Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user, HashSet<Guid> ids)
+        public async Task<(IReadOnlyList<ISchemaEntity> Schemas, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, ClaimsPrincipal user, HashSet<Guid> ids, string query)
         {
             Guard.NotNull(app, nameof(app));
             Guard.NotNull(user, nameof(user));
 
             var allSchemas = await schemas.QueryAllAsync(app.Id);
+
+            var parsedQuery = ParseQuery(app, query, allSchemas.First());
 
             var status = new List<Status>();
 
@@ -136,8 +138,8 @@ namespace Squidex.Domain.Apps.Read.Contents
                 status.Add(Status.Published);
             }
 
-            var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray(), ids);
-            var taskForCount = contentRepository.CountAsync(app, status.ToArray(), ids);
+            var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray(), ids, parsedQuery);
+            var taskForCount = contentRepository.CountAsync(app, status.ToArray(), ids, parsedQuery);
 
             await Task.WhenAll(taskForItems, taskForCount);
 
@@ -152,13 +154,14 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             if (!string.IsNullOrWhiteSpace(scriptText))
             {
-                for (var i = 0; i < contents.Count; i++)
-                {
-                    var content = contents[i];
-                    var contentData = scriptEngine.Transform(new ScriptContext { User = user, Data = content.Data, ContentId = content.Id }, scriptText);
-
-                    contents[i] = SimpleMapper.Map(content, new Content { Data = contentData, SchemaId = content.SchemaId });
-                }
+                return contents.Select(content => (IContentEntity)SimpleMapper.Map(content,
+                    new Content
+                    {
+                        Data = scriptEngine.Transform(
+                            new ScriptContext { User = user, Data = content.Data, ContentId = content.Id },
+                            scriptText),
+                        SchemaId = content.SchemaId
+                    })).ToList();
             }
 
             return contents;
@@ -166,12 +169,10 @@ namespace Squidex.Domain.Apps.Read.Contents
 
         private List<IContentEntity> TransformContent(ClaimsPrincipal user, IEnumerable<ISchemaEntity> allSchemas, List<IContentEntity> contents)
         {
-            for (int i = 0; i < allSchemas.Count(); i++)
+            allSchemas.Foreach(schema =>
             {
-                var schema = allSchemas.ElementAt(i);
-
                 TransformContent(user, schema, contents.Where(x => x.SchemaId == schema.Id).ToList());
-            }
+            });
 
             return contents;
         }

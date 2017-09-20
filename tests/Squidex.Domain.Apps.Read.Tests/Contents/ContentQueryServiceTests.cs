@@ -154,13 +154,13 @@ namespace Squidex.Domain.Apps.Read.Contents
         [Fact]
         public async Task QueryWithCount_Should_throw_if_app_is_null()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(null, user, new HashSet<Guid>()));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(null, user, new HashSet<Guid>(), "$search=department"));
         }
 
         [Fact]
         public async Task QueryWithCount_Should_throw_if_user_is_null()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(app, null, new HashSet<Guid>()));
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.QueryWithCountAsync(app, null, new HashSet<Guid>(), "$search=department"));
         }
 
         [Fact]
@@ -173,9 +173,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             A.CallTo(() => schemas.QueryAllAsync(app.Id))
                 .Returns(schemaList);
-            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
@@ -184,7 +184,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
                 .Returns(transformedData);
 
-            var result = await sut.QueryWithCountAsync(app, user, ids);
+            var result = await sut.QueryWithCountAsync(app, user, ids, "$search=department");
 
             Assert.Equal(123, result.Total);
             Assert.Equal(schemaList, result.Schemas);
@@ -205,9 +205,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             A.CallTo(() => schemas.QueryAllAsync(app.Id))
                 .Returns(schemaList);
-            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content, content2 });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
@@ -216,7 +216,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
                 .Returns(transformedData);
 
-            var result = await sut.QueryWithCountAsync(app, user, ids);
+            var result = await sut.QueryWithCountAsync(app, user, ids, "$search=department");
 
             Assert.Equal(123, result.Total);
             Assert.Equal(schemaList, result.Schemas);
@@ -239,9 +239,9 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             A.CallTo(() => schemas.QueryAllAsync(app.Id))
                 .Returns(schemaList);
-            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids))
+            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
@@ -250,7 +250,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
                 .Returns(transformedData);
 
-            var result = await sut.QueryWithCountAsync(app, user, ids);
+            var result = await sut.QueryWithCountAsync(app, user, ids, "$search=department");
 
             Assert.Equal(123, result.Total);
             Assert.Equal(schemaList, result.Schemas);
@@ -282,7 +282,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => scriptEngine.Transform(A<ScriptContext>.That.Matches(x => x.User == user && x.ContentId == contentId && ReferenceEquals(x.Data, data)), "<query-script>"))
                 .Returns(transformedData);
 
-            var result = await sut.QueryWithCountAsync(app, schemaId.ToString(), user, archive, ids, null);
+            var result = await sut.QueryWithCountAsync(app, schemaId.ToString(), user, archive, ids, "$search=department");
 
             Assert.Equal(123, result.Total);
             Assert.Equal(schema, result.Schema);
