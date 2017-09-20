@@ -58,18 +58,14 @@ namespace Squidex.Controllers.Api.Apps
         }
 
         /// <summary>
-        /// Create a new app client.
+        /// Create a new app patterm.
         /// </summary>
         /// <param name="app">The name of the app.</param>
-        /// <param name="request">Client object that needs to be added to the app.</param>
+        /// <param name="request">Pattern to be added to the app.</param>
         /// <returns>
-        /// 201 => Client generated.
+        /// 201 => Pattern generated.
         /// 404 => App not found.
         /// </returns>
-        /// <remarks>
-        /// Create a new client for the app with the specified name.
-        /// The client secret is auto generated on the server and returned. The client does not exire, the access token is valid for 30 days.
-        /// </remarks>
         [HttpPost]
         [Route("apps/{app}/patterns/")]
         [ProducesResponseType(typeof(UIRegexSuggestionDto), 201)]
@@ -83,6 +79,28 @@ namespace Squidex.Controllers.Api.Apps
             var response = SimpleMapper.Map(command, new UIRegexSuggestionDto());
 
             return CreatedAtAction(nameof(GetPatterns), new { app }, response);
+        }
+
+        /// <summary>
+        /// Update an existing app patterm.
+        /// </summary>
+        /// <param name="app">The name of the app.</param>
+        /// <param name="name">The name of the pattern to be updated.</param>
+        /// <param name="request">Pattern to be updated for the app.</param>
+        /// <returns>
+        /// 204 => Pattern updated.
+        /// 404 => App not found or pattern not found.
+        /// </returns>
+        [HttpPut]
+        [Route("apps/{app}/patterns/{name}")]
+        [ProducesResponseType(typeof(UIRegexSuggestionDto), 201)]
+        [ApiCosts(1)]
+        public async Task<IActionResult> UpdatePattern(string app, string name, [FromBody] UIRegexSuggestionDto request)
+        {
+            var command = SimpleMapper.Map(request, new UpdatePattern { OriginalName = name });
+
+            await CommandBus.PublishAsync(command);
+            return NoContent();
         }
 
         /// <summary>

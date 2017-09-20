@@ -400,6 +400,58 @@ namespace Squidex.Domain.Apps.Write.Apps
             }, false);
         }
 
+        [Fact]
+        public async Task UpdatePattern_should_update_domain_object()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Numbers", Pattern = "[0-9]", OriginalName = "Pattern", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task UpdatePattern_should_throw_error_if_name_empty()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new UpdatePattern { Name = string.Empty, Pattern = "[0-9]", OriginalName = "Original", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
+        [Fact]
+        public async Task UpdatePattern_should_throw_error_if_pattern_empty()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = string.Empty, OriginalName = "Original", DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
+        [Fact]
+        public async Task UpdatePattern_should_throw_error_if_original_empty()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = "Pattern", OriginalName = string.Empty, DefaultMessage = "Display Error" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
         private AppDomainObject CreateApp()
         {
             A.CallTo(() => uiOptions.Value)

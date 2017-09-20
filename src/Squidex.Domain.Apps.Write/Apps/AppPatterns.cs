@@ -14,16 +14,27 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public void Add(string name)
         {
-            ThrowIfFound(name, () => "Cannot add pattern");
+            ThrowIfFound(name.ToLower(), () => "Cannot add pattern");
 
-            patterns.Add(name);
+            patterns.Add(name.ToLower());
         }
 
         public void Remove(string name)
         {
-            ThrowIfNotFound(name);
+            ThrowIfNotFound(name.ToLower());
 
-            patterns.Remove(name);
+            patterns.Remove(name.ToLower());
+        }
+
+        public void Update(string original, string name)
+        {
+            if (original.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return;
+            }
+
+            Remove(original);
+            Add(name);
         }
 
         private void ThrowIfFound(string name, Func<string> message)

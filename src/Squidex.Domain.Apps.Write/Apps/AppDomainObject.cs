@@ -121,6 +121,11 @@ namespace Squidex.Domain.Apps.Write.Apps
             patterns.Remove(@event.Name);
         }
 
+        protected void On(AppPatternUpdated @event)
+        {
+            patterns.Update(@event.OriginalName, @event.Name);
+        }
+
         protected override void DispatchEvent(Envelope<IEvent> @event)
         {
             this.DispatchAction(@event.Payload);
@@ -273,6 +278,16 @@ namespace Squidex.Domain.Apps.Write.Apps
             ThrowIfNotCreated();
 
             RaiseEvent(SimpleMapper.Map(command, new AppPatternDeleted()));
+
+            return this;
+        }
+
+        public AppDomainObject UpdatePattern(UpdatePattern command)
+        {
+            Guard.Valid(command, nameof(command), () => "Cannot update pattern");
+            ThrowIfNotCreated();
+
+            RaiseEvent(SimpleMapper.Map(command, new AppPatternUpdated()));
 
             return this;
         }

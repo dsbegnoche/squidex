@@ -100,6 +100,28 @@ describe('AppPatternsService', () => {
                 expect(returnValue).toEqual(response);
             }));
 
+    it('should make put request to update pattern',
+        inject([AppPatternsService, HttpTestingController],
+            (patternService: AppPatternsService, httpMock: HttpTestingController) => {
+
+                let returnValue: AppPatternsSuggestionDto | null = null;
+                const pattern1: AppPatternsSuggestionDto = new AppPatternsSuggestionDto('pattern update', '[0-9]', 'message');
+
+                patternService.updatePattern('my-app', 'pattern1', pattern1, new Version()).subscribe(result => {
+                    returnValue = result;
+                });
+
+                const response: AppPatternsSuggestionDto = pattern1;
+
+                const req = httpMock.expectOne('http://service/p/api/apps/my-app/patterns/pattern1');
+
+                expect(req.request.method).toEqual('PUT');
+                expect(req.request.headers.get('E-Tag')).toBeNull();
+
+                req.flush(pattern1);
+                expect(returnValue).toEqual(response);
+            }));
+
     it('should make delete request to remove pattern',
         inject([AppPatternsService, HttpTestingController],
             (patternService: AppPatternsService, httpMock: HttpTestingController) => {

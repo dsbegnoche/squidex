@@ -27,7 +27,6 @@ namespace Squidex.Controllers.Api.UI.Models
         /// <summary>
         /// The regex message.
         /// </summary>
-        [Required]
         public string DefaultMessage { get; set; }
     }
 }

@@ -115,7 +115,8 @@ namespace Squidex.Domain.Apps.Read.Apps.Services.Implementations
                 @event.Payload is AppLanguageUpdated ||
                 @event.Payload is AppMasterLanguageSet ||
                 @event.Payload is AppPatternAdded ||
-                @event.Payload is AppPatternDeleted)
+                @event.Payload is AppPatternDeleted ||
+                @event.Payload is AppPatternUpdated)
             {
                 Remove(((AppEvent)@event.Payload).AppId);
             }

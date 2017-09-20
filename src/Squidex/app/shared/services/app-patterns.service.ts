@@ -65,10 +65,17 @@ export class AppPatternsService {
             .pretifyError('Failed to add pattern. Please reload.');
     }
 
+    public updatePattern(appName: string, name: string, dto: AppPatternsSuggestionDto, version: Version): Observable<AppPatternsSuggestionDto> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns/${name}`);
+
+        return HTTP.putVersioned(this.http, url, dto, version)
+            .pretifyError('Failed to update pattern. Please reload.');
+    }
+
     public deletePattern(appName: string, name: string, version: Version): Observable<AppPatternsSuggestionDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns/${name}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
-            .pretifyError('Failed to revoke client. Please reload.');
+            .pretifyError('Failed to remove pattern. Please reload.');
     }
 }

@@ -46,7 +46,11 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
             });
     }
 
-    public patternAdded(requestDto: AppPatternsSuggestionDto) {
+    public updatePattern(requestDto: AppPatternsSuggestionDto) {
+        this.updatePatterns(this.appPatterns.remove(requestDto));
+    }
+
+    public addPattern(requestDto: AppPatternsSuggestionDto) {
         this.updatePatterns(this.appPatterns.push(requestDto));
     }
 
@@ -68,9 +72,10 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
                     p.pattern,
                     p.defaultMessage
                 );
+            }).sort((a, b) => {
+                return a.name.localeCompare(b.name);
             });
 
         this.messageBus.emit(new HistoryChannelUpdated());
     }
 }
-
