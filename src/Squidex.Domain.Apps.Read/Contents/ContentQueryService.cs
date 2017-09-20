@@ -154,13 +154,14 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             if (!string.IsNullOrWhiteSpace(scriptText))
             {
-                for (var i = 0; i < contents.Count; i++)
-                {
-                    var content = contents[i];
-                    var contentData = scriptEngine.Transform(new ScriptContext { User = user, Data = content.Data, ContentId = content.Id }, scriptText);
-
-                    contents[i] = SimpleMapper.Map(content, new Content { Data = contentData, SchemaId = content.SchemaId });
-                }
+                return contents.Select(content => (IContentEntity)SimpleMapper.Map(content,
+                    new Content
+                    {
+                        Data = scriptEngine.Transform(
+                            new ScriptContext { User = user, Data = content.Data, ContentId = content.Id },
+                            scriptText),
+                        SchemaId = content.SchemaId
+                    })).ToList();
             }
 
             return contents;
@@ -168,12 +169,10 @@ namespace Squidex.Domain.Apps.Read.Contents
 
         private List<IContentEntity> TransformContent(ClaimsPrincipal user, IEnumerable<ISchemaEntity> allSchemas, List<IContentEntity> contents)
         {
-            for (int i = 0; i < allSchemas.Count(); i++)
+            allSchemas.Foreach(schema =>
             {
-                var schema = allSchemas.ElementAt(i);
-
                 TransformContent(user, schema, contents.Where(x => x.SchemaId == schema.Id).ToList());
-            }
+            });
 
             return contents;
         }

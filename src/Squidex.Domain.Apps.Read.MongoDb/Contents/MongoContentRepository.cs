@@ -129,12 +129,12 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
 
             var entities = await cursor.ToListAsync();
 
-            foreach (var entity in entities)
+            entities.ForEach(entity =>
             {
                 var schema = allSchemas.First(x => x.Id == entity.SchemaId);
 
                 entity.ParseData(schema.SchemaDef);
-            }
+            });
 
             return entities;
         }
