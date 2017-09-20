@@ -2,12 +2,18 @@
  * CivicPlus implementation of Squidex Headless CMS
  */
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import {
+    AppComponentBase,
+    AppPatternsService,
+    AppPatternsSuggestionDto,
+    AppsStoreService,
+    DialogService,
     fadeAnimation,
-    UIRegexSuggestionDto
+    ValidatorsEx,
+    Version
 } from 'shared';
 
 @Component({
@@ -18,39 +24,53 @@ import {
         fadeAnimation
     ]
 })
-export class PatternComponent implements OnInit {
+export class PatternComponent extends AppComponentBase implements OnInit {
     @Input()
-    public pattern: UIRegexSuggestionDto;
+    public pattern: AppPatternsSuggestionDto;
+
+    @Input()
+    public isNew: boolean;
+
+    @Output()
+    public removing = new EventEmitter<AppPatternsSuggestionDto>();
+
+    @Output()
+    public created = new EventEmitter<AppPatternsSuggestionDto>();
 
     public isEditing = false;
     public selectedTab = 0;
-
+    private version = new Version();
     public editFormSubmitted = false;
-    public editForm =
-        this.formBuilder.group({
-            name: [
-                '',
-                [
-                    Validators.maxLength(100)
-                ]
-            ],
-            pattern: [
-                '',
-                [
-                    Validators.maxLength(1000)
-                ]
-            ],
-            message: [
-                '',
-                [
-                    Validators.maxLength(1000)
-                ]
-            ]
-        });
 
-    constructor(
+    public editForm =
+    this.formBuilder.group({
+        name: [
+            '',
+            [
+                Validators.required,
+                Validators.maxLength(100),
+                ValidatorsEx.pattern('[A-z0-9]+(\-[A-z0-9]+)*', 'Name can only contain letters, numbers and dashes.')
+            ]
+        ],
+        pattern: [
+            '',
+            [
+                Validators.required
+            ]
+        ],
+        message: [
+            '',
+            [
+                Validators.maxLength(1000)
+            ]
+        ]
+    });
+
+    constructor(apps: AppsStoreService, dialogs: DialogService,
+        private readonly patternService: AppPatternsService,
         private readonly formBuilder: FormBuilder
     ) {
+        super(dialogs, apps);
     }
 
     public ngOnInit() {
@@ -69,7 +89,30 @@ export class PatternComponent implements OnInit {
         this.resetEditForm();
     }
 
-    private resetEditForm() {
+    public save() {
+        this.editFormSubmitted = true;
+
+        if (this.editForm.valid) {
+            if (this.isNew) {
+                let requestDto: AppPatternsSuggestionDto = new AppPatternsSuggestionDto(
+                    this.editForm.controls['name'].value,
+                    this.editForm.controls['pattern'].value,
+                    this.editForm.controls['message'].value);
+                this.appNameOnce()
+                    .switchMap(app => this.patternService.postPattern(app, requestDto, this.version))
+                    .subscribe(dto => {
+                        this.created.emit(dto);
+                    }, error => {
+                        this.notifyError(error);
+                    }, () => {
+                        this.resetEditForm();
+                    });
+            }
+
+        }
+    }
+
+    public resetEditForm() {
         this.editFormSubmitted = false;
         this.editForm.reset(this.pattern);
 

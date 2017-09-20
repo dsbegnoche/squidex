@@ -7,7 +7,6 @@
 // ==========================================================================
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Core.Apps;
@@ -115,6 +114,11 @@ namespace Squidex.Domain.Apps.Write.Apps
         protected void On(AppPatternAdded @event)
         {
             patterns.Add(@event.Name);
+        }
+
+        protected void On(AppPatternDeleted @event)
+        {
+            patterns.Remove(@event.Name);
         }
 
         protected override void DispatchEvent(Envelope<IEvent> @event)
@@ -259,6 +263,16 @@ namespace Squidex.Domain.Apps.Write.Apps
             ThrowIfNotCreated();
 
             RaiseEvent(SimpleMapper.Map(command, new AppPatternAdded()));
+
+            return this;
+        }
+
+        public AppDomainObject DeletePattern(DeletePattern command)
+        {
+            Guard.Valid(command, nameof(command), () => "Cannot delete pattern");
+            ThrowIfNotCreated();
+
+            RaiseEvent(SimpleMapper.Map(command, new AppPatternDeleted()));
 
             return this;
         }

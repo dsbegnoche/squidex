@@ -374,6 +374,32 @@ namespace Squidex.Domain.Apps.Write.Apps
             }, false);
         }
 
+        [Fact]
+        public async Task DeletePattern_should_update_domain_object()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new DeletePattern { Name = "Pattern" });
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task DeletePattern_should_throw_error_if_name_empty()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+
+            var context = CreateContextForCommand(new DeletePattern { Name = string.Empty });
+
+            await TestUpdate(app, async _ =>
+            {
+                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+            }, false);
+        }
+
         private AppDomainObject CreateApp()
         {
             A.CallTo(() => uiOptions.Value)
