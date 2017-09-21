@@ -135,6 +135,10 @@ namespace Squidex.Config.Domain
                 .As<IAssetThumbnailGenerator>()
                 .SingleInstance();
 
+            builder.RegisterType<EventConsumerCleaner>()
+                .AsSelf()
+                .SingleInstance();
+
             builder.RegisterType<EventDataFormatter>()
                 .AsSelf()
                 .SingleInstance();

@@ -37,9 +37,11 @@ export class CpProductsService {
 
     public getProducts(): Observable<CpProductsDto[]> {
         const url = this.apiUrl.buildUrl('/api/cptoolbar/products');
-        return HTTP.getVersioned(this.http, url)
-                .map(response => {
-                    const items: any[] = response;
+        return HTTP.getVersioned<any>(this.http, url)
+            .map(response => {
+                const body = response.payload.body;
+
+                const items: any[] = body;
 
                     return items.map(item => {
                         return new CpProductsDto(

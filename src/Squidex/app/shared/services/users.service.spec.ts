@@ -332,7 +332,10 @@ describe('UserManagementService', () => {
             expect(req.request.headers.get('If-Match')).toBeNull();
 
             req.flush({
-                id: '123', pictureUrl: 'path/to/image1',
+                id: '123',
+                pictureUrl: 'path/to/image1',
+                firstName: 'First1',
+                lastName: 'Last1',
                 isAdministrator: false
             });
 
