@@ -12,10 +12,12 @@ import { Observable } from 'rxjs';
 import 'framework/angular/http-extensions';
 
 import {
+    AnalyticsService,
     ApiUrlConfig,
     DateTime,
     HTTP,
-    Version
+    Version,
+    Versioned
 } from 'framework';
 
 export class WebhookDto {
@@ -36,13 +38,13 @@ export class WebhookDto {
     ) {
     }
 
-    public update(update: UpdateWebhookDto, user: string, now?: DateTime): WebhookDto {
+    public update(update: UpdateWebhookDto, user: string, version: Version, now?: DateTime): WebhookDto {
         return new WebhookDto(
             this.id,
             this.sharedSecret,
             this.createdBy, user,
             this.created, now || DateTime.now(),
-            this.version,
+            version,
             update.schemas,
             update.url,
             this.totalSucceeded,
@@ -109,16 +111,17 @@ export class UpdateWebhookDto {
 export class WebhooksService {
     constructor(
         private readonly http: HttpClient,
-        private readonly apiUrl: ApiUrlConfig
+        private readonly apiUrl: ApiUrlConfig,
+        private readonly analytics: AnalyticsService
     ) {
     }
 
     public getWebhooks(appName: string): Observable<WebhookDto[]> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks`);
 
-        return HTTP.getVersioned(this.http, url)
+        return HTTP.getVersioned<any>(this.http, url)
                 .map(response => {
-                    const items: any[] = response;
+                    const items: any[] = response.payload.body;
 
                     return items.map(item => {
                         const schemas = item.schemas.map((schema: any) =>
@@ -151,30 +154,38 @@ export class WebhooksService {
                 .pretifyError('Failed to load webhooks. Please reload.');
     }
 
-    public postWebhook(appName: string, dto: CreateWebhookDto, user: string, now: DateTime, version: Version): Observable<WebhookDto> {
+    public postWebhook(appName: string, dto: CreateWebhookDto, user: string, now: DateTime): Observable<WebhookDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks`);
 
-        return HTTP.postVersioned(this.http, url, dto, version)
+        return HTTP.postVersioned<any>(this.http, url, dto)
                 .map(response => {
+                    const body = response.payload.body;
+
                     return new WebhookDto(
-                        response.id,
-                        response.sharedSecret,
+                        body.id,
+                        body.sharedSecret,
                         user,
                         user,
                         now,
                         now,
-                        version,
+                        response.version,
                         dto.schemas,
                         dto.url,
                         0, 0, 0, 0);
                 })
+                .do(() => {
+                    this.analytics.trackEvent('Webhook', 'Created', appName);
+                })
                 .pretifyError('Failed to create webhook. Please reload.');
     }
 
-    public putWebhook(appName: string, id: string, dto: UpdateWebhookDto, version: Version): Observable<any> {
+    public putWebhook(appName: string, id: string, dto: UpdateWebhookDto, version: Version): Observable<Versioned<any>> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks/${id}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
+                .do(() => {
+                    this.analytics.trackEvent('Webhook', 'Updated', appName);
+                })
                 .pretifyError('Failed to update webhook. Please reload.');
     }
 
@@ -182,17 +193,22 @@ export class WebhooksService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks/${id}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
+                .do(() => {
+                    this.analytics.trackEvent('Webhook', 'Deleted', appName);
+                })
                 .pretifyError('Failed to delete webhook. Please reload.');
     }
 
     public getEvents(appName: string, take: number, skip: number): Observable<WebhookEventsDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks/events?take=${take}&skip=${skip}`);
 
-        return HTTP.getVersioned(this.http, url)
+        return HTTP.getVersioned<any>(this.http, url)
                 .map(response => {
-                    const items: any[] = response.items;
+                    const body = response.payload.body;
 
-                    return new WebhookEventsDto(response.total, items.map(item => {
+                    const items: any[] = body.items;
+
+                    return new WebhookEventsDto(body.total, items.map(item => {
                         return new WebhookEventDto(
                             item.id,
                             DateTime.parseISO_UTC(item.created),
@@ -212,6 +228,9 @@ export class WebhooksService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/webhooks/events/${id}`);
 
         return HTTP.putVersioned(this.http, url, {})
+                .do(() => {
+                    this.analytics.trackEvent('Webhook', 'EventEnqueued', appName);
+                })
                 .pretifyError('Failed to enqueue webhook event. Please reload.');
     }
 }

@@ -10,6 +10,7 @@ import { inject, TestBed } from '@angular/core/testing';
 
 import {
     AddFieldDto,
+    AnalyticsService,
     ApiUrlConfig,
     CreateSchemaDto,
     createProperties,
@@ -33,34 +34,38 @@ describe('SchemaDto', () => {
     const modified = DateTime.now();
     const modifier = 'me';
     const version = new Version('1');
+    const newVersion = new Version('2');
 
     it('should update isPublished property and user info when publishing', () => {
         const schema_1 = new SchemaDto('1', 'name', properties, false, creator, creator, creation, creation, version);
-        const schema_2 = schema_1.publish(modifier, modified);
+        const schema_2 = schema_1.publish(modifier, newVersion, modified);
 
         expect(schema_2.isPublished).toBeTruthy();
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update isPublished property and user info when unpublishing', () => {
         const schema_1 = new SchemaDto('1', 'name', properties, false, creator, creator, creation, creation, version);
-        const schema_2 = schema_1.unpublish(modifier, modified);
+        const schema_2 = schema_1.unpublish(modifier, newVersion, modified);
 
         expect(schema_2.isPublished).toBeFalsy();
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update properties property and user info when updating', () => {
         const newProperties = new SchemaPropertiesDto('New Name');
 
         const schema_1 = new SchemaDto('1', 'name', properties, false, creator, creator, creation, creation, version);
-        const schema_2 = schema_1.update(newProperties, modifier, modified);
+        const schema_2 = schema_1.update(newProperties, modifier, newVersion, modified);
 
         expect(schema_2.properties).toEqual(newProperties);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update scripts properties and user info when configure scripts', () => {
@@ -73,7 +78,7 @@ describe('SchemaDto', () => {
                 '<script-change>');
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, []);
-        const schema_2 = schema_1.configureScripts(newScripts, modifier, modified);
+        const schema_2 = schema_1.configureScripts(newScripts, modifier, newVersion, modified);
 
         expect(schema_2.scriptQuery).toEqual('<script-query>');
         expect(schema_2.scriptCreate).toEqual('<script-create>');
@@ -82,6 +87,7 @@ describe('SchemaDto', () => {
         expect(schema_2.scriptChange).toEqual('<script-change>');
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 });
 
@@ -92,34 +98,38 @@ describe('SchemaDetailsDto', () => {
     const modified = DateTime.now();
     const modifier = 'me';
     const version = new Version('1');
+    const newVersion = new Version('2');
 
     it('should update isPublished property and user info when publishing', () => {
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, []);
-        const schema_2 = schema_1.publish(modifier, modified);
+        const schema_2 = schema_1.publish(modifier, newVersion, modified);
 
         expect(schema_2.isPublished).toBeTruthy();
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update isPublished property and user info when unpublishing', () => {
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, true, creator, creator, creation, creation, version, []);
-        const schema_2 = schema_1.unpublish(modifier, modified);
+        const schema_2 = schema_1.unpublish(modifier, newVersion, modified);
 
         expect(schema_2.isPublished).toBeFalsy();
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update properties property and user info when updating', () => {
         const newProperties = new SchemaPropertiesDto('New Name');
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, []);
-        const schema_2 = schema_1.update(newProperties, modifier, modified);
+        const schema_2 = schema_1.update(newProperties, modifier, newVersion, modified);
 
         expect(schema_2.properties).toEqual(newProperties);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update fields property and user info when adding field', () => {
@@ -127,11 +137,12 @@ describe('SchemaDetailsDto', () => {
         const field2 = new FieldDto(2, '2', false, false, false, 'l', createProperties('Number'));
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, [field1]);
-        const schema_2 = schema_1.addField(field2, modifier, modified);
+        const schema_2 = schema_1.addField(field2, modifier, newVersion, modified);
 
         expect(schema_2.fields).toEqual([field1, field2]);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update fields property and user info when removing field', () => {
@@ -139,11 +150,12 @@ describe('SchemaDetailsDto', () => {
         const field2 = new FieldDto(2, '2', false, false, false, 'l', createProperties('Number'));
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, [field1, field2]);
-        const schema_2 = schema_1.removeField(field1, modifier, modified);
+        const schema_2 = schema_1.removeField(field1, modifier, newVersion, modified);
 
         expect(schema_2.fields).toEqual([field2]);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update fields property and user info when replacing fields', () => {
@@ -151,11 +163,12 @@ describe('SchemaDetailsDto', () => {
         const field2 = new FieldDto(2, '2', false, false, false, 'l', createProperties('Number'));
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, [field1, field2]);
-        const schema_2 = schema_1.replaceFields([field2, field1], modifier, modified);
+        const schema_2 = schema_1.replaceFields([field2, field1], modifier, newVersion, modified);
 
         expect(schema_2.fields).toEqual([field2, field1]);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 
     it('should update fields property and user info when updating field', () => {
@@ -164,11 +177,12 @@ describe('SchemaDetailsDto', () => {
         const field2_2 = new FieldDto(2, '2', false, false, false, 'l', createProperties('Boolean'));
 
         const schema_1 = new SchemaDetailsDto('1', 'name', properties, false, creator, creator, creation, creation, version, [field1_0, field2_1]);
-        const schema_2 = schema_1.updateField(field2_2, modifier, modified);
+        const schema_2 = schema_1.updateField(field2_2, modifier, newVersion, modified);
 
         expect(schema_2.fields).toEqual([field1_0, field2_2]);
         expect(schema_2.lastModified).toEqual(modified);
         expect(schema_2.lastModifiedBy).toEqual(modifier);
+        expect(schema_2.version).toEqual(newVersion);
     });
 });
 
@@ -185,7 +199,8 @@ describe('SchemasService', () => {
             providers: [
                 LocalCacheService,
                 SchemasService,
-                { provide: ApiUrlConfig, useValue: new ApiUrlConfig('http://service/p/') }
+                { provide: ApiUrlConfig, useValue: new ApiUrlConfig('http://service/p/') },
+                { provide: AnalyticsService, useValue: new AnalyticsService() }
             ]
         });
     });
@@ -262,7 +277,7 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-            schemasService.getSchema('my-app', 'my-schema', version).subscribe(result => {
+        schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
                 schema = result;
             });
 
@@ -279,7 +294,6 @@ describe('SchemasService', () => {
                 createdBy: 'Created1',
                 lastModified: '2017-12-12T10:10',
                 lastModifiedBy: 'LastModifiedBy1',
-                version: 11,
                 properties: {
                     label: 'label1',
                     hints: 'hints1'
@@ -379,13 +393,17 @@ describe('SchemasService', () => {
             scriptUpdate: '<script-update>',
             scriptDelete: '<script-delete>',
             scriptChange: '<script-change>'
+        }, {
+            headers: {
+                etag: '2'
+            }
         });
 
         expect(schema).toEqual(
             new SchemaDetailsDto('id1', 'name1', new SchemaPropertiesDto('label1', 'hints1'), true, 'Created1', 'LastModifiedBy1',
                 DateTime.parseISO_UTC('2016-12-12T10:10'),
                 DateTime.parseISO_UTC('2017-12-12T10:10'),
-                new Version('11'),
+                new Version('2'),
                 [
                     new FieldDto(1, 'field1', true, true, true, 'language', createProperties('Number')),
                     new FieldDto(2, 'field2', true, true, true, 'language', createProperties('String')),
@@ -412,7 +430,7 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-            schemasService.getSchema('my-app', 'my-schema', version).subscribe(result => {
+        schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
                 schema = result;
             });
 
@@ -433,19 +451,25 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-            schemasService.postSchema('my-app', dto, user, now, version).subscribe(result => {
+        schemasService.postSchema('my-app', dto, user, now).subscribe(result => {
                 schema = result;
             });
 
             const req = httpMock.expectOne('http://service/p/api/apps/my-app/schemas');
 
             expect(req.request.method).toEqual('POST');
-            expect(req.request.headers.get('If-Match')).toBe(version.value);
+        expect(req.request.headers.get('If-Match')).toBeNull();
 
-            req.flush({ id: '1' });
+        req.flush({
+            id: '1'
+        }, {
+            headers: {
+                etag: '2'
+            }
+        });
 
         expect(schema).toEqual(
-            new SchemaDetailsDto('1', dto.name, new SchemaPropertiesDto(), false, user, user, now, now, version, []));
+            new SchemaDetailsDto('1', dto.name, new SchemaPropertiesDto(), false, user, user, now, now, new Version('2'), []));
     }));
 
     it('should make post request to add field',
@@ -456,7 +480,7 @@ describe('SchemasService', () => {
             let field: FieldDto | null = null;
 
             schemasService.postField('my-app', 'my-schema', dto, version).subscribe(result => {
-                field = result;
+            field = result.payload;
             });
 
             const req = httpMock.expectOne('http://service/p/api/apps/my-app/schemas/my-schema/fields');

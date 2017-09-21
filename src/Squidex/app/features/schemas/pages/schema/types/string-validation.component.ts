@@ -12,6 +12,7 @@ import { Observable, Subscription } from 'rxjs';
 import {
     AppComponentBase,
     AppsStoreService,
+    AuthService,
     DialogService,
     ModalView,
     StringFieldPropertiesDto,
@@ -43,10 +44,10 @@ export class StringValidationComponent extends AppComponentBase implements OnDes
 
     public regexSuggestionsModal = new ModalView(false, false);
 
-    constructor(dialogs: DialogService, apps: AppsStoreService,
+    constructor(dialogs: DialogService, apps: AppsStoreService, authService: AuthService,
         private readonly uiService: AppPatternsService
     ) {
-        super(dialogs, apps);
+        super(dialogs, apps, authService);
     }
 
     public ngOnDestroy() {

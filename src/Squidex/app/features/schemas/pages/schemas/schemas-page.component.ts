@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import {
     AppComponentBase,
     AppsStoreService,
+    AuthService,
     DialogService,
     fadeAnimation,
     ImmutableArray,
@@ -49,13 +50,13 @@ export class SchemasPageComponent extends AppComponentBase implements OnDestroy,
     public schemasFilter = new FormControl();
     public schemasFiltered = ImmutableArray.empty<SchemaDto>();
 
-    constructor(apps: AppsStoreService, dialogs: DialogService,
+    constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly schemasService: SchemasService,
         private readonly messageBus: MessageBus,
         private readonly route: ActivatedRoute,
         private readonly router: Router
     ) {
-        super(dialogs, apps);
+        super(dialogs, apps, authService);
     }
 
     public ngOnDestroy() {

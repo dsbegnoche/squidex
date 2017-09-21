@@ -10,6 +10,7 @@ import {
     AppPatternsService,
     AppPatternsSuggestionDto,
     AppsStoreService,
+    AuthService,
     DialogService,
     fadeAnimation,
     ValidatorsEx,
@@ -66,11 +67,11 @@ export class PatternComponent extends AppComponentBase implements OnInit {
         ]
     });
 
-    constructor(apps: AppsStoreService, dialogs: DialogService,
+    constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly patternService: AppPatternsService,
         private readonly formBuilder: FormBuilder
     ) {
-        super(dialogs, apps);
+        super(dialogs, apps, authService);
     }
 
     public ngOnInit() {
