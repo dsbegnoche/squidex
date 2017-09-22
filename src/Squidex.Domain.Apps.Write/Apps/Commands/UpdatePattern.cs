@@ -3,6 +3,7 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System;
 using System.Collections.Generic;
 using Squidex.Infrastructure;
 
@@ -12,11 +13,15 @@ namespace Squidex.Domain.Apps.Write.Apps.Commands
     {
         public string OriginalName { get; set; }
 
+        public string OriginalPattern { get; set; }
+
         public string Name { get; set; }
 
         public string Pattern { get; set; }
 
         public string DefaultMessage { get; set; }
+
+        public List<Guid> Schemas { get; set; }
 
         public void Validate(IList<ValidationError> errors)
         {

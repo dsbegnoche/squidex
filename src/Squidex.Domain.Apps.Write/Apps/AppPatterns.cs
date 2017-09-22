@@ -10,13 +10,15 @@ namespace Squidex.Domain.Apps.Write.Apps
 {
     public class AppPatterns
     {
-        private readonly List<string> patterns = new List<string>();
+        private readonly Dictionary<string, string> patterns = new Dictionary<string, string>();
 
-        public void Add(string name)
+        public IReadOnlyDictionary<string, string> Patterns => patterns;
+
+        public void Add(string name, string pattern)
         {
             ThrowIfFound(name.ToLower(), () => "Cannot add pattern");
 
-            patterns.Add(name.ToLower());
+            patterns.Add(name.ToLower(), pattern);
         }
 
         public void Remove(string name)
@@ -26,7 +28,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             patterns.Remove(name.ToLower());
         }
 
-        public void Update(string original, string name)
+        public void Update(string original, string name, string pattern)
         {
             if (original.Equals(name, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -34,12 +36,12 @@ namespace Squidex.Domain.Apps.Write.Apps
             }
 
             Remove(original);
-            Add(name);
+            Add(name, pattern);
         }
 
         private void ThrowIfFound(string name, Func<string> message)
         {
-            if (patterns.Contains(name))
+            if (patterns.ContainsKey(name))
             {
                 var error = new ValidationError("Pattern name is already assigned.", "Name");
 
@@ -49,7 +51,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         private void ThrowIfNotFound(string name)
         {
-            if (!patterns.Contains(name))
+            if (!patterns.ContainsKey(name))
             {
                 throw new DomainObjectNotFoundException(name, "Patterns", typeof(AppDomainObject));
             }

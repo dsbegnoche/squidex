@@ -18,6 +18,8 @@ namespace Squidex.Domain.Apps.Core.Schemas.Validators
         private readonly Regex regex;
         private readonly string errorMessage;
 
+        public Regex Pattern => regex;
+
         public PatternValidator(string pattern, string errorMessage = null)
         {
             this.errorMessage = errorMessage;
