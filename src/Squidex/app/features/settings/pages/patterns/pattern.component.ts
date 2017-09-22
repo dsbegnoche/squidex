@@ -59,7 +59,7 @@ export class PatternComponent extends AppComponentBase implements OnInit {
                 Validators.required
             ]
         ],
-        message: [
+        defaultMessage: [
             '',
             [
                 Validators.maxLength(1000)
@@ -98,7 +98,7 @@ export class PatternComponent extends AppComponentBase implements OnInit {
                 let requestDto: AppPatternsSuggestionDto = new AppPatternsSuggestionDto(
                     this.editForm.controls['name'].value,
                     this.editForm.controls['pattern'].value,
-                    this.editForm.controls['message'].value);
+                    this.editForm.controls['defaultMessage'].value);
                 this.appNameOnce()
                     .switchMap(app => this.patternService.postPattern(app, requestDto, this.version))
                     .subscribe(dto => {

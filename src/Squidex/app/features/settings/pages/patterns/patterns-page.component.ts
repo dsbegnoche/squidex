@@ -74,4 +74,3 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
         this.messageBus.emit(new HistoryChannelUpdated());
     }
 }
-
