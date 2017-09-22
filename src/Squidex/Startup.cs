@@ -9,6 +9,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using AspNetCoreRateLimit;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -80,6 +81,7 @@ namespace Squidex
                 Configuration.GetSection("usage"));
 
             services.AddCivicPlusServices();
+            services.AddClientThrottling(Configuration);
 
             var builder = new ContainerBuilder();
             builder.Populate(services);
@@ -174,6 +176,9 @@ namespace Squidex
 
                 appApi.UseMySwagger();
                 appApi.UseMyApiProtection();
+
+                appApi.UseClientThrottle();
+                appApi.UseIpRateLimiting();
 
                 appApi.MapWhen(x => !IsIdentityRequest(x), mvcApp =>
                 {
