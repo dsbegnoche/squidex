@@ -165,7 +165,7 @@ namespace Squidex.Controllers.Api.Assets
         [ProducesResponseType(typeof(ErrorDto), 400)]
         public async Task<IActionResult> PostAsset(string app, List<IFormFile> file)
         {
-            var assetFile = await GetAssetFile(file);
+            var assetFile = await CheckAssetFileAsync(file);
 
             var command = new CreateAsset { File = assetFile };
             var context = await CommandBus.PublishAsync(command);
@@ -195,7 +195,7 @@ namespace Squidex.Controllers.Api.Assets
         [ApiCosts(1)]
         public async Task<IActionResult> PutAssetContent(string app, Guid id, List<IFormFile> file)
         {
-            var assetFile = await GetAssetFile(file);
+            var assetFile = await CheckAssetFileAsync(file);
 
             var command = new UpdateAsset { File = assetFile, AssetId = id };
             var context = await CommandBus.PublishAsync(command);
@@ -251,23 +251,44 @@ namespace Squidex.Controllers.Api.Assets
             return NoContent();
         }
 
-        private async Task<AssetFile> GetAssetFile(List<IFormFile> formFiles)
+        private async Task<AssetFile> CheckAssetFileAsync(IReadOnlyList<IFormFile> file)
         {
-            if (formFiles.Count != 1)
+            if (file.Count != 1)
             {
-                throw new ValidationException("Upload Error", new ValidationError("Only one file may be acted upon at a time"));
+                var error = new ValidationError($"Can only upload one file, found {file.Count}.");
+
+                throw new ValidationException("Cannot create asset.", error);
             }
 
-            var formFile = formFiles[0];
+            var formFile = file[0];
+
+            if (formFile.Length > assetsConfig.MaxSize)
+            {
+                var error = new ValidationError($"File size cannot be longer than {assetsConfig.MaxSize.ToReadableSize()}.");
+
+                throw new ValidationException("Cannot create asset.", error);
+            }
+
+            var plan = appPlanProvider.GetPlanForApp(App);
+
+            var currentSize = await assetStatsRepository.GetTotalSizeAsync(App.Id);
+
+            if (plan.MaxAssetSize > 0 && plan.MaxAssetSize < currentSize + formFile.Length)
+            {
+                var error = new ValidationError("You have reached your max asset size.");
+
+                throw new ValidationException("Cannot create asset.", error);
+            }
 
             var contentType = formFile.ContentType ?? MimeMapping.MimeUtility.GetMimeMapping(formFile.FileName);
 
-            // validation of input happens on asset creation middleware
-            return new AssetFile(formFile.FileName, contentType, formFile.Length,
-                                 formFile.OpenReadStream, string.Empty, new string[0],
-                                 assetsConfig, // Extended AssetFile to have context for validation
-                                 appPlanProvider.GetPlanForApp(App).MaxAssetSize,
-                                 await assetStatsRepository.GetTotalSizeAsync(App.Id));
+            var assetFile = new AssetFile(formFile.FileName, contentType, formFile.Length,
+                formFile.OpenReadStream, string.Empty, new string[0],
+                assetsConfig, // Extended AssetFile to have context for validation
+                plan.MaxAssetSize,
+                await assetStatsRepository.GetTotalSizeAsync(App.Id));
+
+            return assetFile;
         }
     }
 }

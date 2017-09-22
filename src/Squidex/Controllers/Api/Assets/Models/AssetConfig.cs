@@ -1,0 +1,4 @@
+﻿/* THIS HAS BEEN MOVED BY CIVICPLUS. IF YOU GET A MERGE CONFLICT FROM SQUIDEX, PLEASE COMPARE TO
+ * C:\GitRepos\Kraken\src\Squidex.Infrastructure\Assets\AssetConfig.cs
+ * AND UPDATE THE FILE ACCORDINGLY
+ */

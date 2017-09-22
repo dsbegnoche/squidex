@@ -101,6 +101,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                         },
                         error => {
                             this.notifyError(error);
+                    this.emitFailed(error);
                         });
             } else {
                 this.notifyError('Files must be smaller than 1 GB.');
@@ -122,8 +123,8 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                         this.setProgress(dto);
                     }
                 }, error => {
+                    this.notifyError(error);
                     this.setProgress();
-                    this.emitFailed(error);
                 });
         }
     }
