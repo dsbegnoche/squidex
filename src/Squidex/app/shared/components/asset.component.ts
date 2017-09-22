@@ -13,7 +13,6 @@ import { AppComponentBase } from './app.component-base';
 import {
     AppsStoreService,
     AssetDto,
-    AssetReplacedDto,
     AssetsService,
     AuthService,
     DateTime,
@@ -21,7 +20,8 @@ import {
     fadeAnimation,
     ModalView,
     UpdateAssetDto,
-    Version
+    Version,
+    Versioned
 } from './../declarations-base';
 
 @Component({
@@ -75,12 +75,11 @@ export class AssetComponent extends AppComponentBase implements OnInit {
     public progress = 0;
     public renameFormError = '';
 
-    constructor(apps: AppsStoreService, dialogs: DialogService,
+    constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly formBuilder: FormBuilder,
-        private readonly assetsService: AssetsService,
-        private readonly authService: AuthService
+        private readonly assetsService: AssetsService
     ) {
-        super(dialogs, apps);
+        super(dialogs, apps, authService);
     }
 
     public ngOnInit() {
@@ -117,8 +116,8 @@ export class AssetComponent extends AppComponentBase implements OnInit {
             this.appNameOnce()
                 .switchMap(app => this.assetsService.replaceFile(app, this.asset.id, files[0], this.assetVersion))
                 .subscribe(dto => {
-                    if (dto instanceof AssetReplacedDto) {
-                        this.updateAsset(this.asset.update(dto, this.authService.user!.token), true);
+                    if (dto instanceof Versioned) {
+                        this.updateAsset(this.asset.update(dto.payload, this.userToken, dto.version), true);
                     } else {
                         this.setProgress(dto);
                     }
@@ -144,11 +143,12 @@ export class AssetComponent extends AppComponentBase implements OnInit {
 
             this.appNameOnce()
                 .switchMap(app => this.assetsService.putAsset(app, this.asset.id, requestDto, this.assetVersion))
-                .subscribe(() => {
+                .subscribe(dto => {
                     this.updateAsset(
                         this.asset.rename(
                             requestDto.fileName,
                             this.authService.user!.token,
+                            dto.version,
                             requestDto.briefDescription,
                             requestDto.tags), true);
                     this.resetRenameForm();

@@ -55,12 +55,13 @@ export class AppPatternsService {
     public postPattern(appName: string, dto: AppPatternsSuggestionDto, version: Version): Observable<AppPatternsSuggestionDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns`);
 
-        return HTTP.postVersioned(this.http, url, dto, version)
+        return HTTP.postVersioned<any>(this.http, url, dto, version)
             .map(response => {
+                const body = response.payload.body;
                 return new AppPatternsSuggestionDto(
-                    response.name || response.id,
-                    response.pattern,
-                    response.defaultMessage);
+                    body.name || body.id,
+                    body.pattern,
+                    body.defaultMessage);
             })
             .pretifyError('Failed to add pattern. Please reload.');
     }

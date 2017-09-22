@@ -9,6 +9,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { inject, TestBed } from '@angular/core/testing';
 
 import {
+    AnalyticsService,
     AppPlansDto,
     ApiUrlConfig,
     ChangePlanDto,
@@ -28,7 +29,8 @@ describe('PlansService', () => {
             ],
             providers: [
                 PlansService,
-                { provide: ApiUrlConfig, useValue: new ApiUrlConfig('http://service/p/') }
+                { provide: ApiUrlConfig, useValue: new ApiUrlConfig('http://service/p/') },
+                { provide: AnalyticsService, useValue: new AnalyticsService() }
             ]
         });
     });
@@ -42,14 +44,14 @@ describe('PlansService', () => {
 
         let plans: AppPlansDto | null = null;
 
-        plansService.getPlans('my-app', version).subscribe(result => {
+        plansService.getPlans('my-app').subscribe(result => {
             plans = result;
         });
 
         const req = httpMock.expectOne('http://service/p/api/apps/my-app/plans');
 
         expect(req.request.method).toEqual('GET');
-        expect(req.request.headers.get('If-Match')).toBe(version.value);
+        expect(req.request.headers.get('If-Match')).toBeNull();
 
         req.flush({
             currentPlanId: '123',
@@ -73,6 +75,10 @@ describe('PlansService', () => {
                     maxContributors: 6500
                 }
             ]
+        }, {
+            headers: {
+                etag: '2'
+            }
         });
 
         expect(plans).toEqual(
@@ -83,7 +89,8 @@ describe('PlansService', () => {
                 [
                     new PlanDto('free', 'Free', '14 €', 1000, 1500, 2500),
                     new PlanDto('prof', 'Prof', '18 €', 4000, 5500, 6500)
-                ]
+                ],
+                new Version('2')
             ));
     }));
 
@@ -95,7 +102,7 @@ describe('PlansService', () => {
         let planChanged: PlanChangedDto | null = null;
 
         plansService.putPlan('my-app', dto, version).subscribe(result => {
-            planChanged = result;
+            planChanged = result.payload;
         });
 
         const req = httpMock.expectOne('http://service/p/api/apps/my-app/plan');

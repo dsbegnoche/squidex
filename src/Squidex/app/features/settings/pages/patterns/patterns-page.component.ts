@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 import {
     AppComponentBase,
     AppsStoreService,
+    AuthService,
     DialogService,
     HistoryChannelUpdated,
     ImmutableArray,
@@ -25,11 +26,11 @@ export class PatternsPageComponent extends AppComponentBase implements OnInit {
     private version = new Version();
     public appPatterns = ImmutableArray.empty<AppPatternsSuggestionDto>();
 
-    constructor(apps: AppsStoreService, dialogs: DialogService,
+    constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly messageBus: MessageBus,
         private readonly patternService: AppPatternsService
     ) {
-        super(dialogs, apps);
+        super(dialogs, apps, authService);
     }
 
     public ngOnInit() {

@@ -33,9 +33,11 @@ export class CpHelpLinksService {
     public getHelplinks(): Observable<CpHelpLinksDto[]> {
         const url = this.apiUrl.buildUrl('/api/cptoolbar/helplinks');
 
-        return HTTP.getVersioned(this.http, url)
+        return HTTP.getVersioned<any>(this.http, url)
             .map(response => {
-                const items: any[] = response;
+                const body = response.payload.body;
+
+                const items: any[] = body;
 
                 return items.map(item => {
                     return new CpHelpLinksDto(
@@ -50,9 +52,11 @@ export class CpHelpLinksService {
     public getResetPasswordUrl(): Observable<CpHelpLinksDto[]> {
         const url = this.apiUrl.buildUrl('/api/cptoolbar/reset-password');
 
-        return HTTP.getVersioned(this.http, url)
+        return HTTP.getVersioned<any>(this.http, url)
             .map(response => {
-                const items: any[] = response;
+                const body = response.payload.body;
+
+                const items: any[] = body;
 
                 return items.map(item => {
                     return new CpHelpLinksDto(
