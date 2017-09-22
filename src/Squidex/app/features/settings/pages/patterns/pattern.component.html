@@ -75,9 +75,9 @@
                     <label for="pattern-label" class="col col-2 col-form-label">Message</label>
 
                     <div class="col col-8">
-                        <sqx-control-errors for="message" [submitted]="editFormSubmitted"></sqx-control-errors>
+                        <sqx-control-errors for="defaultMessage" [submitted]="editFormSubmitted"></sqx-control-errors>
 
-                        <input type="text" class="form-control" id="pattern-message" maxlength="1000" formControlName="message" />
+                        <input type="text" class="form-control" id="pattern-defaultMessage" maxlength="1000" formControlName="defaultMessage" />
 
                         <small class="form-text text-muted">
                             Define the message that appears when a field validation fails.
