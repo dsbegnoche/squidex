@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Write.Apps.Commands
@@ -21,7 +22,7 @@ namespace Squidex.Domain.Apps.Write.Apps.Commands
 
         public string DefaultMessage { get; set; }
 
-        public List<Guid> Schemas { get; set; }
+        public Dictionary<Guid, Schema> Schemas { get; set; }
 
         public void Validate(IList<ValidationError> errors)
         {

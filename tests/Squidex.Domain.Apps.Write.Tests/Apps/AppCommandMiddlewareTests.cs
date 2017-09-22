@@ -8,15 +8,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.Extensions.Options;
 using Squidex.Domain.Apps.Core;
+using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Apps;
 using Squidex.Domain.Apps.Read.Apps.Repositories;
 using Squidex.Domain.Apps.Read.Apps.Services;
 using Squidex.Domain.Apps.Read.Apps.Services.Implementations;
 using Squidex.Domain.Apps.Write.Apps.Commands;
+using Squidex.Domain.Apps.Write.Schemas;
+using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
@@ -38,6 +42,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         private readonly Language language = Language.DE;
         private readonly string contributorId = Guid.NewGuid().ToString();
         private readonly string clientName = "client";
+        private SchemaDomainObject schema;
 
         public AppCommandMiddlewareTests()
         {
@@ -401,11 +406,53 @@ namespace Squidex.Domain.Apps.Write.Apps
         }
 
         [Fact]
-        public async Task UpdatePattern_should_update_domain_object()
+        public async Task UpdatePattern_should_update_domain_object_with_no_schemas_using_pattern()
         {
             CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
 
-            var context = CreateContextForCommand(new UpdatePattern { Name = "Numbers", Pattern = "[0-9]", OriginalName = "Pattern", DefaultMessage = "Display Error" });
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Numbers", Pattern = "[0-9]", OriginalName = "Pattern", DefaultMessage = "Display Error", Schemas = new Dictionary<Guid, Core.Schemas.Schema>() });
+
+            await TestUpdate(app, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+        }
+
+        [Fact]
+        public async Task UpdatePattern_should_update_domain_object_with_schema_using_pattern()
+        {
+            CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
+            var schemas = new Dictionary<Guid, Schema>();
+            var hasPatternField = new StringFieldProperties
+            {
+                AllowedValues = null,
+                DefaultValue = "Display Error",
+                Editor = StringFieldEditor.Input,
+                Hints = "Test hint",
+                IsListField = false,
+                IsRequired = false,
+                Label = "Label",
+                MaxLength = 500,
+                MinLength = 0,
+                Pattern = "[0-9]",
+                PatternMessage = string.Empty,
+                Placeholder = "Placeholder"
+            };
+
+            CreateSchema();
+            CreateField("haspattern", hasPatternField);
+            schemas.Add(schema.Id, schema.Schema);
+
+            var context = CreateContextForCommand(new UpdatePattern
+                {
+                    Name = "Numbers",
+                    Pattern = "[0-9]",
+                    OriginalName = "Pattern",
+                    DefaultMessage = "Display Error",
+                    Schemas = schemas,
+                    AppId = new NamedId<Guid>(app.Id, app.Name)
+                }
+            );
 
             await TestUpdate(app, async _ =>
             {
@@ -418,7 +465,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
 
-            var context = CreateContextForCommand(new UpdatePattern { Name = string.Empty, Pattern = "[0-9]", OriginalName = "Original", DefaultMessage = "Display Error" });
+            var context = CreateContextForCommand(new UpdatePattern { Name = string.Empty, Pattern = "[0-9]", OriginalName = "Pattern", DefaultMessage = "Display Error", Schemas = new Dictionary<Guid, Core.Schemas.Schema>() });
 
             await TestUpdate(app, async _ =>
             {
@@ -431,7 +478,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
 
-            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = string.Empty, OriginalName = "Original", DefaultMessage = "Display Error" });
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = string.Empty, OriginalName = "Pattern", DefaultMessage = "Display Error", Schemas = new Dictionary<Guid, Core.Schemas.Schema>() });
 
             await TestUpdate(app, async _ =>
             {
@@ -444,11 +491,11 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             CreateApp().AddPattern(CreateCommand(new AddPattern { Name = "Pattern", Pattern = "[0-9]" }));
 
-            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = "Pattern", OriginalName = string.Empty, DefaultMessage = "Display Error" });
+            var context = CreateContextForCommand(new UpdatePattern { Name = "Name", Pattern = "Pattern", OriginalName = string.Empty, DefaultMessage = "Display Error", Schemas = new Dictionary<Guid, Core.Schemas.Schema>() });
 
             await TestUpdate(app, async _ =>
             {
-                await Assert.ThrowsAsync<ValidationException>(() => sut.HandleAsync(context));
+                await Assert.ThrowsAsync<KeyNotFoundException>(() => sut.HandleAsync(context));
             }, false);
         }
 
@@ -462,6 +509,17 @@ namespace Squidex.Domain.Apps.Write.Apps
             app.Create(CreateCommand(new CreateApp { Name = AppName }));
 
             return app;
+        }
+
+        private void CreateSchema()
+        {
+            schema = new SchemaDomainObject(SchemaId, -1, new FieldRegistry(new TypeNameRegistry()));
+            schema.Create(CreateCommand(new CreateSchema { Name = SchemaName }));
+        }
+
+        private void CreateField(string fieldName, StringFieldProperties properties)
+        {
+            schema.AddField(CreateCommand(new AddField { Name = fieldName, Properties = new StringFieldProperties(properties) }));
         }
 
         private static Task<IChangePlanResult> CreateRedirectResult()

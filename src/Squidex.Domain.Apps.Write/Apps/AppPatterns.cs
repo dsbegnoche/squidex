@@ -30,11 +30,6 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public void Update(string original, string name, string pattern)
         {
-            if (original.Equals(name, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return;
-            }
-
             Remove(original);
             Add(name, pattern);
         }

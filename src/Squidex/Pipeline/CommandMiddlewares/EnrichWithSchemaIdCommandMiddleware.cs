@@ -68,15 +68,15 @@ namespace Squidex.Pipeline.CommandMiddlewares
             if (context.Command is UpdatePattern updateCommand)
             {
                 var all = await schemas.QueryAllAsync(updateCommand.AppId.Id);
-                updateCommand.Schemas = new List<Guid>();
-                foreach (var schema in all)
+                updateCommand.Schemas = new Dictionary<Guid, Schema>();
+                foreach (var schema in all.ToList())
                 {
                     var fieldsWithValidators = schema.SchemaDef.Fields
                         .Where(f => f.RawProperties is StringFieldProperties)
                         .Any(f => f.Validators.Any(v => v is PatternValidator));
                     if (fieldsWithValidators)
                     {
-                        updateCommand.Schemas.Add(schema.Id);
+                        updateCommand.Schemas.Add(schema.Id, schema.SchemaDef);
                     }
                 }
             }

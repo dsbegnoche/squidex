@@ -20,6 +20,7 @@ using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Infrastructure.Reflection;
 using Squidex.Shared.Users;
 
 namespace Squidex.Domain.Apps.Write.Apps
@@ -237,11 +238,47 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             await handler.UpdateAsync<AppDomainObject>(context, a =>
             {
-                command.OriginalPattern = a.Patterns[command.OriginalName];
+                command.OriginalPattern = a.Patterns[command.OriginalName.ToLowerInvariant()];
                 a.UpdatePattern(command);
             });
 
-            await handler.UpdateAsync<SchemaDomainObject>(context, a => a.UpdatePattern(command));
+            await UpdateSchemaValidators(command);
+        }
+
+        private async Task UpdateSchemaValidators(UpdatePattern command)
+        {
+            foreach (var kvp in command.Schemas)
+            {
+                var schema = command.Schemas[kvp.Key];
+                var fieldsToUpdate = schema.Fields
+                    .Where(x => x.RawProperties is StringFieldProperties &&
+                            ((StringFieldProperties)x.RawProperties).Pattern == command.OriginalPattern)
+                    .ToList();
+
+                foreach (var field in fieldsToUpdate)
+                {
+                    // Properties are frozen so create a new, unfrozen properties object
+                    var updatedProperties = new StringFieldProperties(field.RawProperties as StringFieldProperties)
+                    {
+                        Pattern = command.Pattern
+                    };
+
+                    var updateField = new UpdateField
+                    {
+                        Actor = command.Actor,
+                        AppId = command.AppId,
+                        FieldId = field.Id,
+                        Properties = updatedProperties,
+                        SchemaId = new NamedId<Guid>(kvp.Key, schema.Name)
+                    };
+                    var context = new CommandContext(updateField);
+
+                    await defaultSchemaHandler.UpdateAsync<SchemaDomainObject>(context, a =>
+                    {
+                        a.UpdateField(updateField);
+                    });
+                }
+            }
         }
 
         public async Task HandleAsync(CommandContext context, Func<Task> next)
