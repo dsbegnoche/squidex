@@ -27,8 +27,6 @@ export class AppPatternsSuggestionDto {
 
 @Injectable()
 export class AppPatternsService {
-    private patterns: AppPatternsSuggestionDto[];
-
     constructor(
         private readonly http: HttpClient,
         private readonly apiUrl: ApiUrlConfig
@@ -36,20 +34,13 @@ export class AppPatternsService {
     }
 
     public getPatterns(appName: string): Observable<AppPatternsSuggestionDto[]> {
-        if (this.patterns) {
-            return Observable.of(this.patterns);
-        } else {
-            const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns`);
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns`);
 
-            return this.http.get<AppPatternsSuggestionDto[]>(url)
-                .catch(error => {
-                    return Observable.of({ AppPatternsSuggestionDto: [] });
-                })
-                .map((response: AppPatternsSuggestionDto[]) => response)
-                .do(patterns => {
-                    this.patterns = patterns;
-                });
-        }
+	    return this.http.get<AppPatternsSuggestionDto[]>(url)
+		    .catch(error => {
+			    return Observable.of({ AppPatternsSuggestionDto: [] });
+		    })
+		    .map((response: AppPatternsSuggestionDto[]) => response);
     }
 
     public postPattern(appName: string, dto: AppPatternsSuggestionDto, version: Version): Observable<AppPatternsSuggestionDto> {
