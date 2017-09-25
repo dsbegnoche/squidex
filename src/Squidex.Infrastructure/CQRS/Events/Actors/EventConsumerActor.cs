@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  EventReceiver.cs
+//  EventConsumerActor.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -8,21 +8,25 @@
 
 using System;
 using System.Threading.Tasks;
+using Squidex.Infrastructure.Actors;
+using Squidex.Infrastructure.CQRS.Events.Actors.Messages;
 using Squidex.Infrastructure.Log;
-using Squidex.Infrastructure.Timers;
+using Squidex.Infrastructure.Tasks;
 
-namespace Squidex.Infrastructure.CQRS.Events
+namespace Squidex.Infrastructure.CQRS.Events.Actors
 {
-    public sealed class EventReceiver : DisposableObjectBase
+    public sealed class EventConsumerActor : Actor
     {
         private readonly EventDataFormatter formatter;
         private readonly IEventStore eventStore;
         private readonly IEventConsumerInfoRepository eventConsumerInfoRepository;
         private readonly ISemanticLog log;
-        private IEventSubscription currentSubscription;
-        private CompletionTimer timer;
+        private IEventSubscription eventSubscription;
+        private IEventConsumer eventConsumer;
+        private bool isStarted;
+        private bool isSetup;
 
-        public EventReceiver(
+        public EventConsumerActor(
             EventDataFormatter formatter,
             IEventStore eventStore,
             IEventConsumerInfoRepository eventConsumerInfoRepository,
@@ -34,127 +38,121 @@ namespace Squidex.Infrastructure.CQRS.Events
             Guard.NotNull(eventConsumerInfoRepository, nameof(eventConsumerInfoRepository));
 
             this.log = log;
+
             this.formatter = formatter;
             this.eventStore = eventStore;
             this.eventConsumerInfoRepository = eventConsumerInfoRepository;
-        }
-
-        protected override void DisposeObject(bool disposing)
-        {
-            if (disposing)
-            {
-                try
-                {
-                    currentSubscription?.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    log.LogWarning(ex, w => w
-                        .WriteProperty("action", "DisposeEventReceiver")
-                        .WriteProperty("state", "Failed"));
-                }
-
-                try
-                {
-                    timer?.StopAsync().Wait();
-                }
-                catch (Exception ex)
-                {
-                    log.LogWarning(ex, w => w
-                        .WriteProperty("action", "DisposeEventReceiver")
-                        .WriteProperty("state", "Failed"));
-                }
-            }
-        }
-
-        public void Refresh()
-        {
-            ThrowIfDisposed();
-
-            timer?.SkipCurrentDelay();
         }
 
         public void Subscribe(IEventConsumer eventConsumer)
         {
             Guard.NotNull(eventConsumer, nameof(eventConsumer));
 
-            ThrowIfDisposed();
+            SendAsync(new SetupConsumerMessage { EventConsumer = eventConsumer });
+        }
 
-            if (timer != null)
+        protected override async Task OnStop()
+        {
+            if (eventSubscription != null)
             {
-                return;
+                await eventSubscription.StopAsync();
+            }
+        }
+
+        protected override Task OnError(Exception exception)
+        {
+            return StopAsync(exception);
+        }
+
+        protected override async Task OnMessage(IMessage message)
+        {
+            switch (message)
+            {
+                case SetupConsumerMessage setupConsumer when !isSetup:
+                    {
+                        await SetupAsync(setupConsumer.EventConsumer);
+
+                        break;
+                    }
+
+                case StartConsumerMessage startConsumer when isSetup && !isStarted:
+                    {
+                        await StartAsync();
+
+                        break;
+                    }
+
+                case StopConsumerMessage stopConsumer when isSetup && isStarted:
+                    {
+                        await StopAsync(stopConsumer.Exception);
+
+                        break;
+                    }
+
+                case ResetConsumerMessage resetConsumer when isSetup:
+                    {
+                        await StopAsync();
+                        await ResetAsync();
+                        await StartAsync();
+
+                        break;
+                    }
+
+                case ReceiveEventMessage receiveEvent when isSetup:
+                    {
+                        if (receiveEvent.Source == eventSubscription)
+                        {
+                            await DispatchConsumerAsync(ParseEvent(receiveEvent.Event));
+                            await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, receiveEvent.Event.EventPosition, false);
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        private async Task SetupAsync(IEventConsumer consumer)
+        {
+            eventConsumer = consumer;
+
+            await eventConsumerInfoRepository.CreateAsync(eventConsumer.Name);
+
+            var status = await eventConsumerInfoRepository.FindAsync(eventConsumer.Name);
+
+            if (!status.IsStopped)
+            {
+                SendAsync(new StartConsumerMessage()).Forget();
             }
 
-            var consumerName = eventConsumer.Name;
-            var consumerStarted = false;
-
-            timer = new CompletionTimer(5000, async ct =>
-            {
-                if (!consumerStarted)
-                {
-                    await eventConsumerInfoRepository.CreateAsync(consumerName);
-
-                    consumerStarted = true;
-                }
-
-                try
-                {
-                    var status = await eventConsumerInfoRepository.FindAsync(consumerName);
-
-                    var position = status.Position;
-
-                    if (status.IsResetting)
-                    {
-                        currentSubscription?.Dispose();
-                        currentSubscription = null;
-
-                        position = null;
-
-                        await ResetAsync(eventConsumer);
-                    }
-                    else if (status.IsStopped)
-                    {
-                        currentSubscription?.Dispose();
-                        currentSubscription = null;
-
-                        return;
-                    }
-
-                    if (currentSubscription == null)
-                    {
-                        await SubscribeAsync(eventConsumer, position);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.LogFatal(ex, w => w.WriteProperty("action", "EventHandlingFailed"));
-                }
-            });
+            isSetup = true;
         }
 
-        private async Task SubscribeAsync(IEventConsumer eventConsumer, string position)
+        private async Task StartAsync()
         {
-            var consumerName = eventConsumer.Name;
+            await eventConsumerInfoRepository.StartAsync(eventConsumer.Name);
 
-            var subscription = eventStore.CreateSubscription(eventConsumer.EventsFilter, position);
+            var status = await eventConsumerInfoRepository.FindAsync(eventConsumer.Name);
 
-            await subscription.SubscribeAsync(async storedEvent =>
-            {
-                await DispatchConsumerAsync(ParseEvent(storedEvent), eventConsumer, eventConsumer.Name);
+            var position = status.Position;
 
-                await eventConsumerInfoRepository.SetPositionAsync(eventConsumer.Name, storedEvent.EventPosition, false);
-            }, async exception =>
-            {
-                await eventConsumerInfoRepository.StopAsync(consumerName, exception.ToString());
+            eventSubscription = eventStore.CreateSubscription();
+            eventSubscription.SendAsync(new SubscribeMessage { Parent = this, StreamFilter = eventConsumer.EventsFilter, Position = position }).Forget();
 
-                subscription.Dispose();
-            });
-
-            currentSubscription = subscription;
+            isStarted = true;
         }
 
-        private async Task ResetAsync(IEventConsumer eventConsumer)
+        private async Task StopAsync(Exception exception = null)
         {
+            await eventConsumerInfoRepository.StopAsync(eventConsumer.Name, exception?.Message);
+            await eventSubscription.StopAsync();
+
+            isStarted = false;
+        }
+
+        private async Task ResetAsync()
+        {
+            await eventConsumerInfoRepository.ResetAsync(eventConsumer.Name);
+
             var actionId = Guid.NewGuid().ToString();
             try
             {
@@ -185,7 +183,7 @@ namespace Squidex.Infrastructure.CQRS.Events
             }
         }
 
-        private async Task DispatchConsumerAsync(Envelope<IEvent> @event, IEventConsumer eventConsumer, string consumerName)
+        private async Task DispatchConsumerAsync(Envelope<IEvent> @event)
         {
             var eventId = @event.Headers.EventId().ToString();
             var eventType = @event.Payload.GetType().Name;
@@ -197,7 +195,7 @@ namespace Squidex.Infrastructure.CQRS.Events
                     .WriteProperty("state", "Started")
                     .WriteProperty("eventId", eventId)
                     .WriteProperty("eventType", eventType)
-                    .WriteProperty("eventConsumer", consumerName));
+                    .WriteProperty("eventConsumer", eventConsumer.Name));
 
                 await eventConsumer.On(@event);
 
@@ -207,7 +205,7 @@ namespace Squidex.Infrastructure.CQRS.Events
                     .WriteProperty("state", "Completed")
                     .WriteProperty("eventId", eventId)
                     .WriteProperty("eventType", eventType)
-                    .WriteProperty("eventConsumer", consumerName));
+                    .WriteProperty("eventConsumer", eventConsumer.Name));
             }
             catch (Exception ex)
             {
@@ -217,20 +215,20 @@ namespace Squidex.Infrastructure.CQRS.Events
                     .WriteProperty("state", "Started")
                     .WriteProperty("eventId", eventId)
                     .WriteProperty("eventType", eventType)
-                    .WriteProperty("eventConsumer", consumerName));
+                    .WriteProperty("eventConsumer", eventConsumer.Name));
 
                 throw;
             }
         }
 
-        private Envelope<IEvent> ParseEvent(StoredEvent storedEvent)
+        private Envelope<IEvent> ParseEvent(StoredEvent message)
         {
             try
             {
-                var @event = formatter.Parse(storedEvent.Data);
+                var @event = formatter.Parse(message.Data);
 
-                @event.SetEventPosition(storedEvent.EventPosition);
-                @event.SetEventStreamNumber(storedEvent.EventStreamNumber);
+                @event.SetEventPosition(message.EventPosition);
+                @event.SetEventStreamNumber(message.EventStreamNumber);
 
                 return @event;
             }
@@ -239,8 +237,8 @@ namespace Squidex.Infrastructure.CQRS.Events
                 log.LogFatal(ex, w => w
                     .WriteProperty("action", "ParseEvent")
                     .WriteProperty("state", "Failed")
-                    .WriteProperty("eventId", storedEvent.Data.EventId.ToString())
-                    .WriteProperty("eventPosition", storedEvent.EventPosition));
+                    .WriteProperty("eventId", message.Data.EventId.ToString())
+                    .WriteProperty("eventPosition", message.EventPosition));
 
                 throw;
             }
