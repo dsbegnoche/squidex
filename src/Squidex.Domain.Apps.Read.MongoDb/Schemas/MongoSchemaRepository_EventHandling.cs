@@ -119,16 +119,6 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Schemas
 
         protected Task On(AppPatternUpdated @event, EnvelopeHeaders headers)
         {
-            var all = QueryAllAsync(@event.AppId.Id).Result;
-            foreach (var schema in all)
-            {
-                foreach (var stringField in schema.SchemaDef.Fields.Where(x => x.RawProperties is StringFieldProperties))
-                {
-                    var patterns = stringField.Validators.OfType<PatternValidator>();
-                    patterns.Where(x => x.Pattern.ToString() == @event.Pattern);
-                }
-            }
-
             return Collection.UpdateAsync(@event, headers, e => e.IsDeleted = true);
         }
 
