@@ -4,21 +4,28 @@
 
 using System;
 using System.Collections.Generic;
+using Squidex.Domain.Apps.Core;
 using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Write.Apps
 {
     public class AppPatterns
     {
-        private readonly Dictionary<string, string> patterns = new Dictionary<string, string>();
+        private readonly Dictionary<string, AppPattern> patterns = new Dictionary<string, AppPattern>();
 
-        public IReadOnlyDictionary<string, string> Patterns => patterns;
+        public IReadOnlyDictionary<string, AppPattern> Patterns => patterns;
 
-        public void Add(string name, string pattern)
+        public void Add(string name, string pattern, string defaultMessage)
         {
             ThrowIfFound(name.ToLower(), () => "Cannot add pattern");
+            var newPattern = new AppPattern
+            {
+                Name = name,
+                Pattern = pattern,
+                DefaultMessage = defaultMessage
+            };
 
-            patterns.Add(name.ToLower(), pattern);
+            patterns.Add(name.ToLower(), newPattern);
         }
 
         public void Remove(string name)
@@ -28,10 +35,10 @@ namespace Squidex.Domain.Apps.Write.Apps
             patterns.Remove(name.ToLower());
         }
 
-        public void Update(string original, string name, string pattern)
+        public void Update(string original, string name, string pattern, string defaultMessage)
         {
             Remove(original);
-            Add(name, pattern);
+            Add(name, pattern, defaultMessage);
         }
 
         private void ThrowIfFound(string name, Func<string> message)

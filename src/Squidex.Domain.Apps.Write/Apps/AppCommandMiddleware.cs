@@ -20,7 +20,6 @@ using Squidex.Domain.Apps.Write.Schemas.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
-using Squidex.Infrastructure.Reflection;
 using Squidex.Shared.Users;
 
 namespace Squidex.Domain.Apps.Write.Apps
@@ -238,7 +237,8 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             await handler.UpdateAsync<AppDomainObject>(context, a =>
             {
-                command.OriginalPattern = a.Patterns[command.OriginalName.ToLowerInvariant()];
+                command.OriginalPattern = a.Patterns[command.OriginalName.ToLowerInvariant()]?.Pattern;
+                command.OriginalDefaultMessage = a.Patterns[command.OriginalName.ToLowerInvariant()]?.DefaultMessage;
                 a.UpdatePattern(command);
             });
 
@@ -257,10 +257,19 @@ namespace Squidex.Domain.Apps.Write.Apps
 
                 foreach (var field in fieldsToUpdate)
                 {
+                    var patternMessage = command.DefaultMessage;
+                    // Check if the user has updated the default message or not
+                    if ((field.RawProperties as StringFieldProperties)?.PatternMessage !=
+                        command.OriginalDefaultMessage)
+                    {
+                        patternMessage = (field.RawProperties as StringFieldProperties)?.PatternMessage;
+                    }
+
                     // Properties are frozen so create a new, unfrozen properties object
                     var updatedProperties = new StringFieldProperties(field.RawProperties as StringFieldProperties)
                     {
-                        Pattern = command.Pattern
+                        Pattern = command.Pattern,
+                        PatternMessage = patternMessage
                     };
 
                     var updateField = new UpdateField

@@ -16,6 +16,8 @@ namespace Squidex.Domain.Apps.Write.Apps.Commands
 
         public string OriginalPattern { get; set; }
 
+        public string OriginalDefaultMessage { get; set; }
+
         public string Name { get; set; }
 
         public string Pattern { get; set; }

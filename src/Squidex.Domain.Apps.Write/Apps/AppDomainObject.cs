@@ -49,7 +49,7 @@ namespace Squidex.Domain.Apps.Write.Apps
             get { return contributors.Count; }
         }
 
-        public IReadOnlyDictionary<string, string> Patterns => patterns.Patterns;
+        public IReadOnlyDictionary<string, AppPattern> Patterns => patterns.Patterns;
 
         public AppDomainObject(IOptions<MyUIOptions> uiOptions, Guid id, int version)
             : base(id, version)
@@ -116,7 +116,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         protected void On(AppPatternAdded @event)
         {
-            patterns.Add(@event.Name, @event.Pattern);
+            patterns.Add(@event.Name, @event.Pattern, @event.DefaultMessage);
         }
 
         protected void On(AppPatternDeleted @event)
@@ -126,7 +126,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         protected void On(AppPatternUpdated @event)
         {
-            patterns.Update(@event.OriginalName, @event.Name, @event.Pattern);
+            patterns.Update(@event.OriginalName, @event.Name, @event.Pattern, @event.DefaultMessage);
         }
 
         protected override void DispatchEvent(Envelope<IEvent> @event)
