@@ -52,7 +52,10 @@ namespace Squidex.Controllers.Api.Assets
         /// <param name="version">The optional version of the asset.</param>
         /// <param name="width">The target width of the asset, if it is an image.</param>
         /// <param name="height">The target height of the asset, if it is an image.</param>
-        /// <param name="mode">The resize mode when the width and height is defined.</param>
+        /// <param name="mode">
+        /// The resize mode of the asset if it is an image: "Crop", "Full", "Compressed"(default).
+        /// if "crop", width and height are used.
+        /// </param>
         /// <returns>
         /// 200 => Asset found and content or (resize) image returned.
         /// 404 => Asset or app not found.
@@ -73,9 +76,29 @@ namespace Squidex.Controllers.Api.Assets
 
             return new FileCallbackResult(asset.MimeType, asset.FileName, async bodyStream =>
             {
-                if (asset.IsImage && (width.HasValue || height.HasValue))
+                if (asset.IsImage)
                 {
-                    var assetSuffix = $"{width}_{height}_{mode}";
+                    mode = mode?.ToLower() ?? "compressed";
+                    string assetSuffix = null;
+
+                    switch (mode)
+                    {
+                        case "crop":
+                            if (!(width.HasValue || height.HasValue))
+                            {
+                                throw new InvalidOperationException("crop mode requires height and/or width to crop to");
+                            }
+                            assetSuffix = $"{width}_{height}_Crop";
+                            break;
+
+                        case "compressed":
+                            assetSuffix = "Compressed";
+                            break;
+
+                        case "full":
+                            // null assetSuffix is full.
+                            break;
+                    }
 
                     try
                     {
@@ -83,6 +106,14 @@ namespace Squidex.Controllers.Api.Assets
                     }
                     catch (AssetNotFoundException)
                     {
+                        if (mode == "Compressed")
+                        {
+                            // default to full
+                            await assetStorage.DownloadAsync(assetId, asset.FileVersion, null, bodyStream);
+                            return;
+                        }
+
+                        // generate thumbnail from full
                         using (var sourceStream = GetTempStream())
                         {
                             using (var destinationStream = GetTempStream())
@@ -101,8 +132,10 @@ namespace Squidex.Controllers.Api.Assets
                         }
                     }
                 }
-
-                await assetStorage.DownloadAsync(assetId, asset.FileVersion, null, bodyStream);
+                else
+                {
+                    await assetStorage.DownloadAsync(assetId, asset.FileVersion, null, bodyStream);
+                }
             });
         }
 
