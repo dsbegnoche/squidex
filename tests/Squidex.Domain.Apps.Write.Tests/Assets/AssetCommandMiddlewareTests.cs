@@ -30,7 +30,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly Stream stream = new MemoryStream();
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
         private readonly AssetFile file;
-        private readonly int maxFileSize = (int)Math.Pow(1024, 3);
+        private readonly int maxFileSize = (int)Math.Pow(1024, 2) * 500;
 
         public AssetCommandMiddlewareTests()
         {
