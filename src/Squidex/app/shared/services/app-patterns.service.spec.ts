@@ -34,7 +34,6 @@ describe('AppPatternsService', () => {
             (patternService: AppPatternsService, httpMock: HttpTestingController) => {
 
                 let patterns1: AppPatternsSuggestionDto[] | null = null;
-                let patterns2: AppPatternsSuggestionDto[] | null = null;
 
                 patternService.getPatterns('my-app').subscribe(result => {
                     patterns1 = result;
@@ -48,13 +47,7 @@ describe('AppPatternsService', () => {
                 expect(req.request.headers.get('If-Match')).toBeNull();
 
                 req.flush(response);
-
-                patternService.getPatterns('my-app').subscribe(result => {
-                    patterns2 = result;
-                });
-
                 expect(patterns1).toEqual(response);
-                expect(patterns2).toEqual(response);
             }));
 
     it('should return default patterns when error occurs',

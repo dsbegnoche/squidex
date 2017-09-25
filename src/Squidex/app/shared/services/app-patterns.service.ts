@@ -8,10 +8,11 @@ import { Observable } from 'rxjs';
 
 import 'framework/angular/http-extensions';
 
-import { ApiUrlConfig,
+import {
+    ApiUrlConfig,
     HTTP,
     Version
-    } from 'framework';
+} from 'framework';
 
 export class AppPatternsSuggestionDto {
     public name: string;
@@ -36,11 +37,11 @@ export class AppPatternsService {
     public getPatterns(appName: string): Observable<AppPatternsSuggestionDto[]> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns`);
 
-	    return this.http.get<AppPatternsSuggestionDto[]>(url)
-		    .catch(error => {
-			    return Observable.of({ AppPatternsSuggestionDto: [] });
-		    })
-		    .map((response: AppPatternsSuggestionDto[]) => response);
+        return this.http.get<AppPatternsSuggestionDto[]>(url)
+            .catch(error => {
+                return Observable.of({ AppPatternsSuggestionDto: [] });
+            })
+            .map((response: AppPatternsSuggestionDto[]) => response);
     }
 
     public postPattern(appName: string, dto: AppPatternsSuggestionDto, version: Version): Observable<AppPatternsSuggestionDto> {
