@@ -147,22 +147,31 @@
 </div>
 
 <div class="modal" *sqxModalView="exportSchemaDialog;onRoot:true" @fade>
-    <div class="modal-backdrop"></div>
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Export Schema</h4>
+	<div class="modal-backdrop"></div>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Export Schema</h4>
 
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="exportSchemaDialog.hide()">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="exportSchemaDialog.hide()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
 
-            <div class="modal-body">
-                <sqx-json-editor disabled [ngModel]="schemaExport"></sqx-json-editor>
-            </div>
-        </div>
-    </div>
+			<div class="modal-body">
+				<sqx-json-editor disabled [ngModel]="schemaExport"></sqx-json-editor>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal" *sqxModalView="configureScriptsDialog;onRoot:true" @fade>
+	<div class="modal-backdrop"></div>
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<sqx-schema-scripts-form [appName]="appName() | async" [schema]="schema" (saved)="onSchemaScriptsSaved($event)" (cancelled)="configureScriptsDialog.hide()"></sqx-schema-scripts-form>
+		</div>
+	</div>
 </div>
 
 <div class="modal" *sqxModalView="copySchemaDialog;onRoot:true" [@fade]>
