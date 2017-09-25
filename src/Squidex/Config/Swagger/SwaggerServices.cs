@@ -29,7 +29,15 @@ namespace Squidex.Config.Swagger
                 var urlOptions = s.GetService<IOptions<MyUrlsOptions>>().Value;
 
                 var settings =
-                    new SwaggerSettings { Title = "Squidex API Specification", IsAspNetCore = false }
+                    new SwaggerSettings
+                        {
+                            Title = "Squidex API Specification",
+                            IsAspNetCore = false,
+                            OperationProcessors =
+                            {
+                                new Docs.AddODataQueryParams()
+                            }
+                        }
                         .ConfigurePaths(urlOptions)
                         .ConfigureSchemaSettings()
                         .ConfigureIdentity(urlOptions);

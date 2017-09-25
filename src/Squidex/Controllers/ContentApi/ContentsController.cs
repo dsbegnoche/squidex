@@ -9,10 +9,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.OData;
 using NSwag.Annotations;
 using Squidex.Controllers.ContentApi.Models;
 using Squidex.Domain.Apps.Core.Apps;
@@ -30,7 +32,7 @@ namespace Squidex.Controllers.ContentApi
 {
     [ApiExceptionFilter]
     [AppApi]
-    [SwaggerIgnore]
+    [SwaggerTag("Contents")]
     public sealed class ContentsController : ControllerBase
     {
         private readonly IContentQueryService contentQuery;
@@ -58,6 +60,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPost]
         [Route("content/{app}/graphql")]
         [ApiCosts(2)]
+        [SwaggerIgnore]
         public async Task<IActionResult> PostGraphQL([FromBody] GraphQLQuery query)
         {
             var result = await graphQl.QueryAsync(App, User, query);
@@ -76,6 +79,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpGet]
         [Route("content/{app}/{name}")]
         [ApiCosts(2)]
+        [SwaggerIgnore]
         public async Task<IActionResult> GetContents(string name, [FromQuery] bool archived = false, [FromQuery] string ids = null)
         {
             var idsList = new HashSet<Guid>();
@@ -119,10 +123,21 @@ namespace Squidex.Controllers.ContentApi
             return Ok(response);
         }
 
+        /// <summary>
+        /// Get contents across all schemas
+        /// </summary>
+        /// <param name="ids">Comma delimited list of Content Ids</param>
+        /// <returns>
+        /// 200 => Contents Found
+        /// </returns>
+        /// <remarks>
+        /// Testing
+        /// </remarks>
         [MustBeAppReader]
         [HttpGet]
         [Route("content/{app}")]
         [ApiCosts(2)]
+        [ProducesResponseType(typeof(AssetsDto), 200)]
         public async Task<IActionResult> GetContentsFromAllSchemas([FromQuery] string ids = null)
         {
             var idsList = new HashSet<Guid>();
@@ -174,6 +189,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpGet]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> GetContent(string name, Guid id)
         {
             var content = await contentQuery.FindContentAsync(App, name, User, id);
@@ -201,6 +217,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpGet]
         [Route("content/{app}/{name}/{id}/{version}")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> GetContentVersion(string name, Guid id, int version)
         {
             var contentData = await contentVersionLoader.LoadAsync(App.Id, id, version);
@@ -216,6 +233,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPost]
         [Route("content/{app}/{name}/")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> PostContent([FromBody] NamedContentData request, [FromQuery] Status status = Status.Draft)
         {
             var command = new CreateContent { ContentId = Guid.NewGuid(), Data = request.ToCleaned(), Status = status };
@@ -232,6 +250,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> PutContent(string name, Guid id, [FromBody] NamedContentData request)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -250,6 +269,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPatch]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> PatchContent(string name, Guid id, [FromBody] NamedContentData request)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -268,6 +288,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/publish")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> PublishContent(string name, Guid id)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -283,6 +304,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/unpublish")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> UnpublishContent(string name, Guid id)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -298,6 +320,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/submit")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> SubmitContent(Guid id)
         {
             var command = new ChangeContentStatus { Status = Status.Submitted, ContentId = id };
@@ -311,6 +334,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/archive")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> ArchiveContent(string name, Guid id)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -326,6 +350,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/restore")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> RestoreContent(string name, Guid id)
         {
             await contentQuery.FindSchemaAsync(App, name);
@@ -341,6 +366,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpPut]
         [Route("content/{app}/{name}/{id}/decline")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> Decline(Guid id)
         {
             var command = new ChangeContentStatus { Status = Status.Declined, ContentId = id };
@@ -354,6 +380,7 @@ namespace Squidex.Controllers.ContentApi
         [HttpDelete]
         [Route("content/{app}/{name}/{id}")]
         [ApiCosts(1)]
+        [SwaggerIgnore]
         public async Task<IActionResult> DeleteContent(string name, Guid id)
         {
             await contentQuery.FindSchemaAsync(App, name);
