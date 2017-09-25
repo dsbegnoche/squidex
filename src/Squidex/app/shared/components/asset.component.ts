@@ -34,7 +34,7 @@ import {
 })
 export class AssetComponent extends AppComponentBase implements OnInit {
     private assetVersion: Version;
-    private maxFileSize = Math.pow(1024, 3);
+    private maxFileSize = Math.pow(1024, 2) * 500;
 
     @Input()
     public initFile: File;
@@ -104,7 +104,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                     this.emitFailed(error);
                         });
             } else {
-                this.notifyError('Files must be smaller than 1 GB.');
+                this.notifyError('Files must be smaller than 500MB.');
             }
         } else {
             this.updateAsset(this.asset, false);
