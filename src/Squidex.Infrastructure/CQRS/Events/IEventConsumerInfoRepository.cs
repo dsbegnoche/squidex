@@ -23,7 +23,7 @@ namespace Squidex.Infrastructure.CQRS.Events
 
         Task StartAsync(string consumerName);
 
-        Task StopAsync(string consumerName, string error = null);
+        Task StopAsync(string consumerName, string error = null, string stackTrace = null);
 
         Task ResetAsync(string consumerName);
 

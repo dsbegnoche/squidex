@@ -19,6 +19,7 @@ namespace Squidex.Infrastructure.CQRS.Events
     {
         private static readonly FieldDefinition<MongoEventConsumerInfo, string> NameField = Fields.Build(x => x.Name);
         private static readonly FieldDefinition<MongoEventConsumerInfo, string> ErrorField = Fields.Build(x => x.Error);
+        private static readonly FieldDefinition<MongoEventConsumerInfo, string> StackTraceField = Fields.Build(x => x.StackTrace);
         private static readonly FieldDefinition<MongoEventConsumerInfo, string> PositionField = Fields.Build(x => x.Position);
         private static readonly FieldDefinition<MongoEventConsumerInfo, bool> IsStoppedField = Fields.Build(x => x.IsStopped);
         private static readonly FieldDefinition<MongoEventConsumerInfo, bool> IsResettingField = Fields.Build(x => x.IsResetting);
@@ -74,21 +75,21 @@ namespace Squidex.Infrastructure.CQRS.Events
         {
             var filter = Filter.Eq(NameField, consumerName);
 
-            return Collection.UpdateOneAsync(filter, Update.Unset(IsStoppedField).Unset(ErrorField));
+            return Collection.UpdateOneAsync(filter, Update.Unset(IsStoppedField).Unset(ErrorField).Unset(StackTraceField));
         }
 
-        public Task StopAsync(string consumerName, string error = null)
+        public Task StopAsync(string consumerName, string error = null, string stackTrace = null)
         {
             var filter = Filter.Eq(NameField, consumerName);
 
-            return Collection.UpdateOneAsync(filter, Update.Set(IsStoppedField, true).Set(ErrorField, error));
+            return Collection.UpdateOneAsync(filter, Update.Set(IsStoppedField, true).Set(ErrorField, error).Set(StackTraceField, stackTrace));
         }
 
         public Task ResetAsync(string consumerName)
         {
             var filter = Filter.Eq(NameField, consumerName);
 
-            return Collection.UpdateOneAsync(filter, Update.Set(IsResettingField, true).Unset(ErrorField));
+            return Collection.UpdateOneAsync(filter, Update.Set(IsResettingField, true).Unset(ErrorField).Unset(StackTraceField));
         }
 
         public Task SetPositionAsync(string consumerName, string position, bool reset)

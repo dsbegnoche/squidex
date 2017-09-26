@@ -18,6 +18,8 @@ namespace Squidex.Controllers.Api.EventConsumers.Models
 
         public string Error { get; set; }
 
+        public string StackTrace { get; set; }
+
         public string Position { get; set; }
     }
 }

@@ -19,20 +19,21 @@ export class EventConsumerDto {
         public readonly isStopped: boolean,
         public readonly isResetting: boolean,
         public readonly error: string,
+        public readonly stackTrace: string,
         public readonly position: string
     ) {
     }
 
     public start(): EventConsumerDto {
-        return new EventConsumerDto(this.name, false, false, this.error, this.position);
+        return new EventConsumerDto(this.name, false, false, this.error, this.stackTrace, this.position);
     }
 
     public stop(): EventConsumerDto {
-        return new EventConsumerDto(this.name, true, false, this.error, this.position);
+        return new EventConsumerDto(this.name, true, false, this.error, this.stackTrace, this.position);
     }
 
     public reset(): EventConsumerDto {
-        return new EventConsumerDto(this.name, this.isStopped, true, this.error, this.position);
+        return new EventConsumerDto(this.name, this.isStopped, true, this.error, this.stackTrace, this.position);
     }
 }
 
@@ -59,6 +60,7 @@ export class EventConsumersService {
                             item.isStopped,
                             item.isResetting,
                             item.error,
+                            item.stackTrace,
                             item.position);
                     });
                 })
