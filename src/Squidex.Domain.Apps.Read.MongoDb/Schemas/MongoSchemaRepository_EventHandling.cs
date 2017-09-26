@@ -7,9 +7,12 @@
 // ==========================================================================
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Core.Schemas.Validators;
 using Squidex.Domain.Apps.Events;
+using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Events.Schemas;
 using Squidex.Domain.Apps.Events.Schemas.Old;
 using Squidex.Domain.Apps.Events.Schemas.Utils;
@@ -110,6 +113,11 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Schemas
         }
 
         protected Task On(SchemaDeleted @event, EnvelopeHeaders headers)
+        {
+            return Collection.UpdateAsync(@event, headers, e => e.IsDeleted = true);
+        }
+
+        protected Task On(AppPatternUpdated @event, EnvelopeHeaders headers)
         {
             return Collection.UpdateAsync(@event, headers, e => e.IsDeleted = true);
         }

@@ -38,8 +38,12 @@ export class PatternComponent extends AppComponentBase implements OnInit {
     @Output()
     public created = new EventEmitter<AppPatternsSuggestionDto>();
 
+    @Output()
+    public updated = new EventEmitter<AppPatternsSuggestionDto>();
+
     public isEditing = false;
-    public selectedTab = 0;
+    public originalPattern: AppPatternsSuggestionDto = null;
+
     private version = new Version();
     public editFormSubmitted = false;
 
@@ -50,7 +54,7 @@ export class PatternComponent extends AppComponentBase implements OnInit {
             [
                 Validators.required,
                 Validators.maxLength(100),
-                ValidatorsEx.pattern('[A-z0-9]+(\-[A-z0-9]+)*', 'Name can only contain letters, numbers and dashes.')
+                ValidatorsEx.pattern('[A-z0-9]+[A-z0-9\- ]*[A-z0-9]', 'Name can only contain letters, numbers, dashes and spaces.')
             ]
         ],
         pattern: [
@@ -80,10 +84,7 @@ export class PatternComponent extends AppComponentBase implements OnInit {
 
     public toggleEditing() {
         this.isEditing = !this.isEditing;
-    }
-
-    public selectTab(tab: number) {
-        this.selectedTab = tab;
+        this.originalPattern = this.pattern;
     }
 
     public cancel() {
@@ -94,22 +95,40 @@ export class PatternComponent extends AppComponentBase implements OnInit {
         this.editFormSubmitted = true;
 
         if (this.editForm.valid) {
+            let requestDto: AppPatternsSuggestionDto = new AppPatternsSuggestionDto(
+                this.editForm.controls['name'].value,
+                this.editForm.controls['pattern'].value,
+                this.editForm.controls['defaultMessage'].value);
+
             if (this.isNew) {
-                let requestDto: AppPatternsSuggestionDto = new AppPatternsSuggestionDto(
-                    this.editForm.controls['name'].value,
-                    this.editForm.controls['pattern'].value,
-                    this.editForm.controls['defaultMessage'].value);
                 this.appNameOnce()
                     .switchMap(app => this.patternService.postPattern(app, requestDto, this.version))
                     .subscribe(dto => {
-                        this.created.emit(dto);
-                    }, error => {
-                        this.notifyError(error);
-                    }, () => {
-                        this.resetEditForm();
-                    });
+                            this.created.emit(dto);
+                        },
+                        error => {
+                            this.notifyError(error);
+                        },
+                        () => {
+                            this.resetEditForm();
+                        });
+            } else {
+                this.appNameOnce()
+                    .switchMap(app => this.patternService.updatePattern(app,
+                        this.originalPattern.name,
+                        requestDto,
+                        this.version))
+                    .subscribe(() => {
+                            this.updated.emit(this.originalPattern);
+                            this.created.emit(requestDto);
+                        },
+                        error => {
+                            this.notifyError(error);
+                        },
+                        () => {
+                            this.resetEditForm();
+                        });
             }
-
         }
     }
 
@@ -118,6 +137,7 @@ export class PatternComponent extends AppComponentBase implements OnInit {
         this.editForm.reset(this.pattern);
 
         this.isEditing = false;
+        this.originalPattern = null;
     }
 }
 

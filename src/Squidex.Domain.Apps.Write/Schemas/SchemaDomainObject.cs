@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Domain.Apps.Events.Schemas;
 using Squidex.Domain.Apps.Events.Schemas.Utils;
 using Squidex.Domain.Apps.Write.Schemas.Commands;
@@ -313,6 +314,13 @@ namespace Squidex.Domain.Apps.Write.Schemas
             VerifyCreatedAndNotDeleted();
 
             RaiseEvent(SimpleMapper.Map(command, new SchemaDeleted()));
+
+            return this;
+        }
+
+        public SchemaDomainObject UpdatePattern(Apps.Commands.UpdatePattern command)
+        {
+            RaiseEvent(SimpleMapper.Map(command, new AppPatternUpdated()));
 
             return this;
         }

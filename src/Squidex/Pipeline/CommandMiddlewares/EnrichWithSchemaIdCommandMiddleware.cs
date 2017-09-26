@@ -7,11 +7,16 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Core.Schemas.Validators;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Domain.Apps.Read.Schemas.Services;
 using Squidex.Domain.Apps.Write;
+using Squidex.Domain.Apps.Write.Apps.Commands;
 using Squidex.Domain.Apps.Write.Schemas;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
@@ -57,6 +62,22 @@ namespace Squidex.Pipeline.CommandMiddlewares
                     }
 
                     schemaCommand.SchemaId = new NamedId<Guid>(schema.Id, schema.Name);
+                }
+            }
+
+            if (context.Command is UpdatePattern updateCommand)
+            {
+                var all = await schemas.QueryAllAsync(updateCommand.AppId.Id);
+                updateCommand.Schemas = new Dictionary<Guid, Schema>();
+                foreach (var schema in all.ToList())
+                {
+                    var fieldsWithValidators = schema.SchemaDef.Fields
+                        .Where(f => f.RawProperties is StringFieldProperties)
+                        .Any(f => f.Validators.Any(v => v is PatternValidator));
+                    if (fieldsWithValidators)
+                    {
+                        updateCommand.Schemas.Add(schema.Id, schema.SchemaDef);
+                    }
                 }
             }
 

@@ -25,6 +25,26 @@ namespace Squidex.Domain.Apps.Core.Schemas
         private ImmutableList<string> allowedValues;
         private StringFieldEditor editor;
 
+        public StringFieldProperties()
+        {
+        }
+
+        public StringFieldProperties(StringFieldProperties properties)
+        {
+            AllowedValues = properties.AllowedValues;
+            DefaultValue = properties.DefaultValue;
+            Editor = properties.Editor;
+            Hints = properties.Hints;
+            IsListField = properties.IsListField;
+            IsRequired = properties.IsRequired;
+            Label = properties.Label;
+            MaxLength = properties.MaxLength;
+            MinLength = properties.MinLength;
+            Pattern = properties.Pattern;
+            PatternMessage = properties.PatternMessage;
+            Placeholder = properties.Placeholder;
+        }
+
         public int? MinLength
         {
             get

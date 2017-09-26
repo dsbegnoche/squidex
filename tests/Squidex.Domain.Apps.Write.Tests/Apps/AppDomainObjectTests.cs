@@ -690,6 +690,62 @@ namespace Squidex.Domain.Apps.Write.Apps
                 );
         }
 
+        [Fact]
+        public void UpdatePattern_should_throw_exception_if_app_not_created()
+        {
+            Assert.Throws<DomainException>(() =>
+            {
+                sut.UpdatePattern(CreateCommand(new UpdatePattern
+                {
+                    Name = "Pattern",
+                    OriginalName = "Original",
+                    Pattern = "[0-9]"
+                }));
+            });
+        }
+
+        [Fact]
+        public void UpdatePattern_should_throw_exception_if_pattern_does_not_exist()
+        {
+            CreateApp();
+
+            Assert.Throws<DomainObjectNotFoundException>(() =>
+            {
+                sut.UpdatePattern(CreateCommand(new UpdatePattern
+                {
+                    Name = "Pattern Not Found",
+                    OriginalName = "Original",
+                    Pattern = "[0-9]"
+                }));
+            });
+        }
+
+        [Fact]
+        public void UpdatePattern_should_create_events()
+        {
+            CreateApp();
+            CreatePattern();
+
+            sut.UpdatePattern(CreateCommand(new UpdatePattern
+            {
+                Name = "Pattern Update",
+                OriginalName = "Pattern",
+                Pattern = "[0-9]",
+                DefaultMessage = "Message"
+            }));
+
+            sut.GetUncomittedEvents()
+                .ShouldHaveSameEvents(
+                    CreateEvent(new AppPatternUpdated
+                    {
+                        Name = "Pattern Update",
+                        OriginalName = "Pattern",
+                        Pattern = "[0-9]",
+                        DefaultMessage = "Message"
+                    })
+                );
+        }
+
         private void CreateApp()
         {
             A.CallTo(() => uiOptions.Value)
