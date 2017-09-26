@@ -150,7 +150,7 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<RemoteActors>()
                 .As<IActors>()
-                .AsSelf()
+                .AsSelf();
 
             builder.RegisterType<EventConsumerCleaner>()
                 .AsSelf()
