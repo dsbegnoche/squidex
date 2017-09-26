@@ -58,7 +58,7 @@ export class AppPatternsService {
             .pretifyError('Failed to add pattern. Please reload.');
     }
 
-    public updatePattern(appName: string, name: string, dto: AppPatternsSuggestionDto, version: Version): Observable<AppPatternsSuggestionDto> {
+    public updatePattern(appName: string, name: string, dto: AppPatternsSuggestionDto, version: Version): Observable<any> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/patterns/${name}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)

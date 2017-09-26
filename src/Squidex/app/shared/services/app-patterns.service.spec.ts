@@ -101,7 +101,7 @@ describe('AppPatternsService', () => {
                 const pattern1: AppPatternsSuggestionDto = new AppPatternsSuggestionDto('pattern update', '[0-9]', 'message');
 
                 patternService.updatePattern('my-app', 'pattern1', pattern1, new Version()).subscribe(result => {
-                    returnValue = result;
+                    returnValue = result.payload.body;
                 });
 
                 const response: AppPatternsSuggestionDto = pattern1;
