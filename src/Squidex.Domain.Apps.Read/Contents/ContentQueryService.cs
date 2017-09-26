@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Microsoft.OData;
 using Microsoft.OData.UriParser;
 using NodaTime;
-using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Core.Scripting;
 using Squidex.Domain.Apps.Read.Apps;
@@ -74,7 +73,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             return (schema, content);
         }
 
-        public async Task<(ISchemaEntity Schema, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, string schemaIdOrName, ClaimsPrincipal user, bool archived, HashSet<Guid> ids, string query)
+        public async Task<(ISchemaEntity Schema, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, string schemaIdOrName, ClaimsPrincipal user, bool archived, string query)
         {
             Guard.NotNull(app, nameof(app));
             Guard.NotNull(user, nameof(user));
@@ -84,29 +83,31 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var parsedQuery = ParseQuery(app, query, schema);
 
-            var status = new List<Status>();
+            var status = ParseStatus(user, archived);
 
-            if (user.IsInClient("squidex-frontend"))
-            {
-                if (archived)
-                {
-                    status.Add(Status.Archived);
-                }
-                else
-                {
-                    status.Add(Status.Draft);
-                    status.Add(Status.Declined);
-                    status.Add(Status.Published);
-                    status.Add(Status.Submitted);
-                }
-            }
-            else
-            {
-                status.Add(Status.Published);
-            }
+            var taskForItems = contentRepository.QueryAsync(app, schema, status.ToArray(), parsedQuery);
+            var taskForCount = contentRepository.CountAsync(app, schema, status.ToArray(), parsedQuery);
 
-            var taskForItems = contentRepository.QueryAsync(app, schema, status.ToArray(), ids, parsedQuery);
-            var taskForCount = contentRepository.CountAsync(app, schema, status.ToArray(), ids, parsedQuery);
+            await Task.WhenAll(taskForItems, taskForCount);
+
+            var list = TransformContent(user, schema, taskForItems.Result.ToList());
+
+            return (schema, taskForCount.Result, list);
+        }
+
+        public async Task<(ISchemaEntity Schema, long Total, IReadOnlyList<IContentEntity> Items)> QueryWithCountAsync(IAppEntity app, string schemaIdOrName, ClaimsPrincipal user, bool archived, HashSet<Guid> ids)
+        {
+            Guard.NotNull(ids, nameof(ids));
+            Guard.NotNull(app, nameof(app));
+            Guard.NotNull(user, nameof(user));
+            Guard.NotNullOrEmpty(schemaIdOrName, nameof(schemaIdOrName));
+
+            var schema = await FindSchemaAsync(app, schemaIdOrName);
+
+            var status = ParseStatus(user, archived);
+
+            var taskForItems = contentRepository.QueryAsync(app, schema, status.ToArray(), ids);
+            var taskForCount = contentRepository.CountAsync(app, schema, status.ToArray(), ids);
 
             await Task.WhenAll(taskForItems, taskForCount);
 
@@ -124,19 +125,7 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var parsedQuery = ParseQuery(app, query, allSchemas.First());
 
-            var status = new List<Status>();
-
-            if (user.IsInClient("squidex-frontend"))
-            {
-                status.Add(Status.Draft);
-                status.Add(Status.Declined);
-                status.Add(Status.Published);
-                status.Add(Status.Submitted);
-            }
-            else
-            {
-                status.Add(Status.Published);
-            }
+            var status = ParseStatus(user, false);
 
             var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray(), ids, parsedQuery);
             var taskForCount = contentRepository.CountAsync(app, status.ToArray(), ids, parsedQuery);
@@ -191,7 +180,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             }
         }
 
-        public async Task<ISchemaEntity> FindSchemaAsync(IEntity app, string schemaIdOrName)
+        public async Task<ISchemaEntity> FindSchemaAsync(IAppEntity app, string schemaIdOrName)
         {
             Guard.NotNull(app, nameof(app));
 
@@ -213,6 +202,32 @@ namespace Squidex.Domain.Apps.Read.Contents
             }
 
             return schema;
+        }
+
+        private static List<Status> ParseStatus(ClaimsPrincipal user, bool archived)
+        {
+            var status = new List<Status>();
+
+            if (user.IsInClient("squidex-frontend"))
+            {
+                if (archived)
+                {
+                    status.Add(Status.Archived);
+                }
+                else
+                {
+                    status.Add(Status.Draft);
+                    status.Add(Status.Declined);
+                    status.Add(Status.Published);
+                    status.Add(Status.Submitted);
+                }
+            }
+            else
+            {
+                status.Add(Status.Published);
+            }
+
+            return status;
         }
 
         private sealed class Content : IContentEntity

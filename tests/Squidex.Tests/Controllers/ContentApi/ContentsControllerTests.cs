@@ -142,7 +142,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 new Claim(OpenIdClaims.ClientId, "app1")
             });
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }))
                 .ReturnsAsync((schema.Object, 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act
@@ -164,7 +164,7 @@ namespace Squidex.Tests.Controllers.ContentApi
             schema.Setup(x => x.SchemaDef)
                 .Returns(new Schema("test", false, new SchemaProperties(), ImmutableList<Field>.Empty));
 
-            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }, It.IsAny<string>()))
+            this.contentQuery.Setup(x => x.QueryWithCountAsync(It.IsAny<IAppEntity>(), It.IsAny<string>(), this.user.Object, false, new HashSet<Guid>() { contentId }))
                 .ReturnsAsync((schema.Object, 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act

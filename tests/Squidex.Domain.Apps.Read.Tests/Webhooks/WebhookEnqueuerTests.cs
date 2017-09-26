@@ -75,7 +75,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(new List<IWebhookEntity> { webhook1, webhook2 });
 
             await sut.On(@event);
@@ -111,7 +111,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);
@@ -136,7 +136,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);
@@ -161,7 +161,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);
@@ -186,7 +186,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);
@@ -211,7 +211,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);
@@ -236,7 +236,7 @@ namespace Squidex.Domain.Apps.Read.Webhooks
             var webhook1 = CreateWebhook(1);
             var webhook2 = CreateWebhook(2);
 
-            A.CallTo(() => webhookRepository.QueryByAppAsync(appId.Id))
+            A.CallTo(() => webhookRepository.QueryCachedByAppAsync(appId.Id))
                 .Returns(Task.FromResult<IReadOnlyList<IWebhookEntity>>(new List<IWebhookEntity> { webhook1, webhook2 }));
 
             await sut.On(@event);

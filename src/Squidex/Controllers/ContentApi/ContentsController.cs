@@ -82,10 +82,12 @@ namespace Squidex.Controllers.ContentApi
         [SwaggerIgnore]
         public async Task<IActionResult> GetContents(string name, [FromQuery] bool archived = false, [FromQuery] string ids = null)
         {
-            var idsList = new HashSet<Guid>();
+            HashSet<Guid> idsList = null;
 
             if (!string.IsNullOrWhiteSpace(ids))
             {
+                idsList = new HashSet<Guid>();
+
                 foreach (var id in ids.Split(','))
                 {
                     if (Guid.TryParse(id, out var guid))
@@ -97,7 +99,10 @@ namespace Squidex.Controllers.ContentApi
 
             var isFrontendClient = User.IsFrontendClient();
 
-            var contents = await contentQuery.QueryWithCountAsync(App, name, User, archived, idsList, Request.QueryString.ToString());
+            var contents =
+                idsList != null ?
+                    await contentQuery.QueryWithCountAsync(App, name, User, archived, idsList) :
+                    await contentQuery.QueryWithCountAsync(App, name, User, archived, Request.QueryString.ToString());
 
             if (!isFrontendClient && idsList.Count > 0)
             {
