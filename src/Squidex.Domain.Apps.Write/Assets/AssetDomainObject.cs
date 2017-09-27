@@ -152,7 +152,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                 throw new ValidationException(message(), new ValidationError("The asset properties have not changed.", "Name"));
             }
 
-            if (newTags.Count() != newTags.Distinct().Count())
+            if (newTags != null && newTags.Count() != newTags.Distinct().Count())
             {
                 throw new ValidationException(message(), new ValidationError("Duplicate Tags", "Name"));
             }
