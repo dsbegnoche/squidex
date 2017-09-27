@@ -1,4 +1,9 @@
-﻿using System;
+﻿// ==========================================================================
+//  AssetUtil.cs
+//  CivicPlus implementation of Squidex Headless CMS
+// ==========================================================================
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
