@@ -51,34 +51,21 @@ namespace Squidex.Domain.Apps.Write.Assets
             }
         }
 
-        private async Task GenerateCompressedImage(AssetDomainObject asset, AssetFile file) =>
-            await Task.Run(async () =>
-            {
-                var sourceStream = GetTempStream();
-                await assetStore.DownloadAsync(asset.Id.ToString(), asset.FileVersion, null, sourceStream);
-
-                var compressedStream = GetTempStream();
-                await assetCompressedGenerator.CreateCompressedAsync(sourceStream, compressedStream);
-
-                compressedStream.Position = 0;
-                // don't make a compressed image if it's bigger than original.
-                if (compressedStream.Length < sourceStream.Length)
-                {
-                    await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
-                }
-            });
-
-        private static FileStream GetTempStream()
+        private async Task GenerateCompressedImage(AssetDomainObject asset, AssetFile file)
         {
-            var tempFileName = Path.GetTempFileName();
+            var sourceStream = AssetUtil.GetTempStream();
+            await assetStore.DownloadAsync(asset.Id.ToString(), asset.FileVersion, null, sourceStream);
 
-            return new FileStream(tempFileName,
-                FileMode.Create,
-                FileAccess.ReadWrite,
-                FileShare.Delete, 1024 * 16,
-                FileOptions.Asynchronous |
-                FileOptions.DeleteOnClose |
-                FileOptions.SequentialScan);
+            var compressedStream = AssetUtil.GetTempStream();
+            await assetCompressedGenerator.CreateCompressedAsync(sourceStream, compressedStream);
+
+            compressedStream.Position = 0;
+
+            // don't make a compressed image if it's bigger than original.
+            if (compressedStream.Length < sourceStream.Length)
+            {
+                await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
+            }
         }
 
         private void CheckAssetFileAsync(AssetFile file)

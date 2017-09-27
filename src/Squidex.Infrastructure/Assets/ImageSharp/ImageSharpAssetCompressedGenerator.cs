@@ -37,17 +37,20 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             var width = sourceImage.Width;
             var height = sourceImage.Height;
 
+            Func<int, int, Task> makeThumbnail = async (w, h) =>
+                await assetThumbnailGenerator.CreateThumbnailAsync(source, destination, w, h, "Crop");
+
             if (width > height && width > maxBorder)
             {
-                await assetThumbnailGenerator.CreateThumbnailAsync(source, destination, maxBorder, Ratio(width, height, maxBorder), "Crop");
+                await makeThumbnail(maxBorder, Ratio(width, height, maxBorder));
             }
             else if (height > width && height > maxBorder)
             {
-                await assetThumbnailGenerator.CreateThumbnailAsync(source, destination, Ratio(height, width, maxBorder), maxBorder, "Crop");
+                await makeThumbnail(Ratio(height, width, maxBorder), maxBorder);
             }
             else if (width > maxBorder && height > maxBorder)
             {
-                await assetThumbnailGenerator.CreateThumbnailAsync(source, destination, maxBorder, maxBorder, "Crop");
+                await makeThumbnail(maxBorder, maxBorder);
             }
             else
             {
@@ -59,7 +62,7 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             await Task.Run(async () =>
             {
                 source.Position = 0;
-                Stream input = GetTempStream();
+                Stream input = AssetUtil.GetTempStream();
                 await ResizeIfBigAsync(source, input, Image.Load((FileStream)source));
 
                 var encoderMap = new Dictionary<string, Func<IImageEncoder>>
@@ -87,18 +90,5 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
                     }
                 }
             });
-
-        private static FileStream GetTempStream()
-        {
-            var tempFileName = Path.GetTempFileName();
-
-            return new FileStream(tempFileName,
-                FileMode.Create,
-                FileAccess.ReadWrite,
-                FileShare.Delete, 1024 * 16,
-                FileOptions.Asynchronous |
-                FileOptions.DeleteOnClose |
-                FileOptions.SequentialScan);
-        }
     }
 }

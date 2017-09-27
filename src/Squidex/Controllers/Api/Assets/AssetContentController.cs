@@ -114,9 +114,9 @@ namespace Squidex.Controllers.Api.Assets
                         }
 
                         // generate thumbnail from full
-                        using (var sourceStream = GetTempStream())
+                        using (var sourceStream = AssetUtil.GetTempStream())
                         {
-                            using (var destinationStream = GetTempStream())
+                            using (var destinationStream = AssetUtil.GetTempStream())
                             {
                                 await assetStorage.DownloadAsync(assetId, asset.FileVersion, null, sourceStream);
                                 sourceStream.Position = 0;
@@ -137,19 +137,6 @@ namespace Squidex.Controllers.Api.Assets
                     await assetStorage.DownloadAsync(assetId, asset.FileVersion, null, bodyStream);
                 }
             });
-        }
-
-        private static FileStream GetTempStream()
-        {
-            var tempFileName = Path.GetTempFileName();
-
-            return new FileStream(tempFileName,
-                FileMode.Create,
-                FileAccess.ReadWrite,
-                FileShare.Delete, 1024 * 16,
-                FileOptions.Asynchronous |
-                FileOptions.DeleteOnClose |
-                FileOptions.SequentialScan);
         }
     }
 }
