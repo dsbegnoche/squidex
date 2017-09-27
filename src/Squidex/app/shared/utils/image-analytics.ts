@@ -10,19 +10,19 @@ import { ApiUrlConfig } from 'framework';
 
 export class AzureAssetDto {
     constructor(
-        public readonly id: string, \
+        public readonly id: string
     ) {
     }
 }
 
 @Injectable()
-export class ImageAnalyticsService {
+export class ImageTagService {
     private readonly key = '2b7aeed3711945b687a5342e0508a113';
     private readonly minimumConfidence = 0.8;
 
     constructor(
         private readonly http: HttpClient,
-        private readonly apiUrl: ApiUrlConfig, \
+        private readonly apiUrl: ApiUrlConfig
     ) {
     }
 

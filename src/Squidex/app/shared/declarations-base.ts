@@ -43,5 +43,6 @@ export * from './services/webhooks.service';
 
 export * from './utils/messages';
 export * from './utils/text-analytics';
+export * from './utils/image-analytics';
 
 export * from 'framework';
