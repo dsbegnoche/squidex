@@ -4,9 +4,18 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Exceptions;
+using EventStore.ClientAPI.Projections;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.CQRS.Events;
 
 namespace Migrate_EventStore
 {
@@ -18,35 +27,50 @@ namespace Migrate_EventStore
 
             var mongoClient = new MongoClient(GetMongoConnectionValue());
             var mongoDatabase = mongoClient.GetDatabase(GetMongoDatabaseValue());
-            var eventStoreClient = EventStoreConnection.Create(GetEventStoreConnectionValue());
+            var eventStoreConnection = EventStoreConnection.Create(GetEventStoreConnectionValue());
             var prefix = GetEventStorePrefixValue();
             var projection = "localhost";
 
+            var mongoEventStore = new MongoEventStore(mongoDatabase, new DefaultEventNotifier(new InMemoryPubSub()));
+            var getEventStore = new GetEventStore(eventStoreConnection, prefix, projection);
+            getEventStore.Connect();
             var collection = mongoDatabase.GetCollection<BsonDocument>("Events");
 
             var query =
                 collection.Find(new BsonDocument())
-                    .SortBy(x => x["Timestamp"])
                     .Project<BsonDocument>(
-                        Builders<BsonDocument>.Projection.Include(Field("EventsOffset")))
-                    .ToList();
+                        Builders<BsonDocument>.Projection.Include(Field("EventStream")))
+                    .ToList().Select(x => x["EventStream"]).Distinct();
+            Console.WriteLine($"Stream Count: {query.Count()}");
+
+            List<string> filters = new List<string>
+            {
+                "^app-",
+                "^(schema-)|(apps-)",
+                "^content-",
+                "^asset-",
+                "^(content-)|(app-)|(asset-)",
+                ".*",
+                "^schema-",
+                "(^webhook-)|(^schema-)"
+            };
+
+            foreach (string filter in filters)
+            {
+                CreateProjectionAsync(filter, eventStoreConnection, prefix, projection).Wait();
+            }
+
+            foreach (var stream in query)
+            {
+                var events = mongoEventStore.GetEventsAsync(stream.AsString).Result;
+                Console.WriteLine($"{stream.AsString} - {events.Count}");
+                getEventStore.AppendEventsAsync(Guid.NewGuid(), stream.AsString, events.Select(x => x.Data).ToList());
+            }
 
             Console.Write("Migrate Events...");
 
-            foreach (var eventCommit in query)
-            {
-                var eventsOffset = (int)eventCommit["EventsOffset"].AsInt64;
-
-                var ts = new BsonTimestamp(eventsOffset + 10, 1);
-
-                collection.UpdateOne(
-                    Builders<BsonDocument>.Filter
-                        .Eq(Field<string>("_id"), eventCommit["_id"].AsString),
-                    Builders<BsonDocument>.Update
-                        .Set(Field<BsonTimestamp>("Timestamp"), ts).Unset(Field("EventsOffset")));
-            }
-
-            Console.WriteLine("DONE");
+            Console.WriteLine("DONE - ENTER to continue.");
+            Console.ReadLine();
         }
 
         private static StringFieldDefinition<BsonDocument, T> Field<T>(string fieldName)
@@ -90,7 +114,6 @@ namespace Migrate_EventStore
         private static string GetEventStoreConnectionValue()
         {
             Console.Write("GetEventStore Connection (ENTER for 'tcp://admin:changeit@localhost:1113'): ");
-
             var eventConnection = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(eventConnection))
@@ -98,7 +121,7 @@ namespace Migrate_EventStore
                 eventConnection = "tcp://admin:changeit@localhost:1113";
             }
 
-            return eventConnection;
+            return $"ConnectTo={eventConnection}; HeartBeatTimeout=500; MaxReconnections=-1";
         }
 
         private static string GetEventStorePrefixValue()
@@ -113,6 +136,55 @@ namespace Migrate_EventStore
             }
 
             return projection;
+        }
+
+        private static async Task CreateProjectionAsync(string streamFilter, IEventStoreConnection connection, string prefix, string projectionHost)
+        {
+            string streamName = streamFilter.Simplify();
+                var projectsManager = await ConnectToProjections(connection, projectionHost);
+
+                var projectionConfig =
+                    $@"fromAll()
+                        .when({{
+                            $any: function (s, e) {{
+                                if (e.streamId.indexOf('{prefix}') === 0 && /{streamFilter}/.test(e.streamId.substring({prefix.Length + 1}))) {{
+                                    linkTo('{streamName}', e);
+                                }}
+                            }}
+                        }});";
+
+                try
+                {
+                    await projectsManager.CreateContinuousAsync(
+                        $"${streamName}",
+                        projectionConfig,
+                        connection.Settings.DefaultUserCredentials);
+                }
+                catch (ProjectionCommandConflictException)
+                {
+                    // ignore
+                }
+        }
+
+        private static async Task<ProjectionsManager> ConnectToProjections(IEventStoreConnection connection, string projectionHost)
+        {
+            var addressParts = projectionHost.Split(':');
+
+            if (addressParts.Length < 2 || !int.TryParse(addressParts[1], out var port))
+            {
+                port = 2113;
+            }
+
+            var endpoints = await Dns.GetHostAddressesAsync(addressParts[0]);
+            var endpoint = new IPEndPoint(endpoints.First(x => x.AddressFamily == AddressFamily.InterNetwork), port);
+
+            var projectionsManager =
+                new ProjectionsManager(
+                    connection.Settings.Log,
+                    endpoint,
+                    connection.Settings.OperationTimeout);
+
+            return projectionsManager;
         }
     }
 }
