@@ -21,6 +21,7 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Actors;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.Assets.ImageSharp;
+using Squidex.Infrastructure.Assets.Suggestions;
 using Squidex.Infrastructure.Caching;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.CQRS.Events;
@@ -142,6 +143,11 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<DefaultRemoteActorChannel>()
                 .As<IRemoteActorChannel>()
+                .SingleInstance();
+
+            builder.RegisterType<AssetSuggestions>()
+                .As<IAssetSuggestions>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<RemoteActors>()
