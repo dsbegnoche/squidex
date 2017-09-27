@@ -22,11 +22,14 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
+        private readonly IAssetSuggestions assetSuggestions;
 
         public AssetCommandMiddleware(
             IAggregateHandler handler,
             IAssetStore assetStore,
-            IAssetThumbnailGenerator assetThumbnailGenerator)
+            IAssetThumbnailGenerator assetThumbnailGenerator,
+            IAssetSuggestions assetSuggestions
+            )
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
@@ -35,6 +38,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.handler = handler;
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
+            this.assetSuggestions = assetSuggestions;
         }
 
         private void ValidateCond(bool condition, string message)
@@ -67,6 +71,12 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(CreateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
+            command.File = assetSuggestions.SuggestTags
+
+            try
+            {
+                command.File.Tags = (await assetSuggestions.SuggestTags(command.File)).ToArray();
+            }
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try

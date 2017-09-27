@@ -15,7 +15,7 @@ namespace Squidex.Infrastructure.Assets.Suggestions
         {
         }
 
-        public async override Task<List<string>> SuggestedTags(string assetId, int assetVersion)
+        public async override Task<AssetFile> SuggestTags(AssetFile file)
         {
             var azureResourceKey = "2b7aeed3711945b687a5342e0508a113";
             var azureEndpoint = "https://westus.api.cognitive.microsoft.com/vision/v1.0/tag";
@@ -25,20 +25,14 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", azureResourceKey);
 
-            // pending merge:
-            // var assetStream = AssetUtil.GetTempStream();
-            FileStream assetStream = null;
-
-            await AssetStore.DownloadAsync(assetId, assetVersion, null, assetStream);
-
-            var response = await client.PostAsync(azureEndpoint, await EncodeFile(assetStream));
+            var response = await client.PostAsync(azureEndpoint, await EncodeFile(file));
 
             var tags =
                 ((JObject)await response.Content.ReadAsStringAsync())
                     .SelectToken("tags")
                     .ToObject<List<TagResult>>();
 
-            return tags.Where(tag => tag.Confidence > minimumConfidence)
+            tags.Where(tag => tag.Confidence > minimumConfidence)
                        .Select(tag => tag.Name).ToList();
         }
 
@@ -49,16 +43,17 @@ namespace Squidex.Infrastructure.Assets.Suggestions
         }
 
         // TODO
-        private async Task<MultipartFormDataContent> EncodeFile(Stream file)
+        private async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
         {
             var content = new MultipartFormDataContent();
+            // file.OpenRead().ReadAsync();
             // var fileContentTask = new StreamContent(info.OpenRead()).ReadAsByteArrayAsync();
             // var fileContent = Task.Run(() => fileContentTask).Result;
-            content.Add(new StreamContent(file), "File", "filename");
+            content.Add(new StreamContent(file.OpenRead()), "File", "filename");
             return await Task.Run(() => content);
         }
 
-        public override Task<string> SuggestedSummary(string assetId, int assetVersion)
+        public override Task<string> SuggestSummary(AssetFile file)
         {
             throw new NotImplementedException();
         }

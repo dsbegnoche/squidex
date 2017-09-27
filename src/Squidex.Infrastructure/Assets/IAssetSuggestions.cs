@@ -16,7 +16,7 @@ namespace Squidex.Infrastructure.Assets
             AssetStore = assetStore;
         }
 
-        public abstract Task<List<string>> SuggestedTags(string assetId, int assetVersion);
-        public abstract Task<string> SuggestedSummary(string assetId, int assetVersion);
+        public abstract Task<AssetFile> SuggestTags(AssetFile file);
+        public abstract Task<string> SuggestSummary(AssetFile file);
     }
 }
