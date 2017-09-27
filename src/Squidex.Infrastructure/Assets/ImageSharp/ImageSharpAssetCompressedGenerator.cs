@@ -58,14 +58,13 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             }
         }
 
-        public async Task CreateCompressedAsync(Stream source, Stream destination) =>
-            await Task.Run(async () =>
-            {
-                source.Position = 0;
-                Stream input = AssetUtil.GetTempStream();
-                await ResizeIfBigAsync(source, input, Image.Load((FileStream)source));
+        public async Task CreateCompressedAsync(Stream source, Stream destination)
+        {
+            source.Position = 0;
+            Stream input = AssetUtil.GetTempStream();
+            await ResizeIfBigAsync(source, input, Image.Load((FileStream)source));
 
-                var encoderMap = new Dictionary<string, Func<IImageEncoder>>
+            var encoderMap = new Dictionary<string, Func<IImageEncoder>>
                 {
                     // ref: https://www.freeformatter.com/mime-types-list.html
                     { "image/jpeg", () => new JpegEncoder() { Quality = 75 } },
@@ -76,19 +75,19 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
                     // { "image/gif", () => new GifEncoder() },
                 };
 
-                input.Position = 0;
-                using (var inputImage = Image.Load(input, out var format))
+            input.Position = 0;
+            using (var inputImage = Image.Load(input, out var format))
+            {
+                if (encoderMap.ContainsKey(format.DefaultMimeType))
                 {
-                    if (encoderMap.ContainsKey(format.DefaultMimeType))
-                    {
-                        inputImage.Save(destination, encoderMap[format.DefaultMimeType]());
-                    }
-                    else
-                    {
-                        input.Position = 0;
-                        input.CopyTo(destination);
-                    }
+                    inputImage.Save(destination, encoderMap[format.DefaultMimeType]());
                 }
-            });
+                else
+                {
+                    input.Position = 0;
+                    input.CopyTo(destination);
+                }
+            }
+        }
     }
 }
