@@ -18,6 +18,14 @@ services:
       - "27017:27017"
     labels:
       NAME: "squidex_mongo"
+  squidex_eventstore:
+    image: eventstore/eventstore
+    ports:
+      - "2113:2113"
+      - "1113:1113"
+    restart: always
+    environment:
+      - "EVENTSTORE_RUN_PROJECTIONS=All"
   kraken_dev:
     image: "civicplus.azurecr.io/kraken:dev"
     ports:
@@ -26,8 +34,12 @@ services:
       - "URLS__BASEURL=https://${KRAKEN_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__TYPE=GetEventStore"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_DEV}"
+      - "EVENTSTORE__GETEVENTSTORE__CONFIGURATION=ConnectTo=tcp://admin:Kraken88@localhost:1113; HeartBeatTimeout=500; MaxReconnections=-1"
+      - "EVENTSTORE__GETEVENTSTORE__PROJECTIONHOST=localhost"
+      - "EVENTSTORE__GETEVENTSTORE__PREFIX=${EVENTSTORE_PREFIX_DEV}"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
