@@ -67,8 +67,6 @@ namespace Migrate_EventStore
                 getEventStore.AppendEventsAsync(Guid.NewGuid(), stream.AsString, events.Select(x => x.Data).ToList());
             }
 
-            Console.Write("Migrate Events...");
-
             Console.WriteLine("DONE - ENTER to continue.");
             Console.ReadLine();
         }
