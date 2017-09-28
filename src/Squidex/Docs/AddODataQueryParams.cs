@@ -13,7 +13,7 @@ namespace Squidex.Docs
     {
         public async Task<bool> ProcessAsync(OperationProcessorContext context)
         {
-            if (context.OperationDescription.Path == "/content")
+            if (context.OperationDescription.Path == "/content/{app}")
             {
                 context.OperationDescription.Operation.AddQueryParameter("$top", JsonObjectType.Number, "Optional number of contents to take.");
                 context.OperationDescription.Operation.AddQueryParameter("$skip", JsonObjectType.Number, "Optional number of contents to skip.");

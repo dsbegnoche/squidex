@@ -86,7 +86,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         const initFile = this.initFile;
 
         if (initFile) {
-            if (initFile.size <= this.maxFileSize) {
+            if (initFile.size < this.maxFileSize) {
                 this.appNameOnce()
                     .switchMap(app => this.assetsService.uploadFile(app,
                         initFile,
@@ -104,7 +104,7 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                     this.emitFailed(error);
                         });
             } else {
-                this.notifyError('Files must be smaller than 500MB.');
+                this.notifyError('Files must be smaller than 500 MB.');
             }
         } else {
             this.updateAsset(this.asset, false);

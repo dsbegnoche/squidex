@@ -23,6 +23,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     public class AssetCommandMiddlewareTests : HandlerTestBase<AssetDomainObject>
     {
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator = A.Fake<IAssetThumbnailGenerator>();
+        private readonly IAssetCompressedGenerator assetCompressedGenerator = A.Fake<IAssetCompressedGenerator>();
         private readonly IAssetSuggestions assetSuggestions = A.Fake<IAssetSuggestions>();
         private readonly IAssetStore assetStore = A.Fake<IAssetStore>();
         private readonly AssetCommandMiddleware sut;
@@ -39,7 +40,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             asset = new AssetDomainObject(assetId, -1);
 
-            sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator, assetSuggestions);
+            sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator, assetCompressedGenerator, assetSuggestions);
         }
 
         [Fact]

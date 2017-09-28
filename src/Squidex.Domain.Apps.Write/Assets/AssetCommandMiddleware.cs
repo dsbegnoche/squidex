@@ -9,11 +9,13 @@
 namespace Squidex.Domain.Apps.Write.Assets
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using Squidex.Domain.Apps.Write.Assets.Commands;
     using Squidex.Infrastructure;
     using Squidex.Infrastructure.Assets;
+    using Squidex.Infrastructure.Assets.ImageSharp;
     using Squidex.Infrastructure.CQRS.Commands;
     using Squidex.Infrastructure.Dispatching;
 
@@ -23,21 +25,24 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
         private readonly IAssetSuggestions assetSuggestions;
+        private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
         public AssetCommandMiddleware(
             IAggregateHandler handler,
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
-            IAssetSuggestions assetSuggestions
-            )
+            IAssetCompressedGenerator assetCompressedGenerator,
+            IAssetSuggestions assetSuggestions)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
             Guard.NotNull(assetThumbnailGenerator, nameof(assetThumbnailGenerator));
+            Guard.NotNull(assetCompressedGenerator, nameof(assetCompressedGenerator));
 
             this.handler = handler;
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
+            this.assetCompressedGenerator = assetCompressedGenerator;
             this.assetSuggestions = assetSuggestions;
         }
 
@@ -46,6 +51,23 @@ namespace Squidex.Domain.Apps.Write.Assets
             if (condition)
             {
                 throw new ValidationException("Cannot create asset.", new ValidationError(message));
+            }
+        }
+
+        private async Task GenerateCompressedImage(AssetDomainObject asset, AssetFile file)
+        {
+            var sourceStream = AssetUtil.GetTempStream();
+            await assetStore.DownloadAsync(asset.Id.ToString(), asset.FileVersion, null, sourceStream);
+
+            var compressedStream = AssetUtil.GetTempStream();
+            await assetCompressedGenerator.CreateCompressedAsync(sourceStream, compressedStream);
+
+            compressedStream.Position = 0;
+
+            // don't make a compressed image if it's bigger than original.
+            if (compressedStream.Length < sourceStream.Length)
+            {
+                await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
             }
         }
 
@@ -86,6 +108,11 @@ namespace Squidex.Domain.Apps.Write.Assets
                 });
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
+
+                if (command.ImageInfo != null)
+                {
+                    await GenerateCompressedImage(asset, command.File);
+                }
             }
             finally
             {
@@ -110,6 +137,11 @@ namespace Squidex.Domain.Apps.Write.Assets
                 });
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
+
+                if (command.ImageInfo != null)
+                {
+                    await GenerateCompressedImage(asset, command.File);
+                }
             }
             finally
             {

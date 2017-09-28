@@ -56,6 +56,10 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             });
         }
 
+        /// <summary> Get information about an image from a source stream</summary>
+        /// <param name="source"> The file stream to get image info about</param>
+        // note: this is not related to Thumbnail generation it seems just like a
+        //       utility function used for getting information on asset creatiuon.
         public Task<ImageInfo> GetImageInfoAsync(Stream source)
         {
             return Task.Run(() =>
@@ -63,7 +67,6 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
                 try
                 {
                     var image = Image.Load(source);
-
                     return new ImageInfo(image.Width, image.Height);
                 }
                 catch
