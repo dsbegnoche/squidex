@@ -24,7 +24,7 @@ using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Infrastructure.CQRS.Events
 {
-    internal sealed class GetEventStoreSubscription : Actor, IEventSubscription
+    public sealed class GetEventStoreSubscription : Actor, IEventSubscription
     {
         private const int ReconnectWindowMax = 5;
         private const int ReconnectWaitMs = 1000;
@@ -93,7 +93,6 @@ namespace Squidex.Infrastructure.CQRS.Events
                         streamName = $"by-{prefix.Simplify()}-{streamFilter.Simplify()}";
 
                         await CreateProjectionAsync();
-
                         SendAsync(new ConnectMessage()).Forget();
 
                         break;
@@ -193,14 +192,12 @@ namespace Squidex.Infrastructure.CQRS.Events
 
                 try
                 {
-                    await projectsManager.CreateContinuousAsync($"${streamName}", projectionConfig, connection.Settings.DefaultUserCredentials);
+                    await projectsManager.CreateContinuousAsync($"${streamName}", projectionConfig,
+                        connection.Settings.DefaultUserCredentials);
                 }
-                catch (Exception ex)
+                catch (ProjectionCommandConflictException)
                 {
-                    if (!(ex is ProjectionCommandConflictException))
-                    {
-                        throw;
-                    }
+                    // ignore
                 }
             }
         }

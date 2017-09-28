@@ -18,6 +18,8 @@ namespace Squidex.Infrastructure.CQRS.Events
 
         string Error { get; }
 
+        string StackTrace { get; }
+
         string Position { get; }
     }
 }

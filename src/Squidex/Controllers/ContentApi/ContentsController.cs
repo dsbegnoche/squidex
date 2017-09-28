@@ -104,9 +104,9 @@ namespace Squidex.Controllers.ContentApi
                     await contentQuery.QueryWithCountAsync(App, name, User, archived, idsList) :
                     await contentQuery.QueryWithCountAsync(App, name, User, archived, Request.QueryString.ToString());
 
-            if (!isFrontendClient && idsList.Count > 0)
+            if (!isFrontendClient && idsList?.Count > 0)
             {
-                await contentUsageTracker.TrackAsync(idsList.ToList(), DateTime.UtcNow, AppId);
+                await contentUsageTracker.TrackAsync(idsList?.ToList(), DateTime.UtcNow, AppId);
             }
 
             var response = new AssetsDto

@@ -29,6 +29,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             public string Name { get; set; }
             public string Error { get; set; }
             public string Position { get; set; }
+            public string StackTrace { get; set; }
         }
 
         private readonly IEventConsumerInfoRepository eventConsumerInfoRepository = A.Fake<IEventConsumerInfoRepository>();
@@ -89,7 +90,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             A.CallTo(() => eventConsumerInfoRepository.StartAsync(consumerName))
                 .MustHaveHappened();
 
-            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, null))
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, null, null))
                 .MustHaveHappened();
 
             A.CallTo(() => eventSubscription.StopAsync())
@@ -116,7 +117,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             A.CallTo(() => eventConsumerInfoRepository.SetPositionAsync(consumerName, null, true))
                 .MustHaveHappened();
 
-            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, null))
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, null, null))
                 .MustHaveHappened();
 
             A.CallTo(() => eventConsumer.ClearAsync())
@@ -178,7 +179,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             await sut.SendAsync(new ResetConsumerMessage());
             await sut.StopAsync();
 
-            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message))
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message, exception.StackTrace))
                 .MustHaveHappened();
         }
 
@@ -203,7 +204,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             A.CallTo(() => eventConsumerInfoRepository.SetPositionAsync(consumerName, @event.EventPosition, false))
                 .MustNotHaveHappened();
 
-            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message))
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message, exception.StackTrace))
                 .MustHaveHappened();
         }
 
@@ -228,7 +229,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             A.CallTo(() => eventConsumerInfoRepository.SetPositionAsync(consumerName, @event.EventPosition, false))
                 .MustNotHaveHappened();
 
-            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message))
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.Message, exception.StackTrace))
                 .MustHaveHappened();
         }
 

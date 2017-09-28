@@ -22,6 +22,10 @@ namespace Squidex.Infrastructure.CQRS.Events
         public string Error { get; set; }
 
         [BsonElement]
+        [BsonIgnoreIfNull]
+        public string StackTrace { get; set; }
+
+        [BsonElement]
         [BsonIgnoreIfDefault]
         public bool IsStopped { get; set; }
 
