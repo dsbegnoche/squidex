@@ -195,7 +195,7 @@ namespace Squidex.Tests.Controllers.ContentApi
                 .ReturnsAsync((new List<ISchemaEntity> { schema.Object }.AsReadOnly(), 1, new List<IContentEntity>() { content.Object }.AsReadOnly()));
 
             // Act
-            var result = await this.systemUnderTest.GetContentsFromAllSchemas(contentId.ToString());
+            var result = await this.systemUnderTest.GetContentsFromAllSchemas("app1", contentId.ToString());
 
             // Assert
             this.contentUsageTracker.Verify(x => x.TrackAsync(It.IsAny<List<Guid>>(), It.IsAny<DateTime>(), It.IsAny<Guid>()), Times.Once);
