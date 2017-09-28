@@ -9,7 +9,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 
 import { AppComponentBase } from './app.component-base';
-import { ImageTagService } from '../utils/image-analytics';
 
 import {
     AppsStoreService,
@@ -64,22 +63,21 @@ export class AssetComponent extends AppComponentBase implements OnInit {
     public renameDialog = new ModalView();
     public renameFormSubmitted = false;
     public renameForm =
-    this.formBuilder.group({
-        name: ['',
-            [
-                Validators.required
+        this.formBuilder.group({
+            name: ['',
+                [
+                    Validators.required
             ]],
-        briefDescription: [''],
-        tags: ['']
-    });
+            briefDescription: [''],
+            tags: ['']
+        });
 
     public progress = 0;
     public renameFormError = '';
 
     constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly formBuilder: FormBuilder,
-        private readonly assetsService: AssetsService,
-        private readonly imageTagService: ImageTagService
+        private readonly assetsService: AssetsService
     ) {
         super(dialogs, apps, authService);
     }
@@ -191,18 +189,9 @@ export class AssetComponent extends AppComponentBase implements OnInit {
         this.renameForm.enable();
         this.renameForm.controls['name'].setValue(this.asset.fileName);
         this.renameForm.controls['briefDescription'].setValue(this.asset.briefDescription);
+        this.renameForm.controls['tags'].setValue(this.asset.tags);
         this.renameFormSubmitted = false;
         this.renameDialog.hide();
-
-        // if this is the first version of the asset, suggest some tags.
-        console.log(this.asset);
-        if (this.asset.version.value === '0') {
-            this.imageTagService
-                .getTags(this.asset.id)
-                .then((tags: string[]) => this.renameForm.controls['tags'].setValue(tags));
-        } else {
-            this.renameForm.controls['tags'].setValue(this.asset.tags);
-        }
     }
 
     private updateAsset(asset: AssetDto, emitEvent: boolean) {
