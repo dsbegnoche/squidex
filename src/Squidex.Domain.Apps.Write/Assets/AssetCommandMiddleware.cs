@@ -98,6 +98,11 @@ namespace Squidex.Domain.Apps.Write.Assets
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
             {
+                if (command.ImageInfo != null)
+                {
+                    command.File = await assetSuggestions.SuggestTags(command.File);
+                }
+
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>
                 {
                     a.Create(command);
@@ -112,17 +117,6 @@ namespace Squidex.Domain.Apps.Write.Assets
                 if (command.ImageInfo != null)
                 {
                     await GenerateCompressedImage(asset, command.File);
-
-                    var target = new RenameAsset
-                    {
-                        Tags = await assetSuggestions.SuggestTags(command.File),
-                        BriefDescription = command.File.BriefDescription,
-                        FileName = command.File.FileName,
-                        AssetId = asset.Id,
-                        ExpectedVersion = asset.Version,
-                    };
-
-                    await handler.CreateAsync<AssetDomainObject>(context, a => a.Rename(target));
                 }
             }
             finally

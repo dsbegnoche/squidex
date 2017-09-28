@@ -21,18 +21,31 @@ namespace Squidex.Infrastructure.Assets.Suggestions
         private double MinimumConfidence { get; } = 0.8;
         private double MaxImageSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
-        public async override Task<string[]> SuggestTags(AssetFile file)
+        public async override Task<AssetFile> SuggestTags(AssetFile file)
         {
             if (file.FileSize > MaxImageSize)
             {
-                return new string[0];
+                return file;
             }
 
-            return JObject.Parse(await CallAzureService(file))["tags"]
-                          .ToObject<List<TagResult>>()
-                          .Where(tag => tag.Confidence > MinimumConfidence)
-                          .Select(tag => tag.Name)
-                          .ToArray();
+            var suggestedTags =
+                JObject.Parse(await CallAzureService(file))["tags"]
+                       .ToObject<List<TagResult>>()
+                       .Where(tag => tag.Confidence > MinimumConfidence)
+                       .Select(tag => tag.Name)
+                       .ToArray();
+
+            return new AssetFile(
+                file.FileName,
+                file.MimeType,
+                file.FileSize,
+                file.OpenRead,
+                file.BriefDescription,
+                suggestedTags,
+                file.AssetConfig,
+                file.MaxAssetRepoSize,
+                file.CurrentAssetRepoSize
+                );
         }
 
         private async Task<string> CallAzureService(AssetFile file)
