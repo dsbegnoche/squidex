@@ -71,12 +71,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(CreateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
-            command.File = assetSuggestions.SuggestTags
-
-            try
-            {
-                command.File.Tags = (await assetSuggestions.SuggestTags(command.File)).ToArray();
-            }
+            command.File = await assetSuggestions.SuggestTags(command.File);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try

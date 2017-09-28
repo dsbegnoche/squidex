@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Squidex.Infrastructure.Assets.Suggestions
@@ -26,31 +27,44 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", azureResourceKey);
 
             var response = await client.PostAsync(azureEndpoint, await EncodeFile(file));
+            var stringcontent = await response.Content.ReadAsStringAsync();
 
-            var tags =
-                ((JObject)await response.Content.ReadAsStringAsync())
-                    .SelectToken("tags")
-                    .ToObject<List<TagResult>>();
+            var tags = JObject.Parse(stringcontent)["tags"].ToObject<List<TagResult>>();
 
-            tags.Where(tag => tag.Confidence > minimumConfidence)
-                       .Select(tag => tag.Name).ToList();
+            var suggestedTags = tags.Where(tag => tag.confidence > minimumConfidence)
+                       .Select(tag => tag.name).ToArray();
+
+            return new AssetFile(
+                    file.FileName,
+                    file.MimeType,
+                    file.FileSize,
+                    file.OpenRead,
+                    file.BriefDescription,
+                    suggestedTags,
+                    file.AssetConfig,
+                    file.MaxAssetRepoSize,
+                    file.CurrentAssetRepoSize
+                    );
         }
 
         private sealed class TagResult
         {
-            public string Name { get; set; }
-            public double Confidence { get; set; }
+            public string name { get; set; }
+            public double confidence { get; set; }
         }
 
-        // TODO
         private async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
         {
             var content = new MultipartFormDataContent();
-            // file.OpenRead().ReadAsync();
-            // var fileContentTask = new StreamContent(info.OpenRead()).ReadAsByteArrayAsync();
-            // var fileContent = Task.Run(() => fileContentTask).Result;
-            content.Add(new StreamContent(file.OpenRead()), "File", "filename");
-            return await Task.Run(() => content);
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                await file.OpenRead().CopyToAsync(ms);
+                var byteContent = new ByteArrayContent(ms.ToArray());
+                content.Add(byteContent, "File", "filename");
+            }
+
+            return content;
         }
 
         public override Task<string> SuggestSummary(AssetFile file)
