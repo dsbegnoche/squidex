@@ -130,7 +130,7 @@ export class AssetsService {
         }
 
         if (query && query.length > 0) {
-            queries.push(`query=${query}`);
+            queries.push(`query=${encodeURIComponent(query)}`);
         }
 
         queries.push(`take=${take}`);
