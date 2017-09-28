@@ -13,15 +13,15 @@
 
     <div class="panel-main">
         <div class="panel-content panel-content-scroll">
+            <div class="table-items-footer">
+                <sqx-pattern [pattern]="" [isNew]="true"
+                             (created)="addPattern($event)"></sqx-pattern>
+            </div>
             <div *ngFor="let pattern of appPatterns">
                 <sqx-pattern [pattern]="pattern"
                              (removing)="removePattern($event)"
                              (updated)="updatePattern($event)"
                              (created)="addPattern($event)"></sqx-pattern>
-            </div>
-            <div class="table-items-footer">
-                <sqx-pattern [pattern]="" [isNew]="true"
-                                 (created)="addPattern($event)"></sqx-pattern>
             </div>
         </div>
 

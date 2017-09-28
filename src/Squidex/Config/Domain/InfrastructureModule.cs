@@ -136,6 +136,10 @@ namespace Squidex.Config.Domain
                 .As<IAssetThumbnailGenerator>()
                 .SingleInstance();
 
+            builder.RegisterType<ImageSharpAssetCompressedGenerator>()
+                .As<IAssetCompressedGenerator>()
+                .SingleInstance();
+
             builder.Register(c => new InvalidatingMemoryCache(new MemoryCache(c.Resolve<IOptions<MemoryCacheOptions>>()), c.Resolve<IPubSub>()))
                 .As<IMemoryCache>()
                 .SingleInstance();
