@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Squidex.Infrastructure.Assets.Suggestions
@@ -16,41 +15,34 @@ namespace Squidex.Infrastructure.Assets.Suggestions
         {
         }
 
-        public async override Task<AssetFile> SuggestTags(AssetFile file)
+        // Configuration:
+        private string AzureResourceKey { get; } = "2b7aeed3711945b687a5342e0508a113";
+        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/tag";
+        private double MinimumConfidence { get; } = 0.8;
+        private double MaxImageSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
+
+        public async override Task<string[]> SuggestTags(AssetFile file)
         {
-            var azureResourceKey = "2b7aeed3711945b687a5342e0508a113";
-            var azureEndpoint = "https://westus.api.cognitive.microsoft.com/vision/v1.0/tag";
-            double minimumConfidence = 0.8;
+            if (file.FileSize > MaxImageSize)
+            {
+                return new string[0];
+            }
 
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", azureResourceKey);
-
-            var response = await client.PostAsync(azureEndpoint, await EncodeFile(file));
-            var stringcontent = await response.Content.ReadAsStringAsync();
-
-            var tags = JObject.Parse(stringcontent)["tags"].ToObject<List<TagResult>>();
-
-            var suggestedTags = tags.Where(tag => tag.confidence > minimumConfidence)
-                       .Select(tag => tag.name).ToArray();
-
-            return new AssetFile(
-                    file.FileName,
-                    file.MimeType,
-                    file.FileSize,
-                    file.OpenRead,
-                    file.BriefDescription,
-                    suggestedTags,
-                    file.AssetConfig,
-                    file.MaxAssetRepoSize,
-                    file.CurrentAssetRepoSize
-                    );
+            return JObject.Parse(await CallAzureService(file))["tags"]
+                          .ToObject<List<TagResult>>()
+                          .Where(tag => tag.Confidence > MinimumConfidence)
+                          .Select(tag => tag.Name)
+                          .ToArray();
         }
 
-        private sealed class TagResult
+        private async Task<string> CallAzureService(AssetFile file)
         {
-            public string name { get; set; }
-            public double confidence { get; set; }
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", AzureResourceKey);
+
+            var response = await client.PostAsync(AzureEndpoint, await EncodeFile(file));
+            return await response.Content.ReadAsStringAsync();
         }
 
         private async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
@@ -67,9 +59,13 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             return content;
         }
 
-        public override Task<string> SuggestSummary(AssetFile file)
+        private sealed class TagResult
         {
-            throw new NotImplementedException();
+            public string Name { get; set; }
+            public double Confidence { get; set; }
         }
+
+        public override Task<string> SuggestSummary(AssetFile file) =>
+            throw new NotImplementedException();
     }
 }

@@ -18,6 +18,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     using Squidex.Infrastructure.Assets.ImageSharp;
     using Squidex.Infrastructure.CQRS.Commands;
     using Squidex.Infrastructure.Dispatching;
+    using Squidex.Infrastructure.Reflection;
 
     public class AssetCommandMiddleware : ICommandMiddleware
     {
@@ -93,7 +94,6 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(CreateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
-            command.File = await assetSuggestions.SuggestTags(command.File);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
@@ -112,6 +112,17 @@ namespace Squidex.Domain.Apps.Write.Assets
                 if (command.ImageInfo != null)
                 {
                     await GenerateCompressedImage(asset, command.File);
+
+                    var target = new RenameAsset
+                    {
+                        Tags = await assetSuggestions.SuggestTags(command.File),
+                        BriefDescription = command.File.BriefDescription,
+                        FileName = command.File.FileName,
+                        AssetId = asset.Id,
+                        ExpectedVersion = asset.Version,
+                    };
+
+                    await handler.CreateAsync<AssetDomainObject>(context, a => a.Rename(target));
                 }
             }
             finally
