@@ -159,6 +159,9 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             A.CallTo(() => assetThumbnailGenerator.GetImageInfoAsync(stream))
                 .Returns(image);
+
+            A.CallTo(() => assetSuggestions.SuggestTags(file))
+                .Returns(file);
         }
 
         private void SetupStore(long version, Guid commitId)
