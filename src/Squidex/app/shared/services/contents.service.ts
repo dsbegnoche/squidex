@@ -136,7 +136,7 @@ export class ContentsService {
                 query.indexOf('$orderby') < 0) {
                 queryParts.push(`$search="${encodeURIComponent(query.trim())}"`);
             } else {
-                queryParts.push(`$search="${encodeURIComponent(query.trim())}"`);
+                queryParts.push(`${query.trim()}`);
             }
         }
 
