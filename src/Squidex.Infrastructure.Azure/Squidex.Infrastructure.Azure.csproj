@@ -4,11 +4,12 @@
     <RootNamespace>Squidex.Infrastructure</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="CQRS\Events\TableEvent.cs" />
+    <Compile Remove="CQRS\**" />
+    <EmbeddedResource Remove="CQRS\**" />
+    <None Remove="CQRS\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="RefactoringEssentials" Version="5.2.0" />
-    <PackageReference Include="Streamstone" Version="2.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.4.0" />
   </ItemGroup>

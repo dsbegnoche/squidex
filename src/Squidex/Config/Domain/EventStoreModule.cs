@@ -11,9 +11,6 @@ using Autofac;
 using Autofac.Core;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Configuration;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Table;
 using MongoDB.Driver;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
@@ -102,45 +99,6 @@ namespace Squidex.Config.Domain
                 var connection = EventStoreConnection.Create(configuration);
 
                 builder.Register(c => new GetEventStore(connection, prefix, projectionHost))
-                    .As<IExternalSystem>()
-                    .As<IEventStore>()
-                    .SingleInstance();
-            }
-            else if (string.Equals(eventStoreType, "AzureTableEventStore", StringComparison.OrdinalIgnoreCase))
-            {
-                var accountName = Configuration.GetValue<string>("eventStore:azureTableStorage:accountName");
-                var keyValue = Configuration.GetValue<string>("eventStore:azureTableStorage:keyValue");
-                var uri = Configuration.GetValue<string>("eventStore:azureTableStorage:uri");
-
-                var credentials = new StorageCredentials(accountName, keyValue);
-
-                var tableAddress = new Uri(uri);
-
-                if (string.IsNullOrWhiteSpace(credentials.SASToken))
-                {
-                    throw new ConfigurationException("Configure Azure Table Storage EventStore configuration with 'eventStore:azureTableStorage:key'.");
-                }
-
-                if (string.IsNullOrWhiteSpace(credentials.AccountName))
-                {
-                    throw new ConfigurationException("Configure Azure Table Storage EventStore configuration with 'eventStore:azureTableStorage:accountName'.");
-                }
-
-                if (string.IsNullOrWhiteSpace(tableAddress.AbsolutePath))
-                {
-                    throw new ConfigurationException("Configure Azure Table Storage EventStore configuration with 'eventStore:azureTableStorage:uri'.");
-                }
-
-                var prefix = Configuration.GetValue<string>("eventStore:getEventStore:prefix");
-
-                var cloudStorageAccount =
-                    CloudStorageAccount.Parse(
-                        $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={keyValue}");
-
-                var tableClient = cloudStorageAccount.CreateCloudTableClient();
-                var eventStoreTable = tableClient.GetTableReference("EventStore");
-
-                builder.Register(c => new TableStorageEventStore(cloudStorageAccount, tableClient, eventStoreTable, prefix))
                     .As<IExternalSystem>()
                     .As<IEventStore>()
                     .SingleInstance();
