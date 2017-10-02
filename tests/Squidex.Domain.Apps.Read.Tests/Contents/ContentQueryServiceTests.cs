@@ -181,7 +181,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .Returns(schemaList);
             A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
+            A.CallTo(() => contentRepository.CountAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
@@ -213,7 +213,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .Returns(schemaList);
             A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content, content2 });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
+            A.CallTo(() => contentRepository.CountAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
@@ -247,7 +247,7 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .Returns(schemaList);
             A.CallTo(() => contentRepository.QueryAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(new List<IContentEntity> { content });
-            A.CallTo(() => contentRepository.CountAsync(app, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
+            A.CallTo(() => contentRepository.CountAsync(app, schemaList, A<Status[]>.That.IsSameSequenceAs(status), ids, A<ODataUriParser>.Ignored))
                 .Returns(123);
 
             A.CallTo(() => schema.ScriptQuery)
