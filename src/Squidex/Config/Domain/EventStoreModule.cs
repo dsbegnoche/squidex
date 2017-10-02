@@ -11,6 +11,7 @@ using Autofac;
 using Autofac.Core;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Table;
 using MongoDB.Driver;
@@ -132,7 +133,14 @@ namespace Squidex.Config.Domain
 
                 var prefix = Configuration.GetValue<string>("eventStore:getEventStore:prefix");
 
-                builder.Register(c => new TableStorageEventStore(new CloudTable(tableAddress, credentials), prefix))
+                var cloudStorageAccount =
+                    CloudStorageAccount.Parse(
+                        $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={keyValue}");
+
+                var tableClient = cloudStorageAccount.CreateCloudTableClient();
+                var eventStoreTable = tableClient.GetTableReference("EventStore");
+
+                builder.Register(c => new TableStorageEventStore(cloudStorageAccount, tableClient, eventStoreTable, prefix))
                     .As<IExternalSystem>()
                     .As<IEventStore>()
                     .SingleInstance();

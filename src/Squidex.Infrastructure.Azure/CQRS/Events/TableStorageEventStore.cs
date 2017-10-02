@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 using Streamstone;
@@ -16,12 +17,16 @@ namespace Squidex.Infrastructure.CQRS.Events
     {
         private const int AnyVersion = int.MinValue;
         private readonly CloudTable table;
+        private readonly CloudStorageAccount cloudStorageAccount;
+        private readonly CloudTableClient tableClient;
         private readonly string prefix;
 
-        public TableStorageEventStore(CloudTable table, string prefix)
+        public TableStorageEventStore(CloudStorageAccount cloudStorageAccount, CloudTableClient tableClient, CloudTable table, string prefix)
         {
             this.prefix = prefix?.Trim(' ', '-').WithFallback("squidex");
             this.table = table;
+            this.cloudStorageAccount = cloudStorageAccount;
+            this.tableClient = tableClient;
         }
 
         public Task AppendEventsAsync(Guid commitId, string streamName, ICollection<EventData> events)
@@ -38,6 +43,7 @@ namespace Squidex.Infrastructure.CQRS.Events
             {
                 Data = x
             });
+
             // iterate through current aggregate events increasing version with each processed event
             foreach (var @event in tableEvents)
             {
@@ -67,23 +73,24 @@ namespace Squidex.Infrastructure.CQRS.Events
                 throw new Exception();
             }
 
-            foreach (var @event in events)
+            /*Commented out because I believe it is handled with the RabbitMQ as the publisher
+             * foreach (var @event in events)
             {
                 // publish current event to the bus for further processing by subscribers
                 //_publisher.Publish(@event);
-            }
+            }*/
         }
 
         public IEventSubscription CreateSubscription()
         {
-            throw new NotImplementedException();
+            return new TableEventStoreSubscription(cloudStorageAccount, tableClient, table, prefix);
         }
 
         public async Task<IReadOnlyList<StoredEvent>> GetEventsAsync(string streamName)
         {
             var partition = new Partition(table, GetStreamName(streamName));
 
-            if (!(await Stream.ExistsAsync(partition)))
+            if (!await Stream.ExistsAsync(partition))
             {
                 throw new KeyNotFoundException();
             }
