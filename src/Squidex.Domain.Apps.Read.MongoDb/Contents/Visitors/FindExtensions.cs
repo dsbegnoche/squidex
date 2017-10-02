@@ -8,11 +8,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.OData.UriParser;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Read.Schemas;
 
 namespace Squidex.Domain.Apps.Read.MongoDb.Contents.Visitors
 {
@@ -93,18 +95,19 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents.Visitors
             }
         }
 
-        public static IFindFluent<MongoContentEntity, MongoContentEntity> Find(this IMongoCollection<MongoContentEntity> cursor, ODataUriParser query, Status[] status, HashSet<Guid> ids)
+        public static IFindFluent<MongoContentEntity, MongoContentEntity> Find(this IMongoCollection<MongoContentEntity> cursor, ODataUriParser query, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids)
         {
-            var filter = BuildQuery(query, status, ids);
+            var filter = BuildQuery(query, allSchemas, status, ids);
 
             return cursor.Find(filter);
         }
 
-        public static FilterDefinition<MongoContentEntity> BuildQuery(ODataUriParser query, Status[] status, HashSet<Guid> ids)
+        public static FilterDefinition<MongoContentEntity> BuildQuery(ODataUriParser query, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids)
         {
             var filters = new List<FilterDefinition<MongoContentEntity>>
             {
-                Filter.In(x => x.Status, status)
+                Filter.In(x => x.Status, status),
+                Filter.In(x => x.SchemaId, allSchemas.Select(x => x.Id))
             };
 
             if (ids != null && ids.Count > 0)

@@ -110,11 +110,13 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             var collection = GetCollection(app.Id);
 
             IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
+            var schemaEntities = allSchemas as IList<ISchemaEntity> ?? allSchemas.ToList();
+
             try
             {
                 cursor =
                     collection
-                        .Find(odataQuery, status, ids)
+                        .Find(odataQuery, schemaEntities, status, ids)
                         .Take(odataQuery)
                         .Skip(odataQuery);
             }
@@ -131,7 +133,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
 
             entities.ForEach(entity =>
             {
-                var schema = allSchemas.First(x => x.Id == entity.SchemaId);
+                var schema = schemaEntities.FirstOrDefault(x => x.Id == entity.SchemaId);
 
                 entity.ParseData(schema.SchemaDef);
             });
@@ -171,14 +173,14 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             return contentsCount;
         }
 
-        public Task<long> CountAsync(IAppEntity app, Status[] status, HashSet<Guid> ids, ODataUriParser odataQuery)
+        public Task<long> CountAsync(IAppEntity app, IEnumerable<ISchemaEntity> allSchemas, Status[] status, HashSet<Guid> ids, ODataUriParser odataQuery)
         {
             var collection = GetCollection(app.Id);
 
             IFindFluent<MongoContentEntity, MongoContentEntity> cursor;
             try
             {
-                cursor = collection.Find(odataQuery, status, ids);
+                cursor = collection.Find(odataQuery, allSchemas, status, ids);
             }
             catch (NotSupportedException)
             {

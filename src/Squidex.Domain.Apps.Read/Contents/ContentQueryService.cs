@@ -128,7 +128,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             var status = ParseStatus(user, false);
 
             var taskForItems = contentRepository.QueryAsync(app, allSchemas, status.ToArray(), ids, parsedQuery);
-            var taskForCount = contentRepository.CountAsync(app, status.ToArray(), ids, parsedQuery);
+            var taskForCount = contentRepository.CountAsync(app, allSchemas, status.ToArray(), ids, parsedQuery);
 
             await Task.WhenAll(taskForItems, taskForCount);
 

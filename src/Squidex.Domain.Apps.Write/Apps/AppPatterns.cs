@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Squidex.Domain.Apps.Core;
 using Squidex.Infrastructure;
 
@@ -17,7 +18,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         public void Add(string name, string pattern, string defaultMessage)
         {
-            ThrowIfFound(name.ToLower(), () => "Cannot add pattern");
+            ThrowIfFound(name.ToLower(), pattern, () => "Cannot add pattern");
             var newPattern = new AppPattern
             {
                 Name = name,
@@ -41,11 +42,18 @@ namespace Squidex.Domain.Apps.Write.Apps
             Add(name, pattern, defaultMessage);
         }
 
-        private void ThrowIfFound(string name, Func<string> message)
+        private void ThrowIfFound(string name, string pattern, Func<string> message)
         {
             if (patterns.ContainsKey(name))
             {
                 var error = new ValidationError("Pattern name is already assigned.", "Name");
+
+                throw new ValidationException(message(), error);
+            }
+
+            if (patterns.Values.Any(x => x.Pattern == pattern))
+            {
+                var error = new ValidationError("Pattern already exists.", "Pattern");
 
                 throw new ValidationException(message(), error);
             }

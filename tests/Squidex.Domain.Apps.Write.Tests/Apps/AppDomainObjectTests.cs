@@ -615,6 +615,23 @@ namespace Squidex.Domain.Apps.Write.Apps
                 sut.AddPattern(CreateCommand(new AddPattern
                 {
                     Name = "Pattern",
+                    Pattern = "[0-9a-z]",
+                    DefaultMessage = "Message"
+                }));
+            });
+        }
+
+        [Fact]
+        public void AddPattern_should_throw_exception_if_pattern_regex_already_exists()
+        {
+            CreateApp();
+            CreatePattern();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.AddPattern(CreateCommand(new AddPattern
+                {
+                    Name = "Pattern2",
                     Pattern = "[0-9]",
                     DefaultMessage = "Message"
                 }));
@@ -716,6 +733,56 @@ namespace Squidex.Domain.Apps.Write.Apps
                     Name = "Pattern Not Found",
                     OriginalName = "Original",
                     Pattern = "[0-9]"
+                }));
+            });
+        }
+
+        [Fact]
+        public void UpdatePattern_should_throw_exception_if_pattern_regex_already_exists()
+        {
+            CreateApp();
+            CreatePattern();
+
+            sut.AddPattern(CreateCommand(new AddPattern
+            {
+                Name = "Pattern2",
+                Pattern = "[0-9a-z]",
+                DefaultMessage = "Message"
+            }));
+            ((IAggregate)sut).ClearUncommittedEvents();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.UpdatePattern(CreateCommand(new UpdatePattern
+                {
+                    Name = "PatternNew",
+                    OriginalName = "Pattern",
+                    Pattern = "[0-9a-z]"
+                }));
+            });
+        }
+
+        [Fact]
+        public void UpdatePattern_should_throw_exception_if_pattern_name_already_exists()
+        {
+            CreateApp();
+            CreatePattern();
+
+            sut.AddPattern(CreateCommand(new AddPattern
+            {
+                Name = "Pattern2",
+                Pattern = "[0-9a-z]",
+                DefaultMessage = "Message"
+            }));
+            ((IAggregate)sut).ClearUncommittedEvents();
+
+            Assert.Throws<ValidationException>(() =>
+            {
+                sut.UpdatePattern(CreateCommand(new UpdatePattern
+                {
+                    Name = "Pattern2",
+                    OriginalName = "Pattern",
+                    Pattern = "[a-z]"
                 }));
             });
         }

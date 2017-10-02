@@ -132,18 +132,16 @@ namespace Squidex.Controllers.ContentApi
         /// Get contents across all schemas
         /// </summary>
         /// <param name="ids">Comma delimited list of Content Ids</param>
+        /// <param name="app">The name of the app to get the contents for.</param>
         /// <returns>
         /// 200 => Contents Found
         /// </returns>
-        /// <remarks>
-        /// Testing
-        /// </remarks>
         [MustBeAppReader]
         [HttpGet]
         [Route("content/{app}")]
         [ApiCosts(2)]
         [ProducesResponseType(typeof(AssetsDto), 200)]
-        public async Task<IActionResult> GetContentsFromAllSchemas([FromQuery] string ids = null)
+        public async Task<IActionResult> GetContentsFromAllSchemas(string app = null, [FromQuery] string ids = null)
         {
             var idsList = new HashSet<Guid>();
 
