@@ -18,6 +18,16 @@ services:
       - "27017:27017"
     labels:
       NAME: "squidex_mongo"
+  kraken_eventstore:
+    image: eventstore/eventstore
+    ports:
+      - "2113:2113"
+      - "1113:1113"
+    restart: always
+    environment:
+      - "EVENTSTORE_RUN_PROJECTIONS=All"
+    labels:
+      NAME: "eventstore-node"
   kraken_dev:
     image: "civicplus.azurecr.io/kraken:dev"
     ports:
@@ -26,8 +36,10 @@ services:
       - "URLS__BASEURL=https://${KRAKEN_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_DEV}"
+      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_dev"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -63,8 +75,10 @@ services:
       - "URLS__BASEURL=https://${KRAKEN_REVIEW_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_REVIEW}"
+      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_review"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -100,8 +114,10 @@ services:
       - "URLS__BASEURL=https://${KRAKEN_HCMS_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_HCMS}"
+      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_hcms"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -137,6 +153,7 @@ services:
       - "URLS__BASEURL=https://${SQUIDEX_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
+      - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_SQUIDEX}"
       - "PUBSUB__TYPE=redis"
