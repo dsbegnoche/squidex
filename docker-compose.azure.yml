@@ -36,7 +36,7 @@ services:
       - "URLS__BASEURL=https://${KRAKEN_DOMAIN}"
       - "URLS__ENFORCEHTTPS=true"
       - "EVENTSTORE__CONSUME=true"
-      - "EVENTSTORE__TYPE=GetEventStore"
+      - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_DEV}"
       - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_dev"
