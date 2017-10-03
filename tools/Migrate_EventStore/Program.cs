@@ -29,7 +29,7 @@ namespace Migrate_EventStore
             var mongoDatabase = mongoClient.GetDatabase(GetMongoDatabaseValue());
             var eventStoreConnection = EventStoreConnection.Create(GetEventStoreConnectionValue());
             var prefix = GetEventStorePrefixValue();
-            var projection = "localhost";
+            var projection = GetEventStoreProjectionValue();
 
             var mongoEventStore = new MongoEventStore(mongoDatabase, new DefaultEventNotifier(new InMemoryPubSub()));
             var getEventStore = new GetEventStore(eventStoreConnection, prefix, projection);
@@ -126,11 +126,25 @@ namespace Migrate_EventStore
         {
             Console.Write("GetEventStore Prefix (ENTER for 'squidex'): ");
 
+            var prefix = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                prefix = "squidex";
+            }
+
+            return prefix;
+        }
+
+        private static string GetEventStoreProjectionValue()
+        {
+            Console.Write("GetEventStore Projection (ENTER for 'localhost'): ");
+
             var projection = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(projection))
             {
-                projection = "squidex";
+                projection = "localhost";
             }
 
             return projection;
