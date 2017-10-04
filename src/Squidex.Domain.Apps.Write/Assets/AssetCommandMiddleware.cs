@@ -6,31 +6,31 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Squidex.Domain.Apps.Write.Assets.Commands;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.Assets;
+using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Dispatching;
+
 namespace Squidex.Domain.Apps.Write.Assets
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Squidex.Domain.Apps.Write.Assets.Commands;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.Assets;
-    using Squidex.Infrastructure.Assets.ImageSharp;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Squidex.Infrastructure.Dispatching;
-
     public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
+        private readonly IAssetSuggestions assetSuggestions;
         private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
         public AssetCommandMiddleware(
             IAggregateHandler handler,
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
-            IAssetCompressedGenerator assetCompressedGenerator)
+            IAssetCompressedGenerator assetCompressedGenerator,
+            IAssetSuggestions assetSuggestions)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
@@ -41,6 +41,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
             this.assetCompressedGenerator = assetCompressedGenerator;
+            this.assetSuggestions = assetSuggestions;
         }
 
         private void ValidateCond(bool condition, string message)
@@ -94,6 +95,11 @@ namespace Squidex.Domain.Apps.Write.Assets
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             try
             {
+                if (command.ImageInfo != null)
+                {
+                    command.File = await assetSuggestions.SuggestTags(command.File);
+                }
+
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>
                 {
                     a.Create(command);

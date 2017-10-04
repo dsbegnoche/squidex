@@ -96,6 +96,7 @@ export class AssetsPageComponent extends AppComponentBase implements OnDestroy, 
     }
 
     public onAssetLoaded(file: File, asset: AssetDto) {
+        this.load();
         this.newFiles = this.newFiles.remove(file);
 
         this.assetsItems = this.assetsItems.pushFront(asset);
@@ -128,4 +129,3 @@ export class AssetsPageComponent extends AppComponentBase implements OnDestroy, 
         }
     }
 }
-
