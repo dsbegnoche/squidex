@@ -32,7 +32,7 @@ describe('AssetDto', () => {
 
     it('should update name property and user info when renaming', () => {
 
-        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, version, 'name.png', ['tag']);
+        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, null, 1, 'image/png', false, 1, 1, null, null, version, 'name.png', ['tag']);
         const asset_2 = asset_1.rename('new-name.png', modifier, newVersion, 'new description', ['tag'], modified);
 
         expect(asset_2.fileName).toEqual('new-name.png');
@@ -42,9 +42,9 @@ describe('AssetDto', () => {
     });
 
     it('should update file properties when uploading', () => {
-        const update = new AssetReplacedDto(2, 2, 'image/jpeg', true, 2, 2, 'new description', ['tag']);
+        const update = new AssetReplacedDto(2, null, 2, 'image/jpeg', true, 2, 2, null, null, 'new description', ['tag']);
 
-        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, 1, 'image/png', false, 1, 1, null, 'name.png', ['tag']);
+        const asset_1 = new AssetDto('1', creator, creator, creation, creation, 'name.png', 'png', 1, null, 1, 'image/png', false, 1, 1, null, null, null, 'name.png', ['tag']);
         const asset_2 = asset_1.update(update, modifier, newVersion, modified);
 
         expect(asset_2.fileSize).toEqual(2);
@@ -147,11 +147,14 @@ describe('AssetsService', () => {
                         'my-asset1.png',
                         'png',
                         1024,
+                        null,
                         2000,
                         'image/png',
                         true,
                         1024,
                         2048,
+                        null,
+                        null,
                         new Version('11'),
                         'my-asset1.png',
                         ['tag']),
@@ -161,11 +164,14 @@ describe('AssetsService', () => {
                         'my-asset2.png',
                         'png',
                         1024,
+                        null,
                         2000,
                         'image/png',
                         true,
                         1024,
                         2048,
+                        null,
+                        null,
                         new Version('22'),
                         'my-asset2.png',
                         ['tag'])
@@ -188,22 +194,22 @@ describe('AssetsService', () => {
                 expect(req.request.headers.get('If-Match')).toBeNull();
 
                 req.flush({
-                        id: 'id1',
-                        created: '2016-12-12T10:10',
-                        createdBy: 'Created1',
-                        lastModified: '2017-12-12T10:10',
-                        lastModifiedBy: 'LastModifiedBy1',
-                        fileName: 'my-asset1.png',
-                        fileType: 'png',
-                        fileSize: 1024,
-                        fileVersion: 2000,
-                        mimeType: 'image/png',
-                        isImage: true,
-                        pixelWidth: 1024,
-                        pixelHeight: 2048,
-                        briefDescription: 'my-asset1.png',
-                        tags: ['tag']
-                    },
+                    id: 'id1',
+                    created: '2016-12-12T10:10',
+                    createdBy: 'Created1',
+                    lastModified: '2017-12-12T10:10',
+                    lastModifiedBy: 'LastModifiedBy1',
+                    fileName: 'my-asset1.png',
+                    fileType: 'png',
+                    fileSize: 1024,
+                    fileVersion: 2000,
+                    mimeType: 'image/png',
+                    isImage: true,
+                    pixelWidth: 1024,
+                    pixelHeight: 2048,
+                    briefDescription: 'my-asset1.png',
+                    tags: ['tag']
+                },
                     {
                         headers: {
                             etag: '2'
@@ -220,11 +226,14 @@ describe('AssetsService', () => {
                         'my-asset1.png',
                         'png',
                         1024,
+                        null,
                         2000,
                         'image/png',
                         true,
                         1024,
                         2048,
+                        null,
+                        null,
                         new Version('2'),
                         'my-asset1.png',
                         ['tag']));
@@ -320,10 +329,10 @@ describe('AssetsService', () => {
                 briefDescription: 'my-asset1.png',
                 tags: ['tag']
             }, {
-                headers: {
-                    etag: '2'
-                }
-            });
+                    headers: {
+                        etag: '2'
+                    }
+                });
 
             expect(asset).toEqual(
                 new AssetDto(
@@ -334,11 +343,13 @@ describe('AssetsService', () => {
                     now,
                     'my-asset1.png',
                     'png',
-                    1024, 2,
+                    1024, null, 2,
                     'image/png',
                     true,
                     1024,
                     2048,
+                    null,
+                    null,
                     new Version('2'),
                     'my-asset1.png',
                     ['tag']));
@@ -350,7 +361,7 @@ describe('AssetsService', () => {
             let asset: AssetReplacedDto | null = null;
 
             assetsService.replaceFile('my-app', '123', null!, version).subscribe(result => {
-            asset = (<Versioned<AssetReplacedDto>>result).payload;
+                asset = (<Versioned<AssetReplacedDto>>result).payload;
             });
 
             const req = httpMock.expectOne('http://service/p/api/apps/my-app/assets/123/content');
@@ -372,11 +383,13 @@ describe('AssetsService', () => {
 
             expect(asset).toEqual(
                 new AssetReplacedDto(
-                    1024, 2,
+                    1024, null, 2,
                     'image/png',
                     true,
                     1024,
                     2048,
+                    null,
+                    null,
                     'my-asset1.png',
                     ['tag']));
         }));

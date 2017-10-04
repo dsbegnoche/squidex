@@ -37,11 +37,14 @@ export class AssetDto {
         public readonly fileName: string,
         public readonly fileType: string,
         public readonly fileSize: number,
+        public readonly fileSizeCompressed: number | null,
         public readonly fileVersion: number,
         public readonly mimeType: string,
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
+        public readonly pixelWidthCompressed: number | null,
+        public readonly pixelHeightCompressed: number | null,
         public readonly version: Version,
         public readonly briefDescription: string,
         public readonly tags: string[]
@@ -56,11 +59,14 @@ export class AssetDto {
             this.fileName,
             this.fileType,
             update.fileSize,
+            update.fileSizeCompressed,
             update.fileVersion,
             update.mimeType,
             update.isImage,
             update.pixelWidth,
             update.pixelHeight,
+            update.pixelWidthCompressed,
+            update.pixelHeightCompressed,
             version,
             this.briefDescription,
             this.tags);
@@ -74,11 +80,14 @@ export class AssetDto {
             name,
             this.fileType,
             this.fileSize,
+            this.fileSizeCompressed,
             this.fileVersion,
             this.mimeType,
             this.isImage,
             this.pixelWidth,
             this.pixelHeight,
+            this.pixelWidthCompressed,
+            this.pixelHeightCompressed,
             version,
             briefDescription,
             tags);
@@ -97,11 +106,14 @@ export class UpdateAssetDto {
 export class AssetReplacedDto {
     constructor(
         public readonly fileSize: number,
+        public readonly fileSizeCompressed: number | null,
         public readonly fileVersion: number,
         public readonly mimeType: string,
         public readonly isImage: boolean,
         public readonly pixelWidth: number | null,
         public readonly pixelHeight: number | null,
+        public readonly pixelWidthCompressed: number | null,
+        public readonly pixelHeightCompressed: number | null,
         public readonly briefDescription: string,
         public readonly tags: string[]
     ) {
@@ -141,33 +153,36 @@ export class AssetsService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets?${fullQuery}`);
 
         return HTTP.getVersioned<any>(this.http, url)
-                .map(response => {
-                    const body = response.payload.body;
+            .map(response => {
+                const body = response.payload.body;
 
-                    const items: any[] = body.items;
+                const items: any[] = body.items;
 
-                    return new AssetsDto(body.total, items.map(item => {
-                        return new AssetDto(
-                            item.id,
-                            item.createdBy,
-                            item.lastModifiedBy,
-                            DateTime.parseISO_UTC(item.created),
-                            DateTime.parseISO_UTC(item.lastModified),
-                            item.fileName,
-                            item.fileType,
-                            item.fileSize,
-                            item.fileVersion,
-                            item.mimeType,
-                            item.isImage,
-                            item.pixelWidth,
-                            item.pixelHeight,
-                            new Version(item.version.toString()),
-                            item.briefDescription,
-                            item.tags
-                        );
-                    }));
-                })
-                .pretifyError('Failed to load assets. Please reload.');
+                return new AssetsDto(body.total, items.map(item => {
+                    return new AssetDto(
+                        item.id,
+                        item.createdBy,
+                        item.lastModifiedBy,
+                        DateTime.parseISO_UTC(item.created),
+                        DateTime.parseISO_UTC(item.lastModified),
+                        item.fileName,
+                        item.fileType,
+                        item.fileSize,
+                        item.fileSizeCompressed || null,
+                        item.fileVersion,
+                        item.mimeType,
+                        item.isImage,
+                        item.pixelWidth,
+                        item.pixelHeight,
+                        item.pixelWidthCompressed || null,
+                        item.pixelHeightCompressed || null,
+                        new Version(item.version.toString()),
+                        item.briefDescription,
+                        item.tags
+                    );
+                }));
+            })
+            .pretifyError('Failed to load assets. Please reload.');
     }
 
     public uploadFile(appName: string, file: File, user: string, now: DateTime): Observable<number | AssetDto> {
@@ -178,85 +193,91 @@ export class AssetsService {
         });
 
         return this.http.request<any>(req)
-                .filter(event =>
-                     event.type === HttpEventType.UploadProgress ||
-                     event.type === HttpEventType.Response)
-                .map(event => {
-                    if (event.type === HttpEventType.UploadProgress) {
-                        const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
+            .filter(event =>
+                event.type === HttpEventType.UploadProgress ||
+                event.type === HttpEventType.Response)
+            .map(event => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
 
-                        return percentDone;
-                    } else if (event instanceof HttpResponse) {
-                        const response: any = event.body;
+                    return percentDone;
+                } else if (event instanceof HttpResponse) {
+                    const response: any = event.body;
 
-                        now = now || DateTime.now();
+                    now = now || DateTime.now();
 
-                        const dto =  new AssetDto(
-                            response.id,
-                            user,
-                            user,
-                            now,
-                            now,
-                            response.fileName,
-                            response.fileType,
-                            response.fileSize,
-                            response.fileVersion,
-                            response.mimeType,
-                            response.isImage,
-                            response.pixelWidth,
-                            response.pixelHeight,
-                            new Version(event.headers.get('etag')),
-                            response.briefDescription,
-                            response.tags);
+                    const dto = new AssetDto(
+                        response.id,
+                        user,
+                        user,
+                        now,
+                        now,
+                        response.fileName,
+                        response.fileType,
+                        response.fileSize,
+                        response.fileSizeCompressed,
+                        response.fileVersion,
+                        response.mimeType,
+                        response.isImage,
+                        response.pixelWidth,
+                        response.pixelHeight,
+                        response.pixelWidthCompressed,
+                        response.pixelHeightCompressed,
+                        new Version(event.headers.get('etag')),
+                        response.briefDescription,
+                        response.tags);
 
-                        this.localCache.set(`asset.${dto.id}`, dto, 5000);
+                    this.localCache.set(`asset.${dto.id}`, dto, 5000);
 
-                        return dto;
-                    }
-                })
-                .do(dto => {
-                    this.analytics.trackEvent('Asset', 'Uploaded', appName);
-                })
-                .pretifyError('Failed to upload asset. Please reload.');
+                    return dto;
+                }
+            })
+            .do(dto => {
+                this.analytics.trackEvent('Asset', 'Uploaded', appName);
+            })
+            .pretifyError('Failed to upload asset. Please reload.');
     }
 
     public getAsset(appName: string, id: string): Observable<AssetDto> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
 
         return HTTP.getVersioned<any>(this.http, url)
-                .map(response => {
-                    const body = response.payload.body;
+            .map(response => {
+                const body = response.payload.body;
 
-                    return new AssetDto(
-                        body.id,
-                        body.createdBy,
-                        body.lastModifiedBy,
-                        DateTime.parseISO_UTC(body.created),
-                        DateTime.parseISO_UTC(body.lastModified),
-                        body.fileName,
-                        body.fileType,
-                        body.fileSize,
-                        body.fileVersion,
-                        body.mimeType,
-                        body.isImage,
-                        body.pixelWidth,
-                        body.pixelHeight,
-                        response.version,
-                        body.briefDescription,
-                        body.tags);
-                })
-                .catch(error => {
-                    if (error instanceof HttpErrorResponse && error.status === 404) {
-                        const cached = this.localCache.get(`asset.${id}`);
+                return new AssetDto(
+                    body.id,
+                    body.createdBy,
+                    body.lastModifiedBy,
+                    DateTime.parseISO_UTC(body.created),
+                    DateTime.parseISO_UTC(body.lastModified),
+                    body.fileName,
+                    body.fileType,
+                    body.fileSize,
+                    body.fileSizeCompressed || null,
+                    body.fileVersion,
+                    body.mimeType,
+                    body.isImage,
+                    body.pixelWidth,
+                    body.pixelHeight,
+                    body.pixelWidthCompressed || null,
+                    body.pixelHeightCompressed || null,
+                    response.version,
+                    body.briefDescription,
+                    body.tags);
+            })
+            .catch(error => {
+                if (error instanceof HttpErrorResponse && error.status === 404) {
+                    const cached = this.localCache.get(`asset.${id}`);
 
-                        if (cached) {
-                            return Observable.of(cached);
-                        }
+                    if (cached) {
+                        return Observable.of(cached);
                     }
+                }
 
-                    return Observable.throw(error);
-                })
-                .pretifyError('Failed to load assets. Please reload.');
+                return Observable.throw(error);
+            })
+            .pretifyError('Failed to load assets. Please reload.');
     }
 
     public replaceFile(appName: string, id: string, file: File, version: Version): Observable<number | Versioned<AssetReplacedDto>> {
@@ -270,56 +291,59 @@ export class AssetsService {
         });
 
         return this.http.request(req)
-                .filter(event =>
-                    event.type === HttpEventType.UploadProgress ||
-                    event.type === HttpEventType.Response)
-                .map(event => {
-                    if (event.type === HttpEventType.UploadProgress) {
-                        const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
+            .filter(event =>
+                event.type === HttpEventType.UploadProgress ||
+                event.type === HttpEventType.Response)
+            .map(event => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
 
-                        return percentDone;
-                    } else if (event instanceof HttpResponse) {
-                        const response: any = event.body;
+                    return percentDone;
+                } else if (event instanceof HttpResponse) {
+                    const response: any = event.body;
 
-                        const replaced =  new AssetReplacedDto(
-                            response.fileSize,
-                            response.fileVersion,
-                            response.mimeType,
-                            response.isImage,
-                            response.pixelWidth,
-                            response.pixelHeight,
-                            response.briefDescription,
-                            response.tags);
+                    const replaced = new AssetReplacedDto(
+                        response.fileSize,
+                        response.fileSizeCompressed,
+                        response.fileVersion,
+                        response.mimeType,
+                        response.isImage,
+                        response.pixelWidth,
+                        response.pixelHeight,
+                        response.pixelWidthCompressed,
+                        response.pixelHeightCompressed,
+                        response.briefDescription,
+                        response.tags);
 
-                        return new Versioned(new Version(event.headers.get('etag')), replaced);
-                    }
-                })
-                .do(() => {
-                    this.analytics.trackEvent('Analytics', 'Replaced', appName);
-                })
-                .pretifyError('Failed to replace asset. Please reload.');
+                    return new Versioned(new Version(event.headers.get('etag')), replaced);
+                }
+            })
+            .do(() => {
+                this.analytics.trackEvent('Analytics', 'Replaced', appName);
+            })
+            .pretifyError('Failed to replace asset. Please reload.');
     }
 
     public deleteAsset(appName: string, id: string, version: Version): Observable<Versioned<any>> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
-                .do(() => {
-                    this.analytics.trackEvent('Analytics', 'Deleted', appName);
+            .do(() => {
+                this.analytics.trackEvent('Analytics', 'Deleted', appName);
 
-                    this.localCache.remove(`asset.${id}`);
-                })
-                .pretifyError('Failed to delete asset. Please reload.');
+                this.localCache.remove(`asset.${id}`);
+            })
+            .pretifyError('Failed to delete asset. Please reload.');
     }
 
     public putAsset(appName: string, id: string, dto: UpdateAssetDto, version: Version): Observable<Versioned<any>> {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets/${id}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .do(() => {
-                    this.analytics.trackEvent('Analytics', 'Updated', appName);
-                })
-                .pretifyError('Failed to delete asset. Please reload.');
+            .do(() => {
+                this.analytics.trackEvent('Analytics', 'Updated', appName);
+            })
+            .pretifyError('Failed to delete asset. Please reload.');
     }
 }
 
