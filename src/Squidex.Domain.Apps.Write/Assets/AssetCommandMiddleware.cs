@@ -7,6 +7,7 @@
 // ==========================================================================
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ImageSharp;
@@ -50,12 +51,11 @@ namespace Squidex.Domain.Apps.Write.Assets
             }
         }
 
-        private async Task<CompressedInfo> GenerateCompressedImage(AssetDomainObject asset, AssetFile file)
+        private async Task<CompressedInfo> GenerateCompressedImage(AssetFile file, Stream compressedStream)
         {
             var sourceStream = AssetUtil.GetTempStream();
-            await assetStore.DownloadAsync(asset.Id.ToString(), asset.FileVersion, null, sourceStream);
+            await file.OpenRead().CopyToAsync(sourceStream);
 
-            var compressedStream = AssetUtil.GetTempStream();
             await assetCompressedGenerator.CreateCompressedAsync(sourceStream, compressedStream);
 
             compressedStream.Position = 0;
@@ -63,8 +63,6 @@ namespace Squidex.Domain.Apps.Write.Assets
             // don't make a compressed image if it's bigger than original.
             if (compressedStream.Length < sourceStream.Length)
             {
-                await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
-
                 compressedStream.Position = 0;
                 using (var compressedImage = Image.Load(compressedStream))
                 {
@@ -84,7 +82,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             ValidateCond(file.MaxAssetRepoSize > 0 &&
                          file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize,
-                         "You have reached your max asset size.");
+                         $"You have reached your max repo capacity of {file.MaxAssetRepoSize}.");
 
             ValidateCond(!filename.Contains("."), "Asset has no extensions found");
 
@@ -99,6 +97,13 @@ namespace Squidex.Domain.Apps.Write.Assets
             CheckAssetFileAsync(command.File);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
+            var compressedStream = AssetUtil.GetTempStream();
+
+            if (command.ImageInfo != null)
+            {
+                command.CompressedImageInfo = await GenerateCompressedImage(command.File, compressedStream);
+            }
+
             try
             {
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>
@@ -114,7 +119,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 if (command.ImageInfo != null)
                 {
-                    command.CompressedImageInfo = await GenerateCompressedImage(asset, command.File);
+                    compressedStream.Position = 0;
+                    await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
                 }
             }
             finally
@@ -143,7 +149,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 if (command.ImageInfo != null)
                 {
-                    command.CompressedImageInfo = await GenerateCompressedImage(asset, command.File);
+                    command.CompressedImageInfo = await GenerateCompressedImage(command.File, AssetUtil.GetTempStream());
                 }
             }
             finally

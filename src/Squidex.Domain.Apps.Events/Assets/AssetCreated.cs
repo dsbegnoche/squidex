@@ -21,11 +21,17 @@ namespace Squidex.Domain.Apps.Events.Assets
 
         public long FileSize { get; set; }
 
+        public long? FileSizeCompressed { get; set; }
+
         public bool IsImage { get; set; }
 
         public int? PixelWidth { get; set; }
 
         public int? PixelHeight { get; set; }
+
+        public int? PixelWidthCompressed { get; set; }
+
+        public int? PixelHeightCompressed { get; set; }
 
         public string BriefDescription { get; set; }
 
