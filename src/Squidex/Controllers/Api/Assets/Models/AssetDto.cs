@@ -34,16 +34,13 @@ namespace Squidex.Controllers.Api.Assets.Models
         public long FileSize { get; set; }
 
         /// <summary> The size of the file compressed in bytes. </summary>
-        public long FileSizeCompressed { get; set; }
+        public long? FileSizeCompressed { get; set; }
 
         /// <summary> The version of the file. </summary>
         public long FileVersion { get; set; }
 
         /// <summary> Determines of the created file is an image. </summary>
         public bool IsImage { get; set; }
-
-        /// <summary> Determines of the created file has a compressed image. </summary>
-        public bool IsCompressed { get; set; }
 
         /// <summary> The width of the image in pixels if the asset is an image. </summary>
         public int? PixelWidth { get; set; }

@@ -132,7 +132,13 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(UpdateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
+            var compressedStream = AssetUtil.GetTempStream();
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
+
+            if (command.ImageInfo != null)
+            {
+                command.CompressedImageInfo = await GenerateCompressedImage(command.File, compressedStream);
+            }
 
             try
             {
@@ -149,7 +155,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 if (command.ImageInfo != null)
                 {
-                    command.CompressedImageInfo = await GenerateCompressedImage(command.File, AssetUtil.GetTempStream());
+                    compressedStream.Position = 0;
+                    await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
                 }
             }
             finally

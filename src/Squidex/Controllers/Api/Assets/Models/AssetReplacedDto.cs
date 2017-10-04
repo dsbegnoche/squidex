@@ -30,9 +30,6 @@ namespace Squidex.Controllers.Api.Assets.Models
         /// <summary> Determines of the created file is an image. </summary>
         public bool IsImage { get; set; }
 
-        /// <summary> Determines of the created file was compressed. </summary>
-        public bool IsCompressed { get; set; }
-
         /// <summary> The width of the image in pixels if the asset is an image. </summary>
         public int? PixelWidth { get; set; }
 
@@ -57,7 +54,6 @@ namespace Squidex.Controllers.Api.Assets.Models
                 IsImage = command.ImageInfo != null,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
-                IsCompressed = command.CompressedImageInfo != null,
                 PixelHeightCompressed = command.CompressedImageInfo?.PixelHeight,
                 PixelWidthCompressed = command.CompressedImageInfo?.PixelWidth,
                 FileSizeCompressed = command.CompressedImageInfo?.FileSize,

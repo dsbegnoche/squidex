@@ -30,6 +30,10 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
 
         [BsonRequired]
         [BsonElement]
+        public long? FileSizeCompressed { get; set; }
+
+        [BsonRequired]
+        [BsonElement]
         public long FileVersion { get; set; }
 
         [BsonRequired]
@@ -47,6 +51,14 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
         [BsonRequired]
         [BsonElement]
         public int? PixelHeight { get; set; }
+
+        [BsonRequired]
+        [BsonElement]
+        public int? PixelWidthCompressed { get; set; }
+
+        [BsonRequired]
+        [BsonElement]
+        public int? PixelHeightCompressed { get; set; }
 
         [BsonRequired]
         [BsonElement]

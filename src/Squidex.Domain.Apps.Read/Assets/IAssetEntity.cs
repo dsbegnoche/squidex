@@ -16,6 +16,8 @@ namespace Squidex.Domain.Apps.Read.Assets
 
         long FileSize { get; }
 
+        long? FileSizeCompressed { get; }
+
         long FileVersion { get; }
 
         bool IsImage { get; }
@@ -23,6 +25,10 @@ namespace Squidex.Domain.Apps.Read.Assets
         int? PixelWidth { get; }
 
         int? PixelHeight { get; }
+
+        int? PixelWidthCompressed { get; }
+
+        int? PixelHeightCompressed { get; }
 
         string BriefDescription { get; }
 
