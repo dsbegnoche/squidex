@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NodaTime;
+using Squidex.Config.CivicPlus;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure;
@@ -149,7 +150,8 @@ namespace Squidex.Config.Domain
                 .As<IRemoteActorChannel>()
                 .SingleInstance();
 
-            builder.RegisterType<AssetSuggestions>()
+            builder.Register(c => new AssetSuggestions(c.Resolve<IAssetStore>(),
+                                                       c.Resolve<IOptions<AuthenticationKeys>>()))
                 .As<IAssetSuggestions>()
                 .AsSelf()
                 .SingleInstance();

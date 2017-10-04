@@ -6,20 +6,17 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Squidex.Domain.Apps.Write.Assets.Commands;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.Assets;
+using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Dispatching;
+
 namespace Squidex.Domain.Apps.Write.Assets
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Squidex.Domain.Apps.Write.Assets.Commands;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.Assets;
-    using Squidex.Infrastructure.Assets.ImageSharp;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Squidex.Infrastructure.Dispatching;
-    using Squidex.Infrastructure.Reflection;
-
     public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
