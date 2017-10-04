@@ -65,6 +65,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             {
                 await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
 
+                compressedStream.Position = 0;
                 using (var compressedImage = Image.Load(compressedStream))
                 {
                     return new CompressedInfo(compressedImage.Width, compressedImage.Height, compressedStream.Length);
