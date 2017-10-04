@@ -14,45 +14,39 @@ namespace Squidex.Controllers.Api.Assets.Models
 {
     public sealed class AssetReplacedDto
     {
-        /// <summary>
-        /// The mime type.
-        /// </summary>
+        /// <summary> The mime type. </summary>
         [Required]
         public string MimeType { get; set; }
 
-        /// <summary>
-        /// The size of the file in bytes.
-        /// </summary>
+        /// <summary> The size of the file in bytes. </summary>
         public long FileSize { get; set; }
 
-        /// <summary>
-        /// The version of the file.
-        /// </summary>
+        /// <summary> The size of the file compressed in bytes. </summary>
+        public long? FileSizeCompressed { get; set; }
+
+        /// <summary> The version of the file. </summary>
         public long FileVersion { get; set; }
 
-        /// <summary>
-        /// Determines of the created file is an image.
-        /// </summary>
+        /// <summary> Determines of the created file is an image. </summary>
         public bool IsImage { get; set; }
 
-        /// <summary>
-        /// The width of the image in pixels if the asset is an image.
-        /// </summary>
+        /// <summary> The width of the image in pixels if the asset is an image. </summary>
         public int? PixelWidth { get; set; }
 
-        /// <summary>
-        /// The height of the image in pixels if the asset is an image.
-        /// </summary>
+        /// <summary> The height of the image in pixels if the asset is an image. </summary>
         public int? PixelHeight { get; set; }
 
-        /// <summary>
-        /// The version of the asset.
-        /// </summary>
+        /// <summary> The width of the image in pixels if the asset is an image. </summary>
+        public int? PixelWidthCompressed { get; set; }
+
+        /// <summary> The height of the image in pixels if the asset is an image. </summary>
+        public int? PixelHeightCompressed { get; set; }
+
+        /// <summary> The version of the asset. </summary>
         public long Version { get; set; }
 
-        public static AssetReplacedDto Create(UpdateAsset command, AssetSavedResult result)
-        {
-            var response = new AssetReplacedDto
+        public static AssetReplacedDto Create(UpdateAsset command, AssetSavedResult result) =>
+            new AssetReplacedDto
             {
                 FileSize = command.File.FileSize,
                 FileVersion = result.FileVersion,
@@ -60,10 +54,10 @@ namespace Squidex.Controllers.Api.Assets.Models
                 IsImage = command.ImageInfo != null,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
+                PixelHeightCompressed = command.CompressedImageInfo?.PixelHeight,
+                PixelWidthCompressed = command.CompressedImageInfo?.PixelWidth,
+                FileSizeCompressed = command.CompressedImageInfo?.FileSize,
                 Version = result.Version
             };
-
-            return response;
-        }
     }
 }

@@ -36,12 +36,12 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
 
         protected Task On(AssetCreated @event, EnvelopeHeaders headers)
         {
-            return UpdateSizeAsync(@event.AppId.Id, headers.Timestamp().ToDateTimeUtc().Date, @event.FileSize, 1);
+            return UpdateSizeAsync(@event.AppId.Id, headers.Timestamp().ToDateTimeUtc().Date, @event.FileSize + (@event.FileSizeCompressed ?? 0), 1);
         }
 
         protected Task On(AssetUpdated @event, EnvelopeHeaders headers)
         {
-            return UpdateSizeAsync(@event.AppId.Id, headers.Timestamp().ToDateTimeUtc().Date, @event.FileSize, 0);
+            return UpdateSizeAsync(@event.AppId.Id, headers.Timestamp().ToDateTimeUtc().Date, @event.FileSize + (@event.FileSizeCompressed ?? 0), 0);
         }
 
         protected Task On(AssetDeleted @event, EnvelopeHeaders headers)

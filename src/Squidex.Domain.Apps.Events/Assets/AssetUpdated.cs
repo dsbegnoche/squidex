@@ -17,6 +17,8 @@ namespace Squidex.Domain.Apps.Events.Assets
 
         public long FileSize { get; set; }
 
+        public long? FileSizeCompressed { get; set; }
+
         public long FileVersion { get; set; }
 
         public bool IsImage { get; set; }
@@ -24,5 +26,9 @@ namespace Squidex.Domain.Apps.Events.Assets
         public int? PixelWidth { get; set; }
 
         public int? PixelHeight { get; set; }
+
+        public int? PixelWidthCompressed { get; set; }
+
+        public int? PixelHeightCompressed { get; set; }
     }
 }

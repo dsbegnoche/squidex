@@ -55,14 +55,14 @@ namespace Squidex.Domain.Apps.Write.Assets
             briefDescription = @event.BriefDescription;
             tags = @event.Tags;
 
-            totalSize += @event.FileSize;
+            totalSize += @event.FileSize + (@event.FileSizeCompressed ?? 0);
         }
 
         protected void On(AssetUpdated @event)
         {
             fileVersion = @event.FileVersion;
 
-            totalSize += @event.FileSize;
+            totalSize += @event.FileSize + (@event.FileSizeCompressed ?? 0);
         }
 
         protected void On(AssetRenamed @event)
@@ -83,7 +83,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             VerifyNotCreated();
 
-            var @event = SimpleMapper.Map(command, new AssetCreated
+            var @event = new AssetCreated
             {
                 FileName = command.File.FileName,
                 FileSize = command.File.FileSize,
@@ -91,10 +91,13 @@ namespace Squidex.Domain.Apps.Write.Assets
                 MimeType = command.File.MimeType,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
+                PixelHeightCompressed = command.CompressedImageInfo?.PixelHeight,
+                PixelWidthCompressed = command.CompressedImageInfo?.PixelWidth,
+                FileSizeCompressed = command.CompressedImageInfo?.FileSize,
                 IsImage = command.ImageInfo != null,
                 BriefDescription = command.File.BriefDescription,
                 Tags = command.File.Tags
-            });
+            };
 
             RaiseEvent(@event);
 
@@ -114,7 +117,10 @@ namespace Squidex.Domain.Apps.Write.Assets
                 MimeType = command.File.MimeType,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
-                IsImage = command.ImageInfo != null
+                PixelHeightCompressed = command.CompressedImageInfo?.PixelHeight,
+                PixelWidthCompressed = command.CompressedImageInfo?.PixelWidth,
+                FileSizeCompressed = command.CompressedImageInfo?.FileSize,
+                IsImage = command.ImageInfo != null,
             });
 
             RaiseEvent(@event);
