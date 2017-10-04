@@ -80,6 +80,8 @@ namespace Squidex
                 Configuration.GetSection("ui"));
             services.Configure<MyUsageOptions>(
                 Configuration.GetSection("usage"));
+            services.Configure<AuthenticationKeys>(
+                Configuration.GetSection("keys"));
             services.Configure<FormOptions>(x =>
             {
                 x.ValueLengthLimit = int.MaxValue;

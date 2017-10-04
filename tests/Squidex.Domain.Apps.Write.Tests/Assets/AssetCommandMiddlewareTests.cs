@@ -24,6 +24,7 @@ namespace Squidex.Domain.Apps.Write.Assets
     {
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator = A.Fake<IAssetThumbnailGenerator>();
         private readonly IAssetCompressedGenerator assetCompressedGenerator = A.Fake<IAssetCompressedGenerator>();
+        private readonly IAssetSuggestions assetSuggestions = A.Fake<IAssetSuggestions>();
         private readonly IAssetStore assetStore = A.Fake<IAssetStore>();
         private readonly AssetCommandMiddleware sut;
         private readonly AssetDomainObject asset;
@@ -39,7 +40,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             asset = new AssetDomainObject(assetId, -1);
 
-            sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator, assetCompressedGenerator);
+            sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator, assetCompressedGenerator, assetSuggestions);
         }
 
         [Fact]
@@ -158,6 +159,9 @@ namespace Squidex.Domain.Apps.Write.Assets
         {
             A.CallTo(() => assetThumbnailGenerator.GetImageInfoAsync(stream))
                 .Returns(image);
+
+            A.CallTo(() => assetSuggestions.SuggestTags(file))
+                .Returns(file);
         }
 
         private void SetupStore(long version, Guid commitId)

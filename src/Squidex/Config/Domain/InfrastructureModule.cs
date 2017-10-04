@@ -15,12 +15,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NodaTime;
+using Squidex.Config.CivicPlus;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Actors;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.Assets.ImageSharp;
+using Squidex.Infrastructure.Assets.Suggestions;
 using Squidex.Infrastructure.Caching;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.CQRS.Events;
@@ -146,6 +148,12 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<DefaultRemoteActorChannel>()
                 .As<IRemoteActorChannel>()
+                .SingleInstance();
+
+            builder.Register(c => new AssetSuggestions(c.Resolve<IAssetStore>(),
+                                                       c.Resolve<IOptions<AuthenticationKeys>>()))
+                .As<IAssetSuggestions>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<RemoteActors>()
