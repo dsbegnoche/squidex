@@ -15,5 +15,7 @@ namespace Squidex.Domain.Apps.Write.Assets.Commands
         public AssetFile File { get; set; }
 
         public ImageInfo ImageInfo { get; set; }
+
+        public CompressedInfo CompressedImageInfo { get; set; }
     }
 }

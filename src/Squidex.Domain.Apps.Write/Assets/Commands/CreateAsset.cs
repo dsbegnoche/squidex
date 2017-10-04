@@ -17,6 +17,8 @@ namespace Squidex.Domain.Apps.Write.Assets.Commands
 
         public ImageInfo ImageInfo { get; set; }
 
+        public CompressedInfo CompressedImageInfo { get; set; }
+
         public CreateAsset()
         {
             AssetId = Guid.NewGuid();

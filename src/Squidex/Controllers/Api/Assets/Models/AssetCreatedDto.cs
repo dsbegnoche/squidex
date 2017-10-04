@@ -15,62 +15,53 @@ namespace Squidex.Controllers.Api.Assets.Models
 {
     public sealed class AssetCreatedDto
     {
-        /// <summary>
-        /// The id of the asset.
-        /// </summary>
+        /// <summary> The id of the asset. </summary>
         public Guid Id { get; set; }
 
-        /// <summary>
-        /// The file type.
-        /// </summary>
+        /// <summary> The file type. </summary>
         [Required]
         public string FileType { get; set; }
 
-        /// <summary>
-        /// The file name.
-        /// </summary>
+        /// <summary> The file name. </summary>
         [Required]
         public string FileName { get; set; }
 
-        /// <summary>
-        /// The mime type.
-        /// </summary>
+        /// <summary> The mime type. </summary>
         [Required]
         public string MimeType { get; set; }
 
-        /// <summary>
-        /// The size of the file in bytes.
-        /// </summary>
+        /// <summary> The size of the file in bytes. </summary>
         public long FileSize { get; set; }
 
-        /// <summary>
-        /// The version of the file.
-        /// </summary>
+        /// <summary> The size of the file compressed in bytes. </summary>
+        public long? FileSizeCompressed { get; set; }
+
+        /// <summary> The version of the file. </summary>
         public long FileVersion { get; set; }
 
-        /// <summary>
-        /// Determines of the created file is an image.
-        /// </summary>
+        /// <summary> Determines of the created file is an image. </summary>
         public bool IsImage { get; set; }
 
-        /// <summary>
-        /// The width of the image in pixels if the asset is an image.
-        /// </summary>
+        /// <summary> Determines of the created file was compressed. </summary>
+        public bool IsCompressed { get; set; }
+
+        /// <summary> The width of the image in pixels if the asset is an image. </summary>
         public int? PixelWidth { get; set; }
 
-        /// <summary>
-        /// The height of the image in pixels if the asset is an image.
-        /// </summary>
+        /// <summary> The height of the image in pixels if the asset is an image. </summary>
         public int? PixelHeight { get; set; }
 
-        /// <summary>
-        /// The version of the asset.
-        /// </summary>
+        /// <summary> The width of the image in pixels if the asset is an image. </summary>
+        public int? PixelWidthCompressed { get; set; }
+
+        /// <summary> The height of the image in pixels if the asset is an image. </summary>
+        public int? PixelHeightCompressed { get; set; }
+
+        /// <summary> The version of the asset. </summary>
         public long Version { get; set; }
 
-        public static AssetCreatedDto Create(CreateAsset command, EntityCreatedResult<Guid> result)
-        {
-            var response = new AssetCreatedDto
+        public static AssetCreatedDto Create(CreateAsset command, EntityCreatedResult<Guid> result) =>
+            new AssetCreatedDto
             {
                 Id = command.AssetId,
                 FileName = command.File.FileName,
@@ -80,10 +71,11 @@ namespace Squidex.Controllers.Api.Assets.Models
                 IsImage = command.ImageInfo != null,
                 PixelWidth = command.ImageInfo?.PixelWidth,
                 PixelHeight = command.ImageInfo?.PixelHeight,
-                Version = result.Version
+                IsCompressed = command.CompressedImageInfo != null,
+                PixelHeightCompressed = command.CompressedImageInfo?.PixelHeight,
+                PixelWidthCompressed = command.CompressedImageInfo?.PixelWidth,
+                FileSizeCompressed = command.CompressedImageInfo?.FileSize,
+                Version = result.Version,
             };
-
-            return response;
-        }
     }
 }

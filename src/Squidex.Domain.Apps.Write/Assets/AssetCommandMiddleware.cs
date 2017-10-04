@@ -6,19 +6,18 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using ImageSharp;
+using Squidex.Domain.Apps.Write.Assets.Commands;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.Assets;
+using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Dispatching;
+
 namespace Squidex.Domain.Apps.Write.Assets
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Squidex.Domain.Apps.Write.Assets.Commands;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.Assets;
-    using Squidex.Infrastructure.Assets.ImageSharp;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Squidex.Infrastructure.Dispatching;
-
     public class AssetCommandMiddleware : ICommandMiddleware
     {
         private readonly IAggregateHandler handler;
@@ -51,7 +50,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             }
         }
 
-        private async Task GenerateCompressedImage(AssetDomainObject asset, AssetFile file)
+        private async Task<CompressedInfo> GenerateCompressedImage(AssetDomainObject asset, AssetFile file)
         {
             var sourceStream = AssetUtil.GetTempStream();
             await assetStore.DownloadAsync(asset.Id.ToString(), asset.FileVersion, null, sourceStream);
@@ -65,7 +64,14 @@ namespace Squidex.Domain.Apps.Write.Assets
             if (compressedStream.Length < sourceStream.Length)
             {
                 await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
+
+                using (var compressedImage = Image.Load(compressedStream))
+                {
+                    return new CompressedInfo(compressedImage.Width, compressedImage.Height, compressedStream.Length);
+                }
             }
+
+            return null;
         }
 
         private void CheckAssetFileAsync(AssetFile file)
@@ -107,7 +113,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 if (command.ImageInfo != null)
                 {
-                    await GenerateCompressedImage(asset, command.File);
+                    command.CompressedImageInfo = await GenerateCompressedImage(asset, command.File);
                 }
             }
             finally
@@ -136,7 +142,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 if (command.ImageInfo != null)
                 {
-                    await GenerateCompressedImage(asset, command.File);
+                    command.CompressedImageInfo = await GenerateCompressedImage(asset, command.File);
                 }
             }
             finally
