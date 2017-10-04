@@ -343,13 +343,13 @@ describe('AssetsService', () => {
                     now,
                     'my-asset1.png',
                     'png',
-                    1024, null, 2,
+                    1024, undefined, 2,
                     'image/png',
                     true,
                     1024,
                     2048,
-                    null,
-                    null,
+                    undefined,
+                    undefined,
                     new Version('2'),
                     'my-asset1.png',
                     ['tag']));
@@ -383,13 +383,13 @@ describe('AssetsService', () => {
 
             expect(asset).toEqual(
                 new AssetReplacedDto(
-                    1024, null, 2,
+                    1024, undefined, 2,
                     'image/png',
                     true,
                     1024,
                     2048,
-                    null,
-                    null,
+                    undefined,
+                    undefined,
                     'my-asset1.png',
                     ['tag']));
         }));
