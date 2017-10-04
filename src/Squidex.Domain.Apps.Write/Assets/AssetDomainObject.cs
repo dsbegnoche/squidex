@@ -83,7 +83,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             VerifyNotCreated();
 
-            var @event = SimpleMapper.Map(command, new AssetCreated
+            var @event = new AssetCreated
             {
                 FileName = command.File.FileName,
                 FileSize = command.File.FileSize,
@@ -97,7 +97,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                 IsImage = command.ImageInfo != null,
                 BriefDescription = command.File.BriefDescription,
                 Tags = command.File.Tags
-            });
+            };
 
             RaiseEvent(@event);
 
