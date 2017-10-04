@@ -85,6 +85,10 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             var @event = new AssetCreated
             {
+                Actor = command.Actor,
+                AssetId = command.AssetId,
+                AppId = command.AppId,
+
                 FileName = command.File.FileName,
                 FileSize = command.File.FileSize,
                 FileVersion = fileVersion + 1,
