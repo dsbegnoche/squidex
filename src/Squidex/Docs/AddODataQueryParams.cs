@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// ==========================================================================
+//  GlobalSuppressions.cs
+//  CivicPlus implementation of Squidex Headless CMS
+// ==========================================================================
+
 using System.Threading.Tasks;
 using NJsonSchema;
 using NSwag.SwaggerGeneration.Processors;
 using NSwag.SwaggerGeneration.Processors.Contexts;
+using Squidex.Infrastructure.Tasks;
 using Squidex.Pipeline.Swagger;
 
 namespace Squidex.Docs
 {
     public class AddODataQueryParams : IOperationProcessor
     {
-        public async Task<bool> ProcessAsync(OperationProcessorContext context)
+        public Task<bool> ProcessAsync(OperationProcessorContext context)
         {
             if (context.OperationDescription.Path == "/content/{app}")
             {
@@ -21,7 +24,7 @@ namespace Squidex.Docs
                 context.OperationDescription.Operation.AddQueryParameter("$orderby", JsonObjectType.String, "Optional OData order definition.");
             }
 
-            return true; // return false to exclude the operation from the document
+            return TaskHelper.True; // return false to exclude the operation from the document
         }
     }
 }
