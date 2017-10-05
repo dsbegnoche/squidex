@@ -67,6 +67,11 @@ const routes: Routes = [
                         ]
                     },
                     {
+                        path: 'import',
+                        component: ContentPageComponent,
+                        canDeactivate: [CanDeactivateGuard]
+                    },
+                    {
                         path: ':contentId',
                         component: ContentPageComponent,
                         canDeactivate: [CanDeactivateGuard],
