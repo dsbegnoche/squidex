@@ -32,7 +32,7 @@ namespace Squidex.Config.CivicPlus
         /// </summary>
         /// <param name="services">ServiceCollection</param>
         /// <param name="configuration">Configuration</param>
-        /// <returns>ServiceCollection</returns>
+        /// <returns>A ServiceCollection</returns>
         public static IServiceCollection AddClientThrottling(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));

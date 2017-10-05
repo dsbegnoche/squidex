@@ -108,7 +108,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
         {
             var resolver = new FuncFieldResolver<IAssetEntity, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
 
                 return context.UrlGenerator.GenerateAssetUrl(app, c.Source);
             });
@@ -120,7 +120,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
         {
             var resolver = new FuncFieldResolver<IAssetEntity, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
 
                 return context.UrlGenerator.GenerateAssetSourceUrl(app, c.Source);
             });
@@ -132,7 +132,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
         {
             var resolver = new FuncFieldResolver<IAssetEntity, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
 
                 return context.UrlGenerator.GenerateAssetThumbnailUrl(app, c.Source);
             });
@@ -144,7 +144,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
         {
             var resolver = new FuncFieldResolver<IContentEntity, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
 
                 return context.UrlGenerator.GenerateContentUrl(app, schema, c.Source);
             });
@@ -156,7 +156,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
         {
             var resolver = new FuncFieldResolver<ContentFieldData, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
                 var contentIds = c.Source.GetOrDefault(c.FieldName);
 
                 return context.GetReferencedAssetsAsync(contentIds);
@@ -177,7 +177,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
 
             var resolver = new FuncFieldResolver<ContentFieldData, object>(c =>
             {
-                var context = (QueryContext)c.UserContext;
+                var context = (GraphQLQueryContext)c.UserContext;
                 var contentIds = c.Source.GetOrDefault(c.FieldName);
 
                 return context.GetReferencedContentsAsync(schemaId, contentIds);
@@ -188,7 +188,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
             return (schemaFieldType, resolver);
         }
 
-        public async Task<(object Data, object[] Errors)> ExecuteAsync(QueryContext context, GraphQLQuery query)
+        public async Task<(object Data, object[] Errors)> ExecuteAsync(GraphQLQueryContext context, GraphQLQuery query)
         {
             Guard.NotNull(context, nameof(context));
 

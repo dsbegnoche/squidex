@@ -10,11 +10,11 @@ namespace Squidex.Pipeline
 {
     public class ClientIdHeaderMiddleware
     {
-        private readonly RequestDelegate _next;
+        private readonly RequestDelegate next;
 
         public ClientIdHeaderMiddleware(RequestDelegate next)
         {
-            _next = next;
+            this.next = next;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Squidex.Pipeline
                 headers["X-ClientId"] = Constants.FrontendClient;
             }
 
-            await _next(context);
+            await next(context);
         }
     }
 }
