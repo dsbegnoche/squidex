@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Extensions.Primitives;
@@ -392,6 +393,15 @@ namespace Squidex.Controllers.ContentApi
 
             await CommandBus.PublishAsync(command);
 
+            return NoContent();
+        }
+
+        [MustBeAppAuthor]
+        [Route("content/{app}/{name}/import")]
+        [ApiCosts(1)]
+        [SwaggerIgnore]
+        public async Task<IActionResult> ImportContentFromCsv([FromBody] IFormFile file)
+        {
             return NoContent();
         }
     }
