@@ -49,7 +49,7 @@
             <span *ngIf="asset.pixelWidth">{{asset.pixelWidth}}x{{asset.pixelHeight}}px, </span> {{asset.fileSize | sqxFileSize}}
         </div>
         <div class="file-info">
-            <span *ngIf="asset.pixelWidthCompressed">: {{asset.pixelWidthCompressed}}x{{asset.pixelHeightCompressed}}px, {{asset.fileSizeCompressed | sqxFileSize}} </span>
+            <span *ngIf="asset.pixelWidthCompressed">Compressed: {{asset.pixelWidthCompressed}}x{{asset.pixelHeightCompressed}}px, {{asset.fileSizeCompressed | sqxFileSize}} </span>
         </div>
     </div>
 
