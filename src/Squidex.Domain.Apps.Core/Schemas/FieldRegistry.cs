@@ -86,6 +86,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
             Add<TagFieldProperties>(
                 (id, name, partitioning, properties) =>
                     new TagField(id, name, partitioning, (TagFieldProperties)properties));
+
+            Add<MultiFieldProperties>(
+                (id, name, partitioning, properties) =>
+                    new MultiField(id, name, partitioning, (MultiFieldProperties)properties));
         }
 
         private void Add<TFieldProperties>(FactoryFunction fieldFactory)

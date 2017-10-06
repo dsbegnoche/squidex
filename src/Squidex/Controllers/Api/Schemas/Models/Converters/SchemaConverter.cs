@@ -56,6 +56,10 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
                 {
                     typeof(TagFieldProperties),
                     p => Convert((TagFieldProperties)p)
+                },
+                {
+                    typeof(MultiFieldProperties),
+                    p => Convert((MultiFieldProperties)p)
                 }
             };
 
@@ -125,6 +129,13 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
         private static FieldPropertiesDto Convert(TagFieldProperties source)
         {
             var result = SimpleMapper.Map(source, new TagFieldPropertiesDTO());
+
+            return result;
+        }
+
+        private static FieldPropertiesDto Convert(MultiFieldProperties source)
+        {
+            var result = SimpleMapper.Map(source, new MultiFieldPropertiesDto());
 
             return result;
         }

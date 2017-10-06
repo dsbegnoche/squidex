@@ -80,6 +80,10 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL
                     field => ResolveDefault("Tag")
                 },
                 {
+                    typeof(MultiField),
+                    field => ResolveDefault("Multi")
+                },
+                {
                     typeof(AssetsField),
                     field => ResolveAssets(assetListType)
                 },
