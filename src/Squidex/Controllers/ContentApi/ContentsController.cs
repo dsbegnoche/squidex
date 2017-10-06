@@ -400,18 +400,20 @@ namespace Squidex.Controllers.ContentApi
         [Route("content/{app}/{name}/import")]
         [ApiCosts(1)]
         [SwaggerIgnore]
-        public async Task<IActionResult> ImportContentFromCsv(string name, IFormFile file)
+        public async Task<IActionResult> ImportContentFromCsv(string name, IFormFile file, [FromQuery] bool publish)
         {
             if (file.ContentType != "text/csv")
             {
                 return BadRequest(new { Error = "File must be a CSV." });
             }
 
+            var languagePartitioning = App.LanguagesConfig.Master.Key;
+
             var schema = await contentQuery.FindSchemaAsync(App, name);
 
-            var stringtest = await convertCsv.ReadAsync(file);
+            var stringtest = await convertCsv.ReadWithSchemaAsync(schema, file, languagePartitioning);
 
-            if (string.IsNullOrWhiteSpace(stringtest))
+            if (stringtest == null)
             {
                 return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
             }
