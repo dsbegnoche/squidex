@@ -16,6 +16,8 @@ namespace Squidex.Domain.Apps.Write.FileConverter
 {
     public class CsvConverter : IFileConverter
     {
+        private const string CsvParseRegex = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
+
         public async Task<List<string[]>> ReadAsync(IFormFile file)
         {
             var csv = new List<string>();
@@ -32,7 +34,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 }
             }
 
-            var csvSplit = csv.Select(r => r.Split(',')).ToList();
+            var csvSplit = csv.Select(r => Regex.Split(r, CsvParseRegex)).ToList();
             return csvSplit;
         }
 
