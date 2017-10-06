@@ -9,22 +9,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Extensions.Primitives;
-using Microsoft.OData;
 using NSwag.Annotations;
 using Squidex.Controllers.ContentApi.Models;
-using Squidex.Domain.Apps.Core.Apps;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Read.Contents;
 using Squidex.Domain.Apps.Read.Contents.GraphQL;
 using Squidex.Domain.Apps.Write.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.FileConverter.Base;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
@@ -40,12 +37,14 @@ namespace Squidex.Controllers.ContentApi
         private readonly IContentVersionLoader contentVersionLoader;
         private readonly IGraphQLService graphQl;
         private readonly IContentUsageTracker contentUsageTracker;
+        private readonly IFileConverter convertCsv;
 
         public ContentsController(ICommandBus commandBus,
             IContentUsageTracker contentUsageTracker,
             IContentQueryService contentQuery,
             IContentVersionLoader contentVersionLoader,
-            IGraphQLService graphQl)
+            IGraphQLService graphQl,
+            IFileConverter convertCsv)
             : base(commandBus)
         {
             this.contentQuery = contentQuery;
@@ -54,6 +53,7 @@ namespace Squidex.Controllers.ContentApi
             this.graphQl = graphQl;
 
             this.contentUsageTracker = contentUsageTracker;
+            this.convertCsv = convertCsv;
         }
 
         [MustBeAppReader]
@@ -402,6 +402,13 @@ namespace Squidex.Controllers.ContentApi
         [SwaggerIgnore]
         public async Task<IActionResult> ImportContentFromCsv([FromBody] IFormFile file)
         {
+            if (file.ContentType != "text/csv")
+            {
+                return BadRequest(new { Error = "File must be a CSV." });
+            }
+
+            var stringtest = await convertCsv.ReadAsync(file);
+
             return NoContent();
         }
     }
