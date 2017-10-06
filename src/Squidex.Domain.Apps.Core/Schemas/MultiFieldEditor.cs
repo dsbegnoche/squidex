@@ -4,8 +4,8 @@
 
 namespace Squidex.Domain.Apps.Core.Schemas
 {
-    public enum TagFieldEditor
+    public enum MultiFieldEditor
     {
-        Input,
+        MultiInput,
     }
 }

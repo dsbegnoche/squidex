@@ -10,15 +10,15 @@ using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Core.Schemas
 {
-    [TypeName("TagField")]
-    public sealed class TagFieldProperties : FieldProperties
+    [TypeName("MultiField")]
+    public sealed class MultiFieldProperties : FieldProperties
     {
         public override JToken GetDefaultValue()
         {
             return DefaultValue;
         }
 
-        public TagFieldEditor Editor { get; set; } = TagFieldEditor.Input;
+        public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.MultiInput;
 
         public string DefaultValue { get; set; } = string.Empty;
 

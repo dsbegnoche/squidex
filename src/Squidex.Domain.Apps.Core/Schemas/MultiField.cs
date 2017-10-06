@@ -12,9 +12,9 @@ using Squidex.Domain.Apps.Core.Schemas.Validators;
 
 namespace Squidex.Domain.Apps.Core.Schemas
 {
-    public sealed class TagField : Field<TagFieldProperties>
+    public sealed class MultiField : Field<MultiFieldProperties>
     {
-        public TagField(long id, string name, Partitioning partitioning, TagFieldProperties properties1)
+        public MultiField(long id, string name, Partitioning partitioning, MultiFieldProperties properties1)
             : base(id, name, partitioning, properties1)
         {
         }
