@@ -111,7 +111,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             {
                 if (command.ImageInfo != null)
                 {
-                    command.File = await assetSuggestions.SuggestTags(command.File);
+                    command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>
