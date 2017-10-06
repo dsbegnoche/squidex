@@ -5,7 +5,6 @@
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +19,8 @@ using Squidex.Domain.Apps.Read.Contents;
 using Squidex.Domain.Apps.Read.Contents.GraphQL;
 using Squidex.Domain.Apps.Write.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
+using Squidex.Domain.Apps.Write.FileConverter;
 using Squidex.Infrastructure.CQRS.Commands;
-using Squidex.Infrastructure.FileConverter.Base;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
@@ -397,17 +396,25 @@ namespace Squidex.Controllers.ContentApi
         }
 
         [MustBeAppAuthor]
+        [HttpPost]
         [Route("content/{app}/{name}/import")]
         [ApiCosts(1)]
         [SwaggerIgnore]
-        public async Task<IActionResult> ImportContentFromCsv([FromBody] IFormFile file)
+        public async Task<IActionResult> ImportContentFromCsv(string name, IFormFile file)
         {
             if (file.ContentType != "text/csv")
             {
                 return BadRequest(new { Error = "File must be a CSV." });
             }
 
+            var schema = await contentQuery.FindSchemaAsync(App, name);
+
             var stringtest = await convertCsv.ReadAsync(file);
+
+            if (string.IsNullOrWhiteSpace(stringtest))
+            {
+                return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
+            }
 
             return NoContent();
         }

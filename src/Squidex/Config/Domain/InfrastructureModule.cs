@@ -26,8 +26,6 @@ using Squidex.Infrastructure.Assets.Suggestions;
 using Squidex.Infrastructure.Caching;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.CQRS.Events;
-using Squidex.Infrastructure.FileConverter;
-using Squidex.Infrastructure.FileConverter.Base;
 using Squidex.Infrastructure.Log;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
@@ -142,10 +140,6 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<ImageSharpAssetCompressedGenerator>()
                 .As<IAssetCompressedGenerator>()
-                .SingleInstance();
-
-            builder.RegisterType<CsvConverter>()
-                .As<IFileConverter>()
                 .SingleInstance();
 
             builder.Register(c => new InvalidatingMemoryCache(new MemoryCache(c.Resolve<IOptions<MemoryCacheOptions>>()), c.Resolve<IPubSub>()))
