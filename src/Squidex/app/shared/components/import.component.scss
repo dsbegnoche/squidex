@@ -1,0 +1,187 @@
+@import '_vars';
+@import '_mixins';
+
+@mixin overlay-container {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+}
+
+@mixin overlay {
+    & {
+        @include transition(opacity .4s ease);
+        @include absolute(0, 0, 0, 0);
+        @include opacity(0);
+        color: $color-dark-foreground;
+    }
+
+    &-background {
+        @include absolute(0, 0, 0, 0);
+        @include opacity(.7);
+        background: $color-dark-black;
+    }
+}
+
+@mixin asset-type {
+    padding: .1rem .3rem;
+    text-transform: uppercase;
+    font-size: .7rem;
+    font-weight: normal;
+    cursor: none;
+    color: $color-dark-foreground;
+}
+
+@mixin asset-link {
+    & {
+        font-size: 1.1rem;
+        font-weight: normal;
+        cursor: pointer;
+        color: darken($color-dark-foreground, 10%);
+    }
+
+    &:hover {
+        color: $color-dark-foreground;
+    }
+
+    &:focus,
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+:host {
+    padding-bottom: 1rem;
+}
+
+.drop-overlay {
+    & {
+        @include overlay;
+        pointer-events: none;
+    }
+
+    &-text {
+        @include absolute(40%, 0, 0, 0);
+        text-align: center;
+        font-size: 1.3rem;
+        font-weight: lighter;
+    }
+}
+
+.card {
+    & {
+        @include overlay-container;
+        height: $asset-height;
+    }
+
+    &.drag {
+        .drop-overlay {
+            @include opacity(1);
+        }
+    }
+
+    &-block {
+        position: relative;
+    }
+
+    &-footer {
+        border: 0;
+        background: transparent;
+        padding: .8rem;
+        padding-top: .4rem;
+        height: 95px;
+    }
+}
+
+.upload-progress {
+    @include absolute(2rem, 2rem, 2rem, 2rem);
+}
+
+.file {
+    &-info {
+        font-size: .8rem;
+    }
+
+    &-image {
+        height: 100%;
+    }
+
+    &-preview {
+        & {
+            @include absolute(.8rem, .8rem, 0, .8rem);
+        }
+
+        &:hover {
+            .file-overlay {
+                @include opacity(1);
+            }
+
+            .file-type {
+                @include opacity(0);
+            }
+        }
+    }
+
+    &-user {
+        @include absolute(auto, auto, 1.7rem, .5rem);
+    }
+
+    &-modified {
+        @include absolute(auto, auto, .5rem, .5rem);
+    }
+
+    &-delete {
+        @include asset-link;
+        @include absolute(.5rem, 1rem, auto, auto);
+    }
+
+    &-edit {
+        @include asset-link;
+        @include absolute(.5rem, 4rem, auto, auto);
+    }
+
+    &-download {
+        @include asset-link;
+        @include absolute(.5rem, 2.5rem, auto, auto);
+    }
+
+    &-type {
+        @include transition(opacity.4s ease);
+        @include absolute(.7rem, auto, auto, .5rem);
+        @include asset-type;
+        @include border-radius(3px);
+        background: $color-dark-black;
+    }
+
+    &-name {
+        @include truncate;
+        font-size: 1rem;
+        font-weight: normal;
+        line-height: 2rem;
+    }
+
+    &-icon {
+        margin-top: 10%;
+        margin-bottom: 0;
+        height: 70%;
+    }
+
+    &-icon-container {
+        background: $color-border;
+        border: 0;
+        text-align: center;
+        height: 100%;
+    }
+
+    &-overlay {
+        & {
+            @include overlay;
+            font-size: .8rem;
+            font-weight: normal;
+        }
+
+        &-type {
+            @include absolute(.7rem, auto, auto, .5rem);
+            @include asset-type;
+        }
+    }
+}

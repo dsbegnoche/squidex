@@ -185,8 +185,8 @@ export class AssetsService {
             .pretifyError('Failed to load assets. Please reload.');
     }
 
-    public uploadFile(appName: string, file: File, user: string, now: DateTime): Observable<number | AssetDto> {
-        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
+    public uploadFile(appName: string, file: File, user: string, now: DateTime, url?: string): Observable<number | AssetDto> {
+        url = url || this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
 
         const req = new HttpRequest('POST', url, getFormData(file), {
             reportProgress: true

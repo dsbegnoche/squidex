@@ -1,0 +1,28 @@
+<div [formGroup]="importForm">
+    <div class="panel-main">
+        <div class="panel-content panel-content-scroll">
+            <div>Import Content Header Text</div>
+            <label class="form-check-label">
+                <input value="publish" class="form-check-input" formControlName="publish" type="checkbox" />Publish Content
+            </label>
+            <div class="file-drop" (sqxFileDrop)="addFile($event)">
+                <h3 class="file-drop-header">Drop file here to upload</h3>
+                <div class="file-drop-or">or</div>
+                <div class="file-drop-button">
+                    <span class="btn btn-success" (click)="fileInput.click()">
+                        <span>Select File</span>
+                        <input class="file-drop-button-input" type="file" (change)="addFile($event.target.files)" #fileInput />
+                    </span>
+                    <div class="row">
+                        <sqx-import class="col-3" *ngFor="let file of files" [initFile]="file"
+                                    (failed)="onImportFailed(file)"
+                                    (loaded)="onImportLoaded(file)">
+                        </sqx-import>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<sqx-dialog-renderer></sqx-dialog-renderer>
