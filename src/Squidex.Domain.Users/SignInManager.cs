@@ -18,7 +18,7 @@ using Squidex.Shared.Users;
 
 namespace Squidex.Domain.Users
 {
-    public class SignInManager<TUser>: Microsoft.AspNetCore.Identity.SignInManager<IUser>, Base.ISignInManager<IUser>
+    public class SignInManager<TUser> : Microsoft.AspNetCore.Identity.SignInManager<IUser>, Base.ISignInManager<IUser>
     {
         public SignInManager(UserManager<IUser> userManager, IHttpContextAccessor contextAccessor, IUserClaimsPrincipalFactory<IUser> claimsFactory, IOptions<IdentityOptions> optionsAccessor, ILogger<SignInManager<IUser>> logger)
             : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)

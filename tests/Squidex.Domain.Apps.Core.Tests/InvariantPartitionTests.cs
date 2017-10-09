@@ -20,7 +20,7 @@ namespace Squidex.Domain.Apps.Core
         {
             var sut = InvariantPartitioning.Instance;
 
-            Assert.Equal(1, sut.Count);
+            Assert.Single(sut);
 
             Assert.Equal(sut.Master, ((IEnumerable<IFieldPartitionItem>)sut).SingleOrDefault());
             Assert.Equal(sut.Master, ((IEnumerable)sut).OfType<IFieldPartitionItem>().SingleOrDefault());
