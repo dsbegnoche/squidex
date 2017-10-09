@@ -72,7 +72,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                     if (row[col].StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
                         && row[col].EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        row[col] = row[col].TrimStart('"').TrimEnd('"');
+                        row[col] = row[col].Trim('"');
                     }
 
                     if (col == tagsColumn)
