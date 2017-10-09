@@ -32,7 +32,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         protected override IEnumerable<IValidator> CreateValidators()
         {
-            yield break;
+            if (Properties.AllowedValues != null)
+            {
+                yield return new AllowedValuesValidator<string>(Properties.AllowedValues.ToArray());
+            }
         }
 
         protected override void PrepareJsonSchema(JsonProperty jsonProperty, Func<string, JsonSchema4, JsonSchema4> schemaResolver)

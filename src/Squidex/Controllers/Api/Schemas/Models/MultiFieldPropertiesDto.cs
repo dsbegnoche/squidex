@@ -2,6 +2,7 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System.Collections.Immutable;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NJsonSchema.Annotations;
@@ -14,15 +15,24 @@ namespace Squidex.Controllers.Api.Schemas.Models
     public sealed class MultiFieldPropertiesDto : FieldPropertiesDto
     {
         /// <summary> The default value for the field value. </summary>
-        public bool? DefaultValue { get; set; }
+        public string DefaultValue { get; set; }
 
         /// <summary> The editor that is used to manage this field.  </summary>
         [JsonConverter(typeof(StringEnumConverter))]
         public MultiFieldEditor Editor { get; set; }
 
+        /// <summary> The allowed values </summary>
+        public string[] AllowedValues { get; set; }
+
         public override FieldProperties ToProperties()
         {
             var result = SimpleMapper.Map(this, new MultiFieldProperties());
+
+            if (AllowedValues != null)
+            {
+                result.AllowedValues = ImmutableList.Create(AllowedValues);
+            }
+
             return result;
         }
     }

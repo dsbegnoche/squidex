@@ -29,7 +29,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public override JToken GetDefaultValue() => DefaultValue;
 
-        public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.MultiInput;
+        public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.Multi;
 
         public string DefaultValue { get; set; } = string.Empty;
 
@@ -49,13 +49,14 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
-            // you have to have some kind of return value, and doing the
-            // condition like this evades the unreachable code warning.
-            var condition = false;
-            if (condition)
+            yield break;
+            /* having this validation here means can't initially add field to schema.
+             * string field gets around this by using Input as default which doesn't lean on AllowedValues.
+            if ((AllowedValues == null || AllowedValues.Count == 0))
             {
-                yield return new ValidationError("This should never be called.");
+                yield return new ValidationError("Multi option needs allowed values", nameof(AllowedValues));
             }
+            */
         }
     }
 }

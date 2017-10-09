@@ -88,8 +88,10 @@
                     </div>
                     <div *ngSwitchCase="'Multi'">
                         <div [ngSwitch]="field.properties.editor">
-                            <div *ngSwitchCase="'MultiInput'">
-                                <sqx-multi-editor [formControlName]="partition"></sqx-multi-editor>
+                            <div *ngSwitchCase="'Multi'">
+                                <input *ngFor="let value of field.properties.allowedValues"
+                                    type="checkbox"
+                                    [value]="value" />
                             </div>
                         </div>
                     </div>

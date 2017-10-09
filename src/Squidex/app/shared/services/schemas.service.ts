@@ -67,7 +67,7 @@ export function createProperties(fieldType: string, values: Object | null = null
             properties = new TagFieldPropertiesDto(null, null, null, false, false, 'Input', false);
             break;
         case 'Multi':
-            properties = new MultiFieldPropertiesDto(null, null, null, false, false, 'MultiInput', false);
+            properties = new MultiFieldPropertiesDto(null, null, null, false, false, 'Multi', false);
             break;
         default:
             throw 'Invalid properties type';
