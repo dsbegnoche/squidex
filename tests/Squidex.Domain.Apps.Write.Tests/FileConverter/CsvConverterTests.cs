@@ -44,7 +44,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             sut = new CsvConverter();
             var schemaDef =
                 Schema.Create("my-schema", new SchemaProperties())
-                    .AddOrUpdateField(new StringField(1, "name", Partitioning.Language,
+                    .AddOrUpdateField(new StringField(1, "name", Partitioning.Invariant,
                         new StringFieldProperties { IsRequired = true }))
                     .AddOrUpdateField(new TagField(2, "tags", Partitioning.Language,
                         new TagFieldProperties()));
@@ -77,7 +77,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             CreateFile(false, true);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
-            var containsNullField = retVal.Contains("\"en\":null");
+            var containsNullField = retVal.Contains("\"iv\":null");
             var containsMultipleTags = retVal.Contains("\"en\":[\"tags\",\"with\",\"commas\"]");
             Assert.True(containsNullField);
             Assert.True(containsMultipleTags);
@@ -89,7 +89,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             CreateFile(false, false);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
-            var containsNoNullFields = !retVal.Contains("\"en\":null");
+            var containsNoNullFields = !retVal.Contains("\"iv\":null");
             Assert.True(containsNoNullFields);
         }
 

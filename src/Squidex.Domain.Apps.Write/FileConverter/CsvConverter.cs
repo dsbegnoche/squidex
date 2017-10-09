@@ -69,6 +69,11 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 for (var col = 0; col < headerRow.Length; col++)
                 {
                     var languageDictionary = new Dictionary<string, object>();
+                    var languageCode =
+                        schemaFields.First(f => f.Key == headerRow[col]).Value.Paritioning.Key == "invariant"
+                            ? "iv"
+                            : masterLanguage;
+
                     if (row[col].StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
                         && row[col].EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -77,11 +82,11 @@ namespace Squidex.Domain.Apps.Write.FileConverter
 
                     if (col == tagsColumn)
                     {
-                        languageDictionary.Add(masterLanguage, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim().Split(',') : null);
+                        languageDictionary.Add(languageCode, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim().Split(',') : null);
                     }
                     else
                     {
-                        languageDictionary.Add(masterLanguage, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim() : null);
+                        languageDictionary.Add(languageCode, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim() : null);
                     }
                     rowDictionary.Add(headerRow[col], languageDictionary);
                 }
