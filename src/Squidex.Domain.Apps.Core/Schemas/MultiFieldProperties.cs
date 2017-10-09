@@ -3,6 +3,7 @@
 // ==========================================================================
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Newtonsoft.Json.Linq;
 using Squidex.Infrastructure;
 
@@ -13,14 +14,34 @@ namespace Squidex.Domain.Apps.Core.Schemas
     [TypeName("MultiField")]
     public sealed class MultiFieldProperties : FieldProperties
     {
-        public override JToken GetDefaultValue()
+        private ImmutableList<string> allowedValues;
+
+        public MultiFieldProperties (MultiFieldProperties properties)
         {
-            return DefaultValue;
+            AllowedValues = properties.allowedValues;
+            Label = properties.Label;
+            IsRequired = properties.IsRequired;
         }
+
+        public override JToken GetDefaultValue() => DefaultValue;
 
         public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.MultiInput;
 
         public string DefaultValue { get; set; } = string.Empty;
+
+        public ImmutableList<string> AllowedValues
+        {
+            get
+            {
+                return allowedValues;
+            }
+            set
+            {
+                ThrowIfFrozen();
+
+                allowedValues = value;
+            }
+        }
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
