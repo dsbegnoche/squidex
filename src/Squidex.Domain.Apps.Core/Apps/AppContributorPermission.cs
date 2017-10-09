@@ -1,5 +1,5 @@
 ﻿// ==========================================================================
-//  PermissionLevel.cs
+//  AppContributorPermission.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
@@ -8,12 +8,10 @@
 
 namespace Squidex.Domain.Apps.Core.Apps
 {
-    public enum PermissionLevel
+    public enum AppContributorPermission
     {
         Owner,
         Developer,
-        Editor,
-        Author,
-        Reader
+        Editor
     }
 }
