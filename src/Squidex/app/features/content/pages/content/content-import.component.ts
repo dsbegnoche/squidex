@@ -23,7 +23,7 @@ export class ContentImportComponent extends AppComponentBase {
 
     public importForm =
         this.formBuilder.group({
-            publish: false
+            publish: [false]
         });
 
     constructor(apps: AppsStoreService,

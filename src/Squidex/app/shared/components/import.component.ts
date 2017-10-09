@@ -39,6 +39,9 @@ export class ImportComponent extends AppComponentBase implements OnInit {
     @Input()
     public initFile: File;
 
+    @Input()
+    public publish = false;
+
     @Output()
     public loaded = new EventEmitter<AssetDto>();
 
@@ -59,6 +62,7 @@ export class ImportComponent extends AppComponentBase implements OnInit {
 
     public ngOnInit() {
         const initFile = this.initFile;
+        const publish = this.publish;
         const params = allParams(this.route);
         this.schemaName = params['schemaName'];
 
@@ -71,7 +75,7 @@ export class ImportComponent extends AppComponentBase implements OnInit {
             } else {
                 this.appNameOnce()
                     .switchMap(app => {
-                        const url = this.apiUrl.buildUrl(`api/content/${app}/${this.schemaName}/import?publish=`);
+                        const url = this.apiUrl.buildUrl(`api/content/${app}/${this.schemaName}/import?publish=${publish}`);
                         return this.assetsService.uploadFile(app,
                             initFile,
                             this.authService.user!.token,

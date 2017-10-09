@@ -404,7 +404,7 @@ namespace Squidex.Controllers.ContentApi
         [SwaggerIgnore]
         public async Task<IActionResult> ImportContentFromCsv(string name, IFormFile file, [FromQuery] bool publish)
         {
-            if (file.ContentType != "text/csv")
+            if (file.ContentType != "text/csv" && file.ContentType != "application/vnd.ms-excel")
             {
                 return BadRequest(new { Error = "File must be a CSV." });
             }

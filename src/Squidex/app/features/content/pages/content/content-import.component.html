@@ -14,7 +14,7 @@
                         <input class="file-drop-button-input" type="file" (change)="addFile($event.target.files)" #fileInput />
                     </span>
                     <div class="row">
-                        <sqx-import class="col-3" *ngFor="let file of files" [initFile]="file"
+                        <sqx-import class="col-3" *ngFor="let file of files" [initFile]="file" [publish]="importForm.controls['publish'].value"
                                     (failed)="onImportFailed(file)"
                                     (loaded)="onImportLoaded(file)">
                         </sqx-import>
