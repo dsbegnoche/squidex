@@ -16,6 +16,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
     {
         private ImmutableList<string> allowedValues;
 
+        public MultiFieldProperties ()
+        {
+        }
+
         public MultiFieldProperties (MultiFieldProperties properties)
         {
             AllowedValues = properties.allowedValues;

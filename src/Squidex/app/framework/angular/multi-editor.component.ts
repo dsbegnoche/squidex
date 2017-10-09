@@ -2,19 +2,23 @@
  * CivicPlus implementation of Squidex Headless CMS
  */
 
-import { Component, Input } from '@angular/core';
-import { ControlValueAccessor, FormControl } from '@angular/forms';
+import { Component, Input, forwardRef } from '@angular/core';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Converter, StringConverter } from './tag-editor.component';
 import { Types } from './../utils/types';
 
 const KEY_ENTER = 13;
 
+export const SQX_MULTI_EDITOR_CONTROL_VALUE_ACCESSOR: any = {
+    provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => MultiEditorComponent), multi: true
+};
+
 @Component({
     selector: 'sqx-multi-editor',
     styleUrls: ['./multi-editor.component.scss'],
-    templateUrl: './multi-editor.component.html'
-    // providers: [SQX_TAG_EDITOR_CONTROL_VALUE_ACCESSOR]
+    templateUrl: './multi-editor.component.html',
+    providers: [SQX_MULTI_EDITOR_CONTROL_VALUE_ACCESSOR]
 })
 export class MultiEditorComponent implements ControlValueAccessor {
     private callChange = (v: any) => { /* NOOP */ };
