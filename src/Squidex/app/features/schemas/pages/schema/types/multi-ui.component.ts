@@ -34,18 +34,8 @@ export class MultiUIComponent implements OnDestroy, OnInit {
                 Validators.required
             ]));
 
-        this.editForm.setControl('placeholder',
-            new FormControl(this.properties.placeholder, [
-                Validators.maxLength(100)
-            ]));
-
         this.editForm.setControl('allowedValues',
             new FormControl(this.properties.allowedValues));
-
-        this.hideAllowedValues =
-            this.editForm.controls['editor'].valueChanges
-                .startWith(this.properties.editor)
-                .map(x => !x || x === 'Input' || x === 'TextArea' || x === 'RichText' || x === 'Markdown');
 
         this.editorSubscription =
             this.hideAllowedValues
