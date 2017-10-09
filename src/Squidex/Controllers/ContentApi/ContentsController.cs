@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using NSwag.Annotations;
+using Squidex.Controllers.Api;
 using Squidex.Controllers.ContentApi.Models;
 using Squidex.Domain.Apps.Core.Contents;
 using Squidex.Domain.Apps.Read.Contents;
@@ -20,6 +21,7 @@ using Squidex.Domain.Apps.Read.Contents.GraphQL;
 using Squidex.Domain.Apps.Write.Contents;
 using Squidex.Domain.Apps.Write.Contents.Commands;
 using Squidex.Domain.Apps.Write.FileConverter;
+using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.UsageTracking;
@@ -407,18 +409,45 @@ namespace Squidex.Controllers.ContentApi
                 return BadRequest(new { Error = "File must be a CSV." });
             }
 
+            var status = !publish
+                ? Status.Draft
+                : User.IsInRole("author")
+                    ? Status.Submitted
+                    : Status.Published;
+
             var languagePartitioning = App.LanguagesConfig.Master.Key;
 
             var schema = await contentQuery.FindSchemaAsync(App, name);
 
-            var stringtest = await convertCsv.ReadWithSchemaAsync(schema, file, languagePartitioning);
-
-            if (stringtest == null)
+            var json = convertCsv.ReadWithSchema(schema, file, languagePartitioning);
+            if (json == null)
             {
                 return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
             }
 
-            return NoContent();
+            var contentList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<NamedContentData>>(json);
+            var errorList = new List<ErrorDto>();
+            for (var i = 0; i < contentList.Count; i++)
+            {
+                var command = new CreateContent { ContentId = Guid.NewGuid(), Data = contentList[i].ToCleaned(), Status = status };
+
+                try
+                {
+                    await CommandBus.PublishAsync(command);
+                }
+                catch (ValidationException ex)
+                {
+                    var errorMessages = ex.Errors.Select(e => $"Error at line {i} {e.Message}");
+                    var error = new ErrorDto
+                    {
+                        Message = ex.Message,
+                        Details = errorMessages.ToArray()
+                    };
+                    errorList.Add(error);
+                }
+            }
+
+            return Ok(errorList);
         }
     }
 }

@@ -12,8 +12,8 @@ namespace Squidex.Domain.Apps.Write.FileConverter
 {
     public interface IFileConverter
     {
-        Task<List<string[]>> ReadAsync(IFormFile file);
+        List<string[]> ReadFile(IFormFile file);
 
-        Task<string> ReadWithSchemaAsync(ISchemaEntity schema, IFormFile file, string masterLanguage);
+        string ReadWithSchema(ISchemaEntity schema, IFormFile file, string masterLanguage);
     }
 }
