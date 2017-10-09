@@ -47,6 +47,6 @@ namespace Squidex.Controllers.Api.Apps.Models
         /// <summary>
         /// The permission level of the user.
         /// </summary>
-        public PermissionLevel Permission { get; set; }
+        public AppContributorPermission Permission { get; set; }
     }
 }

@@ -79,14 +79,16 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             }
         }
 
-        protected override Task OnError(Exception exception)
+        protected override async Task OnError(Exception exception)
         {
             log.LogError(exception, w => w
                 .WriteProperty("action", "HandleEvent")
                 .WriteProperty("state", "Failed")
                 .WriteProperty("eventConsumer", eventConsumer.Name));
 
-            return StopAsync(exception);
+            await StopAsync(exception);
+
+            isRunning = false;
         }
 
         Task IEventSubscriber.OnEventAsync(IEventSubscription subscription, StoredEvent @event)
