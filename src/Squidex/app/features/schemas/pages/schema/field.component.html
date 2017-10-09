@@ -188,6 +188,9 @@
                     <div *ngSwitchCase="'References'">
                         <sqx-references-ui [editForm]="editForm" [properties]="field.properties"></sqx-references-ui>
                     </div>
+                    <div *ngSwitchCase="'Multi'">
+                        <sqx-multi-ui [editForm]="editForm" [properties]="field.properties"></sqx-multi-ui>
+                    </div>
                 </div>
             </div>
         </form> 

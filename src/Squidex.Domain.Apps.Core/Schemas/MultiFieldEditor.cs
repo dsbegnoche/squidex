@@ -6,6 +6,6 @@ namespace Squidex.Domain.Apps.Core.Schemas
 {
     public enum MultiFieldEditor
     {
-        MultiInput,
+        MultiInput
     }
 }
