@@ -411,7 +411,7 @@ namespace Squidex.Controllers.ContentApi
 
             var status = !publish
                 ? Status.Draft
-                : User.IsInRole("author")
+                : User.IsInRole("app:author") && !User.IsInRole("app:editor")
                     ? Status.Submitted
                     : Status.Published;
 

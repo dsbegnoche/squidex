@@ -25,7 +25,7 @@ namespace Squidex.Controllers.ContentApi.Generator
     {
         private static readonly string SchemaQueryDescription;
         private static readonly string SchemaBodyDescription;
-        private static readonly List<SwaggerSecurityRequirement> EditorSecurity;
+        private static readonly List<SwaggerSecurityRequirement> AuthorSecurity;
         private static readonly List<SwaggerSecurityRequirement> ReaderSecurity;
         private readonly ContentSchemaBuilder schemaBuilder = new ContentSchemaBuilder();
         private readonly SwaggerDocument document;
@@ -51,12 +51,12 @@ namespace Squidex.Controllers.ContentApi.Generator
                 }
             };
 
-            EditorSecurity = new List<SwaggerSecurityRequirement>
+            AuthorSecurity = new List<SwaggerSecurityRequirement>
             {
                 new SwaggerSecurityRequirement
                 {
                     {
-                        Constants.SecurityDefinition, new[] { SquidexRoles.AppEditor }
+                        Constants.SecurityDefinition, new[] { SquidexRoles.AppAuthor }
                     }
                 }
             };
@@ -89,6 +89,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 GenerateSchemaQueryOperation(),
                 GenerateSchemaCreateOperation(),
+                GenerateSchemaImportOperation(),
                 GenerateSchemaGetOperation(),
                 GenerateSchemaUpdateOperation(),
                 GenerateSchemaPatchOperation(),
@@ -143,10 +144,10 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Create{schemaKey}Content";
                 operation.Summary = $"Create a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddBodyParameter("data", dataSchema, SchemaBodyDescription);
-                operation.AddQueryParameter("publish", JsonObjectType.Boolean, "Set to true to autopublish content.");
+                operation.AddQueryParameter("publish", JsonObjectType.Boolean, "Set to true to autopublish/autosubmit content.");
 
                 operation.AddResponse("201", $"{schemaName} created.", contentSchema);
             });
@@ -158,7 +159,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Update{schemaKey}Content";
                 operation.Summary = $"Update a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddBodyParameter("data", dataSchema, SchemaBodyDescription);
 
@@ -172,7 +173,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Path{schemaKey}Content";
                 operation.Summary = $"Patchs a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddBodyParameter("data", contentSchema, SchemaBodyDescription);
 
@@ -186,7 +187,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Publish{schemaKey}Content";
                 operation.Summary = $"Publish a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddResponse("204", $"{schemaName} item published.");
             });
@@ -198,7 +199,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Unpublish{schemaKey}Content";
                 operation.Summary = $"Unpublish a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddResponse("204", $"{schemaName} item unpublished.");
             });
@@ -210,7 +211,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Archive{schemaKey}Content";
                 operation.Summary = $"Archive a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddResponse("204", $"{schemaName} item restored.");
             });
@@ -222,7 +223,7 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Restore{schemaKey}Content";
                 operation.Summary = $"Restore a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddResponse("204", $"{schemaName} item restored.");
             });
@@ -234,9 +235,32 @@ namespace Squidex.Controllers.ContentApi.Generator
             {
                 operation.OperationId = $"Delete{schemaKey}Content";
                 operation.Summary = $"Delete a {schemaName} content.";
-                operation.Security = EditorSecurity;
+                operation.Security = AuthorSecurity;
 
                 operation.AddResponse("204", $"{schemaName} content deleted.");
+            });
+        }
+
+        private SwaggerOperations GenerateSchemaImportOperation()
+        {
+            return AddOperation(SwaggerOperationMethod.Post, null, $"{appPath}/{schemaPath}/import", operation =>
+            {
+                operation.OperationId = $"Import{schemaKey}Content";
+                operation.Summary = $"Import a list of {schemaName} content.";
+                operation.Security = AuthorSecurity;
+                operation.AddQueryParameter("publish", JsonObjectType.Boolean, "Set to true to autopublish/autosubmit content.");
+
+                operation.Parameters.Add(new SwaggerParameter
+                    {
+                        Name = "file",
+                        Type = JsonObjectType.File,
+                        Kind = SwaggerParameterKind.FormData,
+                        IsRequired = true,
+                        Description = $"Upload a .csv file for {schemaName}."
+                    }
+                );
+
+                operation.AddResponse("200", $"{schemaName} content posted with any errors logged.");
             });
         }
 
