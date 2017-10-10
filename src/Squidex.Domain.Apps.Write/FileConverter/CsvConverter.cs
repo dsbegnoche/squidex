@@ -23,9 +23,12 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 return null;
             }
 
+            // Read in file and use CsvTools to parse
             using (var reader = new StreamReader(file.OpenReadStream()))
             {
                 var dt = DataTable.New.Read(reader);
+
+                // Get headers and rows; convert any empty cell to null
                 csv.Add(dt.ColumnNames.ToArray());
                 csv.AddRange(dt.Rows.Select(row =>
                     {
@@ -56,12 +59,13 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             var tagsColumn = Array.IndexOf(headerRow, "tags");
             csv.Remove(headerRow);
 
+            // Check the header row to ensure the field names align
             if (schemaFields.Any(f => !headerRow.Contains(f.Key)))
             {
                 return null;
             }
 
-            // Get the json of each row (only in master lanuage)
+            // Get the json of each row
             var elementsDictionary = new List<Dictionary<string, Dictionary<string, object>>>();
             csv.ForEach(row =>
             {
@@ -69,17 +73,11 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 for (var col = 0; col < headerRow.Length; col++)
                 {
                     var languageDictionary = new Dictionary<string, object>();
-                    var languageCode =
-                        schemaFields.First(f => f.Key == headerRow[col]).Value.Paritioning.Key == "invariant"
-                            ? "iv"
-                            : masterLanguage;
+                    var languageCode = schemaFields.First(f => f.Key == headerRow[col]).Value.Paritioning.Key == "invariant"
+                                        ? "iv"
+                                        : masterLanguage;
 
-                    if (row[col].StartsWith("\"", StringComparison.InvariantCultureIgnoreCase)
-                        && row[col].EndsWith("\"", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        row[col] = row[col].Trim('"');
-                    }
-
+                    row[col] = row[col].Trim('"');
                     if (col == tagsColumn)
                     {
                         languageDictionary.Add(languageCode, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim().Split(',') : null);
@@ -88,8 +86,10 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                     {
                         languageDictionary.Add(languageCode, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim() : null);
                     }
+
                     rowDictionary.Add(headerRow[col], languageDictionary);
                 }
+
                 elementsDictionary.Add(rowDictionary);
             });
 
