@@ -133,13 +133,6 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
             return result;
         }
 
-        private static FieldPropertiesDto Convert(MultiFieldProperties source)
-        {
-            var result = SimpleMapper.Map(source, new MultiFieldPropertiesDto());
-
-            return result;
-        }
-
         private static FieldPropertiesDto Convert(BooleanFieldProperties source)
         {
             var result = SimpleMapper.Map(source, new BooleanFieldPropertiesDto());
@@ -197,6 +190,18 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
         private static FieldPropertiesDto Convert(NumberFieldProperties source)
         {
             var result = SimpleMapper.Map(source, new NumberFieldPropertiesDto());
+
+            if (source.AllowedValues != null)
+            {
+                result.AllowedValues = source.AllowedValues.ToArray();
+            }
+
+            return result;
+        }
+
+        private static FieldPropertiesDto Convert(MultiFieldProperties source)
+        {
+            var result = SimpleMapper.Map(source, new MultiFieldPropertiesDto());
 
             if (source.AllowedValues != null)
             {

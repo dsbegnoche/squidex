@@ -3,9 +3,8 @@
  */
 
 import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { Converter, StringConverter } from './tag-editor.component';
 import { Types } from './../utils/types';
 
 const KEY_ENTER = 13;
@@ -25,34 +24,28 @@ export class MultiEditorComponent implements ControlValueAccessor {
     private callTouched = () => { /* NOOP */ };
 
     @Input()
-    public converter: Converter = new StringConverter();
-
-    @Input()
     public useDefaultValue = true;
 
     @Input()
     public inputName = 'multi-editor';
 
-    public items: any[] = [];
+    public items: string[] = [];
 
-    public addInput = new FormControl();
+    public form = new FormGroup();
 
     public writeValue(value: any[]) {
         this.resetForm();
-
-        if (this.converter && Types.isArrayOf(value, v => this.converter.isValidValue(v))) {
-            this.items = value;
-        } else {
-            this.items = [];
-        }
+        this.items = value;
     }
 
     public setDisabledState(isDisabled: boolean): void {
+        /*
         if (isDisabled) {
             this.addInput.disable();
         } else {
             this.addInput.enable();
         }
+        */
     }
 
     public registerOnChange(fn: any) {
@@ -75,23 +68,14 @@ export class MultiEditorComponent implements ControlValueAccessor {
         this.addInput.reset();
     }
 
-    public onKeyDown(event: KeyboardEvent) {
-        if (event.keyCode === KEY_ENTER) {
-            const value = <string>this.addInput.value.trim();
+    public onSelect(event: KeyboardEvent) {
+        const value = <string>this.addInput.value.trim();
 
-            if (this.converter.isValidInput(value) && !this.items.includes(value)) {
-                const converted = this.converter.convert(value);
+        const converted = this.converter.convert(value);
 
-                this.updateItems([...this.items, converted]);
-                this.resetForm();
-                return false;
-            }
-
-            this.addInput.reset();
-            return false;
-        }
-
-        return true;
+        this.updateItems([...this.items, converted]);
+        this.resetForm();
+        return false;
     }
 
     private updateItems(items: string[]) {
