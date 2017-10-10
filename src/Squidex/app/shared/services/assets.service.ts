@@ -255,8 +255,8 @@ export class AssetsService {
                 } else if (event instanceof HttpResponse) {
                     if (event.body instanceof Array && event.body.length > 0) {
                         let errorArray = new Array<ErrorDto>();
-                        for (var i = 0; i < event.body.length; i++) {
-                            errorArray.push(new ErrorDto(400, event.body[i].message, event.body[i].details));
+                        for (let error of event.body) {
+                            errorArray.push(new ErrorDto(400, error.message, error.details));
                         }
                         return errorArray;
                     }

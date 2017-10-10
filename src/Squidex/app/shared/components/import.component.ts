@@ -82,7 +82,7 @@ export class ImportComponent extends AppComponentBase implements OnInit {
                             } else if (dto instanceof Array) {
                                 this.notifyError('Some records failed to create.');
                                 this.failed.emit();
-                            } else if(typeof dto === 'number') {
+                            } else if (typeof dto === 'number') {
                                 this.progress = dto;
                             }
                         },
