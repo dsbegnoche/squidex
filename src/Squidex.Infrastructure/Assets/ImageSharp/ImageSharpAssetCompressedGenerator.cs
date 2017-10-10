@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ImageSharp;
-using ImageSharp.Formats;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.Primitives;
 
 namespace Squidex.Infrastructure.Assets.ImageSharp
@@ -40,13 +42,13 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             Func<int, int, Task> makeThumbnail = async (w, h) =>
                 await assetThumbnailGenerator.CreateThumbnailAsync(source, destination, w, h, "Crop");
 
-            if (width > height && width > maxBorder)
-            {
-                await makeThumbnail(maxBorder, Ratio(width, height, maxBorder));
-            }
-            else if (height > width && height > maxBorder)
+            if (width > height && height > maxBorder)
             {
                 await makeThumbnail(Ratio(height, width, maxBorder), maxBorder);
+            }
+            else if (height > width && width > maxBorder)
+            {
+                await makeThumbnail(maxBorder, Ratio(width, height, maxBorder));
             }
             else if (width > maxBorder && height > maxBorder)
             {

@@ -160,7 +160,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             A.CallTo(() => assetThumbnailGenerator.GetImageInfoAsync(stream))
                 .Returns(image);
 
-            A.CallTo(() => assetSuggestions.SuggestTags(file))
+            A.CallTo(() => assetSuggestions.SuggestTagsAndDescription(file))
                 .Returns(file);
         }
 

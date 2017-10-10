@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -26,30 +25,50 @@ namespace Squidex.Infrastructure.Assets.Suggestions
 
         // Configuration:
         private string AzureResourceKey { get; }
-        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/tag";
-        private double MinimumConfidence { get; } = 0.8;
+        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
+        private double MinimumTagConfidence { get; } = 0.9;
+        private double MinimumCaptionConfidence { get; } = 0.3;
         private double MaxImageSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
-        public async override Task<AssetFile> SuggestTags(AssetFile file)
+        public async override Task<AssetFile> SuggestTagsAndDescription(AssetFile file)
         {
             if (!ValidateFile(file))
             {
                 return file;
             }
 
+            var result = await CallAzureService(file);
+
+            var isAdultContent =
+                JObject.Parse(result)["adult"]["isAdultContent"]
+                       .ToObject<bool>();
+
+            if (isAdultContent)
+            {
+                var error = new ValidationError("Adult content found in asset upload");
+                throw new ValidationException("Cannot create asset.", error);
+            }
+
             var suggestedTags =
-                JObject.Parse(await CallAzureService(file))["tags"]
+                JObject.Parse(result)["tags"]
                        .ToObject<List<TagResult>>()
-                       .Where(tag => tag.Confidence > MinimumConfidence)
+                       .Where(tag => tag.Confidence > MinimumTagConfidence)
                        .Select(tag => tag.Name)
                        .ToArray();
+
+            var suggestedDescription =
+                JObject.Parse(result)["description"]["captions"]
+                       .ToObject<List<CaptionResult>>()
+                       .OrderByDescending(tag => tag.Confidence)
+                       .FirstOrDefault(tag => tag.Confidence > MinimumCaptionConfidence)
+                       ?.Text ?? string.Empty;
 
             return new AssetFile(
                 file.FileName,
                 file.MimeType,
                 file.FileSize,
                 file.OpenRead,
-                file.BriefDescription,
+                suggestedDescription,
                 suggestedTags,
                 file.AssetConfig,
                 file.MaxAssetRepoSize,
@@ -101,7 +120,10 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             public double Confidence { get; set; }
         }
 
-        public override Task<string> SuggestSummary(AssetFile file) =>
-            throw new NotImplementedException();
+        private sealed class CaptionResult
+        {
+            public string Text { get; set; }
+            public double Confidence { get; set; }
+        }
     }
 }

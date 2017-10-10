@@ -135,7 +135,7 @@ namespace Squidex.Domain.Apps.Read.Contents
 
             var assets = new List<IAssetEntity> { asset };
 
-            A.CallTo(() => assetRepository.QueryAsync(app.Id, null, null, "my-query", 30, 5))
+            A.CallTo(() => assetRepository.QueryAsync(app.Id, null, null, "my-query", 30, 5, null))
                 .Returns(assets);
 
             var result = await sut.QueryAsync(app, user, new GraphQLQuery { Query = query });
@@ -544,7 +544,7 @@ namespace Squidex.Domain.Apps.Read.Contents
             A.CallTo(() => contentQuery.FindContentAsync(app, schema.Id.ToString(), user, contentId))
                 .Returns((schema, content));
 
-            A.CallTo(() => assetRepository.QueryAsync(app.Id, null, A<HashSet<Guid>>.That.Matches(x => x.Contains(assetRefId)), null, int.MaxValue, 0))
+            A.CallTo(() => assetRepository.QueryAsync(app.Id, null, A<HashSet<Guid>>.That.Matches(x => x.Contains(assetRefId)), null, int.MaxValue, 0, null))
                 .Returns(refAssets);
 
             var result = await sut.QueryAsync(app, user, new GraphQLQuery { Query = query });

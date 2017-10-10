@@ -11,11 +11,11 @@ using Squidex.Infrastructure.CQRS.Events;
 
 namespace Squidex.Domain.Apps.Events.Apps
 {
-    [EventType(nameof(AppContributorAssigned))]
+    [EventType(nameof(AppContributorAssigned), 2)]
     public sealed class AppContributorAssigned : AppEvent
     {
         public string ContributorId { get; set; }
 
-        public PermissionLevel Permission { get; set; }
+        public AppContributorPermission Permission { get; set; }
     }
 }

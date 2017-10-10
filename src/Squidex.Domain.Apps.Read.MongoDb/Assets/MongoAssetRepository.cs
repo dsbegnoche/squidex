@@ -49,9 +49,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
             return assetIds.Except(assetEntities.Select(x => Guid.Parse(x["_id"].AsString))).ToList();
         }
 
-        public async Task<IReadOnlyList<IAssetEntity>> QueryAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, int take = 10, int skip = 0)
+        public async Task<IReadOnlyList<IAssetEntity>> QueryAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, int take = 10, int skip = 0, bool? imagesOnly = null)
         {
-            var filter = CreateFilter(appId, mimeTypes, ids, query);
+            var filter = CreateFilter(appId, mimeTypes, ids, query, imagesOnly);
 
             var assetEntities =
                 await Collection.Find(filter).Skip(skip).Limit(take).SortByDescending(x => x.LastModified)
@@ -60,9 +60,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
             return assetEntities.OfType<IAssetEntity>().ToList();
         }
 
-        public async Task<long> CountAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null)
+        public async Task<long> CountAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, bool? imagesOnly = null)
         {
-            var filter = CreateFilter(appId, mimeTypes, ids, query);
+            var filter = CreateFilter(appId, mimeTypes, ids, query, imagesOnly);
 
             var assetsCount =
                 await Collection.Find(filter)
@@ -80,7 +80,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
             return assetEntity;
         }
 
-        private static FilterDefinition<MongoAssetEntity> CreateFilter(Guid appId, ICollection<string> mimeTypes, ICollection<Guid> ids, string query)
+        private static FilterDefinition<MongoAssetEntity> CreateFilter(Guid appId, ICollection<string> mimeTypes, ICollection<Guid> ids, string query, bool? imagesOnly)
         {
             var filters = new List<FilterDefinition<MongoAssetEntity>>
             {
@@ -100,6 +100,11 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
             if (!string.IsNullOrWhiteSpace(query))
             {
                 filters.Add(Filter.Regex(x => x.FileName, new BsonRegularExpression(query, "i")));
+            }
+
+            if (imagesOnly.HasValue)
+            {
+                filters.Add(Filter.Eq(x => x.IsImage, imagesOnly.Value));
             }
 
             var filter = Filter.And(filters);

@@ -91,29 +91,29 @@ namespace Squidex.Pipeline
 
                 switch (permission.Value)
                 {
-                    case PermissionLevel.Owner:
+                    case AppPermission.Owner:
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppOwner));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppDeveloper));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppEditor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppAuthor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
-                    case PermissionLevel.Developer:
+                    case AppPermission.Developer:
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppDeveloper));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppEditor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppAuthor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
-                    case PermissionLevel.Editor:
+                    case AppPermission.Editor:
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppEditor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppAuthor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
-                    case PermissionLevel.Author:
+                    case AppPermission.Author:
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppAuthor));
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
-                    case PermissionLevel.Reader:
+                    case AppPermission.Reader:
                         defaultIdentity.AddClaim(new Claim(defaultIdentity.RoleClaimType, SquidexRoles.AppReader));
                         break;
                 }
@@ -122,7 +122,7 @@ namespace Squidex.Pipeline
             }
         }
 
-        private static PermissionLevel? FindByOpenIdClient(IAppEntity app, ClaimsPrincipal user)
+        private static AppPermission? FindByOpenIdClient(IAppEntity app, ClaimsPrincipal user)
         {
             var client = app.Clients.FirstOrDefault(x => string.Equals(x.Id, user.GetClientId(), StringComparison.OrdinalIgnoreCase));
 
@@ -131,10 +131,10 @@ namespace Squidex.Pipeline
                 return null;
             }
 
-            return client.IsReader ? PermissionLevel.Reader : PermissionLevel.Editor;
+            return client.Permission.ToAppPermission();
         }
 
-        private static PermissionLevel? FindByOpenIdSubject(IAppEntity app, ClaimsPrincipal user)
+        private static AppPermission? FindByOpenIdSubject(IAppEntity app, ClaimsPrincipal user)
         {
             var subject = user.FindFirst(OpenIdClaims.Subject)?.Value;
 
@@ -145,7 +145,7 @@ namespace Squidex.Pipeline
 
             var contributor = app.Contributors.FirstOrDefault(x => string.Equals(x.ContributorId, subject, StringComparison.OrdinalIgnoreCase));
 
-            return contributor?.Permission;
+            return contributor?.Permission.ToAppPermission();
         }
     }
 }

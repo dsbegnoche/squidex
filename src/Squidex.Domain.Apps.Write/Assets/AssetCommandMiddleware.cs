@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ImageSharp;
+using SixLabors.ImageSharp;
 using Squidex.Domain.Apps.Write.Assets.Commands;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
@@ -111,7 +111,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             {
                 if (command.ImageInfo != null)
                 {
-                    command.File = await assetSuggestions.SuggestTags(command.File);
+                    command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>

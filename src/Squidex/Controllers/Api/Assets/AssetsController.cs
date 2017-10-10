@@ -76,7 +76,7 @@ namespace Squidex.Controllers.Api.Assets
         [Route("apps/{app}/assets/")]
         [ProducesResponseType(typeof(AssetsDto), 200)]
         [ApiCosts(1)]
-        public async Task<IActionResult> GetAssets(string app, [FromQuery] string query = null, [FromQuery] string mimeTypes = null, [FromQuery] string ids = null, [FromQuery] int skip = 0, [FromQuery] int take = 10)
+        public async Task<IActionResult> GetAssets(string app, [FromQuery] string query = null, [FromQuery] string mimeTypes = null, [FromQuery] string ids = null, [FromQuery] int skip = 0, [FromQuery] int take = 10, [FromQuery] bool? imagesOnly = null)
         {
             var mimeTypeList = new HashSet<string>();
 
@@ -101,8 +101,8 @@ namespace Squidex.Controllers.Api.Assets
                 }
             }
 
-            var taskForItems = assetRepository.QueryAsync(AppId, mimeTypeList, idsList, query, take, skip);
-            var taskForCount = assetRepository.CountAsync(AppId, mimeTypeList, idsList, query);
+            var taskForItems = assetRepository.QueryAsync(AppId, mimeTypeList, idsList, query, take, skip, imagesOnly);
+            var taskForCount = assetRepository.CountAsync(AppId, mimeTypeList, idsList, query, imagesOnly);
 
             await Task.WhenAll(taskForItems, taskForCount);
 
