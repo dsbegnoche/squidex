@@ -1,10 +1,22 @@
 <div [formGroup]="importForm">
     <div class="panel-main">
-        <div class="panel-content panel-content-scroll">
-            <div>Import Content Header Text</div>
-            <label class="form-check-label">
-                <input value="publish" class="form-check-input" formControlName="publish" type="checkbox" />Publish Content
-            </label>
+        <div class="panel-content">
+            <h1>Import Content</h1>
+            <small>
+                Upload a .csv file for importing content elements. Please include all
+                fields (including tags). Tags should be separated by commas. Note that 
+                required reference or asset fields will fail.
+            </small>
+            <div>
+                <label class="form-check-label" style="padding-top: 1em;">
+                    <input value="publish" class="form-check-input" formControlName="publish" type="checkbox" /> Publish Content
+                </label>
+                <div>
+                    <small>
+                        Select whether or not to publish/submit the content upon upload.
+                    </small>
+                </div>
+            </div>
             <div class="file-drop" (sqxFileDrop)="addFile($event)">
                 <h3 class="file-drop-header">Drop file here to upload</h3>
                 <div class="file-drop-or">or</div>

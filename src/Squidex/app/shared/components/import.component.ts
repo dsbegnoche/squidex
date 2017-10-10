@@ -67,7 +67,7 @@ export class ImportComponent extends AppComponentBase implements OnInit {
         this.schemaName = params['schemaName'];
 
         if (initFile) {
-            if (initFile.size > this.maxFileSize) {
+            if (initFile.size >= this.maxFileSize) {
                 this.notifyError('Files must be smaller than 500 MB.');
             } else if (this.getExtension(initFile.name) !== 'csv') {
                 this.notifyError('File must be a .csv.');
