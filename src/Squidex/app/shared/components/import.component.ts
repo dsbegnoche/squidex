@@ -18,8 +18,7 @@ import {
     AuthService,
     DateTime,
     DialogService,
-    fadeAnimation,
-    Notification
+    fadeAnimation
 } from './../declarations-base';
 
 @Component({
@@ -31,9 +30,6 @@ import {
     ]
 })
 export class ImportComponent extends AppComponentBase implements OnInit {
-    public notifications: Notification[] = [];
-
-    private schemaName: string | null;
     private maxFileSize = Math.pow(1024, 2) * 500;
 
     @Input()
@@ -62,36 +58,37 @@ export class ImportComponent extends AppComponentBase implements OnInit {
 
     public ngOnInit() {
         const initFile = this.initFile;
-        const publish = this.publish;
-        const params = allParams(this.route);
-        this.schemaName = params['schemaName'];
-
         if (initFile) {
             if (initFile.size >= this.maxFileSize) {
                 this.notifyError('Files must be smaller than 500 MB.');
+                this.failed.emit();
             } else if (this.getExtension(initFile.name) !== 'csv') {
                 this.notifyError('File must be a .csv.');
                 this.failed.emit();
             } else {
                 this.appNameOnce()
                     .switchMap(app => {
-                        const url = this.apiUrl.buildUrl(`api/content/${app}/${this.schemaName}/import?publish=${publish}`);
-                        return this.assetsService.uploadFile(app,
+                        const url = this.apiUrl.buildUrl(
+                            `api/content/${app}/${allParams(this.route)['schemaName']}/import?publish=${this.publish}`);
+                        return this.assetsService.importFile(app,
                             initFile,
                             this.authService.user!.token,
                             DateTime.now(),
                             url);
                     })
                     .subscribe(dto => {
-                            if (dto instanceof AssetDto) {
-                                this.emitLoaded(dto);
-                            } else {
+                            if (dto === null) {
+                                this.loaded.emit();
+                            } else if (dto instanceof Array) {
+                                this.notifyError('Some records failed to create.');
+                                this.failed.emit();
+                            } else if(typeof dto === 'number') {
                                 this.progress = dto;
                             }
                         },
                         error => {
                             this.notifyError(error);
-                            this.emitFailed(error);
+                            this.failed.emit(error);
                         });
             }
         }
@@ -99,13 +96,5 @@ export class ImportComponent extends AppComponentBase implements OnInit {
 
     private getExtension(file: string) {
         return file.substring(file.lastIndexOf('.') + 1).toLowerCase();
-    }
-
-    private emitFailed(error: any) {
-        this.failed.emit(error);
-    }
-
-    private emitLoaded(asset: AssetDto) {
-        this.loaded.emit(asset);
     }
 }

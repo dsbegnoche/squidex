@@ -13,6 +13,7 @@ import {
     AnalyticsService,
     ApiUrlConfig,
     DateTime,
+    ErrorDto,
     LocalCacheService,
     HTTP,
     Version,
@@ -185,8 +186,8 @@ export class AssetsService {
             .pretifyError('Failed to load assets. Please reload.');
     }
 
-    public uploadFile(appName: string, file: File, user: string, now: DateTime, url?: string): Observable<number | AssetDto> {
-        url = url || this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
+    public uploadFile(appName: string, file: File, user: string, now: DateTime): Observable<number | AssetDto> {
+        const url = this.apiUrl.buildUrl(`api/apps/${appName}/assets`);
 
         const req = new HttpRequest('POST', url, getFormData(file), {
             reportProgress: true
@@ -233,6 +234,36 @@ export class AssetsService {
                 }
             })
             .do(dto => {
+                this.analytics.trackEvent('Asset', 'Uploaded', appName);
+            })
+            .pretifyError('Failed to upload asset. Please reload.');
+    }
+
+    public importFile(appName: string, file: File, user: string, now: DateTime, url: string): Observable<Array<ErrorDto> | number | null> {
+        const req = new HttpRequest('POST', url, getFormData(file), {
+            reportProgress: true
+        });
+
+        return this.http.request<any>(req)
+            .filter(event =>
+                event.type === HttpEventType.UploadProgress ||
+                event.type === HttpEventType.Response)
+            .map(event => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
+                    return percentDone;
+                } else if (event instanceof HttpResponse) {
+                    if (event.body instanceof Array && event.body.length > 0) {
+                        let errorArray = new Array<ErrorDto>();
+                        for (var i = 0; i < event.body.length; i++) {
+                            errorArray.push(new ErrorDto(400, event.body[i].message, event.body[i].details));
+                        }
+                        return errorArray;
+                    }
+                    return null;
+                }
+            })
+            .do(() => {
                 this.analytics.trackEvent('Asset', 'Uploaded', appName);
             })
             .pretifyError('Failed to upload asset. Please reload.');

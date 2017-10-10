@@ -9,8 +9,7 @@ import {
     AppComponentBase,
     AppsStoreService,
     AuthService,
-    DialogService,
-    ImmutableArray
+    DialogService
     } from 'shared';
 
 @Component({
@@ -19,11 +18,11 @@ import {
     templateUrl: './content-import.component.html'
 })
 export class ContentImportComponent extends AppComponentBase {
-    public files = ImmutableArray.empty<File>();
+    public file: File | null = null;
 
     public importForm =
         this.formBuilder.group({
-            publish: [false]
+            publish: [true]
         });
 
     constructor(apps: AppsStoreService,
@@ -35,16 +34,20 @@ export class ContentImportComponent extends AppComponentBase {
 
     public addFile(fileList: FileList) {
         if (fileList.length > 0) {
-            this.files = this.files.pushFront(fileList[0]);
+            this.file = fileList[0];
         }
     }
 
     public onImportLoaded(file: File) {
-        this.files = this.files.remove(file);
+        setTimeout(() => {
+            this.file = null;
+        });
+        this.notifyInfo('Import Succeeded');
     }
 
     public onImportFailed(file: File) {
-        this.files = this.files.remove(file);
-        this.notifyError('error occurred');
+        setTimeout(() => {
+            this.file = null;
+        });
     }
 }
