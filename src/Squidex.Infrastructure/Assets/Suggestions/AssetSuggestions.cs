@@ -25,8 +25,8 @@ namespace Squidex.Infrastructure.Assets.Suggestions
 
         // Configuration:
         private string AzureResourceKey { get; }
-        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description";
-        private double MinimumTagConfidence { get; } = 0.8;
+        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
+        private double MinimumTagConfidence { get; } = 0.9;
         private double MinimumCaptionConfidence { get; } = 0.3;
         private double MaxImageSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
@@ -38,6 +38,16 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             }
 
             var result = await CallAzureService(file);
+
+            var isAdultContent =
+                JObject.Parse(result)["adult"]["isAdultContent"]
+                       .ToObject<bool>();
+
+            if (isAdultContent)
+            {
+                var error = new ValidationError("Adult content found in asset upload");
+                throw new ValidationException("Cannot create asset.", error);
+            }
 
             var suggestedTags =
                 JObject.Parse(result)["tags"]
