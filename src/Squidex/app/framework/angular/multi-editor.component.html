@@ -1,20 +1,16 @@
-<span> This is the multi input. </span>
+<span
+    (click)="debug()"
+>
+    This is the multi input. </span>
 
-<div *ngFor="let value of allowedValues">
+<div *ngFor="let value of items"
+    class="form-control"
+    >
     <input type="checkbox" class="form-control"
         [id]="value+field.fieldId"
-        [value]="value" />
+        [formControlName]="checkInput"
+        [value]="value"
+        [checked]="selectedItems.includes(value)"
+    />
     <label [for]="value+field.fieldId">{{value}}</label>
-</div>
-
-<input type="text" class="form-control" (blur)="markTouched()"
-    [formControlName]="addInput"
-    autocomplete="off"
-    autocorrect="off"
-    autocapitalize="off">
-
-<div class="items">
-    <span class="item" *ngFor="let item of items; let i = index" [class.disabled]="addInput.disabled">
-        {{item}} <i class="icon-close" (click)="remove(i)"></i>
-    </span>
 </div>

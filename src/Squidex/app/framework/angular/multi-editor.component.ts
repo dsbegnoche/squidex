@@ -3,11 +3,9 @@
  */
 
 import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/forms';
 
-import { Types } from './../utils/types';
-
-const KEY_ENTER = 13;
+// import { Types } from './../utils/types';
 
 export const SQX_MULTI_EDITOR_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => MultiEditorComponent), multi: true
@@ -24,28 +22,22 @@ export class MultiEditorComponent implements ControlValueAccessor {
     private callTouched = () => { /* NOOP */ };
 
     @Input()
-    public useDefaultValue = true;
-
-    @Input()
     public inputName = 'multi-editor';
 
+    public checkInput = new FormControl();
+
+    @Input()
     public items: string[] = [];
 
-    public form = new FormGroup();
+    // @Input()
+    public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
-        this.resetForm();
         this.items = value;
     }
 
     public setDisabledState(isDisabled: boolean): void {
-        /*
-        if (isDisabled) {
-            this.addInput.disable();
-        } else {
-            this.addInput.enable();
-        }
-        */
+        // noop
     }
 
     public registerOnChange(fn: any) {
@@ -56,7 +48,8 @@ export class MultiEditorComponent implements ControlValueAccessor {
         this.callTouched = fn;
     }
 
-    public remove(index: number) {
+    public remove(value: string) {
+        let index = this.items.indexOf(value);
         this.updateItems([...this.items.slice(0, index), ...this.items.splice(index + 1)]);
     }
 
@@ -64,24 +57,24 @@ export class MultiEditorComponent implements ControlValueAccessor {
         this.callTouched();
     }
 
-    private resetForm() {
-        this.addInput.reset();
+    public debug() {
+        console.log(this.items);
+        console.log(this.selectedItems);
     }
 
-    public onSelect(event: KeyboardEvent) {
-        const value = <string>this.addInput.value.trim();
 
-        const converted = this.converter.convert(value);
-
-        this.updateItems([...this.items, converted]);
-        this.resetForm();
-        return false;
+    public toggle(value: string, toggle: boolean) {
+        if (toggle) {
+            this.updateItems([...this.items, value]);
+        } else {
+            this.remove(value);
+        }
     }
 
     private updateItems(items: string[]) {
         this.items = items;
 
-        if (items.length === 0 && this.useDefaultValue) {
+        if (items.length === 0) {
             this.callChange(undefined);
         } else {
             this.callChange(this.items);
