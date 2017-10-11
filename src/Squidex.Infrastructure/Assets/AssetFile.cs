@@ -43,7 +43,7 @@ namespace Squidex.Infrastructure.Assets
             Guard.NotNull(openAction, nameof(openAction));
             Guard.GreaterEquals(fileSize, 0, nameof(fileSize));
 
-            FileName = Path.GetFileNameWithoutExtension(fileName);
+            FileName = fileName;
             FileExtension = Path.GetExtension(fileName).Replace(".", default(string));
             FileSize = fileSize;
             BriefDescription = briefDescription;

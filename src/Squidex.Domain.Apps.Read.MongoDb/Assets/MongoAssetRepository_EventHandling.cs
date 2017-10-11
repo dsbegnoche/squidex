@@ -6,10 +6,12 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System.IO;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using Squidex.Domain.Apps.Events.Assets;
 using Squidex.Domain.Apps.Read.MongoDb.Utils;
+using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Reflection;
@@ -37,6 +39,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
         {
             return Collection.CreateAsync(@event, headers, a =>
             {
+                @event.FileExtension = @event.FileName.FileType();
+                @event.FileName = @event.FileName.GetFileNameWithoutExtension();
+
                 SimpleMapper.Map(@event, a);
             });
         }
