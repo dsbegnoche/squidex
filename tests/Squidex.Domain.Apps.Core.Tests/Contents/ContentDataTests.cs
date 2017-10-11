@@ -552,7 +552,7 @@ namespace Squidex.Domain.Apps.Core.Contents
 
             var cleanedValue = (JArray)actual[5]["iv"];
 
-            Assert.Equal(1, cleanedValue.Count);
+            Assert.Single(cleanedValue);
             Assert.Equal(id1.ToString(), cleanedValue[0]);
         }
 

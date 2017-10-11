@@ -1,0 +1,38 @@
+<div [formGroup]="importForm">
+    <div class="panel-main">
+        <div class="panel-content">
+            <h1>Import Content</h1>
+            <small>
+                Upload a .csv file for importing content elements. Please include all
+                fields (including tags). Tags should be separated by commas. Note that 
+                required reference or asset fields will fail.
+            </small>
+            <div class="file-drop" (sqxFileDrop)="addFile($event)">
+                <h3 class="file-drop-header">Drop file here to import</h3>
+                <div class="file-drop-or">or</div>
+                <div class="file-drop-button">
+                    <span class="btn btn-success" (click)="fileInput.value = ''; fileInput.click()">
+                        <span>Select File</span>
+                        <input class="file-drop-button-input" type="file" accept=".csv" (change)="addFile($event.target.files)" #fileInput />
+                    </span>
+                    <div class="row">
+                        <sqx-import class="col-3" *ngIf="file !== null" [initFile]="file" [publish]="importForm.controls['publish'].value"
+                                    (failed)="onImportFailed(file)"
+                                    (loaded)="onImportLoaded(file)">
+                        </sqx-import>
+                    </div>
+                </div>
+            </div>
+            <label class="form-check-label">
+                <input value="publish" class="form-check-input" formControlName="publish" type="checkbox" />Publish Content
+            </label>
+            <div>
+                <small>
+                    Select whether or not to publish/submit the content upon upload.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<sqx-dialog-renderer></sqx-dialog-renderer>

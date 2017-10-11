@@ -62,6 +62,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
     public isArchive = false;
 
     public columnWidth: number;
+    public importLink = this.router.createUrlTree(['import'], { relativeTo: this.route, replaceUrl: true }).toString();
 
     constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly contentsService: ContentsService,

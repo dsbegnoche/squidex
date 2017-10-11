@@ -13,6 +13,7 @@ import {
     AnalyticsService,
     ApiUrlConfig,
     DateTime,
+    ErrorDto,
     LocalCacheService,
     HTTP,
     Version,
@@ -233,6 +234,36 @@ export class AssetsService {
                 }
             })
             .do(dto => {
+                this.analytics.trackEvent('Asset', 'Uploaded', appName);
+            })
+            .pretifyError('Failed to upload asset. Please reload.');
+    }
+
+    public importFile(appName: string, file: File, user: string, now: DateTime, url: string): Observable<Array<ErrorDto> | number | null> {
+        const req = new HttpRequest('POST', url, getFormData(file), {
+            reportProgress: true
+        });
+
+        return this.http.request<any>(req)
+            .filter(event =>
+                event.type === HttpEventType.UploadProgress ||
+                event.type === HttpEventType.Response)
+            .map(event => {
+                if (event.type === HttpEventType.UploadProgress) {
+                    const percentDone = event.total ? Math.round(100 * event.loaded / event.total) : 0;
+                    return percentDone;
+                } else if (event instanceof HttpResponse) {
+                    if (event.body instanceof Array && event.body.length > 0) {
+                        let errorArray = new Array<ErrorDto>();
+                        for (let error of event.body) {
+                            errorArray.push(new ErrorDto(400, error.message, error.details));
+                        }
+                        return errorArray;
+                    }
+                    return null;
+                }
+            })
+            .do(() => {
                 this.analytics.trackEvent('Asset', 'Uploaded', appName);
             })
             .pretifyError('Failed to upload asset. Please reload.');
