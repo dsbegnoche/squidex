@@ -46,7 +46,7 @@ namespace Squidex.Infrastructure.Suggestions
             }
 
             var suggestedTags =
-                JObject.Parse(result)[SuggestionService.TagKeyWord]
+                JObject.Parse(result)["tags"]
                        .ToObject<List<TagResult>>()
                        .Where(tag => tag.Confidence > SuggestionService.MinimumTagConfidence)
                        .Select(tag => tag.Name)

@@ -53,7 +53,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 }
             };
 
-            return Service.Analyze(parameters);
+            return Task.Run(() => Service.Analyze(parameters));
         }
 
         public string[] GetTags(object result)
