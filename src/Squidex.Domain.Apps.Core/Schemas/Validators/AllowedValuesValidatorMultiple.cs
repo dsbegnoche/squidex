@@ -32,6 +32,11 @@ namespace Squidex.Domain.Apps.Core.Schemas.Validators
 
             var typedValue = ((JArray)value).ToObject<T[]>();
 
+            if (typedValue.Count() == 0)
+            {
+                return TaskHelper.Done;
+            }
+
             if (typedValue.Any(val => !allowedValues.Contains(val)))
             {
                 addError("<FIELD> is not an allowed value");

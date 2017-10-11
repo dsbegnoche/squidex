@@ -33,7 +33,9 @@ export class MultiEditorComponent implements ControlValueAccessor {
     public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
-        this.items = value;
+        console.log('writevalue!');
+        console.log(value);
+        this.selectedItems = value;
     }
 
     public setDisabledState(isDisabled: boolean): void {
@@ -48,11 +50,6 @@ export class MultiEditorComponent implements ControlValueAccessor {
         this.callTouched = fn;
     }
 
-    public remove(value: string) {
-        let index = this.items.indexOf(value);
-        this.updateItems([...this.items.slice(0, index), ...this.items.splice(index + 1)]);
-    }
-
     public markTouched() {
         this.callTouched();
     }
@@ -62,12 +59,12 @@ export class MultiEditorComponent implements ControlValueAccessor {
         console.log(this.selectedItems);
     }
 
-
     public toggle(value: string, toggle: boolean) {
         if (toggle) {
             this.updateItems([...this.items, value]);
         } else {
-            this.remove(value);
+            let index = this.items.indexOf(value);
+            this.updateItems([...this.items.slice(0, index), ...this.items.splice(index + 1)]);
         }
     }
 
