@@ -16,6 +16,7 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Infrastructure.Suggestions;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
@@ -25,6 +26,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
         private readonly IAssetSuggestions assetSuggestions;
+        private readonly ITextSuggestions fileSuggestions;
         private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
         public AssetCommandMiddleware(
@@ -32,7 +34,8 @@ namespace Squidex.Domain.Apps.Write.Assets
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
             IAssetCompressedGenerator assetCompressedGenerator,
-            IAssetSuggestions assetSuggestions)
+            IAssetSuggestions imageSuggestions,
+            ITextSuggestions fileSuggestions)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
@@ -43,7 +46,8 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
             this.assetCompressedGenerator = assetCompressedGenerator;
-            this.assetSuggestions = assetSuggestions;
+            this.assetSuggestions = imageSuggestions;
+            this.fileSuggestions = fileSuggestions;
         }
 
         private void ValidateCond(bool condition, string message)
@@ -76,7 +80,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             return null;
         }
 
-        private void CheckAssetFileAsync(AssetFile file)
+        private string CheckAssetFileAsync(AssetFile file)
         {
             var assetsConfig = file.AssetConfig;
             var filename = file.FileName;
@@ -93,11 +97,13 @@ namespace Squidex.Domain.Apps.Write.Assets
             var validExtensions = AssetFileValidationConfig.ValidExtensions;
 
             ValidateCond(!validExtensions.Contains(extension), $"Asset extension '{extension}' is not an allowed filetype.");
+
+            return extension;
         }
 
         protected async Task On(CreateAsset command, CommandContext context)
         {
-            CheckAssetFileAsync(command.File);
+            var extension = CheckAssetFileAsync(command.File);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             var compressedStream = AssetUtil.GetTempStream();
@@ -112,6 +118,10 @@ namespace Squidex.Domain.Apps.Write.Assets
                 if (command.ImageInfo != null)
                 {
                     command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
+                }
+                else if (extension == "txt")
+                {
+                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>

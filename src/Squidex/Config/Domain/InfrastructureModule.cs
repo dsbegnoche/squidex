@@ -15,18 +15,18 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NodaTime;
-using Squidex.Config.CivicPlus;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Actors;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.Assets.ImageSharp;
-using Squidex.Infrastructure.Assets.Suggestions;
 using Squidex.Infrastructure.Caching;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Log;
+using Squidex.Infrastructure.Suggestions;
+using Squidex.Infrastructure.Suggestions.Services;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
 
@@ -64,6 +64,65 @@ namespace Squidex.Config.Domain
                     .As<ILogChannel>()
                     .As<IExternalSystem>()
                     .SingleInstance();
+            }
+
+            var imageSuggestionServiceType = Configuration.GetValue<string>("suggestionServices:images");
+            var textSuggestionServiceType = Configuration.GetValue<string>("suggestionServices:text");
+
+            if (string.IsNullOrWhiteSpace(imageSuggestionServiceType))
+            {
+                throw new ConfigurationException("Configure SuggestionServices type with 'suggestionServices:images'.");
+            }
+
+            if (string.IsNullOrWhiteSpace(textSuggestionServiceType))
+            {
+                throw new ConfigurationException("Configure SuggestionServices type with 'suggestionServices:text'.");
+            }
+
+            if (string.Equals(imageSuggestionServiceType, "Azure", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.RegisterType<AzureImageSuggestionService>()
+                    .As<ISuggestionService>()
+                    .AsSelf()
+                    .SingleInstance();
+
+                builder.Register(c => new ImageAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<AzureImageSuggestionService>()))
+                    .As<IAssetSuggestions>()
+                    .AsSelf()
+                    .SingleInstance();
+            }
+            else
+            {
+                throw new ConfigurationException($"Unsupported value '{imageSuggestionServiceType}' for 'suggestionServices:images', supported: Azure.");
+            }
+
+            if (string.Equals(textSuggestionServiceType, "Watson", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.RegisterType<WatsonTextSuggestionService>()
+                    .As<ISuggestionService>()
+                    .AsSelf()
+                    .SingleInstance();
+
+                builder.Register(c => new FileAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<WatsonTextSuggestionService>()))
+                    .As<ITextSuggestions>()
+                    .AsSelf()
+                    .SingleInstance();
+            }
+            else if (string.Equals(textSuggestionServiceType, "Azure", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.RegisterType<AzureTextSuggestionService>()
+                    .As<ISuggestionService>()
+                    .AsSelf()
+                    .SingleInstance();
+
+                builder.Register(c => new FileAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<AzureTextSuggestionService>()))
+                    .As<ITextSuggestions>()
+                    .AsSelf()
+                    .SingleInstance();
+            }
+            else
+            {
+                throw new ConfigurationException($"Unsupported value '{imageSuggestionServiceType}' for 'suggestionServices:images', supported: Azure.");
             }
 
             builder.Register(c => new ApplicationInfoLogAppender(GetType(), Guid.NewGuid()))
@@ -148,12 +207,6 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<DefaultRemoteActorChannel>()
                 .As<IRemoteActorChannel>()
-                .SingleInstance();
-
-            builder.Register(c => new AssetSuggestions(c.Resolve<IAssetStore>(),
-                                                       c.Resolve<IOptions<AuthenticationKeys>>()))
-                .As<IAssetSuggestions>()
-                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<RemoteActors>()

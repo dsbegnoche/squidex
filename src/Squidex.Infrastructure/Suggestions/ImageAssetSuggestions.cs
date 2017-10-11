@@ -1,4 +1,5 @@
 ﻿// ==========================================================================
+//  ImageAssetSuggestions.cs
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
@@ -10,27 +11,22 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using Squidex.Config.CivicPlus;
+using Squidex.Infrastructure.Assets;
+using Squidex.Infrastructure.Suggestions.Services;
 
-namespace Squidex.Infrastructure.Assets.Suggestions
+namespace Squidex.Infrastructure.Suggestions
 {
-    public class AssetSuggestions : IAssetSuggestions
+    public class ImageAssetSuggestions : IAssetSuggestions
     {
-        public AssetSuggestions(IAssetStore assetStore, IOptions<AuthenticationKeys> keys
-            )
-            : base(assetStore)
+        public ImageAssetSuggestions(IOptions<AuthenticationKeys> keys, ISuggestionService suggestionService)
         {
-            AzureResourceKey = keys.Value.AzureImageApi;
+            suggestionService.ResourceKey = keys.Value.AzureImageApi;
+            SuggestionService = suggestionService;
         }
 
-        // Configuration:
-        private string AzureResourceKey { get; }
-        private string AzureEndpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
-        private double MinimumTagConfidence { get; } = 0.9;
-        private double MinimumCaptionConfidence { get; } = 0.3;
-        private double MaxImageSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
+        public ISuggestionService SuggestionService { get; set; }
 
-        public async override Task<AssetFile> SuggestTagsAndDescription(AssetFile file)
+        public async Task<AssetFile> SuggestTagsAndDescription(AssetFile file)
         {
             if (!ValidateFile(file))
             {
@@ -52,7 +48,7 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             var suggestedTags =
                 JObject.Parse(result)["tags"]
                        .ToObject<List<TagResult>>()
-                       .Where(tag => tag.Confidence > MinimumTagConfidence)
+                       .Where(tag => tag.Confidence > SuggestionService.MinimumTagConfidence)
                        .Select(tag => tag.Name)
                        .ToArray();
 
@@ -60,7 +56,7 @@ namespace Squidex.Infrastructure.Assets.Suggestions
                 JObject.Parse(result)["description"]["captions"]
                        .ToObject<List<CaptionResult>>()
                        .OrderByDescending(tag => tag.Confidence)
-                       .FirstOrDefault(tag => tag.Confidence > MinimumCaptionConfidence)
+                       .FirstOrDefault(tag => tag.Confidence > SuggestionService.MinimumCaptionConfidence)
                        ?.Text ?? string.Empty;
 
             return new AssetFile(
@@ -78,16 +74,16 @@ namespace Squidex.Infrastructure.Assets.Suggestions
 
         private bool ValidateFile(AssetFile file) => new[]
             {
-                file.FileSize > MaxImageSize,
+                file.FileSize > SuggestionService.MaxFileSize,
             }.Any(condition => !condition);
 
         private async Task<string> CallAzureService(AssetFile file)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", AzureResourceKey);
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", SuggestionService.ResourceKey);
 
-            var response = await client.PostAsync(AzureEndpoint, await EncodeFile(file));
+            var response = await client.PostAsync(SuggestionService.Endpoint, await EncodeFile(file));
 
             if (response.Headers.Contains("Retry-After"))
             {
@@ -114,13 +110,13 @@ namespace Squidex.Infrastructure.Assets.Suggestions
             return content;
         }
 
-        private sealed class TagResult
+        internal sealed class TagResult
         {
             public string Name { get; set; }
             public double Confidence { get; set; }
         }
 
-        private sealed class CaptionResult
+        internal sealed class CaptionResult
         {
             public string Text { get; set; }
             public double Confidence { get; set; }
