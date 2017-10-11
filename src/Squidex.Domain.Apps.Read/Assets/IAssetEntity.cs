@@ -14,6 +14,8 @@ namespace Squidex.Domain.Apps.Read.Assets
 
         string FileName { get; }
 
+        string FileExtension { get; }
+
         long FileSize { get; }
 
         long? FileSizeCompressed { get; }

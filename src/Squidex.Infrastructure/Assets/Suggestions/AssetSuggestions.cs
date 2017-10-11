@@ -64,7 +64,7 @@ namespace Squidex.Infrastructure.Assets.Suggestions
                        ?.Text ?? string.Empty;
 
             return new AssetFile(
-                file.FileName,
+                $"{file.FileName}.{file.FileExtension}",
                 file.MimeType,
                 file.FileSize,
                 file.OpenRead,

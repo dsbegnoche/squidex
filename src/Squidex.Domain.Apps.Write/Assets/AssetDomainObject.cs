@@ -90,6 +90,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                 AppId = command.AppId,
 
                 FileName = command.File.FileName,
+                FileExtension = command.File.FileExtension,
                 FileSize = command.File.FileSize,
                 FileVersion = fileVersion + 1,
                 MimeType = command.File.MimeType,
