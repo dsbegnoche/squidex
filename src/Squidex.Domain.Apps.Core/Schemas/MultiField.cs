@@ -21,7 +21,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public override object ConvertValue(JToken value)
         {
-            return value.ToString().ToLower().Split(',').Distinct().ToArray();
+            return value;
         }
 
         protected override IEdmTypeReference CreateEdmType()
@@ -34,7 +34,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
         {
             if (Properties.AllowedValues != null)
             {
-                yield return new AllowedValuesValidator<string>(Properties.AllowedValues.ToArray());
+                yield return new AllowedValuesValidatorMultiple<string>(Properties.AllowedValues.ToArray());
             }
         }
 

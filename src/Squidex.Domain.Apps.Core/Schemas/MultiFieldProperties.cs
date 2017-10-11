@@ -27,11 +27,11 @@ namespace Squidex.Domain.Apps.Core.Schemas
             IsRequired = properties.IsRequired;
         }
 
-        public override JToken GetDefaultValue() => DefaultValue;
+        public override JToken GetDefaultValue() => DefaultValue.ToString();
 
         public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.Multi;
 
-        public string DefaultValue { get; set; } = string.Empty;
+        public string[] DefaultValue { get; set; } = new string[0];
 
         public ImmutableList<string> AllowedValues
         {

@@ -15,7 +15,7 @@ namespace Squidex.Controllers.Api.Schemas.Models
     public sealed class MultiFieldPropertiesDto : FieldPropertiesDto
     {
         /// <summary> The default value for the field value. </summary>
-        public string DefaultValue { get; set; }
+        public string[] DefaultValue { get; set; }
 
         /// <summary> The editor that is used to manage this field.  </summary>
         [JsonConverter(typeof(StringEnumConverter))]
