@@ -11,6 +11,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Squidex.Infrastructure.CQRS.Events
 {
+    [BsonIgnoreExtraElements]
     public sealed class MongoEventConsumerInfo : IEventConsumerInfo
     {
         [BsonId]
@@ -28,10 +29,6 @@ namespace Squidex.Infrastructure.CQRS.Events
         [BsonElement]
         [BsonIgnoreIfDefault]
         public bool IsStopped { get; set; }
-
-        [BsonElement]
-        [BsonIgnoreIfDefault]
-        public bool IsResetting { get; set; }
 
         [BsonElement]
         [BsonRequired]

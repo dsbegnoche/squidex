@@ -22,7 +22,6 @@ namespace Squidex.Infrastructure.CQRS.Events
         private static readonly FieldDefinition<MongoEventConsumerInfo, string> StackTraceField = Fields.Build(x => x.StackTrace);
         private static readonly FieldDefinition<MongoEventConsumerInfo, string> PositionField = Fields.Build(x => x.Position);
         private static readonly FieldDefinition<MongoEventConsumerInfo, bool> IsStoppedField = Fields.Build(x => x.IsStopped);
-        private static readonly FieldDefinition<MongoEventConsumerInfo, bool> IsResettingField = Fields.Build(x => x.IsResetting);
 
         public MongoEventConsumerInfoRepository(IMongoDatabase database)
             : base(database)
@@ -48,13 +47,21 @@ namespace Squidex.Infrastructure.CQRS.Events
             return entity;
         }
 
-        public async Task CreateAsync(string consumerName)
+        public Task ClearAsync(IEnumerable<string> currentConsumerNames)
         {
-            if (await Collection.CountAsync(Filter.Eq(NameField, consumerName)) == 0)
+            return Collection.DeleteManyAsync(Filter.Not(Filter.In(NameField, currentConsumerNames)));
+        }
+
+        public async Task SetAsync(string consumerName, string position, bool isStopped = false, string error = null)
             {
                 try
                 {
-                    await Collection.InsertOneAsync(CreateEntity(consumerName, null));
+                await Collection.UpdateOneAsync(Filter.Eq(NameField, consumerName),
+                    Update
+                        .Set(ErrorField, error)
+                        .Set(PositionField, position)
+                        .Set(IsStoppedField, isStopped),
+                new UpdateOptions { IsUpsert = true });
                 }
                 catch (MongoWriteException ex)
                 {
@@ -65,50 +72,4 @@ namespace Squidex.Infrastructure.CQRS.Events
                 }
             }
         }
-
-        public Task ClearAsync(IEnumerable<string> currentConsumerNames)
-        {
-            return Collection.DeleteManyAsync(Filter.Not(Filter.In(NameField, currentConsumerNames)));
         }
-
-        public Task StartAsync(string consumerName)
-        {
-            var filter = Filter.Eq(NameField, consumerName);
-
-            return Collection.UpdateOneAsync(filter, Update.Unset(IsStoppedField).Unset(ErrorField).Unset(StackTraceField));
-        }
-
-        public Task StopAsync(string consumerName, string error = null, string stackTrace = null)
-        {
-            var filter = Filter.Eq(NameField, consumerName);
-
-            return Collection.UpdateOneAsync(filter, Update.Set(IsStoppedField, true).Set(ErrorField, error).Set(StackTraceField, stackTrace));
-        }
-
-        public Task ResetAsync(string consumerName)
-        {
-            var filter = Filter.Eq(NameField, consumerName);
-
-            return Collection.UpdateOneAsync(filter, Update.Set(IsResettingField, true).Unset(ErrorField).Unset(StackTraceField));
-        }
-
-        public Task SetPositionAsync(string consumerName, string position, bool reset)
-        {
-            var filter = Filter.Eq(NameField, consumerName);
-
-            if (reset)
-            {
-                return Collection.ReplaceOneAsync(filter, CreateEntity(consumerName, position));
-            }
-            else
-            {
-                return Collection.UpdateOneAsync(filter, Update.Set(PositionField, position));
-            }
-        }
-
-        private static MongoEventConsumerInfo CreateEntity(string consumerName, string position)
-        {
-            return new MongoEventConsumerInfo { Name = consumerName, Position = position };
-        }
-    }
-}
