@@ -24,6 +24,10 @@ import {
     ProfileMenuComponent
 } from './declarations';
 
+import {
+    ContentImportComponent
+} from '../features/content/declarations'
+
 @NgModule({
     imports: [
         SqxFrameworkModule,
@@ -33,7 +37,8 @@ import {
         AppAreaComponent,
         HomePageComponent,
         InternalAreaComponent,
-        NotFoundPageComponent
+        NotFoundPageComponent,
+        ContentImportComponent
     ],
     declarations: [
         AppAreaComponent,
@@ -47,7 +52,8 @@ import {
         LogoutPageComponent,
         NotFoundPageComponent,
         CpProfileMenuComponent,
-        ProfileMenuComponent
+        ProfileMenuComponent,
+        ContentImportComponent
     ]
 })
 export class SqxShellModule { }

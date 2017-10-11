@@ -14,6 +14,7 @@ using Squidex.Domain.Apps.Core.Scripting;
 using Squidex.Domain.Apps.Write.Apps;
 using Squidex.Domain.Apps.Write.Assets;
 using Squidex.Domain.Apps.Write.Contents;
+using Squidex.Domain.Apps.Write.FileConverter;
 using Squidex.Domain.Apps.Write.Schemas;
 using Squidex.Domain.Apps.Write.Webhooks;
 using Squidex.Infrastructure.CQRS.Commands;
@@ -91,6 +92,10 @@ namespace Squidex.Config.Domain
 
             builder.RegisterType<ETagCommandMiddleware>()
                 .As<ICommandMiddleware>()
+                .SingleInstance();
+
+            builder.RegisterType<CsvConverter>()
+                .As<IFileConverter>()
                 .SingleInstance();
 
             builder.Register<DomainObjectFactoryFunction<AppDomainObject>>(c =>

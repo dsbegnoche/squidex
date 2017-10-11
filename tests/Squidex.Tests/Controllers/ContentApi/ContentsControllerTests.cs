@@ -2,35 +2,36 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
+using Moq;
+using Squidex.Config;
+using Squidex.Controllers.ContentApi;
+using Squidex.Domain.Apps.Core;
+using Squidex.Domain.Apps.Core.Contents;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Read.Apps;
+using Squidex.Domain.Apps.Read.Contents;
+using Squidex.Domain.Apps.Read.Contents.GraphQL;
+using Squidex.Domain.Apps.Read.Schemas;
+using Squidex.Domain.Apps.Write.Contents;
+using Squidex.Domain.Apps.Write.FileConverter;
+using Squidex.Infrastructure;
+using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Security;
+using Squidex.Infrastructure.UsageTracking;
+using Squidex.Pipeline;
+using Xunit;
+
 namespace Squidex.Tests.Controllers.ContentApi
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Immutable;
-    using System.Security.Claims;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Controllers;
-    using Microsoft.AspNetCore.Routing;
-    using Moq;
-    using Squidex.Config;
-    using Squidex.Controllers.ContentApi;
-    using Squidex.Domain.Apps.Core;
-    using Squidex.Domain.Apps.Core.Contents;
-    using Squidex.Domain.Apps.Core.Schemas;
-    using Squidex.Domain.Apps.Read.Apps;
-    using Squidex.Domain.Apps.Read.Contents;
-    using Squidex.Domain.Apps.Read.Contents.GraphQL;
-    using Squidex.Domain.Apps.Read.Schemas;
-    using Squidex.Domain.Apps.Write.Contents;
-    using Squidex.Infrastructure;
-    using Squidex.Infrastructure.CQRS.Commands;
-    using Squidex.Infrastructure.Security;
-    using Squidex.Infrastructure.UsageTracking;
-    using Squidex.Pipeline;
-    using Xunit;
-
     public class ContentsControllerTests
     {
         private readonly Mock<IContentQueryService> contentQuery = new Mock<IContentQueryService>();
@@ -39,6 +40,7 @@ namespace Squidex.Tests.Controllers.ContentApi
         private readonly Mock<IContentUsageTracker> contentUsageTracker = new Mock<IContentUsageTracker>();
         private readonly Mock<ClaimsPrincipal> user = new Mock<ClaimsPrincipal>();
         private readonly Mock<IAppEntity> appEntity = new Mock<IAppEntity>();
+        private readonly Mock<CsvConverter> csvConverter = new Mock<CsvConverter>();
 
         private readonly Mock<HttpContext> httpContext = new Mock<HttpContext>();
         private readonly Mock<HttpResponse> httpResponse = new Mock<HttpResponse>();
@@ -53,7 +55,8 @@ namespace Squidex.Tests.Controllers.ContentApi
                 this.contentUsageTracker.Object,
                 this.contentQuery.Object,
                 this.contentVersionLoader.Object,
-                this.graphQl.Object);
+                this.graphQl.Object,
+                this.csvConverter.Object);
 
             this.user.Setup(p => p.Claims).Returns(new List<Claim>()
             {

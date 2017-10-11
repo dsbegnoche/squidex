@@ -25,7 +25,7 @@ namespace Squidex.Domain.Apps.Core.Scripting
             identity.AddClaim(new Claim(OpenIdClaims.ClientId, "1"));
 
             Assert.Equal("1", GetValue(identity, "user.id"));
-            Assert.Equal(true, GetValue(identity, "user.isClient"));
+            Assert.True((bool)GetValue(identity, "user.isClient"));
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Squidex.Domain.Apps.Core.Scripting
             identity.AddClaim(new Claim(OpenIdClaims.Subject, "2"));
 
             Assert.Equal("2", GetValue(identity, "user.id"));
-            Assert.Equal(false, GetValue(identity, "user.isClient"));
+            Assert.False((bool)GetValue(identity, "user.isClient"));
         }
 
         [Fact]

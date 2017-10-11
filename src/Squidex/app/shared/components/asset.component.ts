@@ -101,10 +101,10 @@ export class AssetComponent extends AppComponentBase implements OnInit {
                         },
                         error => {
                             this.notifyError(error);
-                    this.emitFailed(error);
+                            this.emitFailed(error);
                         });
             } else {
-                this.notifyError('Files must be smaller than 500 MB.');
+                this.notifyError('Files must be smaller than 500 MB. Please reload.');
             }
         } else {
             this.updateAsset(this.asset, false);

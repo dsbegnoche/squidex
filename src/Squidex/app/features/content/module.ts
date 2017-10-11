@@ -46,6 +46,9 @@ const routes: Routes = [
                 },
                 children: [
                     {
+                        path: ''
+                    },
+                    {
                         path: 'new',
                         component: ContentPageComponent,
                         canDeactivate: [CanDeactivateGuard],

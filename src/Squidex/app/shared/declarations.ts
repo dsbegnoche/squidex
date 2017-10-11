@@ -11,6 +11,7 @@ export * from './components/asset.component';
 export * from './components/component-base';
 export * from './components/help.component';
 export * from './components/history.component';
+export * from './components/import.component';
 export * from './components/language-selector.component';
 export * from './components/pipes';
 
