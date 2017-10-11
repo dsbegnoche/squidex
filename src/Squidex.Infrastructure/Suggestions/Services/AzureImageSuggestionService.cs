@@ -4,6 +4,7 @@
 // ==========================================================================
 
 using System;
+using System.Threading.Tasks;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
@@ -13,7 +14,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string Username { get; set; }
 
-        public string Endpoint { get; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
+        public string Endpoint { get; set; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
 
         public double MinimumTagConfidence { get; } = 0.9;
 
@@ -22,5 +23,16 @@ namespace Squidex.Infrastructure.Suggestions.Services
         public double MaxFileSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
         public string TagKeyWord { get; } = "tags";
+
+        public void InitializeService()
+        {
+            return;
+        }
+
+        public async Task<object> Analyze(string content) => throw new NotImplementedException();
+
+        public string[] GetTags(object result) => throw new NotImplementedException();
+
+        public string GetDescription(object result) => throw new NotImplementedException();
     }
 }

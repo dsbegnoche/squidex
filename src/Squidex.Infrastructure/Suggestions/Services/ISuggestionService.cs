@@ -3,6 +3,8 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System.Threading.Tasks;
+
 namespace Squidex.Infrastructure.Suggestions.Services
 {
     public interface ISuggestionService
@@ -19,6 +21,12 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         double MaxFileSize { get; }
 
-        string TagKeyWord { get; }
+        void InitializeService();
+
+        Task<object> Analyze(string content);
+
+        string[] GetTags(object result);
+
+        string GetDescription(object result);
     }
 }

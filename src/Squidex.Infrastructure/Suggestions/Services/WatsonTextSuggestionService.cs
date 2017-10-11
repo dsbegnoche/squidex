@@ -4,6 +4,10 @@
 // ==========================================================================
 
 using System;
+using System.Linq;
+using System.Threading.Tasks;
+using IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1;
+using IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1.Model;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
@@ -22,5 +26,44 @@ namespace Squidex.Infrastructure.Suggestions.Services
         public double MaxFileSize { get; } = Math.Pow(1024, 3); // 1gb
 
         public string TagKeyWord { get; } = "keywords";
+
+        public NaturalLanguageUnderstandingService Service { get; set; }
+
+        public void InitializeService()
+        {
+            Service = new NaturalLanguageUnderstandingService();
+            Service.SetCredential(Username, ResourceKey);
+        }
+
+        public async Task<object> Analyze(string content)
+        {
+            var parameters = new Parameters()
+            {
+                Text = content,
+                Features = new Features()
+                {
+                    Keywords = new KeywordsOptions
+                    {
+                        Limit = 4
+                    },
+                    Concepts = new ConceptsOptions
+                    {
+                        Limit = 1
+                    }
+                }
+            };
+
+            return Service.Analyze(parameters);
+        }
+
+        public string[] GetTags(object result)
+        {
+            return ((AnalysisResults)result)?.Keywords?.Select(tag => tag.Text).ToArray();
+        }
+
+        public string GetDescription(object result)
+        {
+            return ((AnalysisResults)result)?.Concepts?.FirstOrDefault()?.Text;
+        }
     }
 }

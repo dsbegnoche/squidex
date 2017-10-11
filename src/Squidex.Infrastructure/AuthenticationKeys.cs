@@ -14,6 +14,5 @@ namespace Squidex.Infrastructure
         public string WatsonLanguageApiPassword { get; set; }
 
         public string AzureTextAnalyticsApi { get; set; }
-
     }
 }
