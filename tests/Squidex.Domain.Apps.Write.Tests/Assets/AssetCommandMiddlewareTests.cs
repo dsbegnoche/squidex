@@ -193,7 +193,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         private void SetupTextInfo()
         {
-            A.CallTo(() => fileSuggestions.SuggestTagsAndDescription(textFile))
+            A.CallTo(() => fileSuggestions.SuggestTagsAndDescription(textFile, "txt"))
                 .Returns(textFile);
         }
 

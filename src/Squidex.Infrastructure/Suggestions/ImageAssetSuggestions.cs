@@ -33,7 +33,7 @@ namespace Squidex.Infrastructure.Suggestions
                 return file;
             }
 
-            var result = await CallAzureService(file);
+            var result = await CallImageService(file);
 
             var isAdultContent =
                 JObject.Parse(result)["adult"]["isAdultContent"]
@@ -46,7 +46,7 @@ namespace Squidex.Infrastructure.Suggestions
             }
 
             var suggestedTags =
-                JObject.Parse(result)["tags"]
+                JObject.Parse(result)[SuggestionService.TagKeyWord]
                        .ToObject<List<TagResult>>()
                        .Where(tag => tag.Confidence > SuggestionService.MinimumTagConfidence)
                        .Select(tag => tag.Name)
@@ -77,7 +77,7 @@ namespace Squidex.Infrastructure.Suggestions
                 file.FileSize > SuggestionService.MaxFileSize,
             }.Any(condition => !condition);
 
-        private async Task<string> CallAzureService(AssetFile file)
+        private async Task<string> CallImageService(AssetFile file)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Clear();
@@ -90,7 +90,7 @@ namespace Squidex.Infrastructure.Suggestions
                 // ref: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-request-limits#waiting-before-sending-next-request
                 var value = response.Headers.GetValues("Retry-After").First();
                 System.Threading.Thread.Sleep(Convert.ToInt32(value));
-                return await CallAzureService(file);
+                return await CallImageService(file);
             }
 
             return await response.Content.ReadAsStringAsync();

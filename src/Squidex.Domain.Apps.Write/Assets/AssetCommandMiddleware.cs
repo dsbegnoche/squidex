@@ -121,7 +121,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                 }
                 else if (extension == "txt")
                 {
-                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File);
+                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, extension);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>

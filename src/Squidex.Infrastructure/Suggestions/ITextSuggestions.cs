@@ -11,7 +11,7 @@ namespace Squidex.Infrastructure.Suggestions
 {
     public interface ITextSuggestions
     {
-        Task<AssetFile> SuggestTagsAndDescription(AssetFile file);
+        Task<AssetFile> SuggestTagsAndDescription(AssetFile file, string extension);
 
         ISuggestionService SuggestionService { get; set; }
     }

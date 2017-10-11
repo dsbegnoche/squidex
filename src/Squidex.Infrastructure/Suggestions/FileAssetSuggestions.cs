@@ -18,6 +18,8 @@ namespace Squidex.Infrastructure.Suggestions
 {
     public class FileAssetSuggestions : ITextSuggestions
     {
+        private readonly string serviceTagKey = string.Empty;
+
         public FileAssetSuggestions(IOptions<AuthenticationKeys> keys, ISuggestionService suggestionService)
         {
             switch (suggestionService)
@@ -26,7 +28,8 @@ namespace Squidex.Infrastructure.Suggestions
                     suggestionService.ResourceKey = keys.Value.AzureTextAnalyticsApi;
                     break;
                 case WatsonTextSuggestionService _:
-                    suggestionService.ResourceKey = keys.Value.WatsonLanguageApi;
+                    suggestionService.ResourceKey = keys.Value.WatsonLanguageApiPassword;
+                    suggestionService.Username = keys.Value.WatsonLanguageApiUsername;
                     break;
             }
 
@@ -35,32 +38,39 @@ namespace Squidex.Infrastructure.Suggestions
 
         public ISuggestionService SuggestionService { get; set; }
 
-        public async Task<AssetFile> SuggestTagsAndDescription(AssetFile file)
+        public async Task<AssetFile> SuggestTagsAndDescription(AssetFile file, string extension)
         {
             if (!ValidateFile(file))
             {
                 return file;
             }
 
-            var result = await CallAzureService(file);
+            var content = await GetTextFromFile(file, extension);
+            var result = await CallTextAnalysisService(content);
 
-            var isAdultContent =
-                JObject.Parse(result)["adult"]["isAdultContent"]
-                       .ToObject<bool>();
+            var suggestedTags =
+                JObject.Parse(result)[SuggestionService.TagKeyWord]
+                    .ToObject<List<TagResult>>()
+                    .Where(tag => tag.Confidence > SuggestionService.MinimumTagConfidence)
+                    .OrderBy(tag => tag.Confidence)
+                    .Take(4)
+                    .Select(tag => tag.Name)
+                    .ToArray();
 
-            if (isAdultContent)
-            {
-                var error = new ValidationError("Adult content found in asset upload");
-                throw new ValidationException("Cannot create asset.", error);
-            }
+            var suggestedDescription =
+                JObject.Parse(result)["description"]["captions"]
+                    .ToObject<List<CaptionResult>>()
+                    .OrderByDescending(caption => caption.Confidence)
+                    .FirstOrDefault(caption => caption.Confidence > SuggestionService.MinimumCaptionConfidence)
+                    ?.Text ?? string.Empty;
 
             return new AssetFile(
                 file.FileName,
                 file.MimeType,
                 file.FileSize,
                 file.OpenRead,
-                string.Empty,
-                new string[0],
+                suggestedDescription,
+                suggestedTags,
                 file.AssetConfig,
                 file.MaxAssetRepoSize,
                 file.CurrentAssetRepoSize
@@ -72,26 +82,39 @@ namespace Squidex.Infrastructure.Suggestions
                 file.FileSize < 0,
             }.Any(condition => !condition);
 
-        private async Task<string> CallAzureService(AssetFile file)
+        private async Task<string> CallTextAnalysisService(string content)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", SuggestionService.ResourceKey);
 
-            var response = await client.PostAsync(SuggestionService.Endpoint, await EncodeFile(file));
+            var response = await client.PostAsync(SuggestionService.Endpoint, EncodeFile(content));
 
             return await response.Content.ReadAsStringAsync();
         }
 
-        private async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
+        private static MultipartFormDataContent EncodeFile(string content)
         {
-            var content = new MultipartFormDataContent();
+            var data = new MultipartFormDataContent();
+            var stringContent = new StringContent(content);
+            data.Add(stringContent, "File", "filename");
 
-            using (MemoryStream ms = new MemoryStream())
+            return data;
+        }
+
+        private static async Task<string> GetTextFromFile(AssetFile file, string extension)
+        {
+            var content = string.Empty;
+            switch (extension)
             {
-                await file.OpenRead().CopyToAsync(ms);
-                var byteContent = new ByteArrayContent(ms.ToArray());
-                content.Add(byteContent, "File", "filename");
+                case "txt":
+                    using (var sr = new StreamReader(file.OpenRead()))
+                    {
+                        content = await sr.ReadToEndAsync();
+                        sr.Dispose();
+                    }
+
+                    break;
             }
 
             return content;
