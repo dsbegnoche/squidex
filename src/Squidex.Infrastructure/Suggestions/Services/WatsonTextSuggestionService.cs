@@ -21,11 +21,9 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public double MinimumTagConfidence { get; } = 0.5;
 
-        public double MinimumCaptionConfidence { get; } = 0.3;
+        public double MinimumCaptionConfidence { get; } = 0.5;
 
-        public double MaxFileSize { get; } = Math.Pow(1024, 3); // 1gb
-
-        public string TagKeyWord { get; } = "keywords";
+        public double MaxFileSize { get; } = Math.Pow(1024, 3); // 1gb, not used in text service
 
         public NaturalLanguageUnderstandingService Service { get; set; }
 
@@ -45,7 +43,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 {
                     Keywords = new KeywordsOptions
                     {
-                        Limit = 4
+                        Limit = 5
                     },
                     Concepts = new ConceptsOptions
                     {
@@ -59,12 +57,17 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string[] GetTags(object result)
         {
-            return ((AnalysisResults)result)?.Keywords?.Select(tag => tag.Text).ToArray();
+            return ((AnalysisResults)result)?.Keywords?
+                .Where(tag => tag.Relevance >= MinimumTagConfidence)
+                .Select(tag => tag.Text)
+                .ToArray();
         }
 
         public string GetDescription(object result)
         {
-            return ((AnalysisResults)result)?.Concepts?.FirstOrDefault()?.Text;
+            return ((AnalysisResults)result)?.Concepts?
+                .FirstOrDefault(tag => tag.Relevance > MinimumCaptionConfidence)?
+                .Text;
         }
     }
 }

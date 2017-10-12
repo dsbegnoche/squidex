@@ -23,13 +23,11 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string Endpoint { get; set; } = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases";
 
-        public double MinimumTagConfidence { get; } = 1;
+        public double MinimumTagConfidence { get; } = 0.5;
 
-        public double MinimumCaptionConfidence { get; } = 0;
+        public double MinimumCaptionConfidence { get; } = 0.5;
 
-        public double MaxFileSize { get; } = Math.Pow(1024, 3) * 1; // 1gb
-
-        public string TagKeyWord { get; } = "tags";
+        public double MaxFileSize { get; } = Math.Pow(1024, 3) * 1; // 1gb, not used in text service
 
         private TextAnalyticsAPI Client { get; set; }
 
@@ -52,7 +50,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
             return ((KeyPhraseBatchResult)result).Documents
                 .FirstOrDefault()
                 .KeyPhrases.ToList()
-                .Take(4)
+                .Take(5)
                 .ToArray();
         }
 

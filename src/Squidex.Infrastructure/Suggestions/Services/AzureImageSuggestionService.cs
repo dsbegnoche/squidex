@@ -29,8 +29,6 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public double MaxFileSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
-        public string TagKeyWord { get; } = "tags";
-
         public void InitializeService() => throw new NotImplementedException();
 
         public async Task<object> Analyze(object content)
