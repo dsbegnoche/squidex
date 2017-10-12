@@ -80,10 +80,9 @@ namespace Squidex.Domain.Apps.Write.Assets
             return null;
         }
 
-        private string CheckAssetFileAsync(AssetFile file)
+        private void CheckAssetFileAsync(AssetFile file)
         {
             var assetsConfig = file.AssetConfig;
-            var filename = file.FileName;
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
 
@@ -91,19 +90,16 @@ namespace Squidex.Domain.Apps.Write.Assets
                          file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize,
                          $"You have reached your max repo capacity of {file.MaxAssetRepoSize}.");
 
-            ValidateCond(!filename.Contains("."), "Asset has no extensions found");
+            ValidateCond(string.IsNullOrWhiteSpace(file.FileExtension), "Asset has no extensions found");
 
-            var extension = filename.Split('.').Last().ToLower();
             var validExtensions = AssetFileValidationConfig.ValidExtensions;
 
-            ValidateCond(!validExtensions.Contains(extension), $"Asset extension '{extension}' is not an allowed filetype.");
-
-            return extension;
+            ValidateCond(!validExtensions.Contains(file.FileExtension), $"Asset extension '{file.FileExtension}' is not an allowed filetype.");
         }
 
         protected async Task On(CreateAsset command, CommandContext context)
         {
-            var extension = CheckAssetFileAsync(command.File);
+            CheckAssetFileAsync(command.File);
 
             command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
             var compressedStream = AssetUtil.GetTempStream();
@@ -119,9 +115,9 @@ namespace Squidex.Domain.Apps.Write.Assets
                 {
                     command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
                 }
-                else if (extension == "txt")
+                else if (command.File.FileExtension == "txt")
                 {
-                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, extension);
+                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, command.File.FileExtension);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>

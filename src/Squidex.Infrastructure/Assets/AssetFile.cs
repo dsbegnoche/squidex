@@ -19,6 +19,8 @@ namespace Squidex.Infrastructure.Assets
 
         public string MimeType { get; }
 
+        public string FileExtension { get; set; }
+
         public long FileSize { get; }
 
         public string BriefDescription { get; }
@@ -42,6 +44,7 @@ namespace Squidex.Infrastructure.Assets
             Guard.GreaterEquals(fileSize, 0, nameof(fileSize));
 
             FileName = fileName;
+            FileExtension = Path.GetExtension(fileName).Replace(".", default(string));
             FileSize = fileSize;
             BriefDescription = briefDescription;
             Tags = tags;

@@ -26,6 +26,7 @@ using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Pipeline;
+using Squidex.Shared.Identity;
 
 namespace Squidex.Controllers.ContentApi
 {
@@ -411,7 +412,7 @@ namespace Squidex.Controllers.ContentApi
 
             var status = !publish
                 ? Status.Draft
-                : User.IsInRole("app:author") && !User.IsInRole("app:editor")
+                : User.IsInRole(SquidexRoles.AppAuthor) && !User.IsInRole(SquidexRoles.AppEditor)
                     ? Status.Submitted
                     : Status.Published;
 

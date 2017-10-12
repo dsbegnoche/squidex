@@ -33,6 +33,8 @@ namespace Squidex.Domain.Apps.Read.Contents.TestData
 
         public string FileName { get; set; }
 
+        public string FileExtension { get; set; }
+
         public long FileSize { get; set; }
 
         public long? FileSizeCompressed { get; set; }
