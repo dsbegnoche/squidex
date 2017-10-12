@@ -20,6 +20,12 @@ export class MultiUIComponent implements OnInit {
     @Input()
     public properties: MultiFieldPropertiesDto;
 
+    public allowedValuesHolder: string[];
+
+    public debug() {
+        console.log(this.properties);
+    }
+
     public ngOnInit() {
         this.editForm.setControl('editor',
             new FormControl(this.properties.editor, [
@@ -31,5 +37,12 @@ export class MultiUIComponent implements OnInit {
 
         this.editForm.setControl('defaultValues',
             new FormControl(this.properties.defaultValues));
+
+        this.allowedValuesHolder = this.properties.allowedValues;
+    }
+
+    public SyncAllowed() {
+        let allowedValues = this.editForm.get('allowedValues').value;
+        this.allowedValuesHolder = allowedValues;
     }
 }

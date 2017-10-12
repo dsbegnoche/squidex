@@ -31,8 +31,15 @@ export class MultiEditorComponent implements ControlValueAccessor {
     public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
-        value = value || [];
+        value = value || []
         this.selectedItems = value;
+
+        this.removeInvalidValues();
+    }
+
+    public removeInvalidValues() {
+        this.selectedItems =
+            this.selectedItems.filter(item => this.items.includes(item));
     }
 
     public setDisabledState(isDisabled: boolean): void {

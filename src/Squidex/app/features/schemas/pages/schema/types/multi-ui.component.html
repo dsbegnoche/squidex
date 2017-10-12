@@ -1,4 +1,5 @@
-﻿<div [formGroup]="editForm">
+﻿    <span (click)="debug()">debug link </span>
+<div [formGroup]="editForm">
     <div class="form-group row">
         <label for="field-input-editor" class="col col-3 col-form-label">Editor</label>
 
@@ -16,7 +17,11 @@
         <label for="field-allowed-values" class="col col-3 col-form-label">Allowed Values</label>
 
         <div class="col col-6">
-            <sqx-tag-editor formControlName="allowedValues"></sqx-tag-editor>
+            <sqx-tag-editor
+                formControlName="allowedValues"
+                (onBlurEvent)="SyncAllowed()"
+            >
+            </sqx-tag-editor>
         </div>
     </div>
     <div class="form-group row">
@@ -24,7 +29,7 @@
 
         <div class="col col-6">
             <sqx-multi-editor formControlName="defaultValues"
-                [items]="properties.allowedValues"
+                [items]="allowedValuesHolder"
                 >
             </sqx-multi-editor>
         </div>
