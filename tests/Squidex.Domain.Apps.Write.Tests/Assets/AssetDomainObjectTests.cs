@@ -54,6 +54,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                     {
                         IsImage = true,
                         FileName = file.FileName,
+                        FileExtension = file.FileExtension,
                         FileSize = file.FileSize,
                         FileVersion = 0,
                         MimeType = file.MimeType,
