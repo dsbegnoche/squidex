@@ -74,7 +74,7 @@ namespace Squidex.Controllers.Api.Assets
 
             var assetId = asset.Id.ToString();
 
-            return new FileCallbackResult(asset.MimeType, asset.FileName, async bodyStream =>
+            return new FileCallbackResult(asset.MimeType, $"{asset.FileName}.{asset.FileExtension}", async bodyStream =>
             {
                 if (asset.IsImage)
                 {

@@ -26,14 +26,17 @@ namespace Squidex.Infrastructure
         {
             try
             {
-                var fileInfo = new FileInfo(fileName);
-
-                return fileInfo.Extension.Substring(1).ToLowerInvariant();
+                return Path.GetExtension(fileName).Substring(1).ToLowerInvariant();
             }
             catch
             {
                 return "blob";
             }
+        }
+
+        public static string GetFileNameWithoutExtension(this string fileName)
+        {
+            return Path.GetFileNameWithoutExtension(fileName);
         }
 
         public static string ToReadableSize(this long value)

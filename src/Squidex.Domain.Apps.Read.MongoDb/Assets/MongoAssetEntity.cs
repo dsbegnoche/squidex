@@ -24,6 +24,9 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Assets
         [BsonElement]
         public string FileName { get; set; }
 
+        [BsonElement]
+        public string FileExtension { get; set; }
+
         [BsonRequired]
         [BsonElement]
         public long FileSize { get; set; }

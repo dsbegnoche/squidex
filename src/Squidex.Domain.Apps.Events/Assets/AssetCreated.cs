@@ -15,6 +15,8 @@ namespace Squidex.Domain.Apps.Events.Assets
     {
         public string FileName { get; set; }
 
+        public string FileExtension { get; set; }
+
         public string MimeType { get; set; }
 
         public long FileVersion { get; set; }
