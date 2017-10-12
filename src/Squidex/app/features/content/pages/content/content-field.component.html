@@ -90,13 +90,10 @@
                         <div [ngSwitch]="field.properties.editor">
                             <div *ngSwitchCase="'Multi'">
                                 <sqx-multi-editor
-                                    [formControlName]="partition">
+                                    [formControlName]="partition"
                                     [items]="field.properties.allowedValues"
                                     >
                                 </sqx-multi-editor>
-                                <span>
-                                    {{field.properties.allowedValues}}
-                                </span>
 
                                 <!--
                                 <select class="form-control" [formControlName]="partition" multiple>

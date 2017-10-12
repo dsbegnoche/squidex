@@ -1,16 +1,15 @@
-<span
-    (click)="debug()"
->
-    This is the multi input. </span>
-
-<div *ngFor="let value of items"
-    class="form-control"
-    >
-    <input type="checkbox" class="form-control"
-        [id]="value+field.fieldId"
-        [formControlName]="checkInput"
-        [value]="value"
-        [checked]="selectedItems.includes(value)"
-    />
-    <label [for]="value+field.fieldId">{{value}}</label>
+<div class="form-control">
+    <div
+        *ngFor="let value of items"
+        [formControl]="checkInput"
+        ngDefaultControl
+        >
+        <input type="checkbox"
+            [id]="value"
+            [value]="value"
+            [checked]="selectedItems.includes(value)"
+            (click)="toggle(value, !selectedItems.includes(value))"
+        />
+        <label [for]="value">{{value}}</label>
+    </div>
 </div>

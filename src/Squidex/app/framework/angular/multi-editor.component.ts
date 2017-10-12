@@ -2,7 +2,7 @@
  * CivicPlus implementation of Squidex Headless CMS
  */
 
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Output, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/forms';
 
 // import { Types } from './../utils/types';
@@ -27,9 +27,9 @@ export class MultiEditorComponent implements ControlValueAccessor {
     public checkInput = new FormControl();
 
     @Input()
-    public items: string[] = [];
+    public items: any[] = [];
 
-    // @Input()
+    @Output()
     public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
@@ -60,21 +60,22 @@ export class MultiEditorComponent implements ControlValueAccessor {
     }
 
     public toggle(value: string, toggle: boolean) {
+        console.log('toggle: ' + value + ' - ' + toggle);
         if (toggle) {
-            this.updateItems([...this.items, value]);
+            this.updateItems([...this.selectedItems, value]);
         } else {
-            let index = this.items.indexOf(value);
-            this.updateItems([...this.items.slice(0, index), ...this.items.splice(index + 1)]);
+            let index = this.selectedItems.indexOf(value);
+            this.updateItems([...this.selectedItems.slice(0, index), ...this.selectedItems.splice(index + 1)]);
         }
     }
 
     private updateItems(items: string[]) {
-        this.items = items;
+        this.selectedItems = items;
 
         if (items.length === 0) {
             this.callChange(undefined);
         } else {
-            this.callChange(this.items);
+            this.callChange(this.selectedItems);
         }
     }
 }
