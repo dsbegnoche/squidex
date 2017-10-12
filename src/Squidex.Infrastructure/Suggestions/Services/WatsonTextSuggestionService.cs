@@ -33,13 +33,14 @@ namespace Squidex.Infrastructure.Suggestions.Services
         {
             Service = new NaturalLanguageUnderstandingService();
             Service.SetCredential(Username, ResourceKey);
+            Service.VersionDate = NaturalLanguageUnderstandingService.NATURAL_LANGUAGE_UNDERSTANDING_VERSION_DATE_2017_02_27;
         }
 
-        public async Task<object> Analyze(string content)
+        public async Task<object> Analyze(object content)
         {
             var parameters = new Parameters()
             {
-                Text = content,
+                Text = (string)content,
                 Features = new Features()
                 {
                     Keywords = new KeywordsOptions
@@ -53,7 +54,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 }
             };
 
-            return Task.Run(() => Service.Analyze(parameters));
+            return Service.Analyze(parameters);
         }
 
         public string[] GetTags(object result)

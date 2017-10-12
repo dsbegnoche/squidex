@@ -20,7 +20,11 @@ namespace Squidex.Infrastructure.Suggestions
     {
         public ImageAssetSuggestions(IOptions<AuthenticationKeys> keys, ISuggestionService suggestionService)
         {
-            suggestionService.ResourceKey = keys.Value.AzureImageApi;
+            if (suggestionService is AzureImageSuggestionService)
+            {
+                suggestionService.ResourceKey = keys.Value.AzureImageApi;
+            }
+
             SuggestionService = suggestionService;
         }
 
@@ -33,10 +37,10 @@ namespace Squidex.Infrastructure.Suggestions
                 return file;
             }
 
-            var result = await CallImageService(file);
+            var result = await SuggestionService.Analyze(file);
 
             var isAdultContent =
-                JObject.Parse(result)["adult"]["isAdultContent"]
+                JObject.Parse((string)result)["adult"]["isAdultContent"]
                        .ToObject<bool>();
 
             if (isAdultContent)
@@ -45,19 +49,8 @@ namespace Squidex.Infrastructure.Suggestions
                 throw new ValidationException("Cannot create asset.", error);
             }
 
-            var suggestedTags =
-                JObject.Parse(result)["tags"]
-                       .ToObject<List<TagResult>>()
-                       .Where(tag => tag.Confidence > SuggestionService.MinimumTagConfidence)
-                       .Select(tag => tag.Name)
-                       .ToArray();
-
-            var suggestedDescription =
-                JObject.Parse(result)["description"]["captions"]
-                       .ToObject<List<CaptionResult>>()
-                       .OrderByDescending(tag => tag.Confidence)
-                       .FirstOrDefault(tag => tag.Confidence > SuggestionService.MinimumCaptionConfidence)
-                       ?.Text ?? string.Empty;
+            var suggestedTags = SuggestionService.GetTags(result);
+            var suggestedDescription = SuggestionService.GetDescription(result);
 
             return new AssetFile(
                 file.FileName,
@@ -76,39 +69,6 @@ namespace Squidex.Infrastructure.Suggestions
             {
                 file.FileSize > SuggestionService.MaxFileSize,
             }.Any(condition => !condition);
-
-        private async Task<string> CallImageService(AssetFile file)
-        {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", SuggestionService.ResourceKey);
-
-            var response = await client.PostAsync(SuggestionService.Endpoint, await EncodeFile(file));
-
-            if (response.Headers.Contains("Retry-After"))
-            {
-                // ref: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-request-limits#waiting-before-sending-next-request
-                var value = response.Headers.GetValues("Retry-After").First();
-                System.Threading.Thread.Sleep(Convert.ToInt32(value));
-                return await CallImageService(file);
-            }
-
-            return await response.Content.ReadAsStringAsync();
-        }
-
-        private async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
-        {
-            var content = new MultipartFormDataContent();
-
-            using (MemoryStream ms = new MemoryStream())
-            {
-                await file.OpenRead().CopyToAsync(ms);
-                var byteContent = new ByteArrayContent(ms.ToArray());
-                content.Add(byteContent, "File", "filename");
-            }
-
-            return content;
-        }
 
         internal sealed class TagResult
         {

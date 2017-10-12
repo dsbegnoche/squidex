@@ -4,7 +4,13 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Squidex.Infrastructure.Assets;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
@@ -14,7 +20,8 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string Username { get; set; }
 
-        public string Endpoint { get; set; } = "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
+        public string Endpoint { get; set; } =
+            "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
 
         public double MinimumTagConfidence { get; } = 0.9;
 
@@ -24,15 +31,63 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string TagKeyWord { get; } = "tags";
 
-        public void InitializeService()
+        public void InitializeService() => throw new NotImplementedException();
+
+        public async Task<object> Analyze(object content)
         {
-            return;
+            var file = (AssetFile)content;
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ResourceKey);
+
+            var response = await client.PostAsync(Endpoint, await EncodeFile(file));
+
+            if (response.Headers.Contains("Retry-After"))
+            {
+                // ref: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-request-limits#waiting-before-sending-next-request
+                var value = response.Headers.GetValues("Retry-After").First();
+                System.Threading.Thread.Sleep(Convert.ToInt32(value));
+                return await Analyze(file);
+            }
+
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<object> Analyze(string content) => throw new NotImplementedException();
+        private static async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
+        {
+            var content = new MultipartFormDataContent();
 
-        public string[] GetTags(object result) => throw new NotImplementedException();
+            using (var ms = new MemoryStream())
+            {
+                await file.OpenRead().CopyToAsync(ms);
+                var byteContent = new ByteArrayContent(ms.ToArray());
+                content.Add(byteContent, "File", "filename");
+            }
 
-        public string GetDescription(object result) => throw new NotImplementedException();
+            return content;
+        }
+
+        public string[] GetTags(object result)
+        {
+            return JObject.Parse((string)result)["tags"]
+                .ToObject<List<ImageAssetSuggestions.TagResult>>()
+                .Where(tag => tag.Confidence > MinimumTagConfidence)
+                .Select(tag => tag.Name)
+                .ToArray();
+        }
+
+        public string GetDescription(object result)
+        {
+            return JObject.Parse((string)result)["description"]["captions"]
+                .ToObject<List<ImageAssetSuggestions.CaptionResult>>()
+                .OrderByDescending(tag => tag.Confidence)
+                .FirstOrDefault(tag => tag.Confidence > MinimumCaptionConfidence)
+                ?.Text ?? string.Empty;
+        }
+
+        public bool IsAdultContent(string result)
+        {
+            return JObject.Parse(result)["adult"]["isAdultContent"].ToObject<bool>();
+        }
     }
 }

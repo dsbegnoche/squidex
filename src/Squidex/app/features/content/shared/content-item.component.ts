@@ -41,7 +41,7 @@ export class ContentItemComponent extends AppComponentBase implements OnInit, On
     @Output()
     public archiving = new EventEmitter();
 
-	@Output()
+    @Output()
     public submitting = new EventEmitter<ContentDto>();
 
     @Output()

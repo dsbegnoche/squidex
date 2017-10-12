@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Azure.CognitiveServices.Language.TextAnalytics;
+using Microsoft.Azure.CognitiveServices.Language.TextAnalytics.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Squidex.Infrastructure.Suggestions.Services
@@ -28,61 +31,44 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string TagKeyWord { get; } = "tags";
 
+        private TextAnalyticsAPI Client { get; set; }
+
         public void InitializeService()
         {
-            return;
+            Client = new TextAnalyticsAPI
+            {
+                AzureRegion = AzureRegions.Westus,
+                SubscriptionKey = ResourceKey
+            };
         }
 
-        public async Task<object> Analyze(string content)
+        public async Task<object> Analyze(object content)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ResourceKey);
-
-            var response = await client.PostAsync(Endpoint, EncodeFile(content));
-
-            return await response.Content.ReadAsStringAsync();
+            return await Client.KeyPhrasesAsync(EncodeFile((string)content));
         }
 
         public string[] GetTags(object result)
         {
-            return JObject.Parse((string)result)["tags"]
-                .ToObject<List<TagResult>>()
-                .Where(tag => tag.Confidence > MinimumTagConfidence)
-                .OrderBy(tag => tag.Confidence)
+            return ((KeyPhraseBatchResult)result).Documents
+                .FirstOrDefault()
+                .KeyPhrases.ToList()
                 .Take(4)
-                .Select(tag => tag.Name)
                 .ToArray();
         }
 
-        public string GetDescription(object result)
-        {
-            return JObject.Parse((string)result)["description"]["captions"]
-                       .ToObject<List<CaptionResult>>()
-                       .OrderByDescending(caption => caption.Confidence)
-                       .FirstOrDefault(caption => caption.Confidence > MinimumCaptionConfidence)
-                       ?.Text ?? string.Empty;
-        }
+        public string GetDescription(object result) => string.Empty;
 
-        private static MultipartFormDataContent EncodeFile(string content)
+        private static MultiLanguageBatchInput EncodeFile(string content)
         {
-            var data = new MultipartFormDataContent();
-            var stringContent = new StringContent(content);
-            data.Add(stringContent, "File", "filename");
+            var data = new MultiLanguageBatchInput
+            {
+                Documents = new List<MultiLanguageInput>
+                {
+                    new MultiLanguageInput("en", "1", content)
+                }
+            };
 
             return data;
-        }
-
-        internal sealed class TagResult
-        {
-            public string Name { get; set; }
-            public double Confidence { get; set; }
-        }
-
-        internal sealed class CaptionResult
-        {
-            public string Text { get; set; }
-            public double Confidence { get; set; }
         }
     }
 }

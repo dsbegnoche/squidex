@@ -23,7 +23,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         void InitializeService();
 
-        Task<object> Analyze(string content);
+        Task<object> Analyze(object content);
 
         string[] GetTags(object result);
 
