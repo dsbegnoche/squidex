@@ -197,7 +197,6 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             var @event = new StoredEvent(Guid.NewGuid().ToString(), 123, eventData);
 
             await SubscribeAsync();
-
             await sutSubscriber.OnEventAsync(eventSubscription, @event);
 
             sut.Dispose();
@@ -213,6 +212,35 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
         }
 
         [Fact]
+        public async Task Should_start_after_stop_when_handling_failed()
+        {
+            var exception = new InvalidOperationException("Exception");
+
+            A.CallTo(() => eventConsumer.On(envelope))
+                .Throws(exception);
+
+            var @event = new StoredEvent(Guid.NewGuid().ToString(), 123, eventData);
+
+            await SubscribeAsync();
+            await sutSubscriber.OnEventAsync(eventSubscription, @event);
+
+            sutActor.Tell(new StartConsumerMessage());
+            sut.Dispose();
+
+            A.CallTo(() => eventConsumer.On(envelope))
+                .MustHaveHappened();
+
+            A.CallTo(() => eventConsumerInfoRepository.SetPositionAsync(consumerName, @event.EventPosition, false))
+                .MustNotHaveHappened();
+
+            A.CallTo(() => eventConsumerInfoRepository.StopAsync(consumerName, exception.ToString(), null))
+                .MustHaveHappened();
+
+            A.CallTo(() => eventConsumerInfoRepository.StartAsync(consumerName))
+                .MustHaveHappened(Repeated.Exactly.Twice);
+        }
+
+        [Fact]
         public async Task Should_stop_if_deserialization_failed()
         {
             var exception = new InvalidOperationException("Exception");
@@ -223,7 +251,6 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             var @event = new StoredEvent(Guid.NewGuid().ToString(), 123, eventData);
 
             await SubscribeAsync();
-
             await sutSubscriber.OnEventAsync(eventSubscription, @event);
 
             sut.Dispose();

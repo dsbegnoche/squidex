@@ -14,11 +14,11 @@ namespace Squidex.Domain.Apps.Read.Assets.Repositories
 {
     public interface IAssetRepository
     {
-        Task<IReadOnlyList<IAssetEntity>> QueryAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, int take = 10, int skip = 0);
+        Task<IReadOnlyList<IAssetEntity>> QueryAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, int take = 10, int skip = 0, bool? imagesOnly = null);
 
         Task<IReadOnlyList<Guid>> QueryNotFoundAsync(Guid appId, IList<Guid> assetIds);
 
-        Task<long> CountAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null);
+        Task<long> CountAsync(Guid appId, HashSet<string> mimeTypes = null, HashSet<Guid> ids = null, string query = null, bool? imagesOnly = null);
 
         Task<IAssetEntity> FindAssetAsync(Guid id);
     }
