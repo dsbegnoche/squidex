@@ -45,6 +45,9 @@
                 <button *ngIf="!isReadOnly" class="btn btn-success" #newButton routerLink="new" title="New Content (CTRL + SHIFT + G)">
                     <i class="icon-plus"></i> New
                 </button>
+                <button *ngIf="!isReadOnly" class="btn btn-success" [sqxPopupLink]="importLink" title="Import Content">
+                    <i class="icon-plus"></i> Import
+                </button>
             </div>
 
             <h3 class="panel-title" *ngIf="!isReadOnly && !isArchive">
@@ -93,7 +96,7 @@
                 </thead>
 
                 <tbody *ngIf="!isReadOnly">
-                    <ng-template ngFor let-content [ngForOf]="contentItems")>
+                    <ng-template ngFor let-content [ngForOf]="contentItems">
                         <tr [sqxContent]="content" [routerLink]="[content.id]" routerLinkActive="active"
                             [languageCode]="languageSelected.iso2Code"
                             [schemaFields]="contentFields"

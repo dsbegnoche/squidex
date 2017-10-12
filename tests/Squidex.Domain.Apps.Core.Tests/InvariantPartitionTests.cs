@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
+#pragma warning disable xUnit2013 // Do not use equality check to check for collection size.
+
 namespace Squidex.Domain.Apps.Core
 {
     public sealed class InvariantPartitionTests
@@ -20,7 +22,7 @@ namespace Squidex.Domain.Apps.Core
         {
             var sut = InvariantPartitioning.Instance;
 
-            Assert.Equal(1, sut.Count);
+            Assert.Single(sut);
 
             Assert.Equal(sut.Master, ((IEnumerable<IFieldPartitionItem>)sut).SingleOrDefault());
             Assert.Equal(sut.Master, ((IEnumerable)sut).OfType<IFieldPartitionItem>().SingleOrDefault());

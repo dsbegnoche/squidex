@@ -79,7 +79,6 @@ namespace Squidex.Domain.Apps.Write.Assets
         private void CheckAssetFileAsync(AssetFile file)
         {
             var assetsConfig = file.AssetConfig;
-            var filename = file.FileName;
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
 
@@ -87,12 +86,11 @@ namespace Squidex.Domain.Apps.Write.Assets
                          file.MaxAssetRepoSize < file.CurrentAssetRepoSize + file.FileSize,
                          $"You have reached your max repo capacity of {file.MaxAssetRepoSize}.");
 
-            ValidateCond(!filename.Contains("."), "Asset has no extensions found");
+            ValidateCond(string.IsNullOrWhiteSpace(file.FileExtension), "Asset has no extensions found");
 
-            var extension = filename.Split('.').Last().ToLower();
             var validExtensions = AssetFileValidationConfig.ValidExtensions;
 
-            ValidateCond(!validExtensions.Contains(extension), $"Asset extension '{extension}' is not an allowed filetype.");
+            ValidateCond(!validExtensions.Contains(file.FileExtension), $"Asset extension '{file.FileExtension}' is not an allowed filetype.");
         }
 
         protected async Task On(CreateAsset command, CommandContext context)

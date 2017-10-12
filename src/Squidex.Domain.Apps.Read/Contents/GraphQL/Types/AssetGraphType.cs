@@ -103,7 +103,7 @@ namespace Squidex.Domain.Apps.Read.Contents.GraphQL.Types
             AddField(new FieldType
             {
                 Name = "fileType",
-                Resolver = Resolver(x => x.FileName.FileType()),
+                Resolver = Resolver(x => x.FileExtension),
                 ResolvedType = new NonNullGraphType(new StringGraphType()),
                 Description = "The file type."
             });

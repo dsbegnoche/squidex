@@ -36,9 +36,6 @@ const routes: Routes = [
         component: SchemasPageComponent,
         children: [
             {
-                path: ''
-            },
-            {
                 path: ':schemaName',
                 component: ContentsPageComponent,
                 resolve: {

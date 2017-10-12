@@ -7,6 +7,7 @@
 
 export * from './pages/content/content-field.component';
 export * from './pages/content/content-history.component';
+export * from './pages/content/content-import.component';
 export * from './pages/content/content-page.component';
 export * from './pages/contents/contents-page.component';
 export * from './pages/contents/search-form.component';

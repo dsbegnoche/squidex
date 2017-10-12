@@ -33,25 +33,25 @@ import {
 export class ContentItemComponent extends AppComponentBase implements OnInit, OnChanges {
     public PermissionEnum = PermissionEnum;
     @Output()
-    public publishing = new EventEmitter<ContentDto>();
+    public publishing = new EventEmitter();
 
     @Output()
-    public unpublishing = new EventEmitter<ContentDto>();
+    public unpublishing = new EventEmitter();
 
     @Output()
+    public archiving = new EventEmitter();
+
+	@Output()
     public submitting = new EventEmitter<ContentDto>();
 
     @Output()
     public declining = new EventEmitter<ContentDto>();
 
     @Output()
-    public archiving = new EventEmitter<ContentDto>();
+    public restoring = new EventEmitter();
 
     @Output()
-    public restoring = new EventEmitter<ContentDto>();
-
-    @Output()
-    public deleting = new EventEmitter<ContentDto>();
+    public deleting = new EventEmitter();
 
     @Output()
     public copying = new EventEmitter<ContentDto>();

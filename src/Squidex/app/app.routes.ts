@@ -21,14 +21,31 @@ import {
     AppMustExistGuard,
     MustBeAuthenticatedGuard,
     MustBeNotAuthenticatedGuard,
-    MustHaveValidSessionGuard
+    MustHaveValidSessionGuard,
+    ResolvePublishedSchemaGuard
 } from './shared';
+
+import {
+    ContentImportComponent
+    } from './features/content/declarations';
 
 export const routes: Routes = [
     {
         path: '',
         component: HomePageComponent,
         canActivate: [MustBeNotAuthenticatedGuard]
+    },
+    {
+        path: 'app/:appName/content/:schemaName/import',
+        component: ContentImportComponent,
+        canActivate: [
+            MustHaveValidSessionGuard,
+            MustBeAuthenticatedGuard,
+            AppMustExistGuard
+        ],
+        resolve: {
+            schema: ResolvePublishedSchemaGuard
+        }
     },
     {
         path: 'app',
