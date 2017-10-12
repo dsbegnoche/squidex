@@ -31,6 +31,7 @@ export class MultiEditorComponent implements ControlValueAccessor {
     public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
+        value = value || [];
         this.selectedItems = value;
     }
 

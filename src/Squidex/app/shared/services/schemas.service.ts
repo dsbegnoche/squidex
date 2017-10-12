@@ -479,7 +479,8 @@ export class MultiFieldPropertiesDto extends FieldPropertiesDto {
         isRequired: boolean,
         isListField: boolean,
         public readonly editor: string,
-        public readonly allowedValues?: string[]
+        public readonly allowedValues?: string[],
+        public readonly defaultValues?: string[]
     ) {
         super('Multi', label, hints, placeholder, isRequired, isListField);
     }

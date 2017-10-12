@@ -2,8 +2,10 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using Squidex.Infrastructure;
 
@@ -15,6 +17,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
     public sealed class MultiFieldProperties : FieldProperties
     {
         private ImmutableList<string> allowedValues;
+        private ImmutableList<string> defaultValues;
 
         public MultiFieldProperties ()
         {
@@ -25,13 +28,26 @@ namespace Squidex.Domain.Apps.Core.Schemas
             AllowedValues = properties.allowedValues;
             Label = properties.Label;
             IsRequired = properties.IsRequired;
+            DefaultValues = properties.DefaultValues;
         }
 
-        public override JToken GetDefaultValue() => DefaultValue.ToString();
+        public override JToken GetDefaultValue() => JObject.FromObject(DefaultValues);
 
         public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.Multi;
 
-        public string[] DefaultValue { get; set; } = new string[0];
+        public ImmutableList<string> DefaultValues
+        {
+            get
+            {
+                return defaultValues;
+            }
+            set
+            {
+                ThrowIfFrozen();
+
+                defaultValues = value;
+            }
+        }
 
         public ImmutableList<string> AllowedValues
         {
@@ -49,14 +65,16 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         protected override IEnumerable<ValidationError> ValidateCore()
         {
-            yield break;
-            /* having this validation here means can't initially add field to schema.
-             * string field gets around this by using Input as default which doesn't lean on AllowedValues.
-            if ((AllowedValues == null || AllowedValues.Count == 0))
+            Func<ImmutableList<string>, bool> isValid =
+                (validate) => validate != null && validate.Count > 0;
+
+            if (isValid(AllowedValues) && isValid(DefaultValues))
             {
-                yield return new ValidationError("Multi option needs allowed values", nameof(AllowedValues));
+                if (DefaultValues.Any(val => !AllowedValues.Contains(val)))
+                {
+                    yield return new ValidationError("Default values could not be found in allowed values");
+                }
             }
-            */
         }
     }
 }

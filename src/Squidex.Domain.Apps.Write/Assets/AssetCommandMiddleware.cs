@@ -56,9 +56,6 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         private async Task<CompressedInfo> GenerateCompressedImage(AssetFile file, Stream compressedStream)
         {
-            // disable while testing memory load on machines:
-            return null;
-
             var sourceStream = AssetUtil.GetTempStream();
             await file.OpenRead().CopyToAsync(sourceStream);
 

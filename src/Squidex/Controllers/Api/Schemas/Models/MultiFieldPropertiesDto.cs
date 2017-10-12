@@ -14,15 +14,15 @@ namespace Squidex.Controllers.Api.Schemas.Models
     [JsonSchema("Multi")]
     public sealed class MultiFieldPropertiesDto : FieldPropertiesDto
     {
+        /// <summary> The allowed values </summary>
+        public string[] AllowedValues { get; set; }
+
         /// <summary> The default value for the field value. </summary>
         public string[] DefaultValue { get; set; }
 
         /// <summary> The editor that is used to manage this field.  </summary>
         [JsonConverter(typeof(StringEnumConverter))]
         public MultiFieldEditor Editor { get; set; }
-
-        /// <summary> The allowed values </summary>
-        public string[] AllowedValues { get; set; }
 
         public override FieldProperties ToProperties()
         {
@@ -31,6 +31,11 @@ namespace Squidex.Controllers.Api.Schemas.Models
             if (AllowedValues != null)
             {
                 result.AllowedValues = ImmutableList.Create(AllowedValues);
+            }
+
+            if (DefaultValue != null)
+            {
+                result.DefaultValues = ImmutableList.Create(DefaultValue);
             }
 
             return result;

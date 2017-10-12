@@ -5,7 +5,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { StringFieldPropertiesDto } from 'shared';
+import { MultiFieldPropertiesDto } from 'shared';
 
 @Component({
     selector: 'sqx-multi-ui',
@@ -18,7 +18,7 @@ export class MultiUIComponent implements OnInit {
     public editForm: FormGroup;
 
     @Input()
-    public properties: StringFieldPropertiesDto;
+    public properties: MultiFieldPropertiesDto;
 
     public ngOnInit() {
         this.editForm.setControl('editor',
@@ -28,5 +28,8 @@ export class MultiUIComponent implements OnInit {
 
         this.editForm.setControl('allowedValues',
             new FormControl(this.properties.allowedValues));
+
+        this.editForm.setControl('defaultValues',
+            new FormControl(this.properties.defaultValues));
     }
 }
