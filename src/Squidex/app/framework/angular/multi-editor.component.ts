@@ -5,8 +5,6 @@
 import { Component, Output, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/forms';
 
-// import { Types } from './../utils/types';
-
 export const SQX_MULTI_EDITOR_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => MultiEditorComponent), multi: true
 };
@@ -33,8 +31,6 @@ export class MultiEditorComponent implements ControlValueAccessor {
     public selectedItems: string[] = [];
 
     public writeValue(value: any[]) {
-        console.log('writevalue!');
-        console.log(value);
         this.selectedItems = value;
     }
 
@@ -54,18 +50,13 @@ export class MultiEditorComponent implements ControlValueAccessor {
         this.callTouched();
     }
 
-    public debug() {
-        console.log(this.items);
-        console.log(this.selectedItems);
-    }
-
     public toggle(value: string, toggle: boolean) {
-        console.log('toggle: ' + value + ' - ' + toggle);
         if (toggle) {
             this.updateItems([...this.selectedItems, value]);
         } else {
             let index = this.selectedItems.indexOf(value);
-            this.updateItems([...this.selectedItems.slice(0, index), ...this.selectedItems.splice(index + 1)]);
+            this.updateItems([...this.selectedItems.slice(0, index),
+            ...this.selectedItems.splice(index + 1)]);
         }
     }
 

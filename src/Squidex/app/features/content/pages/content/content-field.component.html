@@ -94,26 +94,6 @@
                                     [items]="field.properties.allowedValues"
                                     >
                                 </sqx-multi-editor>
-
-                                <!--
-                                <select class="form-control" [formControlName]="partition" multiple>
-                                    <option *ngFor="let value of field.properties.allowedValues" [ngValue]="value">{{value}}</option>
-                                        [checked]="field.properties.selectedValues"
-                                </select>
-                                -->
-                                <!-- doesn't work, assoc's true/false instead of value
-                                <div *ngFor="let value of field.properties.allowedValues"
-                                    class="form-control"
-                                    >
-                                    <input type="checkbox" class="form-control"
-                                        [id]="value+field.fieldId"
-                                        [value]="value"
-                                        [formControlName]="partition"
-                                    />
-                                    <label [for]="value+field.fieldId">{{value}}</label>
-                                </div>
-                                -->
-
                             </div>
                         </div>
                     </div>
