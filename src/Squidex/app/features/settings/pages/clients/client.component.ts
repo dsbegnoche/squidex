@@ -44,7 +44,7 @@ export class ClientComponent extends ComponentBase {
     @Input()
     public client: AppClientDto;
 
-    public clientPermissions = [ 'Developer', 'Editor', 'Reader' ];
+    public clientPermissions = [ 'Developer', 'Editor', 'Author', 'Reader' ];
 
     public isRenaming = false;
 

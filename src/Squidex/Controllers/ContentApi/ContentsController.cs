@@ -423,7 +423,7 @@ namespace Squidex.Controllers.ContentApi
             var json = convertCsv.ReadWithSchema(schema, file, languagePartitioning);
             if (json == null)
             {
-                return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
+                return BadRequest(new { Message = "File data was not formatted correctly or was empty." });
             }
 
             var contentList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<NamedContentData>>(json);
