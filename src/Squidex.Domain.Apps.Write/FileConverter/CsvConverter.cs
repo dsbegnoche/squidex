@@ -27,26 +27,33 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             // Read in file and use CsvTools to parse
             using (var reader = new StreamReader(file.OpenReadStream()))
             {
-                var dt = DataTable.New.Read(reader);
+                try
+                {
+                    var dt = DataTable.New.Read(reader);
 
-                // Get headers and rows; convert any empty cell to null
-                csv.Add(dt.ColumnNames
-                    .ToList()
-                    .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .ToArray());
+                    // Get headers and rows; convert any empty cell to null
+                    csv.Add(dt.ColumnNames
+                        .ToList()
+                        .Where(c => !string.IsNullOrWhiteSpace(c))
+                        .ToArray());
 
-                csv.AddRange(dt.Rows.Select(row =>
+                    csv.AddRange(dt.Rows.Select(row =>
+                        {
+                            return row.Values
+                                .ToList()
+                                .Any(v => !string.IsNullOrWhiteSpace(v))
+                                ? row.Values.ToArray()
+                                : null;
+                        }).Where(r => r != null)
+                        .ToList());
+
+                    // Return null if there is text in an extra column.
+                    if (csv.Any(c => c.Length > csv[0].Length))
                     {
-                        return row.Values
-                            .ToList()
-                            .Any(v => !string.IsNullOrWhiteSpace(v))
-                            ? row.Values.ToArray()
-                            : null;
-                    }).Where(r => r != null)
-                    .ToList());
-
-                // Return null if there is text in an extra column.
-                if (csv.Any(c => c.Length > csv[0].Length))
+                        return null;
+                    }
+                }
+                catch
                 {
                     return null;
                 }

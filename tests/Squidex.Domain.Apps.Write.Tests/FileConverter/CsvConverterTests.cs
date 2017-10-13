@@ -30,8 +30,9 @@ namespace Squidex.Domain.Apps.Write.FileConverter
         private const string CorrectHeader = "name,tags,asset\r\n";
         private const string IncorrectHeader = "wrong,tags,asset\r\n";
         private const string CorrectFormat = "testname,testtags,\r\n";
-        private const string ExtraDataHeader = "name,tags,asset,\"\"";
-        private const string ExtraData = "name,tags,asset,extra\r\n";
+        private const string HeaderException = "name,tags,asset\r\n";
+        private const string ExtraDataHeader = "name,tags,asset,\"\"\r\n";
+        private const string ExtraData = "testname,testtags,asset,extra\r\n";
         private const string EmptyNameField = ",empty tags,\r\n";
         private const string EmptyRow = ",,\r\n";
         private const string MultipleTags = "\"tags,with,commas\"";
@@ -68,9 +69,18 @@ namespace Squidex.Domain.Apps.Write.FileConverter
         }
 
         [Fact]
+        public void Should_return_null_if_exception_thrown()
+        {
+            CreateFile(false, false, false, true);
+            var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
+
+            Assert.Null(retVal);
+        }
+
+        [Fact]
         public void Should_return_null_if_a_row_has_too_many_entries()
         {
-            CreateFile(false, false, true);
+            CreateFile(false, false, true, false);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
             Assert.Null(retVal);
@@ -79,7 +89,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
         [Fact]
         public void Should_return_null_if_header_row_is_does_not_match_schema_field_names()
         {
-            CreateFile(true, false, false);
+            CreateFile(true, false, false, false);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
             Assert.Null(retVal);
@@ -88,7 +98,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
         [Fact]
         public void Should_return_json_with_content_data_with_null_required_field_and_continues()
         {
-            CreateFile(false, true, false);
+            CreateFile(false, true, false, false);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
             var containsNullField = retVal.Contains("\"iv\":null");
@@ -102,21 +112,21 @@ namespace Squidex.Domain.Apps.Write.FileConverter
         [Fact]
         public void Should_return_json_with_all_correct_data()
         {
-            CreateFile(false, false, false);
+            CreateFile(false, false, false, false);
             var retVal = sut.ReadWithSchema(schema, fileMock, MasterLanguage);
 
             var containsNoNullFields = !retVal.Contains("\"iv\":null");
             Assert.True(containsNoNullFields);
         }
 
-        private void CreateFile(bool wrongFormat, bool emptyRequiredField, bool extraData)
+        private void CreateFile(bool wrongFormat, bool emptyRequiredField, bool extraData, bool extraHeaderException)
         {
-            var ms = GetStream(wrongFormat, emptyRequiredField, extraData);
+            var ms = GetStream(wrongFormat, emptyRequiredField, extraData, extraHeaderException);
             A.CallTo(() => fileMock.Length).Returns(1);
             A.CallTo(() => fileMock.OpenReadStream()).Returns(ms);
         }
 
-        private MemoryStream GetStream(bool wrongFormat, bool emptyRequiredField, bool extraData)
+        private MemoryStream GetStream(bool wrongFormat, bool emptyRequiredField, bool extraData, bool extraHeaderException)
         {
             var ms = new MemoryStream();
             var content = wrongFormat
@@ -125,7 +135,10 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                     ? $"{CorrectHeader}{CorrectFormat}{EmptyNameField}{correctFormat2}"
                     : extraData
                         ? $"{ExtraDataHeader}{EmptyRow}{ExtraData}"
-                        : $"{CorrectHeader}{EmptyRow}{CorrectFormat}";
+                        : extraHeaderException
+                            ? $"{HeaderException}{ExtraData}"
+                            : $"{CorrectHeader}{EmptyRow}{CorrectFormat}";
+
             var writer = new StreamWriter(ms);
             writer.Write(content);
             writer.Flush();
