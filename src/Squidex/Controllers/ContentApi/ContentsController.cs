@@ -405,9 +405,9 @@ namespace Squidex.Controllers.ContentApi
         [SwaggerIgnore]
         public async Task<IActionResult> ImportContentFromCsv(string name, IFormFile file, [FromQuery] bool publish)
         {
-            if (file.ContentType != "text/csv" && file.ContentType != "application/vnd.ms-excel")
+            if (!TryCsvToJson(name, file, out string result))
             {
-                return BadRequest(new { Error = "File must be a CSV." });
+                return BadRequest(new { Error = result });
             }
 
             var status = !publish
@@ -416,17 +416,8 @@ namespace Squidex.Controllers.ContentApi
                     ? Status.Submitted
                     : Status.Published;
 
-            var languagePartitioning = App.LanguagesConfig.Master.Key;
+            var contentList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<NamedContentData>>(result);
 
-            var schema = await contentQuery.FindSchemaAsync(App, name);
-
-            var json = convertCsv.ReadWithSchema(schema, file, languagePartitioning);
-            if (json == null)
-            {
-                return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
-            }
-
-            var contentList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<NamedContentData>>(json);
             var errorList = new List<ErrorDto>();
             for (var i = 0; i < contentList.Count; i++)
             {
@@ -449,6 +440,27 @@ namespace Squidex.Controllers.ContentApi
             }
 
             return Ok(errorList);
+        }
+
+        private bool TryCsvToJson(string name, IFormFile file, out string result)
+        {
+            if (!new[] { "text/csv",  "application/vnd.ms-excel" }.Contains(file.ContentType))
+            {
+                result = "File must be a CSV.";
+                return false;
+            }
+
+            var languagePartitioning = App.LanguagesConfig.Master.Key;
+            var schema = Task.Run(() => contentQuery.FindSchemaAsync(App, name)).Result;
+
+            result = convertCsv.ReadWithSchema(schema, file, languagePartitioning);
+            if (result == null)
+            {
+                result = "File data was not formatted correctly or was empty.";
+                return false;
+            }
+
+            return true;
         }
     }
 }
