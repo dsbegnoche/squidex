@@ -24,8 +24,8 @@ namespace Squidex.Domain.Apps.Core
 
             Assert.Single(sut);
 
-            Assert.Equal(sut.Master, ((IEnumerable<IFieldPartitionItem>)sut).SingleOrDefault());
-            Assert.Equal(sut.Master, ((IEnumerable)sut).OfType<IFieldPartitionItem>().SingleOrDefault());
+            Assert.Same(sut.Master, ((IEnumerable<IFieldPartitionItem>)sut).SingleOrDefault());
+            Assert.Same(sut.Master, ((IEnumerable)sut).OfType<IFieldPartitionItem>().SingleOrDefault());
         }
 
         [Fact]

@@ -42,16 +42,16 @@ export class ContentItemComponent extends AppComponentBase implements OnInit, On
     public archiving = new EventEmitter();
 
     @Output()
-    public submitting = new EventEmitter<ContentDto>();
-
-    @Output()
-    public declining = new EventEmitter<ContentDto>();
-
-    @Output()
     public restoring = new EventEmitter();
 
     @Output()
     public deleting = new EventEmitter();
+
+    @Output()
+    public submitting = new EventEmitter<ContentDto>();
+
+    @Output()
+    public declining = new EventEmitter<ContentDto>();
 
     @Output()
     public copying = new EventEmitter<ContentDto>();

@@ -359,6 +359,6 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
         private Task OnSubscribeAsync()
         {
             return sut.SubscribeAsync(eventConsumer);
-    }
+        }
     }
 }
