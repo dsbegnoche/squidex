@@ -17,11 +17,6 @@ namespace Squidex.Domain.Apps.Write.Apps
     {
         private readonly Dictionary<string, AppClient> clients = new Dictionary<string, AppClient>();
 
-        public IReadOnlyDictionary<string, AppClient> Clients
-        {
-            get { return clients; }
-        }
-
         public void Add(string id, string secret)
         {
             ThrowIfFound(id, () => "Cannot add client");
@@ -62,7 +57,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             if (clients.ContainsKey(clientId))
             {
-                var error = new ValidationError("Client id is alreay part of the app", "Id");
+                var error = new ValidationError("Client id is alreay part of the app.", "Id");
 
                 throw new ValidationException(message(), error);
             }

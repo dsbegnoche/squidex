@@ -53,23 +53,23 @@ namespace Squidex.Infrastructure.CQRS.Events
         }
 
         public async Task SetAsync(string consumerName, string position, bool isStopped = false, string error = null)
+        {
+            try
             {
-                try
-                {
                 await Collection.UpdateOneAsync(Filter.Eq(NameField, consumerName),
                     Update
                         .Set(ErrorField, error)
                         .Set(PositionField, position)
                         .Set(IsStoppedField, isStopped),
                 new UpdateOptions { IsUpsert = true });
-                }
-                catch (MongoWriteException ex)
+            }
+            catch (MongoWriteException ex)
+            {
+                if (ex.WriteError?.Category != ServerErrorCategory.DuplicateKey)
                 {
-                    if (ex.WriteError?.Category != ServerErrorCategory.DuplicateKey)
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
         }
-        }
+    }
+}

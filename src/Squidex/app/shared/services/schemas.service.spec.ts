@@ -277,7 +277,7 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-        schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
+            schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
                 schema = result;
             });
 
@@ -386,40 +386,52 @@ describe('SchemasService', () => {
                         properties: {
                             fieldType: 'References'
                         }
+                    },
+                    {
+                        fieldId: 9,
+                        name: 'field9',
+                        isLocked: true,
+                        isHidden: true,
+                        isDisabled: true,
+                        partitioning: 'language',
+                        properties: {
+                            fieldType: 'Tags'
+                        }
                     }
-            ],
-            scriptQuery: '<script-query>',
-            scriptCreate: '<script-create>',
-            scriptUpdate: '<script-update>',
-            scriptDelete: '<script-delete>',
-            scriptChange: '<script-change>'
-        }, {
-            headers: {
-                etag: '2'
-            }
-        });
-
-        expect(schema).toEqual(
-            new SchemaDetailsDto('id1', 'name1', new SchemaPropertiesDto('label1', 'hints1'), true, 'Created1', 'LastModifiedBy1',
-                DateTime.parseISO_UTC('2016-12-12T10:10'),
-                DateTime.parseISO_UTC('2017-12-12T10:10'),
-                new Version('2'),
-                [
-                    new FieldDto(1, 'field1', true, true, true, 'language', createProperties('Number')),
-                    new FieldDto(2, 'field2', true, true, true, 'language', createProperties('String')),
-                    new FieldDto(3, 'field3', true, true, true, 'language', createProperties('Boolean')),
-                    new FieldDto(4, 'field4', true, true, true, 'language', createProperties('DateTime')),
-                    new FieldDto(5, 'field5', true, true, true, 'language', createProperties('Json')),
-                    new FieldDto(6, 'field6', true, true, true, 'language', createProperties('Geolocation')),
-                    new FieldDto(7, 'field7', true, true, true, 'language', createProperties('Assets')),
-                    new FieldDto(8, 'field8', true, true, true, 'language', createProperties('References'))
                 ],
-                '<script-query>',
-                '<script-create>',
-                '<script-update>',
-                '<script-delete>',
-                '<script-change>'));
-    }));
+                scriptQuery: '<script-query>',
+                scriptCreate: '<script-create>',
+                scriptUpdate: '<script-update>',
+                scriptDelete: '<script-delete>',
+                scriptChange: '<script-change>'
+            }, {
+                    headers: {
+                        etag: '2'
+                    }
+                });
+
+            expect(schema).toEqual(
+                new SchemaDetailsDto('id1', 'name1', new SchemaPropertiesDto('label1', 'hints1'), true, 'Created1', 'LastModifiedBy1',
+                    DateTime.parseISO_UTC('2016-12-12T10:10'),
+                    DateTime.parseISO_UTC('2017-12-12T10:10'),
+                    new Version('2'),
+                    [
+                        new FieldDto(1, 'field1', true, true, true, 'language', createProperties('Number')),
+                        new FieldDto(2, 'field2', true, true, true, 'language', createProperties('String')),
+                        new FieldDto(3, 'field3', true, true, true, 'language', createProperties('Boolean')),
+                        new FieldDto(4, 'field4', true, true, true, 'language', createProperties('DateTime')),
+                        new FieldDto(5, 'field5', true, true, true, 'language', createProperties('Json')),
+                        new FieldDto(6, 'field6', true, true, true, 'language', createProperties('Geolocation')),
+                        new FieldDto(7, 'field7', true, true, true, 'language', createProperties('Assets')),
+                        new FieldDto(8, 'field8', true, true, true, 'language', createProperties('References')),
+                        new FieldDto(9, 'field9', true, true, true, 'language', createProperties('Tags'))
+                    ],
+                    '<script-query>',
+                    '<script-create>',
+                    '<script-update>',
+                    '<script-delete>',
+                    '<script-change>'));
+        }));
 
     it('should provide entry from cache if not found',
         inject([LocalCacheService, SchemasService, HttpTestingController], (localCache: LocalCacheService, schemasService: SchemasService, httpMock: HttpTestingController) => {
@@ -430,7 +442,7 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-        schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
+            schemasService.getSchema('my-app', 'my-schema').subscribe(result => {
                 schema = result;
             });
 
@@ -451,26 +463,26 @@ describe('SchemasService', () => {
 
             let schema: SchemaDetailsDto | null = null;
 
-        schemasService.postSchema('my-app', dto, user, now).subscribe(result => {
+            schemasService.postSchema('my-app', dto, user, now).subscribe(result => {
                 schema = result;
             });
 
             const req = httpMock.expectOne('http://service/p/api/apps/my-app/schemas');
 
             expect(req.request.method).toEqual('POST');
-        expect(req.request.headers.get('If-Match')).toBeNull();
+            expect(req.request.headers.get('If-Match')).toBeNull();
 
-        req.flush({
-            id: '1'
-        }, {
-            headers: {
-                etag: '2'
-            }
-        });
+            req.flush({
+                id: '1'
+            }, {
+                    headers: {
+                        etag: '2'
+                    }
+                });
 
-        expect(schema).toEqual(
-            new SchemaDetailsDto('1', dto.name, new SchemaPropertiesDto(), false, user, user, now, now, new Version('2'), []));
-    }));
+            expect(schema).toEqual(
+                new SchemaDetailsDto('1', dto.name, new SchemaPropertiesDto(), false, user, user, now, now, new Version('2'), []));
+        }));
 
     it('should make post request to add field',
         inject([SchemasService, HttpTestingController], (schemasService: SchemasService, httpMock: HttpTestingController) => {
@@ -480,7 +492,7 @@ describe('SchemasService', () => {
             let field: FieldDto | null = null;
 
             schemasService.postField('my-app', 'my-schema', dto, version).subscribe(result => {
-            field = result.payload;
+                field = result.payload;
             });
 
             const req = httpMock.expectOne('http://service/p/api/apps/my-app/schemas/my-schema/fields');

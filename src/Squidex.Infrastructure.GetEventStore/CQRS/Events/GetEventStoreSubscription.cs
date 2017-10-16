@@ -20,7 +20,7 @@ using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Infrastructure.CQRS.Events
 {
-    public sealed class GetEventStoreSubscription : IEventSubscription
+    internal sealed class GetEventStoreSubscription : IEventSubscription
     {
         private const string ProjectionName = "by-{0}-{1}";
         private static readonly ConcurrentDictionary<string, bool> SubscriptionsCreated = new ConcurrentDictionary<string, bool>();
@@ -30,7 +30,7 @@ namespace Squidex.Infrastructure.CQRS.Events
         private readonly string streamFilter;
         private readonly string projectionHost;
         private readonly EventStoreCatchUpSubscription subscription;
-        private long? position;
+        private readonly long? position;
 
         public GetEventStoreSubscription(
             IEventStoreConnection eventStoreConnection,
@@ -139,11 +139,11 @@ namespace Squidex.Infrastructure.CQRS.Events
         private static string ParseFilter(string prefix, string filter)
         {
             return string.Format(CultureInfo.InvariantCulture, ProjectionName, prefix.Simplify(), filter.Simplify());
-    }
+        }
 
         private static long? ParsePosition(string position)
         {
             return long.TryParse(position, out var parsedPosition) ? (long?)parsedPosition : null;
-}
+        }
     }
 }

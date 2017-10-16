@@ -52,12 +52,12 @@ export class WebhookComponent implements OnInit {
     public schemasToAdd: ImmutableArray<SchemaDto>;
 
     public webhookForm =
-        this.formBuilder.group({
-            url: ['',
-                [
-                    Validators.required
-                ]]
-        });
+    this.formBuilder.group({
+        url: ['',
+            [
+                Validators.required
+            ]]
+    });
 
     public get hasUrl() {
         return this.webhookForm.controls['url'].value && this.webhookForm.controls['url'].value.length > 0;
@@ -91,7 +91,7 @@ export class WebhookComponent implements OnInit {
                             sendUnpublish: webhookSchema.sendUnpublish,
                             sendSubmit: webhookSchema.sendSubmit,
                             sendDecline: webhookSchema.sendDecline
-                    });
+                        });
                     } else {
                         return null;
                     }

@@ -88,7 +88,7 @@ namespace Squidex.Domain.Apps.Read.Schemas
         }
 
         [Fact]
-        public async Task Should_clear_cache_for_id_after_update_event()
+        public async Task Should_clear_cache_for_id_after_invalidating()
         {
             A.CallTo(() => repository.FindSchemaAsync(schemaId.Id))
                 .Returns(schemaV2);
@@ -97,7 +97,7 @@ namespace Squidex.Domain.Apps.Read.Schemas
 
             await ProvideSchemaById(schemaV1);
 
-            sut.On(Envelope.Create(new FieldAdded { AppId = appId, SchemaId = schemaId })).Wait();
+            sut.Invalidate(appId, schemaId);
 
             await ProvideSchemaById(schemaV2);
 
@@ -105,7 +105,7 @@ namespace Squidex.Domain.Apps.Read.Schemas
         }
 
         [Fact]
-        public async Task Should_clear_cache_for_name_after_update_event()
+        public async Task Should_clear_cache_for_name_after_invalidating()
         {
             A.CallTo(() => repository.FindSchemaAsync(appId.Id, schemaId.Name))
                 .Returns(schemaV2);
@@ -114,7 +114,7 @@ namespace Squidex.Domain.Apps.Read.Schemas
 
             await ProvideSchemaByName(schemaV1);
 
-            sut.On(Envelope.Create(new SchemaUpdated { AppId = appId, SchemaId = schemaId })).Wait();
+            sut.Invalidate(appId, schemaId);
 
             await ProvideSchemaByName(schemaV2);
 

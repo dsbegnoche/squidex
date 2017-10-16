@@ -42,7 +42,7 @@ namespace Squidex.Controllers.Api.Users
         }
 
         [HttpGet]
-        [Route("user-management")]
+        [Route("user-management/")]
         [ApiCosts(0)]
         public async Task<IActionResult> GetUsers([FromQuery] string query = null, [FromQuery] int skip = 0, [FromQuery] int take = 10)
         {
@@ -61,7 +61,7 @@ namespace Squidex.Controllers.Api.Users
         }
 
         [HttpGet]
-        [Route("user-management/{id}")]
+        [Route("user-management/{id}/")]
         [ApiCosts(0)]
         public async Task<IActionResult> GetUser(string id)
         {
@@ -78,7 +78,7 @@ namespace Squidex.Controllers.Api.Users
         }
 
         [HttpPost]
-        [Route("user-management")]
+        [Route("user-management/")]
         [ApiCosts(0)]
         public async Task<IActionResult> PostUser([FromBody] CreateUserDto request)
         {
@@ -90,7 +90,7 @@ namespace Squidex.Controllers.Api.Users
         }
 
         [HttpPut]
-        [Route("user-management/{id}")]
+        [Route("user-management/{id}/")]
         [ApiCosts(0)]
         public async Task<IActionResult> PutUser(string id, [FromBody] UpdateUserDto request)
         {
