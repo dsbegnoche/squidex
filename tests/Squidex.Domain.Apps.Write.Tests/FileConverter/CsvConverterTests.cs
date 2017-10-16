@@ -48,11 +48,11 @@ namespace Squidex.Domain.Apps.Write.FileConverter
             sut = new CsvConverter();
             var schemaDef =
                 Schema.Create("my-schema", new SchemaProperties())
-                    .AddOrUpdateField(new StringField(1, "name", Partitioning.Invariant,
+                    .AddField(new StringField(1, "name", Partitioning.Invariant,
                         new StringFieldProperties { IsRequired = true }))
-                    .AddOrUpdateField(new TagField(2, "tags", Partitioning.Language,
-                        new TagFieldProperties()))
-                    .AddOrUpdateField(new AssetsField(3, "asset", Partitioning.Language,
+                    .AddField(new TagsField(2, "tags", Partitioning.Language,
+                        new TagsFieldProperties()))
+                    .AddField(new AssetsField(3, "asset", Partitioning.Language,
                         new AssetsFieldProperties()));
 
             A.CallTo(() => app.LanguagesConfig).Returns(languagesConfig);

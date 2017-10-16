@@ -126,7 +126,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                         {
                             new SchemaCreatedField
                             {
-                                Properties = new TagFieldProperties
+                                Properties = new TagsFieldProperties
                                 {
                                     Label = "Tags"
                                 },
