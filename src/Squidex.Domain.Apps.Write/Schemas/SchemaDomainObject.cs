@@ -142,11 +142,11 @@ namespace Squidex.Domain.Apps.Write.Schemas
                 }
             }
 
-            if (!@event.Fields.Any(f => f.Properties is TagFieldProperties))
+            if (!@event.Fields.Any(f => f.Properties is TagsFieldProperties))
             {
                 var tagField = new SchemaCreatedField
                 {
-                    Properties = new TagFieldProperties
+                    Properties = new TagsFieldProperties
                     {
                         Label = "Tags"
                     },

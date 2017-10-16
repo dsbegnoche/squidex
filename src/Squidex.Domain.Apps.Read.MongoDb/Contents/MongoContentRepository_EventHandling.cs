@@ -73,15 +73,17 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
         {
             return ForSchemaAsync(@event.AppId.Id, @event.SchemaId.Id, (collection, schema) =>
             {
-                return collection.CreateAsync(@event, headers, x =>
+                return collection.CreateAsync(@event, headers, content =>
                 {
-                    x.SchemaId = @event.SchemaId.Id;
+                    content.SchemaId = @event.SchemaId.Id;
 
-                    SimpleMapper.Map(@event, x);
+                    SimpleMapper.Map(@event, content);
 
-                    x.SetData(schema.SchemaDef, @event.Data);
+                    var idData = @event.Data?.ToIdModel(schema.SchemaDef, true);
 
-                    x.Status = Status.Draft;
+                    content.DataText = idData?.ToFullText();
+                    content.DataDocument = idData?.ToBsonDocument();
+                    content.ReferencedIds = idData?.ToReferencedIds(schema.SchemaDef);
                 });
             });
         }

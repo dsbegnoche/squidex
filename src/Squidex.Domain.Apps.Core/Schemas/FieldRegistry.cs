@@ -86,10 +86,6 @@ namespace Squidex.Domain.Apps.Core.Schemas
             typeNameRegistry.MapObsolete(typeof(ReferencesFieldProperties), "DateTime");
 
             typeNameRegistry.MapObsolete(typeof(DateTimeFieldProperties), "References");
-
-            Add<TagFieldProperties>(
-                (id, name, partitioning, properties) =>
-                    new TagField(id, name, partitioning, (TagFieldProperties)properties));
         }
 
         private void Add<TFieldProperties>(FactoryFunction fieldFactory)
