@@ -58,7 +58,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
       - kraken_eventstore
     labels:
       NAME: "kraken_dev"
@@ -98,7 +97,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "kraken_review"
     restart: "always"
@@ -137,7 +135,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://platform.civicplus.com"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "kraken_hcms"
     restart: "always"
@@ -175,7 +172,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "squidex_squidex"
     restart: "always"
@@ -191,6 +187,7 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     labels:
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    restart: "always"
   squidex_encrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
