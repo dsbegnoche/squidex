@@ -26,9 +26,9 @@ namespace Squidex.Controllers.Api.UI
     [SwaggerTag(nameof(UI))]
     public sealed class UIController : Controller
     {
-        private readonly MyUIOptions uiOptions;
+        private readonly Config.MyUIOptions uiOptions;
 
-        public UIController(IOptions<MyUIOptions> uiOptions)
+        public UIController(IOptions<Config.MyUIOptions> uiOptions)
         {
             this.uiOptions = uiOptions.Value;
         }
@@ -47,9 +47,9 @@ namespace Squidex.Controllers.Api.UI
                 RegexSuggestions =
                     uiOptions.RegexSuggestions?
                         .Where(x =>
-                            !string.IsNullOrWhiteSpace(x.Name) &&
-                            !string.IsNullOrWhiteSpace(x.Pattern))
-                        .Select(x => new UIRegexSuggestionDto { Name = x.Name, Pattern = x.Pattern }).ToList()
+                            !string.IsNullOrWhiteSpace(x.Key) &&
+                            !string.IsNullOrWhiteSpace(x.Value))
+                        .Select(x => new UIRegexSuggestionDto { Name = x.Key, Pattern = x.Value }).ToList()
                     ?? new List<UIRegexSuggestionDto>()
             };
 

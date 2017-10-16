@@ -25,6 +25,7 @@ using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Reflection;
 using Squidex.Pipeline;
+using Infr = Squidex.Infrastructure.Assets;
 
 namespace Squidex.Controllers.Api.Assets
 {
@@ -39,14 +40,14 @@ namespace Squidex.Controllers.Api.Assets
         private readonly IAssetRepository assetRepository;
         private readonly IAssetStatsRepository assetStatsRepository;
         private readonly IAppPlansProvider appPlanProvider;
-        private readonly AssetConfig assetsConfig;
+        private readonly Infr.AssetConfig assetsConfig;
 
         public AssetsController(
             ICommandBus commandBus,
             IAssetRepository assetRepository,
             IAssetStatsRepository assetStatsRepository,
             IAppPlansProvider appPlanProvider,
-            IOptions<AssetConfig> assetsConfig)
+            IOptions<Infr.AssetConfig> assetsConfig)
             : base(commandBus)
         {
             this.assetsConfig = assetsConfig.Value;
