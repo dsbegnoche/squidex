@@ -127,7 +127,7 @@ namespace Squidex.Controllers.Api.Assets
         /// </returns>
         [MustBeAppReader]
         [HttpGet]
-        [Route("apps/{app}/assets/{id}")]
+        [Route("apps/{app}/assets/{id}/")]
         [ProducesResponseType(typeof(AssetsDto), 200)]
         [ApiCosts(1)]
         public async Task<IActionResult> GetAsset(string app, Guid id)
@@ -190,7 +190,7 @@ namespace Squidex.Controllers.Api.Assets
         /// </returns>
         [MustBeAppAuthor]
         [HttpPut]
-        [Route("apps/{app}/assets/{id}/content")]
+        [Route("apps/{app}/assets/{id}/content/")]
         [ProducesResponseType(typeof(AssetReplacedDto), 201)]
         [ProducesResponseType(typeof(ErrorDto), 400)]
         [ApiCosts(1)]
@@ -220,7 +220,7 @@ namespace Squidex.Controllers.Api.Assets
         /// </returns>
         [MustBeAppAuthor]
         [HttpPut]
-        [Route("apps/{app}/assets/{id}")]
+        [Route("apps/{app}/assets/{id}/")]
         [ProducesResponseType(typeof(ErrorDto), 400)]
         [ApiCosts(1)]
         public async Task<IActionResult> PutAsset(string app, Guid id, [FromBody] AssetUpdateDto request)

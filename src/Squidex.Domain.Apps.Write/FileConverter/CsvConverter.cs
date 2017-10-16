@@ -91,23 +91,25 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 {
                     var languageDictionary = new Dictionary<string, object>();
                     var field = schemaFields.First(f => f.Key == headerRow[col]).Value;
-                    var languageCode = field.Paritioning.Key == "invariant"
+                    var languageCode = field.Partitioning.Key == "invariant"
                                         ? "iv"
                                         : masterLanguage;
 
                     row[col] = row[col].Trim('"');
                     switch (field)
                     {
-                        case TagField _:
+                        case TagsField _:
                             var tags = !string.IsNullOrWhiteSpace(row[col].Trim())
                                 ? row[col].Trim().Split(',').ToList().Distinct().ToArray()
                                 : null;
                             languageDictionary.Add(languageCode, tags);
                             break;
+
                         case IReferenceField _ when Guid.TryParse(row[col], out var reference):
                             var referenceGuid = new Guid[] { reference };
                             languageDictionary.Add(languageCode, referenceGuid);
                             break;
+
                         default:
                             languageDictionary.Add(languageCode, !string.IsNullOrWhiteSpace(row[col].Trim()) ? row[col].Trim() : null);
                             break;

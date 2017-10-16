@@ -145,7 +145,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                 switch (message)
                 {
                     case Teardown teardown:
-                        {
+                    {
                         isStopped = true;
 
                         return;
@@ -153,7 +153,7 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
 
                     case Setup setup:
                     {
-                            eventConsumer = setup.EventConsumer;
+                        eventConsumer = setup.EventConsumer;
 
                         var status = await eventConsumerInfoRepository.FindAsync(eventConsumer.Name);
 
@@ -169,11 +169,11 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                             await SubscribeThisAsync(statusPosition);
                         }
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case StartConsumerMessage startConsumer:
-                        {
+                    {
                         if (statusIsRunning)
                         {
                             return;
@@ -184,11 +184,11 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                         statusError = null;
                         statusIsRunning = true;
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case StopConsumerMessage stopConsumer:
-                        {
+                    {
                         if (!statusIsRunning)
                         {
                             return;
@@ -198,11 +198,11 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
 
                         statusIsRunning = false;
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case ResetConsumerMessage resetConsumer:
-                        {
+                    {
                         await UnsubscribeThisAsync();
                         await ClearAsync();
                         await SubscribeThisAsync(null);
@@ -211,25 +211,25 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                         statusPosition = null;
                         statusIsRunning = true;
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case Reconnect reconnect:
-                        {
+                    {
                         if (!statusIsRunning || reconnect.StateId != oldStateId)
-                            {
+                        {
                             return;
-                            }
+                        }
 
                         await SubscribeThisAsync(statusPosition);
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case SubscriptionFailed subscriptionFailed:
-                        {
+                    {
                         if (subscriptionFailed.Subscription != eventSubscription)
-                            {
+                        {
                             return;
                         }
 
@@ -238,14 +238,14 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                         if (retryWindow.CanRetryAfterFailure())
                         {
                             Task.Delay(ReconnectWaitMs).ContinueWith(t => dispatcher.SendAsync(new Reconnect { StateId = newStateId })).Forget();
-                            }
+                        }
                         else
                         {
                             throw subscriptionFailed.Exception;
                         }
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case SubscriptionEventReceived eventReceived:
                     {
