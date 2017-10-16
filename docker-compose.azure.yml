@@ -12,12 +12,7 @@ services:
       - "6379:6379"
     labels:
       NAME: "squidex_redis"
-  squidex_mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    labels:
-      NAME: "squidex_mongo"
+    restart: always
   kraken_eventstore:
     image: eventstore/eventstore
     ports:
