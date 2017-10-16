@@ -57,9 +57,9 @@ namespace Squidex.Domain.Apps.Read.Contents
                 .AddField(new ReferencesField(9, "my-invalid", Partitioning.Invariant,
                     new ReferencesFieldProperties { SchemaId = Guid.NewGuid() }))
                 .AddField(new GeolocationField(10, "my-geolocation", Partitioning.Invariant,
-                    new GeolocationFieldProperties()));
-                .AddOrUpdateField(new TagField(11, "my-tags", Partitioning.Invariant,
-                                       new TagFieldProperties()));
+                    new GeolocationFieldProperties()))
+                .AddField(new TagsField(11, "my-tags", Partitioning.Invariant,
+                                       new TagsFieldProperties()));
 
         private readonly IContentQueryService contentQuery = A.Fake<IContentQueryService>();
         private readonly ISchemaRepository schemaRepository = A.Fake<ISchemaRepository>();

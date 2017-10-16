@@ -6,11 +6,24 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure.Json;
 
 namespace Squidex.Domain.Apps.Core.Schemas
 {
+    [JsonConverter(typeof(JsonInheritanceConverter), "fieldType")]
+    [KnownType(typeof(AssetsFieldProperties))]
+    [KnownType(typeof(BooleanFieldProperties))]
+    [KnownType(typeof(DateTimeFieldProperties))]
+    [KnownType(typeof(GeolocationFieldProperties))]
+    [KnownType(typeof(JsonFieldProperties))]
+    [KnownType(typeof(NumberFieldProperties))]
+    [KnownType(typeof(ReferencesFieldProperties))]
+    [KnownType(typeof(StringFieldProperties))]
+    [KnownType(typeof(TagsFieldProperties))]
     public abstract class FieldProperties : NamedElementPropertiesBase
     {
         private bool isRequired;
