@@ -154,7 +154,7 @@ namespace Squidex.Domain.Apps.Core.Schemas.JsonSchema
         {
             return CreateProperty(field, jsonProperty =>
             {
-                var itemSchema = schemaResolver("MutliItem", new JsonSchema4 { Type = JsonObjectType.String });
+                var itemSchema = schemaResolver("MultiItem", new JsonSchema4 { Type = JsonObjectType.String });
 
                 jsonProperty.Type = JsonObjectType.Array;
                 jsonProperty.Item = itemSchema;

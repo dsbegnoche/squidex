@@ -24,6 +24,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
     [KnownType(typeof(ReferencesFieldProperties))]
     [KnownType(typeof(StringFieldProperties))]
     [KnownType(typeof(TagsFieldProperties))]
+    [KnownType(typeof(MultiFieldProperties))]
     public abstract class FieldProperties : NamedElementPropertiesBase
     {
         private bool isRequired;
