@@ -16,6 +16,7 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Infrastructure.Suggestions;
 
 namespace Squidex.Domain.Apps.Write.Assets
 {
@@ -24,7 +25,8 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
-        private readonly IAssetSuggestions assetSuggestions;
+        private readonly IAssetSuggestions imageSuggestions;
+        private readonly ITextSuggestions fileSuggestions;
         private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
         public AssetCommandMiddleware(
@@ -32,7 +34,8 @@ namespace Squidex.Domain.Apps.Write.Assets
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
             IAssetCompressedGenerator assetCompressedGenerator,
-            IAssetSuggestions assetSuggestions)
+            IAssetSuggestions imageSuggestions,
+            ITextSuggestions fileSuggestions)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
@@ -43,7 +46,8 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
             this.assetCompressedGenerator = assetCompressedGenerator;
-            this.assetSuggestions = assetSuggestions;
+            this.imageSuggestions = imageSuggestions;
+            this.fileSuggestions = fileSuggestions;
         }
 
         private void ValidateCond(bool condition, string message)
@@ -78,6 +82,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         private void CheckAssetFileAsync(AssetFile file)
         {
+            ValidateCond(file.FileSize <= 0, $"File was empty.");
+
             var assetsConfig = file.AssetConfig;
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
@@ -109,7 +115,11 @@ namespace Squidex.Domain.Apps.Write.Assets
             {
                 if (command.ImageInfo != null)
                 {
-                    command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
+                    command.File = await imageSuggestions.SuggestTagsAndDescription(command.File);
+                }
+                else if (command.File.FileExtension == "txt")
+                {
+                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, command.File.FileExtension);
                 }
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>

@@ -15,6 +15,7 @@ using Squidex.Domain.Apps.Write.TestHelpers;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Assets;
 using Squidex.Infrastructure.CQRS.Commands;
+using Squidex.Infrastructure.Suggestions;
 using Squidex.Infrastructure.Tasks;
 using Xunit;
 
@@ -25,6 +26,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator = A.Fake<IAssetThumbnailGenerator>();
         private readonly IAssetCompressedGenerator assetCompressedGenerator = A.Fake<IAssetCompressedGenerator>();
         private readonly IAssetSuggestions assetSuggestions = A.Fake<IAssetSuggestions>();
+        private readonly ITextSuggestions fileSuggestions = A.Fake<ITextSuggestions>();
         private readonly IAssetStore assetStore = A.Fake<IAssetStore>();
         private readonly AssetCommandMiddleware sut;
         private readonly AssetDomainObject asset;
@@ -32,15 +34,22 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly Stream stream = new MemoryStream();
         private readonly ImageInfo image = new ImageInfo(2048, 2048);
         private readonly AssetFile file;
+        private readonly AssetFile textFile;
         private readonly int maxFileSize = (int)Math.Pow(1024, 2) * 500;
 
         public AssetCommandMiddlewareTests()
         {
             file = new AssetFile("my-image.png", "image/png", maxFileSize, () => stream, "my-image description", new[] { "tag" });
+            textFile = new AssetFile("my-text.txt", "text/plain", maxFileSize, () => stream, "my-txt description", new[] { "tag" });
 
             asset = new AssetDomainObject(assetId, -1);
 
-            sut = new AssetCommandMiddleware(Handler, assetStore, assetThumbnailGenerator, assetCompressedGenerator, assetSuggestions);
+            sut = new AssetCommandMiddleware(Handler,
+                assetStore,
+                assetThumbnailGenerator,
+                assetCompressedGenerator,
+                assetSuggestions,
+                fileSuggestions);
         }
 
         [Fact]
@@ -106,6 +115,24 @@ namespace Squidex.Domain.Apps.Write.Assets
         }
 
         [Fact]
+        public async Task Create_should_create_text_asset()
+        {
+            var context = CreateContextForCommand(new CreateAsset { AssetId = assetId, File = textFile });
+
+            SetupStore(0, context.ContextId);
+            SetupTextInfo();
+
+            await TestCreate(asset, async _ =>
+            {
+                await sut.HandleAsync(context);
+            });
+
+            Assert.Equal(assetId, context.Result<EntityCreatedResult<Guid>>().IdOrValue);
+
+            VerifyStore(0, context.ContextId);
+        }
+
+        [Fact]
         public async Task Update_should_update_domain_object()
         {
             var context = CreateContextForCommand(new UpdateAsset { AssetId = assetId, File = file });
@@ -162,6 +189,12 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             A.CallTo(() => assetSuggestions.SuggestTagsAndDescription(file))
                 .Returns(file);
+        }
+
+        private void SetupTextInfo()
+        {
+            A.CallTo(() => fileSuggestions.SuggestTagsAndDescription(textFile, "txt"))
+                .Returns(textFile);
         }
 
         private void SetupStore(long version, Guid commitId)

@@ -41,7 +41,7 @@
     "redoc": "1.19.1",
     "rxjs": "5.4.3",
     "zone.js": "0.8.18",
-	"uuid": "^3.1.0"
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "@angular/compiler-cli": "4.4.4",
