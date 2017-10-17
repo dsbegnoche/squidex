@@ -65,6 +65,7 @@ namespace Squidex.Controllers.Api.Assets
         /// <param name="take">The number of assets to take (Default: 20).</param>
         /// <param name="query">The query to limit the files by name.</param>
         /// <param name="mimeTypes">Comma separated list of mime types to get.</param>
+        /// <param name="imagesOnly">Boolean for filtering on file type.</param>
         /// <returns>
         /// 200 => Assets returned.
         /// 404 => App not found.

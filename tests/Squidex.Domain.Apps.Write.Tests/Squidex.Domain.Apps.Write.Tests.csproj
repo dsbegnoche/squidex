@@ -18,7 +18,7 @@
     <ProjectReference Include="..\..\src\Squidex.Domain.Apps.Write\Squidex.Domain.Apps.Write.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FakeItEasy" Version="4.0.0" />
+    <PackageReference Include="FakeItEasy" Version="4.1.0" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="1.1.2" />

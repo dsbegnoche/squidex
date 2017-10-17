@@ -8,7 +8,9 @@
     <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1" Version="1.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Language" Version="1.0.0-preview" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.2" />

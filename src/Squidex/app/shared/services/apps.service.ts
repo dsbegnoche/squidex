@@ -91,6 +91,9 @@ export class AppsService {
             .map((response) => {
                 return appName;
             })
+            .do(() => {
+                this.analytics.trackEvent('App', 'Deleted', appName);
+            })
             .pretifyError('Failed to delete app. Please reload.');
     }
 }

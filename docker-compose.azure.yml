@@ -13,18 +13,9 @@ services:
     labels:
       NAME: "squidex_redis"
     restart: always
-  kraken_eventstore:
-    image: eventstore/eventstore
-    ports:
-      - "2113:2113"
-      - "1113:1113"
-    restart: always
-    environment:
-      - "EVENTSTORE_RUN_PROJECTIONS=All"
-    labels:
-      NAME: "eventstore-node"
   kraken_dev:
     image: "civicplus.azurecr.io/kraken:dev"
+    mem_limit: 6144m
     ports:
       - "5000:80"
     environment:
@@ -34,7 +25,6 @@ services:
       - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_DEV}"
-      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_dev"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -58,12 +48,12 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - kraken_eventstore
     labels:
       NAME: "kraken_dev"
     restart: "always"
   kraken_review:
     image: "civicplus.azurecr.io/kraken:latest"
+    mem_limit: 6144m
     ports:
       - "5001:80"
     environment:
@@ -73,7 +63,6 @@ services:
       - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_REVIEW}"
-      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_review"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -102,6 +91,7 @@ services:
     restart: "always"
   kraken_hcms:
     image: "civicplus.azurecr.io/kraken:latest"
+    mem_limit: 6144m
     ports:
       - "5002:80"
     environment:
@@ -111,7 +101,6 @@ services:
       - "EVENTSTORE__TYPE=MongoDb"
       - "EVENTSTORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
       - "EVENTSTORE__MONGODB__DATABASE=${DATABASE_HCMS}"
-      - "EVENTSTORE__GETEVENTSTORE__PREFIX=kraken_hcms"
       - "PUBSUB__TYPE=redis"
       - "PUBSUB__REDIS__CONFIGURATION=squidex_redis:6379,resolveDns=1"
       - "STORE__MONGODB__CONFIGURATION=mongodb://${MONGO_CONNECTION}"
@@ -140,6 +129,7 @@ services:
     restart: "always"
   squidex_squidex:
     image: "squidex/squidex:dev"
+    mem_limit: 6144m
     ports:
       - "5003:80"
     environment:

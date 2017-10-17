@@ -487,33 +487,21 @@ export class MultiFieldPropertiesDto extends FieldPropertiesDto {
     }
 
     public formatValue(value: any): string {
-        return value;
+        if (!value) {
+            return '';
+        }
+
+        if (value.length) {
+            return value.join(', ');
+        } else {
+            return '';
+        }
     }
 
     public createValidators(isOptional: boolean): ValidatorFn[] {
         return [];
     }
 }
-
-export class TagFieldPropertiesDto extends FieldPropertiesDto {
-    constructor(label: string | null, hints: string | null, placeholder: string | null,
-        isRequired: boolean,
-        isListField: boolean,
-        public readonly editor: string,
-        public readonly defaultValue?: boolean
-    ) {
-        super('Tag', label, hints, placeholder, isRequired, isListField);
-    }
-
-    public formatValue(value: any): string {
-        return value;
-    }
-
-    public createValidators(isOptional: boolean): ValidatorFn[] {
-        return [];
-    }
-}
-
 
 export class BooleanFieldPropertiesDto extends FieldPropertiesDto {
     constructor(label: string | null, hints: string | null, placeholder: string | null,

@@ -90,6 +90,9 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
                     input.CopyTo(destination);
                 }
             }
+
+            // TODO: Revisit with future release of ImageSharp
+            GC.Collect();
         }
     }
 }

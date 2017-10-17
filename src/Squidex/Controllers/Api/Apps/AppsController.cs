@@ -120,7 +120,7 @@ namespace Squidex.Controllers.Api.Apps
 
             await CommandBus.PublishAsync(new DeleteApp(appName, appId));
 
-            return new ContentResult() { Content = appName };
+            return NoContent();
         }
     }
 }

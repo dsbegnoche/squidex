@@ -335,21 +335,21 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
 
         if (this.textAnalyticsBody[$event.id] && this.textAnalyticsBody[$event.id]!.trim().length > 0 && this.textAnalyticsBody.join(' ').length > 0) {
             this.textAnalyticsService.getKeyPhrases(this.textAnalyticsBody.join(' ')).then((x: string[]) => {
-                    this.recommendedTags = x;
+                this.recommendedTags = x;
 
-                    let tagField = this.schema.fields[0];
-                    const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
+                let tagField = this.schema.fields[0];
+                const tagFieldForm = <FormGroup>this.contentForm.get(tagField.name);
 
-                    if (tagField.partitioning === 'language') {
-                        for (let language of this.languages) {
-                            this.allTags = tagFieldForm.controls[language.iso2Code].value;
-                            let formattedTags = this.updateTags();
-                            tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
-                        }
-                    } else {
-                        tagFieldForm.controls['iv'].setValue(this.recommendedTags);
+                if (tagField.partitioning === 'language') {
+                    for (let language of this.languages) {
+                        this.allTags = tagFieldForm.controls[language.iso2Code].value;
+                        let formattedTags = this.updateTags();
+                        tagFieldForm.controls[language.iso2Code].setValue(formattedTags);
                     }
+                } else {
+                    tagFieldForm.controls['iv'].setValue(this.recommendedTags);
                 }
+            }
             );
         }
     }
@@ -361,6 +361,7 @@ export class ContentPageComponent extends AppComponentBase implements CanCompone
         } else {
             this.allTags = this.recommendedTags;
         }
-        return this.schema.fields[0].properties.formatValue(this.allTags);
+
+        return this.allTags;
     }
 }
