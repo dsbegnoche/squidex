@@ -11,8 +11,8 @@ namespace Squidex.Domain.Apps.Core.Schemas
 {
     public sealed class MultiField : Field<MultiFieldProperties>
     {
-        public MultiField(long id, string name, Partitioning partitioning, MultiFieldProperties properties1)
-            : base(id, name, partitioning, properties1)
+        public MultiField(long id, string name, Partitioning partitioning, MultiFieldProperties properties)
+            : base(id, name, partitioning, properties)
         {
         }
 

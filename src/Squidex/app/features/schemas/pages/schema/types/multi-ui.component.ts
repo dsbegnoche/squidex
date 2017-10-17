@@ -22,10 +22,6 @@ export class MultiUIComponent implements OnInit {
 
     public allowedValuesHolder: string[];
 
-    public debug() {
-        console.log(this.properties);
-    }
-
     public ngOnInit() {
         this.editForm.setControl('editor',
             new FormControl(this.properties.editor, [
