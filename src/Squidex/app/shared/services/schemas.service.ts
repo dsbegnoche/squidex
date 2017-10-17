@@ -622,9 +622,6 @@ export class TagsFieldPropertiesDto extends FieldPropertiesDto {
     }
 
     public formatValue(value: any): string {
-        return value;
-
-        /*
         if (!value) {
             return '';
         }
@@ -634,7 +631,6 @@ export class TagsFieldPropertiesDto extends FieldPropertiesDto {
         } else {
             return '';
         }
-        */
     }
 
     public createValidators(isOptional: boolean): ValidatorFn[] {
