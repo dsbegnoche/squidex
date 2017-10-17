@@ -145,124 +145,124 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
                 switch (message)
                 {
                     case Teardown teardown:
-                        {
-                            isStopped = true;
+                    {
+                        isStopped = true;
 
+                        return;
+                    }
+
+                    case Setup setup:
+                    {
+                        eventConsumer = setup.EventConsumer;
+
+                        var status = await eventConsumerInfoRepository.FindAsync(eventConsumer.Name);
+
+                        if (status != null)
+                        {
+                            statusError = status.Error;
+                            statusPosition = status.Position;
+                            statusIsRunning = !status.IsStopped;
+                        }
+
+                        if (statusIsRunning)
+                        {
+                            await SubscribeThisAsync(statusPosition);
+                        }
+
+                        break;
+                    }
+
+                    case StartConsumerMessage startConsumer:
+                    {
+                        if (statusIsRunning)
+                        {
                             return;
                         }
 
-                    case Setup setup:
-                        {
-                            eventConsumer = setup.EventConsumer;
+                        await SubscribeThisAsync(statusPosition);
 
-                            var status = await eventConsumerInfoRepository.FindAsync(eventConsumer.Name);
+                        statusError = null;
+                        statusIsRunning = true;
 
-                            if (status != null)
-                            {
-                                statusError = status.Error;
-                                statusPosition = status.Position;
-                                statusIsRunning = !status.IsStopped;
-                            }
-
-                            if (statusIsRunning)
-                            {
-                                await SubscribeThisAsync(statusPosition);
-                            }
-
-                            break;
-                        }
-
-                    case StartConsumerMessage startConsumer:
-                        {
-                            if (statusIsRunning)
-                            {
-                                return;
-                            }
-
-                            await SubscribeThisAsync(statusPosition);
-
-                            statusError = null;
-                            statusIsRunning = true;
-
-                            break;
-                        }
+                        break;
+                    }
 
                     case StopConsumerMessage stopConsumer:
+                    {
+                        if (!statusIsRunning)
                         {
-                            if (!statusIsRunning)
-                            {
-                                return;
-                            }
-
-                            await UnsubscribeThisAsync();
-
-                            statusIsRunning = false;
-
-                            break;
+                            return;
                         }
+
+                        await UnsubscribeThisAsync();
+
+                        statusIsRunning = false;
+
+                        break;
+                    }
 
                     case ResetConsumerMessage resetConsumer:
-                        {
-                            await UnsubscribeThisAsync();
-                            await ClearAsync();
-                            await SubscribeThisAsync(null);
+                    {
+                        await UnsubscribeThisAsync();
+                        await ClearAsync();
+                        await SubscribeThisAsync(null);
 
-                            statusError = null;
-                            statusPosition = null;
-                            statusIsRunning = true;
+                        statusError = null;
+                        statusPosition = null;
+                        statusIsRunning = true;
 
-                            break;
-                        }
+                        break;
+                    }
 
                     case Reconnect reconnect:
+                    {
+                        if (!statusIsRunning || reconnect.StateId != oldStateId)
                         {
-                            if (!statusIsRunning || reconnect.StateId != oldStateId)
-                            {
-                                return;
-                            }
-
-                            await SubscribeThisAsync(statusPosition);
-
-                            break;
+                            return;
                         }
+
+                        await SubscribeThisAsync(statusPosition);
+
+                        break;
+                    }
 
                     case SubscriptionFailed subscriptionFailed:
+                    {
+                        if (subscriptionFailed.Subscription != eventSubscription)
                         {
-                            if (subscriptionFailed.Subscription != eventSubscription)
-                            {
-                                return;
-                            }
-
-                            await UnsubscribeThisAsync();
-
-                            if (retryWindow.CanRetryAfterFailure())
-                            {
-                                Task.Delay(ReconnectWaitMs).ContinueWith(t => dispatcher.SendAsync(new Reconnect { StateId = newStateId })).Forget();
-                            }
-                            else
-                            {
-                                throw subscriptionFailed.Exception;
-                            }
-
-                            break;
+                            return;
                         }
+
+                        await UnsubscribeThisAsync();
+
+                        if (retryWindow.CanRetryAfterFailure())
+                        {
+                            Task.Delay(ReconnectWaitMs).ContinueWith(t => dispatcher.SendAsync(new Reconnect { StateId = newStateId })).Forget();
+                        }
+                        else
+                        {
+                            throw subscriptionFailed.Exception;
+                        }
+
+                        break;
+                    }
 
                     case SubscriptionEventReceived eventReceived:
+                    {
+                        if (eventReceived.Subscription != eventSubscription)
                         {
-                            if (eventReceived.Subscription != eventSubscription)
-                            {
-                                return;
-                            }
-
-                            var @event = ParseEvent(eventReceived.Event);
-
-                            await DispatchConsumerAsync(@event);
-
-                            statusError = null;
-                            statusPosition = @eventReceived.Event.EventPosition;
-
-                            break;
+                            return;
                         }
+
+                        var @event = ParseEvent(eventReceived.Event);
+
+                        await DispatchConsumerAsync(@event);
+
+                        statusError = null;
+                        statusPosition = @eventReceived.Event.EventPosition;
+
+                        break;
+                    }
                 }
 
                 await eventConsumerInfoRepository.SetAsync(eventConsumer.Name, statusPosition, !statusIsRunning, statusError);

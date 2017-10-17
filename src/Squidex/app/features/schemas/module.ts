@@ -39,8 +39,10 @@ import {
     SchemasPageComponent,
     SchemaScriptsFormComponent,
     StringUIComponent,
+    StringValidationComponent,
+    TagsUIComponent,
+    TagsValidationComponent,
     MultiUIComponent,
-    StringValidationComponent
 } from './declarations';
 
 const routes: Routes = [
@@ -106,8 +108,10 @@ const routes: Routes = [
         SchemaScriptsFormComponent,
         SchemasPageComponent,
         StringUIComponent,
+        StringValidationComponent,
+        TagsUIComponent,
+        TagsValidationComponent,
         MultiUIComponent,
-        StringValidationComponent
     ]
 })
 export class SqxFeatureSchemasModule { }

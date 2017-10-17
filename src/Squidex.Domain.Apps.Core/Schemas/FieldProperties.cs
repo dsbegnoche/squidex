@@ -6,12 +6,10 @@
 //  All rights reserved.
 // ==========================================================================
 
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Squidex.Domain.Apps.Core.Schemas.Json;
-using Squidex.Infrastructure;
 using Squidex.Infrastructure.Json;
 
 namespace Squidex.Domain.Apps.Core.Schemas
@@ -25,9 +23,8 @@ namespace Squidex.Domain.Apps.Core.Schemas
     [KnownType(typeof(NumberFieldProperties))]
     [KnownType(typeof(ReferencesFieldProperties))]
     [KnownType(typeof(StringFieldProperties))]
-    [KnownType(typeof(TagFieldProperties))]
-    [KnownType(typeof(MultiFieldProperties))]
-    public abstract class FieldProperties : NamedElementPropertiesBase, IValidatable
+    [KnownType(typeof(TagsFieldProperties))]
+    public abstract class FieldProperties : NamedElementPropertiesBase
     {
         private bool isRequired;
         private bool isListField;
@@ -77,19 +74,11 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public abstract JToken GetDefaultValue();
 
+        public abstract T Accept<T>(IFieldPropertiesVisitor<T> visitor);
+
         public virtual bool ShouldApplyDefaultValue(JToken value)
         {
             return value.IsNull();
         }
-
-        public void Validate(IList<ValidationError> errors)
-        {
-            foreach (var error in ValidateCore())
-            {
-                errors.Add(error);
-            }
-        }
-
-        protected abstract IEnumerable<ValidationError> ValidateCore();
     }
 }

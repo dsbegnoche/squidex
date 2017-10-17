@@ -1,9 +1,9 @@
-<div class="table-items-row table-items-row-expandable field"> 
-    <div class="table-items-row-summary" dnd-sortable-handle>        
+<div class="table-items-row table-items-row-expandable field">
+    <div class="table-items-row-summary" dnd-sortable-handle>
         <div class="row">
             <div class="col col-6">
                 <span class="field-name">
-                    <i class="field-icon icon-type-{{field.properties.fieldType}}"></i> 
+                    <i class="field-icon icon-type-{{field.properties.fieldType}}"></i>
 
                     <span [class.field-hidden]="field.isHidden" [attr.title]="field.isHidden ? 'Hidden Field' : 'Visible Field'">{{displayName}}</span>
                     <span class="field-partitioning" *ngIf="field.partitioning === 'language'">localizable</span>
@@ -38,16 +38,16 @@
                             </a>
                             <a class="dropdown-item" (click)="showing.emit()" *ngIf="field.isHidden" [class.disabled]="field.isLocked">
                                 Show
-                            </a>                           
-                            <a class="dropdown-item" *ngIf="!field.isLocked" 
+                            </a>
+                            <a class="dropdown-item" *ngIf="!field.isLocked"
                                 (sqxConfirmClick)="locking.emit()"
-                                confirmTitle="Lock field" 
+                                confirmTitle="Lock field"
                                 confirmText="Do you really want to lock the field? Lock fields cannot be deleted or changed.">
                                 Lock
                             </a>
                             <a class="dropdown-item dropdown-item-delete" [class.disabled]="field.isLocked"
                                 (sqxConfirmClick)="deleting.emit()"
-                                confirmTitle="Delete field" 
+                                confirmTitle="Delete field"
                                 confirmText="Do you really want to delete the field?">
                                 Delete
                             </a>
@@ -85,11 +85,11 @@
 
                     <div class="col col-6">
                         <input type="text" class="form-control" id="field-label" readonly [ngModel]="field.name" [ngModelOptions]="{standalone: true}" />
-                        
+
                         <small class="form-text text-muted">
                             The name of the field in the API response.
                         </small>
-                    </div>                        
+                    </div>
                 </div>
 
                 <div class="form-group row">
@@ -159,6 +159,9 @@
                     <div *ngSwitchCase="'References'">
                         <sqx-references-validation [editForm]="editForm" [properties]="field.properties" [schemas]="schemas"></sqx-references-validation>
                     </div>
+                    <div *ngSwitchCase="'Tags'">
+                        <sqx-tags-validation [editForm]="editForm" [properties]="field.properties"></sqx-tags-validation>
+                    </div>
                 </div>
             </div>
 
@@ -191,8 +194,11 @@
                     <div *ngSwitchCase="'Multi'">
                         <sqx-multi-ui [editForm]="editForm" [properties]="field.properties"></sqx-multi-ui>
                     </div>
+                    <div *ngSwitchCase="'Tags'">
+                        <sqx-tags-ui [editForm]="editForm" [properties]="field.properties"></sqx-tags-ui>
+                    </div>
                 </div>
             </div>
-        </form> 
+        </form>
     </div>
 </div>

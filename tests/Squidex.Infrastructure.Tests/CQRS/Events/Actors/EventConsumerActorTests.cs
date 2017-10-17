@@ -252,8 +252,6 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
             A.CallTo(() => eventConsumer.ClearAsync())
                 .Throws(ex);
 
-            var @event = new StoredEvent(Guid.NewGuid().ToString(), 123, eventData);
-
             await OnSubscribeAsync();
 
             sutActor.Tell(new ResetConsumerMessage());
@@ -359,6 +357,6 @@ namespace Squidex.Infrastructure.CQRS.Events.Actors
         private Task OnSubscribeAsync()
         {
             return sut.SubscribeAsync(eventConsumer);
-    }
+        }
     }
 }

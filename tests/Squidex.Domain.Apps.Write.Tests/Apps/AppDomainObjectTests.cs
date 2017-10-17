@@ -148,7 +148,7 @@ namespace Squidex.Domain.Apps.Write.Apps
         {
             Assert.Throws<ValidationException>(() =>
             {
-                sut.AssignContributor(CreateCommand(new AssignContributor()));
+                sut.AssignContributor(CreateCommand(new AssignContributor { Permission = (AppContributorPermission)123 }));
             });
         }
 
