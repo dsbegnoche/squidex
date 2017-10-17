@@ -31,3 +31,4 @@ export * from './pages/schema/schema-scripts-form.component';
 
 export * from './pages/schemas/schema-form.component';
 export * from './pages/schemas/schemas-page.component';
+export * from './pages/schema/types/multi-ui.component';

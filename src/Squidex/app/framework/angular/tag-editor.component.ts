@@ -5,7 +5,7 @@
  * Copyright (c) Sebastian Stehle. All rights reserved
  */
 
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Output, Input, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { Types } from './../utils/types';
@@ -74,6 +74,9 @@ export const SQX_TAG_EDITOR_CONTROL_VALUE_ACCESSOR: any = {
 export class TagEditorComponent implements ControlValueAccessor {
     private callChange = (v: any) => { /* NOOP */ };
     private callTouched = () => { /* NOOP */ };
+
+    @Output()
+    public onBlurEvent = new EventEmitter<string>();
 
     @Input()
     public converter: Converter = new StringConverter();
@@ -153,5 +156,7 @@ export class TagEditorComponent implements ControlValueAccessor {
         } else {
             this.callChange(this.items);
         }
+
+        this.onBlurEvent.emit();
     }
 }

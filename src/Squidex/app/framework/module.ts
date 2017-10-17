@@ -46,6 +46,7 @@ import {
     ModalViewDirective,
     MoneyPipe,
     MonthPipe,
+    MultiEditorComponent,
     OnboardingService,
     OnboardingTooltipComponent,
     PanelContainerDirective,
@@ -109,6 +110,7 @@ import {
         ModalViewDirective,
         MoneyPipe,
         MonthPipe,
+        MultiEditorComponent,
         OnboardingTooltipComponent,
         PanelContainerDirective,
         PanelComponent,
@@ -158,6 +160,7 @@ import {
         ModalViewDirective,
         MoneyPipe,
         MonthPipe,
+        MultiEditorComponent,
         OnboardingTooltipComponent,
         PanelContainerDirective,
         PanelComponent,
@@ -205,4 +208,4 @@ export class SqxFrameworkModule {
             ]
         };
     }
- }
+}

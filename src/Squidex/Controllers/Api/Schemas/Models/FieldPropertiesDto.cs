@@ -24,6 +24,7 @@ namespace Squidex.Controllers.Api.Schemas.Models
     [KnownType(typeof(ReferencesFieldPropertiesDto))]
     [KnownType(typeof(StringFieldPropertiesDto))]
     [KnownType(typeof(TagsFieldPropertiesDto))]
+    [KnownType(typeof(MultiFieldPropertiesDto))]
     public abstract class FieldPropertiesDto
     {
         /// <summary>

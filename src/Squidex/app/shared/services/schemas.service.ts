@@ -32,6 +32,7 @@ export const fieldTypes: string[] = [
     'Number',
     'References',
     'String',
+    'Multi',
     'Tags'
 ];
 
@@ -65,6 +66,9 @@ export function createProperties(fieldType: string, values: Object | null = null
             break;
         case 'Tags':
             properties = new TagsFieldPropertiesDto(null, null, null, false, false);
+            break;
+        case 'Multi':
+            properties = new MultiFieldPropertiesDto(null, null, null, false, false, 'Multi');
             break;
         default:
             throw 'Invalid properties type';
@@ -468,6 +472,34 @@ export class DateTimeFieldPropertiesDto extends FieldPropertiesDto {
         }
 
         return validators;
+    }
+}
+
+export class MultiFieldPropertiesDto extends FieldPropertiesDto {
+    constructor(label: string | null, hints: string | null, placeholder: string | null,
+        isRequired: boolean,
+        isListField: boolean,
+        public readonly editor: string,
+        public readonly allowedValues?: string[],
+        public readonly defaultValues?: string[]
+    ) {
+        super('Multi', label, hints, placeholder, isRequired, isListField);
+    }
+
+    public formatValue(value: any): string {
+        if (!value) {
+            return '';
+        }
+
+        if (value.length) {
+            return value.join(', ');
+        } else {
+            return '';
+        }
+    }
+
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        return [];
     }
 }
 

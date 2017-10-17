@@ -41,7 +41,8 @@ import {
     StringUIComponent,
     StringValidationComponent,
     TagsUIComponent,
-    TagsValidationComponent
+    TagsValidationComponent,
+    MultiUIComponent
 } from './declarations';
 
 const routes: Routes = [
@@ -109,7 +110,8 @@ const routes: Routes = [
         StringUIComponent,
         StringValidationComponent,
         TagsUIComponent,
-        TagsValidationComponent
+        TagsValidationComponent,
+        MultiUIComponent
     ]
 })
 export class SqxFeatureSchemasModule { }

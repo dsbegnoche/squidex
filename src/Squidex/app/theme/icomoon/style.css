@@ -300,3 +300,9 @@
     margin-left: -2em;
     color: rgb(44, 45, 45);
 }
+.icon-type-Multi:before {
+    content: "\e90d";
+}
+.icon-control-Multi:before {
+    content: "\e90d";
+}

@@ -1,0 +1,15 @@
+<div class="form-control">
+    <div
+        *ngFor="let value of items"
+        [formControl]="checkInput"
+        ngDefaultControl
+        >
+        <input type="checkbox"
+            [id]="value"
+            [value]="value"
+            [checked]="selectedItems.includes(value)"
+            (click)="toggle(value, !selectedItems.includes(value))"
+        />
+        <label [for]="value">{{value}}</label>
+    </div>
+</div>

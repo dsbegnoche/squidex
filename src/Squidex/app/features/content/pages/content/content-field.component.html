@@ -1,8 +1,8 @@
 <div class="table-items-row" [class.invalid]="fieldForm.invalid">
     <label>
         {{field | sqxDisplayName:'properties.label':'name'}} <span class="field-required" [class.hidden]="!field.properties.isRequired">*</span>
-    </label> 
-    
+    </label>
+
     <span class="field-disabled" *ngIf="field.isDisabled">Disabled</span>
 
     <div [formGroup]="fieldForm">
@@ -83,6 +83,17 @@
                                         <input class="form-check-input" type="checkbox" [formControlName]="partition" sqxIndeterminateValue />
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngSwitchCase="'Multi'">
+                        <div [ngSwitch]="field.properties.editor">
+                            <div *ngSwitchCase="'Multi'">
+                                <sqx-multi-editor
+                                    [formControlName]="partition"
+                                    [items]="field.properties.allowedValues"
+                                    >
+                                </sqx-multi-editor>
                             </div>
                         </div>
                     </div>

@@ -60,6 +60,18 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
             return SimpleMapper.Map(properties, new TagsFieldPropertiesDto());
         }
 
+        public FieldPropertiesDto Visit(MultiFieldProperties properties)
+        {
+            var result = SimpleMapper.Map(properties, new MultiFieldPropertiesDto());
+
+            if (properties.AllowedValues != null)
+            {
+                result.AllowedValues = properties.AllowedValues.ToArray();
+            }
+
+            return result;
+        }
+
         public FieldPropertiesDto Visit(NumberFieldProperties properties)
         {
             var result = SimpleMapper.Map(properties, new NumberFieldPropertiesDto());
