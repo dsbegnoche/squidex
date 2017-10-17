@@ -54,6 +54,9 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
                     sourceImage.Mutate(x => x.Resize(options));
                     sourceImage.Save(destination, format);
                 }
+
+                // TODO: Revisit with future release of ImageSharp
+                GC.Collect();
             });
         }
 
@@ -67,8 +70,10 @@ namespace Squidex.Infrastructure.Assets.ImageSharp
             {
                 try
                 {
-                    var image = Image.Load(source);
-                    return new ImageInfo(image.Width, image.Height);
+                    using (var image = Image.Load(source))
+                    {
+                        return new ImageInfo(image.Width, image.Height);
+                    }
                 }
                 catch
                 {

@@ -96,7 +96,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             var validExtensions = AssetFileValidationConfig.ValidExtensions;
 
-            ValidateCond(!validExtensions.Contains(file.FileExtension), $"Asset extension '{file.FileExtension}' is not an allowed filetype.");
+            ValidateCond(!validExtensions.Contains(file.FileExtension.ToLower()), $"Asset extension '{file.FileExtension}' is not an allowed filetype.");
         }
 
         protected async Task On(CreateAsset command, CommandContext context)
@@ -133,7 +133,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
                 await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
 
-                if (command.ImageInfo != null)
+                if (command.CompressedImageInfo != null)
                 {
                     compressedStream.Position = 0;
                     await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
@@ -148,36 +148,40 @@ namespace Squidex.Domain.Apps.Write.Assets
         protected async Task On(UpdateAsset command, CommandContext context)
         {
             CheckAssetFileAsync(command.File);
-            var compressedStream = AssetUtil.GetTempStream();
-            command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
-
-            if (command.ImageInfo != null)
+            using (var compressedStream = AssetUtil.GetTempStream())
             {
-                command.CompressedImageInfo = await GenerateCompressedImage(command.File, compressedStream);
-            }
-
-            try
-            {
-                var asset = await handler.UpdateAsync<AssetDomainObject>(context, async a =>
-                {
-                    a.Update(command);
-
-                    await assetStore.UploadTemporaryAsync(context.ContextId.ToString(), command.File.OpenRead());
-
-                    context.Complete(new AssetSavedResult(a.Version, a.FileVersion));
-                });
-
-                await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(), asset.FileVersion, null);
+                command.ImageInfo = await assetThumbnailGenerator.GetImageInfoAsync(command.File.OpenRead());
 
                 if (command.ImageInfo != null)
                 {
-                    compressedStream.Position = 0;
-                    await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed", compressedStream);
+                    command.CompressedImageInfo = await GenerateCompressedImage(command.File, compressedStream);
                 }
-            }
-            finally
-            {
-                await assetStore.DeleteTemporaryAsync(context.ContextId.ToString());
+
+                try
+                {
+                    var asset = await handler.UpdateAsync<AssetDomainObject>(context, async a =>
+                    {
+                        a.Update(command);
+
+                        await assetStore.UploadTemporaryAsync(context.ContextId.ToString(), command.File.OpenRead());
+
+                        context.Complete(new AssetSavedResult(a.Version, a.FileVersion));
+                    });
+
+                    await assetStore.CopyTemporaryAsync(context.ContextId.ToString(), asset.Id.ToString(),
+                        asset.FileVersion, null);
+
+                    if (command.ImageInfo != null)
+                    {
+                        compressedStream.Position = 0;
+                        await assetStore.UploadAsync(asset.Id.ToString(), asset.FileVersion, "Compressed",
+                            compressedStream);
+                    }
+                }
+                finally
+                {
+                    await assetStore.DeleteTemporaryAsync(context.ContextId.ToString());
+                }
             }
         }
 
