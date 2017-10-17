@@ -68,6 +68,11 @@ namespace Squidex.Domain.Apps.Core.Schemas.Edm
             return CreatePrimitive(EdmPrimitiveTypeKind.String, field);
         }
 
+        public IEdmTypeReference Visit(MultiField field)
+        {
+            return CreatePrimitive(EdmPrimitiveTypeKind.String, field);
+        }
+
         private static IEdmTypeReference CreatePrimitive(EdmPrimitiveTypeKind kind, Field field)
         {
             return EdmCoreModel.Instance.GetPrimitive(kind, !field.RawProperties.IsRequired);

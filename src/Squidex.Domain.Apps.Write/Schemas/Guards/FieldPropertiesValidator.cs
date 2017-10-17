@@ -6,7 +6,10 @@
 //  All rights reserved.
 // ==========================================================================
 
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Infrastructure;
 
@@ -197,6 +200,21 @@ namespace Squidex.Domain.Apps.Write.Schemas.Guards
                 yield return new ValidationError("Max items must be greater than min items.",
                     nameof(properties.MinItems),
                     nameof(properties.MaxItems));
+            }
+        }
+
+        public IEnumerable<ValidationError> Visit(MultiFieldProperties properties)
+        {
+            Func<ImmutableList<string>, bool> isValid =
+                (validate) => validate != null && validate.Count > 0;
+
+            if (isValid(properties.AllowedValues) && isValid(properties.DefaultValues))
+            {
+                if (properties.DefaultValues.Any(val =>
+                    !properties.AllowedValues.Contains(val)))
+                {
+                    yield return new ValidationError("Default values could not be found in allowed values");
+                }
             }
         }
     }

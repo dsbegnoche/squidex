@@ -27,5 +27,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
         T Visit(StringFieldProperties properties);
 
         T Visit(TagsFieldProperties properties);
+
+        T Visit(MultiFieldProperties properties);
     }
 }

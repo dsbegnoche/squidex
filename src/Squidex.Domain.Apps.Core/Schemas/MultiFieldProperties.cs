@@ -33,6 +33,11 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public override JToken GetDefaultValue() => JObject.FromObject(DefaultValues);
 
+        public override T Accept<T>(IFieldPropertiesVisitor<T> visitor)
+        {
+            return visitor.Visit(this);
+        }
+
         public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.Multi;
 
         public ImmutableList<string> DefaultValues
@@ -60,20 +65,6 @@ namespace Squidex.Domain.Apps.Core.Schemas
                 ThrowIfFrozen();
 
                 allowedValues = value;
-            }
-        }
-
-        protected override IEnumerable<ValidationError> ValidateCore()
-        {
-            Func<ImmutableList<string>, bool> isValid =
-                (validate) => validate != null && validate.Count > 0;
-
-            if (isValid(AllowedValues) && isValid(DefaultValues))
-            {
-                if (DefaultValues.Any(val => !AllowedValues.Contains(val)))
-                {
-                    yield return new ValidationError("Default values could not be found in allowed values");
-                }
             }
         }
     }
