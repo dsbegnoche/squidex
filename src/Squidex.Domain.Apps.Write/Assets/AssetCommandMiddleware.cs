@@ -25,7 +25,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
-        private readonly IAssetSuggestions assetSuggestions;
+        private readonly IAssetSuggestions imageSuggestions;
         private readonly ITextSuggestions fileSuggestions;
         private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
@@ -46,7 +46,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
             this.assetCompressedGenerator = assetCompressedGenerator;
-            this.assetSuggestions = imageSuggestions;
+            this.imageSuggestions = imageSuggestions;
             this.fileSuggestions = fileSuggestions;
         }
 
@@ -82,6 +82,8 @@ namespace Squidex.Domain.Apps.Write.Assets
 
         private void CheckAssetFileAsync(AssetFile file)
         {
+            ValidateCond(file.FileSize <= 0, $"File was empty.");
+
             var assetsConfig = file.AssetConfig;
 
             ValidateCond(file.FileSize > assetsConfig.MaxSize, $"File size cannot be longer than {assetsConfig.MaxSize}.");
@@ -113,7 +115,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             {
                 if (command.ImageInfo != null)
                 {
-                    command.File = await assetSuggestions.SuggestTagsAndDescription(command.File);
+                    command.File = await imageSuggestions.SuggestTagsAndDescription(command.File);
                 }
                 else if (command.File.FileExtension == "txt")
                 {

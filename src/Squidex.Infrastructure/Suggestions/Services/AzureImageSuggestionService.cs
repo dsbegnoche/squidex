@@ -83,9 +83,9 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 ?.Text ?? string.Empty;
         }
 
-        public bool IsAdultContent(string result)
+        public bool IsAdultContent(object result)
         {
-            return JObject.Parse(result)["adult"]["isAdultContent"].ToObject<bool>();
+            return JObject.Parse((string)result)["adult"]["isAdultContent"].ToObject<bool>();
         }
     }
 }

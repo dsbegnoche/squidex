@@ -56,6 +56,8 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public string GetDescription(object result) => string.Empty;
 
+        public bool IsAdultContent(object result) => false;
+
         private static MultiLanguageBatchInput EncodeFile(string content)
         {
             var data = new MultiLanguageBatchInput

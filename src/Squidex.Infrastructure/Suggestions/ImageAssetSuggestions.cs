@@ -39,11 +39,7 @@ namespace Squidex.Infrastructure.Suggestions
 
             var result = await SuggestionService.Analyze(file);
 
-            var isAdultContent =
-                JObject.Parse((string)result)["adult"]["isAdultContent"]
-                       .ToObject<bool>();
-
-            if (isAdultContent)
+            if (SuggestionService.IsAdultContent(result))
             {
                 var error = new ValidationError("Adult content found in asset upload");
                 throw new ValidationException("Cannot create asset.", error);

@@ -35,11 +35,6 @@ namespace Squidex.Infrastructure.Suggestions
 
         public async Task<AssetFile> SuggestTagsAndDescription(AssetFile file, string extension)
         {
-            if (!ValidateFile(file))
-            {
-                return file;
-            }
-
             var content = await GetTextFromFile(file, extension);
             var result = await SuggestionService.Analyze(content);
 
@@ -58,11 +53,6 @@ namespace Squidex.Infrastructure.Suggestions
                 file.CurrentAssetRepoSize
                 );
         }
-
-        private bool ValidateFile(AssetFile file) => new[]
-            {
-                file.FileSize < 0,
-            }.Any(condition => !condition);
 
         private static async Task<string> GetTextFromFile(AssetFile file, string extension)
         {

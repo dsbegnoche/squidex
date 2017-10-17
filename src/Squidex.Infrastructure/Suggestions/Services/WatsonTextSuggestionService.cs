@@ -69,5 +69,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 .FirstOrDefault(tag => tag.Relevance > MinimumCaptionConfidence)?
                 .Text;
         }
+
+        public bool IsAdultContent(object result) => false;
     }
 }

@@ -28,5 +28,7 @@ namespace Squidex.Infrastructure.Suggestions.Services
         string[] GetTags(object result);
 
         string GetDescription(object result);
+
+        bool IsAdultContent(object result);
     }
 }
