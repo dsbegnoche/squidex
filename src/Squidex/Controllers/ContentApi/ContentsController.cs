@@ -61,7 +61,7 @@ namespace Squidex.Controllers.ContentApi
         [MustBeAppReader]
         [HttpGet]
         [HttpPost]
-        [Route("content/{app}/graphql")]
+        [Route("content/{app}/graphql/")]
         [ApiCosts(2)]
         [SwaggerIgnore]
         public async Task<IActionResult> PostGraphQL([FromBody] GraphQLQuery query)
@@ -80,7 +80,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppReader]
         [HttpGet]
-        [Route("content/{app}/{name}")]
+        [Route("content/{app}/{name}/")]
         [ApiCosts(2)]
         [SwaggerIgnore]
         public async Task<IActionResult> GetContents(string name, [FromQuery] bool archived = false, [FromQuery] string ids = null)
@@ -193,7 +193,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppReader]
         [HttpGet]
-        [Route("content/{app}/{name}/{id}")]
+        [Route("content/{app}/{name}/{id}/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> GetContent(string name, Guid id)
@@ -221,7 +221,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppReader]
         [HttpGet]
-        [Route("content/{app}/{name}/{id}/{version}")]
+        [Route("content/{app}/{name}/{id}/{version}/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> GetContentVersion(string name, Guid id, int version)
@@ -254,7 +254,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppAuthor]
         [HttpPut]
-        [Route("content/{app}/{name}/{id}")]
+        [Route("content/{app}/{name}/{id}/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> PutContent(string name, Guid id, [FromBody] NamedContentData request)
@@ -273,7 +273,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppAuthor]
         [HttpPatch]
-        [Route("content/{app}/{name}/{id}")]
+        [Route("content/{app}/{name}/{id}/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> PatchContent(string name, Guid id, [FromBody] NamedContentData request)
@@ -292,7 +292,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppEditor]
         [HttpPut]
-        [Route("content/{app}/{name}/{id}/publish")]
+        [Route("content/{app}/{name}/{id}/publish/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> PublishContent(string name, Guid id)
@@ -308,7 +308,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppEditor]
         [HttpPut]
-        [Route("content/{app}/{name}/{id}/unpublish")]
+        [Route("content/{app}/{name}/{id}/unpublish/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> UnpublishContent(string name, Guid id)
@@ -338,7 +338,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppEditor]
         [HttpPut]
-        [Route("content/{app}/{name}/{id}/archive")]
+        [Route("content/{app}/{name}/{id}/archive/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> ArchiveContent(string name, Guid id)
@@ -354,7 +354,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppEditor]
         [HttpPut]
-        [Route("content/{app}/{name}/{id}/restore")]
+        [Route("content/{app}/{name}/{id}/restore/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> RestoreContent(string name, Guid id)
@@ -384,7 +384,7 @@ namespace Squidex.Controllers.ContentApi
 
         [MustBeAppAuthor]
         [HttpDelete]
-        [Route("content/{app}/{name}/{id}")]
+        [Route("content/{app}/{name}/{id}/")]
         [ApiCosts(1)]
         [SwaggerIgnore]
         public async Task<IActionResult> DeleteContent(string name, Guid id)
@@ -423,7 +423,7 @@ namespace Squidex.Controllers.ContentApi
             var json = convertCsv.ReadWithSchema(schema, file, languagePartitioning);
             if (json == null)
             {
-                return BadRequest(new { Error = "File data was not formatted correctly or was empty." });
+                return BadRequest(new { Message = "File data was not formatted correctly or was empty." });
             }
 
             var contentList = Newtonsoft.Json.JsonConvert.DeserializeObject<List<NamedContentData>>(json);

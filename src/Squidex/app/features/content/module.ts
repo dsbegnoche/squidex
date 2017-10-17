@@ -36,18 +36,12 @@ const routes: Routes = [
         component: SchemasPageComponent,
         children: [
             {
-                path: ''
-            },
-            {
                 path: ':schemaName',
                 component: ContentsPageComponent,
                 resolve: {
                     schema: ResolvePublishedSchemaGuard, appLanguages: ResolveAppLanguagesGuard
                 },
                 children: [
-                    {
-                        path: ''
-                    },
                     {
                         path: 'new',
                         component: ContentPageComponent,

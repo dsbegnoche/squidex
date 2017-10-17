@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
+using Squidex.Domain.Apps.Core.Schemas;
+using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Domain.Apps.Events;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
@@ -22,6 +24,8 @@ namespace Squidex.Config.Domain
     public static class Serializers
     {
         private static readonly TypeNameRegistry TypeNameRegistry = new TypeNameRegistry();
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
+        private static readonly FieldRegistry FieldRegistry = new FieldRegistry(TypeNameRegistry);
 
         private static JsonSerializerSettings ConfigureJson(JsonSerializerSettings settings, TypeNameHandling typeNameHandling)
         {
@@ -34,7 +38,8 @@ namespace Squidex.Config.Domain
                 new NamedLongIdConverter(),
                 new NamedStringIdConverter(),
                 new PropertiesBagConverter(),
-                new RefTokenConverter());
+                new RefTokenConverter(),
+                new SchemaConverter(FieldRegistry));
 
             settings.NullValueHandling = NullValueHandling.Ignore;
 
@@ -52,23 +57,18 @@ namespace Squidex.Config.Domain
         {
             TypeNameRegistry.Map(typeof(SquidexEvent).GetTypeInfo().Assembly);
             TypeNameRegistry.Map(typeof(NoopEvent).GetTypeInfo().Assembly);
-        }
 
-        private static JsonSerializerSettings CreateSettings()
-        {
-            return ConfigureJson(new JsonSerializerSettings(), TypeNameHandling.Auto);
-        }
+            ConfigureJson(SerializerSettings, TypeNameHandling.Auto);
 
-        private static JsonSerializer CreateSerializer(JsonSerializerSettings settings)
-        {
-            return JsonSerializer.Create(settings);
+            JsonConvert.DefaultSettings = () => SerializerSettings;
         }
 
         public static IServiceCollection AddMyEventFormatter(this IServiceCollection services)
         {
             services.AddSingleton(t => TypeNameRegistry);
-            services.AddSingleton(t => CreateSettings());
-            services.AddSingleton(t => CreateSerializer(t.GetRequiredService<JsonSerializerSettings>()));
+            services.AddSingleton(t => FieldRegistry);
+            services.AddSingleton(t => SerializerSettings);
+            services.AddSingleton(t => JsonSerializer.Create(SerializerSettings));
 
             return services;
         }

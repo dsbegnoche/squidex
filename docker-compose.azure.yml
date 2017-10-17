@@ -12,12 +12,7 @@ services:
       - "6379:6379"
     labels:
       NAME: "squidex_redis"
-  squidex_mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    labels:
-      NAME: "squidex_mongo"
+    restart: always
   kraken_eventstore:
     image: eventstore/eventstore
     ports:
@@ -63,7 +58,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
       - kraken_eventstore
     labels:
       NAME: "kraken_dev"
@@ -103,7 +97,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "kraken_review"
     restart: "always"
@@ -135,14 +128,13 @@ services:
       - "LETSENCRYPT_EMAIL=${SQUIDEX_EMAIL}"
       - "ASSETSTORE__TYPE=${ASSETSTORE_TYPE}"
       - "ASSETSTORE__AZUREBLOB__CONNECTIONSTRING=${AZUREBLOB_CONNECTION}"
-      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://identityserver.cpqa.ninja"
-      - "IDENTITY__CIVICPLUSCLIENT=96"
-      - "IDENTITY__CIVICPLUSSECRET=F115E97B-2E23-4075-A89F-D0FB4C8FC9ED"
+      - "IDENTITY__CIVICPLUSIDENTITYSERVERBASEURL=https://account.civicplus.com"
+      - "IDENTITY__CIVICPLUSCLIENT=1275"
+      - "IDENTITY__CIVICPLUSSECRET=75B06DA0-C2B3-4F61-A181-F0C8F7AF6E82"
       - "IDENTITY__CIVICPLUSPOSTLOGOUTREDIRECTURI=https://${KRAKEN_HCMS_DOMAIN}/identity-server/account/logout"
-      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
+      - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://platform.civicplus.com"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "kraken_hcms"
     restart: "always"
@@ -180,7 +172,6 @@ services:
       - "IDENTITY__CIVICPLUSPLATFORMBASEURL=https://civiccenter.cpqa.ninja"
     depends_on:
       - squidex_redis
-      - squidex_mongo
     labels:
       NAME: "squidex_squidex"
     restart: "always"
@@ -196,6 +187,7 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     labels:
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+    restart: "always"
   squidex_encrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:

@@ -31,7 +31,8 @@ export const fieldTypes: string[] = [
     'Json',
     'Number',
     'References',
-    'String'
+    'String',
+    'Tags'
 ];
 
 export function createProperties(fieldType: string, values: Object | null = null): FieldPropertiesDto {
@@ -62,8 +63,8 @@ export function createProperties(fieldType: string, values: Object | null = null
         case 'Assets':
             properties = new AssetsFieldPropertiesDto(null, null, null, false, false);
             break;
-        case 'Tag':
-            properties = new TagFieldPropertiesDto(null, null, null, false, false, 'Input', false);
+        case 'Tags':
+            properties = new TagsFieldPropertiesDto(null, null, null, false, false);
             break;
         default:
             throw 'Invalid properties type';
@@ -630,6 +631,47 @@ export class AssetsFieldPropertiesDto extends FieldPropertiesDto {
     }
 }
 
+export class TagsFieldPropertiesDto extends FieldPropertiesDto {
+    constructor(label: string | null, hints: string | null, placeholder: string | null,
+        isRequired: boolean,
+        isListField: boolean,
+        public readonly minItems?: number,
+        public readonly maxItems?: number
+    ) {
+        super('Tags', label, hints, placeholder, isRequired, isListField);
+    }
+
+    public formatValue(value: any): string {
+        if (!value) {
+            return '';
+        }
+
+        if (value.length) {
+            return value.join(', ');
+        } else {
+            return '';
+        }
+    }
+
+    public createValidators(isOptional: boolean): ValidatorFn[] {
+        const validators: ValidatorFn[] = [];
+
+        if (this.isRequired && !isOptional) {
+            validators.push(Validators.required);
+        }
+
+        if (this.minItems) {
+            validators.push(Validators.minLength(this.minItems));
+        }
+
+        if (this.maxItems) {
+            validators.push(Validators.maxLength(this.maxItems));
+        }
+
+        return validators;
+    }
+}
+
 export class JsonFieldPropertiesDto extends FieldPropertiesDto {
     constructor(label: string | null, hints: string | null, placeholder: string | null,
         isRequired: boolean,
@@ -724,9 +766,9 @@ export class SchemasService {
 
         return HTTP.getVersioned<any>(this.http, url)
             .map(response => {
-                    const body = response.payload.body;
+                const body = response.payload.body;
 
-                    const items: any[] = body;
+                const items: any[] = body;
 
                 return items.map(item => {
                     const properties = new SchemaPropertiesDto(item.properties.label, item.properties.hints);
@@ -750,9 +792,9 @@ export class SchemasService {
 
         return HTTP.getVersioned<any>(this.http, url)
             .map(response => {
-                    const body = response.payload.body;
+                const body = response.payload.body;
 
-                    const fields = body.fields.map((item: any) => {
+                const fields = body.fields.map((item: any) => {
                     const propertiesDto =
                         createProperties(
                             item.properties.fieldType,
@@ -768,24 +810,24 @@ export class SchemasService {
                         propertiesDto);
                 });
 
-                    const properties = new SchemaPropertiesDto(body.properties.label, body.properties.hints);
+                const properties = new SchemaPropertiesDto(body.properties.label, body.properties.hints);
 
                 return new SchemaDetailsDto(
-                        body.id,
-                        body.name,
-                        properties,
-                        body.isPublished,
-                        body.createdBy,
-                        body.lastModifiedBy,
-                        DateTime.parseISO_UTC(body.created),
-                        DateTime.parseISO_UTC(body.lastModified),
-                        response.version,
+                    body.id,
+                    body.name,
+                    properties,
+                    body.isPublished,
+                    body.createdBy,
+                    body.lastModifiedBy,
+                    DateTime.parseISO_UTC(body.created),
+                    DateTime.parseISO_UTC(body.lastModified),
+                    response.version,
                     fields,
-                        body.scriptQuery,
-                        body.scriptCreate,
-                        body.scriptUpdate,
-                        body.scriptDelete,
-                        body.scriptChange);
+                    body.scriptQuery,
+                    body.scriptCreate,
+                    body.scriptUpdate,
+                    body.scriptDelete,
+                    body.scriptChange);
             })
             .catch(error => {
                 if (error instanceof HttpErrorResponse && error.status === 404) {
@@ -804,35 +846,35 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas`);
 
         return HTTP.postVersioned<any>(this.http, url, dto)
-                .map(response => {
-                    const body = response.payload.body;
+            .map(response => {
+                const body = response.payload.body;
 
-                    now = now || DateTime.now();
+                now = now || DateTime.now();
 
-                    return new SchemaDetailsDto(
-                        body.id,
-                        dto.name,
-                        dto.properties || new SchemaPropertiesDto(),
-                        false,
-                        user,
-                        user,
-                        now,
-                        now,
-                        response.version,
-                        dto.fields || [],
-                        body.scriptQuery,
-                        body.scriptCreate,
-                        body.scriptUpdate,
-                        body.scriptDelete,
-                        body.scriptChange);
-                })
-                .do(schema => {
-                    this.analytics.trackEvent('Schema', 'Created', appName);
+                return new SchemaDetailsDto(
+                    body.id,
+                    dto.name,
+                    dto.properties || new SchemaPropertiesDto(),
+                    false,
+                    user,
+                    user,
+                    now,
+                    now,
+                    response.version,
+                    dto.fields || [],
+                    body.scriptQuery,
+                    body.scriptCreate,
+                    body.scriptUpdate,
+                    body.scriptDelete,
+                    body.scriptChange);
+            })
+            .do(schema => {
+                this.analytics.trackEvent('Schema', 'Created', appName);
 
-                    this.localCache.set(`schema.${appName}.${schema.id}`, schema, 5000);
-                    this.localCache.set(`schema.${appName}.${schema.name}`, schema, 5000);
-                })
-                .pretifyError('Failed to create schema. Please reload.');
+                this.localCache.set(`schema.${appName}.${schema.id}`, schema, 5000);
+                this.localCache.set(`schema.${appName}.${schema.name}`, schema, 5000);
+            })
+            .pretifyError('Failed to create schema. Please reload.');
     }
 
     public postField(appName: string, schemaName: string, dto: AddFieldDto, version: Version): Observable<Versioned<FieldDto>> {
@@ -840,10 +882,10 @@ export class SchemasService {
 
         return HTTP.postVersioned<any>(this.http, url, dto, version)
             .map(response => {
-                    const body = response.payload.body;
+                const body = response.payload.body;
 
-                    const field = new FieldDto(
-                        body.id,
+                const field = new FieldDto(
+                    body.id,
                     dto.name,
                     false,
                     false,
@@ -851,10 +893,10 @@ export class SchemasService {
                     dto.partitioning,
                     dto.properties);
 
-                    return new Versioned(response.version, field);
-                })
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldCreated', appName);
+                return new Versioned(response.version, field);
+            })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldCreated', appName);
             })
             .pretifyError('Failed to add field. Please reload.');
     }
@@ -866,9 +908,9 @@ export class SchemasService {
             .do(() => {
                 this.localCache.remove(`schema.${appName}.${schemaName}`);
             })
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'Deleted', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'Deleted', appName);
+            })
             .pretifyError('Failed to delete schema. Please reload.');
     }
 
@@ -876,9 +918,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/scripts`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'ScriptsConfigured', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'ScriptsConfigured', appName);
+            })
             .pretifyError('Failed to update schema scripts. Please reload.');
     }
 
@@ -886,9 +928,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'Updated', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'Updated', appName);
+            })
             .pretifyError('Failed to update schema. Please reload.');
     }
 
@@ -896,9 +938,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/ordering`);
 
         return HTTP.putVersioned(this.http, url, { fieldIds: dto }, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldsReordered', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldsReordered', appName);
+            })
             .pretifyError('Failed to reorder fields. Please reload.');
     }
 
@@ -906,9 +948,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/publish`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'Published', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'Published', appName);
+            })
             .pretifyError('Failed to publish schema. Please reload.');
     }
 
@@ -916,9 +958,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/unpublish`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'Unpublished', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'Unpublished', appName);
+            })
             .pretifyError('Failed to unpublish schema. Please reload.');
     }
 
@@ -926,9 +968,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}`);
 
         return HTTP.putVersioned(this.http, url, dto, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldUpdated', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldUpdated', appName);
+            })
             .pretifyError('Failed to update field. Please reload.');
     }
 
@@ -936,9 +978,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}/enable`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldEnabled', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldEnabled', appName);
+            })
             .pretifyError('Failed to enable field. Please reload.');
     }
 
@@ -946,9 +988,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}/disable`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldDisabled', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldDisabled', appName);
+            })
             .pretifyError('Failed to disable field. Please reload.');
     }
 
@@ -956,9 +998,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}/lock`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldLocked', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldLocked', appName);
+            })
             .pretifyError('Failed to lock field. Please reload.');
     }
 
@@ -966,9 +1008,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}/show`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldShown', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldShown', appName);
+            })
             .pretifyError('Failed to show field. Please reload.');
     }
 
@@ -976,9 +1018,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}/hide`);
 
         return HTTP.putVersioned(this.http, url, {}, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldHidden', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldHidden', appName);
+            })
             .pretifyError('Failed to hide field. Please reload.');
     }
 
@@ -986,9 +1028,9 @@ export class SchemasService {
         const url = this.apiUrl.buildUrl(`api/apps/${appName}/schemas/${schemaName}/fields/${fieldId}`);
 
         return HTTP.deleteVersioned(this.http, url, version)
-                .do(() => {
-                    this.analytics.trackEvent('Schema', 'FieldDeleted', appName);
-                })
+            .do(() => {
+                this.analytics.trackEvent('Schema', 'FieldDeleted', appName);
+            })
             .pretifyError('Failed to delete field. Please reload.');
     }
 }

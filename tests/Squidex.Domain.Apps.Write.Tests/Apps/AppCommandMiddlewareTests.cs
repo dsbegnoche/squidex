@@ -565,7 +565,7 @@ namespace Squidex.Domain.Apps.Write.Apps
 
         private void CreateField(string fieldName, StringFieldProperties properties)
         {
-            schema.AddField(CreateCommand(new AddField { Name = fieldName, Properties = new StringFieldProperties(properties) }));
+            schema.Add(CreateCommand(new AddField { Name = fieldName, Properties = new StringFieldProperties(properties) }));
         }
 
         private static Task<IChangePlanResult> CreateRedirectResult()

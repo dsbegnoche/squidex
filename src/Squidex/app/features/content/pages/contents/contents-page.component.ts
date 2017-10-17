@@ -62,7 +62,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
     public isArchive = false;
 
     public columnWidth: number;
-    public importLink = this.router.createUrlTree(['import'], { relativeTo: this.route, replaceUrl: true }).toString();
+    public importLink: string;
 
     constructor(apps: AppsStoreService, dialogs: DialogService, authService: AuthService,
         private readonly contentsService: ContentsService,
@@ -215,6 +215,7 @@ export class ContentsPageComponent extends AppComponentBase implements OnDestroy
             }, error => {
                 this.notifyError(error);
             });
+        this.importLink = this.router.createUrlTree(['import'], { relativeTo: this.route, replaceUrl: true }).toString();
     }
 
     public updateArchive(isArchive: boolean) {

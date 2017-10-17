@@ -19,6 +19,8 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
 {
     public sealed class MongoAppEntity : MongoEntity, IAppEntity
     {
+        private readonly IReadOnlyDictionary<string, IAppClientEntity> clientWrapper;
+        private readonly IReadOnlyDictionary<string, IAppContributorEntity> contributorWrapper;
         private LanguagesConfig languagesConfig;
 
         [BsonRequired]
@@ -51,15 +53,15 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
 
         [BsonRequired]
         [BsonElement]
-        public List<MongoAppEntityLanguage> Languages { get; set; } = new List<MongoAppEntityLanguage>();
+        public List<MongoAppEntityLanguage> Languages { get; set; }
 
         [BsonRequired]
         [BsonElement]
-        public Dictionary<string, MongoAppEntityClient> Clients { get; set; } = new Dictionary<string, MongoAppEntityClient>();
+        public Dictionary<string, MongoAppEntityClient> Clients { get; set; }
 
         [BsonRequired]
         [BsonElement]
-        public Dictionary<string, MongoAppEntityContributor> Contributors { get; set; } = new Dictionary<string, MongoAppEntityContributor>();
+        public Dictionary<string, MongoAppEntityContributor> Contributors { get; set; }
 
         [BsonRequired]
         [BsonElement]
@@ -75,14 +77,28 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
             get { return languagesConfig ?? (languagesConfig = CreateLanguagesConfig()); }
         }
 
-        IReadOnlyCollection<IAppClientEntity> IAppEntity.Clients
+        IReadOnlyDictionary<string, IAppClientEntity> IAppEntity.Clients
         {
-            get { return Clients.Values; }
+            get { return clientWrapper; }
         }
 
-        IReadOnlyCollection<IAppContributorEntity> IAppEntity.Contributors
+        IReadOnlyDictionary<string, IAppContributorEntity> IAppEntity.Contributors
         {
-            get { return Contributors.Values; }
+            get { return contributorWrapper; }
+        }
+
+        public MongoAppEntity()
+        {
+            clientWrapper = new DictionaryWrapper<string, IAppClientEntity, MongoAppEntityClient>(() => Clients);
+
+            contributorWrapper = new DictionaryWrapper<string, IAppContributorEntity, MongoAppEntityContributor>(() => Contributors);
+        }
+
+        public void ChangePlan(string planId, RefToken planOwner)
+        {
+            PlanId = planId;
+
+            PlanOwner = planOwner.Identifier;
         }
 
         IReadOnlyCollection<IAppPatternEntity> IAppEntity.Patterns => Patterns.Values;
@@ -102,7 +118,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
 
         private LanguagesConfig CreateLanguagesConfig()
         {
-            languagesConfig = LanguagesConfig.Create(Languages.Select(ToLanguageConfig).ToList());
+            languagesConfig = LanguagesConfig.Create(Languages?.Select(ToLanguageConfig).ToList() ?? new List<LanguageConfig>());
 
             if (MasterLanguage != null)
             {
@@ -114,7 +130,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Apps
 
         private static MongoAppEntityLanguage FromLanguageConfig(LanguageConfig l)
         {
-            return new MongoAppEntityLanguage { Iso2Code = l.Language, IsOptional = l.IsOptional, Fallback = l.Fallback.Select(x => x.Iso2Code).ToList() };
+            return new MongoAppEntityLanguage { Iso2Code = l.Language, IsOptional = l.IsOptional, Fallback = l.LanguageFallbacks.Select(x => x.Iso2Code).ToList() };
         }
 
         private static LanguageConfig ToLanguageConfig(MongoAppEntityLanguage l)

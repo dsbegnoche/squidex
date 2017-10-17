@@ -1,25 +1,18 @@
 ﻿// ==========================================================================
-//  AssetsValue.cs
+//  MyUIOptions.cs
 //  Squidex Headless CMS
 // ==========================================================================
 //  Copyright (c) Squidex Group
 //  All rights reserved.
 // ==========================================================================
+// CivicPlus - Functionality moved to Squidex.Domain.Apps.Core\MyUIOptions.cs
 
-using System;
 using System.Collections.Generic;
 
-namespace Squidex.Domain.Apps.Core.Schemas
+namespace Squidex.Config
 {
-    public sealed class AssetsValue
+    public sealed class MyUIOptions
     {
-        private static readonly List<Guid> EmptyAssetIds = new List<Guid>();
-
-        public IReadOnlyList<Guid> AssetIds { get; }
-
-        public AssetsValue(IReadOnlyList<Guid> assetIds)
-        {
-            AssetIds = assetIds ?? EmptyAssetIds;
-        }
+        public Dictionary<string, string> RegexSuggestions { get; set; }
     }
 }

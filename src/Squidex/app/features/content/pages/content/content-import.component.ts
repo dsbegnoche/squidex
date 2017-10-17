@@ -2,7 +2,7 @@
  * CivicPlus implementation of Squidex HCMS
  */
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 
 import {
@@ -17,7 +17,8 @@ import {
     styleUrls: ['./content-import.component.scss'],
     templateUrl: './content-import.component.html'
 })
-export class ContentImportComponent extends AppComponentBase {
+export class ContentImportComponent extends AppComponentBase implements OnInit {
+    public publishOrSubmit: string;
     public file: File | null = null;
 
     public importForm =
@@ -30,6 +31,10 @@ export class ContentImportComponent extends AppComponentBase {
                 authService: AuthService,
                 private readonly formBuilder: FormBuilder) {
         super(dialogs, apps, authService);
+    }
+
+    public ngOnInit() {
+        this.publishOrSubmit = this.isAppAuthor() ? 'Submit' : 'Publish';
     }
 
     public addFile(fileList: FileList) {
