@@ -78,6 +78,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
                     content.SchemaId = @event.SchemaId.Id;
 
                     SimpleMapper.Map(@event, content);
+                    content.Status = Status.Draft;
 
                     var idData = @event.Data?.ToIdModel(schema.SchemaDef, true);
 
