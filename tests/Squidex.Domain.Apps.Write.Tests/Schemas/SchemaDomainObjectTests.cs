@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Squidex.Domain.Apps.Core;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Events.Schemas;
 using Squidex.Domain.Apps.Write.Schemas.Commands;
@@ -131,7 +132,7 @@ namespace Squidex.Domain.Apps.Write.Schemas
                                     Label = "Tags"
                                 },
                                 Name = "tags",
-                                Partitioning = "Language",
+                                Partitioning = Partitioning.Language.Key,
                                 IsDisabled = false,
                                 IsHidden = false,
                             }
