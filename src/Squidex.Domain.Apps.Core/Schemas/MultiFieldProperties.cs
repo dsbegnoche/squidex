@@ -28,10 +28,10 @@ namespace Squidex.Domain.Apps.Core.Schemas
             AllowedValues = properties.allowedValues;
             Label = properties.Label;
             IsRequired = properties.IsRequired;
-            DefaultValues = properties.DefaultValues;
+            DefaultValue = properties.DefaultValue;
         }
 
-        public override JToken GetDefaultValue() => JObject.FromObject(DefaultValues);
+        public override JToken GetDefaultValue() => new JArray();
 
         public override T Accept<T>(IFieldPropertiesVisitor<T> visitor)
         {
@@ -40,7 +40,7 @@ namespace Squidex.Domain.Apps.Core.Schemas
 
         public MultiFieldEditor Editor { get; set; } = MultiFieldEditor.Multi;
 
-        public ImmutableList<string> DefaultValues
+        public ImmutableList<string> DefaultValue
         {
             get
             {

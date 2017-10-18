@@ -69,6 +69,11 @@ namespace Squidex.Controllers.Api.Schemas.Models.Converters
                 result.AllowedValues = properties.AllowedValues.ToArray();
             }
 
+            if (properties.DefaultValue != null)
+            {
+                result.DefaultValue = properties.DefaultValue.ToArray();
+            }
+
             return result;
         }
 

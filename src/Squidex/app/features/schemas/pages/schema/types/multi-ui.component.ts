@@ -31,8 +31,8 @@ export class MultiUIComponent implements OnInit {
         this.editForm.setControl('allowedValues',
             new FormControl(this.properties.allowedValues));
 
-        this.editForm.setControl('defaultValues',
-            new FormControl(this.properties.defaultValues));
+        this.editForm.setControl('defaultValue',
+            new FormControl(this.properties.defaultValue));
 
         this.allowedValuesHolder = this.properties.allowedValues;
     }
