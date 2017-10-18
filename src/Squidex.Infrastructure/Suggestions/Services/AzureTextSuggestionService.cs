@@ -15,21 +15,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
-    public class AzureTextSuggestionService : ISuggestionService
+    public class AzureTextSuggestionService : ITextSuggesionService
     {
         public string ResourceKey { get; set; }
 
         public string Username { get; set; }
-
-        public string Endpoint { get; set; } = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases";
-
-        public double MinimumTagConfidence { get; } = 0.5;
-
-        public double MinimumCaptionConfidence { get; } = 0.5;
-
-        public double MaxFileSize { get; } = Math.Pow(1024, 3) * 1; // 1gb, not used in text service
-
-        private TextAnalyticsAPI Client { get; set; }
 
         public void InitializeService()
         {
@@ -40,35 +30,33 @@ namespace Squidex.Infrastructure.Suggestions.Services
             };
         }
 
-        public async Task<object> Analyze(object content)
+        public string Endpoint { get; set; } =
+            "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/keyPhrases";
+
+        private TextAnalyticsAPI Client { get; set; }
+
+        public int TagsToKeep { get; } = 5;
+
+        public async Task<ServiceResults> Analyze(string content)
         {
-            return await Client.KeyPhrasesAsync(EncodeFile((string)content));
+            var result = await Client.KeyPhrasesAsync(EncodeFile(content));
+
+            var tags =
+                result.Documents.FirstOrDefault()
+                      .KeyPhrases
+                      .Take(TagsToKeep)
+                      .ToList();
+
+            return new ServiceResults(tags, null, null);
         }
 
-        public string[] GetTags(object result)
-        {
-            return ((KeyPhraseBatchResult)result).Documents
-                .FirstOrDefault()
-                .KeyPhrases.ToList()
-                .Take(5)
-                .ToArray();
-        }
-
-        public string GetDescription(object result) => string.Empty;
-
-        public bool IsAdultContent(object result) => false;
-
-        private static MultiLanguageBatchInput EncodeFile(string content)
-        {
-            var data = new MultiLanguageBatchInput
+        private static MultiLanguageBatchInput EncodeFile(string content) =>
+            new MultiLanguageBatchInput
             {
                 Documents = new List<MultiLanguageInput>
                 {
                     new MultiLanguageInput("en", "1", content)
                 }
             };
-
-            return data;
-        }
     }
 }

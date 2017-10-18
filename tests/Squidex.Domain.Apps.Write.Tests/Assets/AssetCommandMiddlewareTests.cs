@@ -26,7 +26,6 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator = A.Fake<IAssetThumbnailGenerator>();
         private readonly IAssetCompressedGenerator assetCompressedGenerator = A.Fake<IAssetCompressedGenerator>();
         private readonly IAssetSuggestions assetSuggestions = A.Fake<IAssetSuggestions>();
-        private readonly ITextSuggestions fileSuggestions = A.Fake<ITextSuggestions>();
         private readonly IAssetStore assetStore = A.Fake<IAssetStore>();
         private readonly AssetCommandMiddleware sut;
         private readonly AssetDomainObject asset;
@@ -48,8 +47,7 @@ namespace Squidex.Domain.Apps.Write.Assets
                 assetStore,
                 assetThumbnailGenerator,
                 assetCompressedGenerator,
-                assetSuggestions,
-                fileSuggestions);
+                assetSuggestions);
         }
 
         [Fact]
@@ -187,13 +185,13 @@ namespace Squidex.Domain.Apps.Write.Assets
             A.CallTo(() => assetThumbnailGenerator.GetImageInfoAsync(stream))
                 .Returns(image);
 
-            A.CallTo(() => assetSuggestions.SuggestTagsAndDescription(file))
+            A.CallTo(() => assetSuggestions.SuggestTagsAndDescription(file, true, A<Stream>.Ignored))
                 .Returns(file);
         }
 
         private void SetupTextInfo()
         {
-            A.CallTo(() => fileSuggestions.SuggestTagsAndDescription(textFile, "txt"))
+            A.CallTo(() => assetSuggestions.SuggestTagsAndDescription(textFile, false, A<Stream>.Ignored))
                 .Returns(textFile);
         }
 

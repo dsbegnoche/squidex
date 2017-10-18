@@ -58,7 +58,7 @@ services:
     restart: "always"
   kraken_review:
     image: "civicplus.azurecr.io/kraken:latest"
-    mem_limit: 6144m
+    mem_limit: 4000m
     ports:
       - "5001:80"
     environment:
@@ -101,7 +101,7 @@ services:
     restart: "always"
   kraken_hcms:
     image: "civicplus.azurecr.io/kraken:latest"
-    mem_limit: 6144m
+    mem_limit: 4000m
     ports:
       - "5002:80"
     environment:
@@ -144,7 +144,6 @@ services:
     restart: "always"
   squidex_squidex:
     image: "squidex/squidex:dev"
-    mem_limit: 6144m
     ports:
       - "5003:80"
     environment:

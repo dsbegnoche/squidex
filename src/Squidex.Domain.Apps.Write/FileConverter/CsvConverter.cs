@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using DataAccess;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using Squidex.Domain.Apps.Core.Schemas;
 using Squidex.Domain.Apps.Read.Schemas;
 
@@ -93,11 +94,12 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                         row[col] = row[col].Trim('"');
                         switch (field)
                         {
-                        case TagsField _:
-                                var tags = !string.IsNullOrWhiteSpace(row[col].Trim())
+                            case TagsField _:
+                            case MultiField _:
+                                var csvString = !string.IsNullOrWhiteSpace(row[col].Trim())
                                     ? row[col].Trim().Split(',').ToList().Distinct().ToArray()
                                     : null;
-                                languageDictionary.Add(languageCode, tags);
+                                languageDictionary.Add(languageCode, csvString);
                                 break;
 
                             case IReferenceField _ when Guid.TryParse(row[col], out var reference):
@@ -119,7 +121,7 @@ namespace Squidex.Domain.Apps.Write.FileConverter
 
                 var json = !elementsDictionary.Any()
                     ? null
-                    : Newtonsoft.Json.JsonConvert.SerializeObject(elementsDictionary);
+                    : Serialize(elementsDictionary);
 
                 return json;
             }
@@ -128,5 +130,12 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 return null;
             }
         }
+
+        public string Serialize(List<Dictionary<string, Dictionary<string, object>>> all) =>
+            JsonConvert.SerializeObject(all, Formatting.None, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.None,
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+            });
     }
 }

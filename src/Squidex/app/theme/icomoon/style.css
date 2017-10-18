@@ -306,3 +306,6 @@
 .icon-control-Multi:before {
     content: "\e90d";
 }
+.icon-type-Tags:before {
+    content: "\e910";
+}

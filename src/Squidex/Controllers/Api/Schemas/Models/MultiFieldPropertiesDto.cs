@@ -35,7 +35,7 @@ namespace Squidex.Controllers.Api.Schemas.Models
 
             if (DefaultValue != null)
             {
-                result.DefaultValues = ImmutableList.Create(DefaultValue);
+                result.DefaultValue = ImmutableList.Create(DefaultValue);
             }
 
             return result;

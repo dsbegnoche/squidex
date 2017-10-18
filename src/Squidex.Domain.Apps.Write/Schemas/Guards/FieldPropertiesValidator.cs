@@ -208,9 +208,9 @@ namespace Squidex.Domain.Apps.Write.Schemas.Guards
             Func<ImmutableList<string>, bool> isValid =
                 (validate) => validate != null && validate.Count > 0;
 
-            if (isValid(properties.AllowedValues) && isValid(properties.DefaultValues))
+            if (isValid(properties.AllowedValues) && isValid(properties.DefaultValue))
             {
-                if (properties.DefaultValues.Any(val =>
+                if (properties.DefaultValue.Any(val =>
                     !properties.AllowedValues.Contains(val)))
                 {
                     yield return new ValidationError("Default values could not be found in allowed values");

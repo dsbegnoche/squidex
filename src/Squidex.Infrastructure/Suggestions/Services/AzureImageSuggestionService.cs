@@ -14,11 +14,15 @@ using Squidex.Infrastructure.Assets;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
-    public class AzureImageSuggestionService : ISuggestionService
+    public class AzureImageSuggestionService : IImageSuggestionService
     {
         public string ResourceKey { get; set; }
 
         public string Username { get; set; }
+
+        public void InitializeService()
+        {
+        }
 
         public string Endpoint { get; set; } =
             "https://westus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Tags,Description,Adult";
@@ -29,35 +33,58 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public double MaxFileSize { get; } = Math.Pow(1024, 2) * 4; // 4mb
 
-        public void InitializeService() => throw new NotImplementedException();
-
-        public async Task<object> Analyze(object content)
+        public async Task<ServiceResults> Analyze(Stream fileStream)
         {
-            var file = (AssetFile)content;
+            if (fileStream.Length > MaxFileSize)
+            {
+                return new ServiceResults(null, null, null);
+            }
+
             var client = new HttpClient();
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", ResourceKey);
 
-            var response = await client.PostAsync(Endpoint, await EncodeFile(file));
+            var response = await client.PostAsync(Endpoint, await EncodeFile(fileStream));
 
             if (response.Headers.Contains("Retry-After"))
             {
                 // ref: https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-manager-request-limits#waiting-before-sending-next-request
                 var value = response.Headers.GetValues("Retry-After").First();
                 System.Threading.Thread.Sleep(Convert.ToInt32(value));
-                return await Analyze(file);
+                return await Analyze(fileStream);
             }
 
-            return await response.Content.ReadAsStringAsync();
+            return ParseResult(await response.Content.ReadAsStringAsync());
         }
 
-        private static async Task<MultipartFormDataContent> EncodeFile(AssetFile file)
+        private ServiceResults ParseResult(string result)
+        {
+            var tags = JObject.Parse(result)["tags"].ToObject<List<TagResult>>();
+            var descriptions = JObject.Parse(result)["description"]["captions"].ToObject<List<DescriptionResult>>();
+            var isAdultContent = JObject.Parse(result)["adult"]["isAdultContent"].ToObject<bool>();
+
+            return new ServiceResults(FilterTags(tags), FilterCaptions(descriptions), isAdultContent);
+        }
+
+        private List<string> FilterTags(List<TagResult> tags) =>
+                tags.Where(item => item.Confidence > MinimumTagConfidence)
+                    .OrderByDescending(item => item.Confidence)
+                    .Select(item => item.Name)
+                    .ToList();
+
+        private string FilterCaptions(List<DescriptionResult> tags) =>
+                tags.Where(item => item.Confidence > MinimumCaptionConfidence)
+                    .OrderByDescending(item => item.Confidence)
+                    .Select(item => item.Text)
+                    .FirstOrDefault();
+
+        private static async Task<MultipartFormDataContent> EncodeFile(Stream fileStream)
         {
             var content = new MultipartFormDataContent();
 
             using (var ms = new MemoryStream())
             {
-                await file.OpenRead().CopyToAsync(ms);
+                await fileStream.CopyToAsync(ms);
                 var byteContent = new ByteArrayContent(ms.ToArray());
                 content.Add(byteContent, "File", "filename");
             }
@@ -65,27 +92,16 @@ namespace Squidex.Infrastructure.Suggestions.Services
             return content;
         }
 
-        public string[] GetTags(object result)
+        private sealed class TagResult
         {
-            return JObject.Parse((string)result)["tags"]
-                .ToObject<List<ImageAssetSuggestions.TagResult>>()
-                .Where(tag => tag.Confidence > MinimumTagConfidence)
-                .Select(tag => tag.Name)
-                .ToArray();
+            public string Name { get; set; }
+            public double Confidence { get; set; }
         }
 
-        public string GetDescription(object result)
+        private sealed class DescriptionResult
         {
-            return JObject.Parse((string)result)["description"]["captions"]
-                .ToObject<List<ImageAssetSuggestions.CaptionResult>>()
-                .OrderByDescending(tag => tag.Confidence)
-                .FirstOrDefault(tag => tag.Confidence > MinimumCaptionConfidence)
-                ?.Text ?? string.Empty;
-        }
-
-        public bool IsAdultContent(object result)
-        {
-            return JObject.Parse((string)result)["adult"]["isAdultContent"].ToObject<bool>();
+            public string Text { get; set; }
+            public double Confidence { get; set; }
         }
     }
 }

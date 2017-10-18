@@ -15,8 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using NodaTime;
-using Squidex.Domain.Apps.Core.Schemas;
-using Squidex.Domain.Apps.Core.Schemas.Json;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.Actors;
 using Squidex.Infrastructure.Assets;
@@ -82,12 +80,7 @@ namespace Squidex.Config.Domain
             if (string.Equals(imageSuggestionServiceType, "Azure", StringComparison.OrdinalIgnoreCase))
             {
                 builder.RegisterType<AzureImageSuggestionService>()
-                    .As<ISuggestionService>()
-                    .AsSelf()
-                    .SingleInstance();
-
-                builder.Register(c => new ImageAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<AzureImageSuggestionService>()))
-                    .As<IAssetSuggestions>()
+                    .As<IImageSuggestionService>()
                     .AsSelf()
                     .SingleInstance();
             }
@@ -98,25 +91,15 @@ namespace Squidex.Config.Domain
 
             if (string.Equals(textSuggestionServiceType, "Watson", StringComparison.OrdinalIgnoreCase))
             {
-                builder.RegisterType<WatsonTextSuggestionService>()
-                    .As<ISuggestionService>()
-                    .AsSelf()
-                    .SingleInstance();
-
-                builder.Register(c => new FileAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<WatsonTextSuggestionService>()))
-                    .As<ITextSuggestions>()
+                builder.Register(c => new WatsonTextSuggestionService())
+                    .As<ITextSuggesionService>()
                     .AsSelf()
                     .SingleInstance();
             }
             else if (string.Equals(textSuggestionServiceType, "Azure", StringComparison.OrdinalIgnoreCase))
             {
                 builder.RegisterType<AzureTextSuggestionService>()
-                    .As<ISuggestionService>()
-                    .AsSelf()
-                    .SingleInstance();
-
-                builder.Register(c => new FileAssetSuggestions(c.Resolve<IOptions<AuthenticationKeys>>(), c.Resolve<AzureTextSuggestionService>()))
-                    .As<ITextSuggestions>()
+                    .As<ITextSuggesionService>()
                     .AsSelf()
                     .SingleInstance();
             }
@@ -124,6 +107,15 @@ namespace Squidex.Config.Domain
             {
                 throw new ConfigurationException($"Unsupported value '{imageSuggestionServiceType}' for 'suggestionServices:images', supported: Azure.");
             }
+
+            builder.Register(c =>
+                new AssetSuggestions(
+                    c.Resolve<IOptions<AuthenticationKeys>>(),
+                    c.Resolve<IImageSuggestionService>(),
+                    c.Resolve<ITextSuggesionService>()))
+                .As<IAssetSuggestions>()
+                .AsSelf()
+                .SingleInstance();
 
             builder.Register(c => new ApplicationInfoLogAppender(GetType(), Guid.NewGuid()))
                 .As<ILogAppender>()

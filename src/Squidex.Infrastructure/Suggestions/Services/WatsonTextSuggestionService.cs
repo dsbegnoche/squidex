@@ -4,6 +4,7 @@
 // ==========================================================================
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1;
@@ -11,7 +12,7 @@ using IBM.WatsonDeveloperCloud.NaturalLanguageUnderstanding.v1.Model;
 
 namespace Squidex.Infrastructure.Suggestions.Services
 {
-    public class WatsonTextSuggestionService : ISuggestionService
+    public class WatsonTextSuggestionService : ITextSuggesionService
     {
         public string ResourceKey { get; set; }
 
@@ -23,10 +24,6 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         public double MinimumCaptionConfidence { get; } = 0.5;
 
-        public double MaxFileSize { get; } = Math.Pow(1024, 3); // 1gb, not used in text service
-
-        public NaturalLanguageUnderstandingService Service { get; set; }
-
         public void InitializeService()
         {
             Service = new NaturalLanguageUnderstandingService();
@@ -34,11 +31,13 @@ namespace Squidex.Infrastructure.Suggestions.Services
             Service.VersionDate = NaturalLanguageUnderstandingService.NATURAL_LANGUAGE_UNDERSTANDING_VERSION_DATE_2017_02_27;
         }
 
-        public async Task<object> Analyze(object content)
+        public NaturalLanguageUnderstandingService Service { get; set; }
+
+        public async Task<ServiceResults> Analyze(string content)
         {
             var parameters = new Parameters()
             {
-                Text = (string)content,
+                Text = content,
                 Features = new Features()
                 {
                     Keywords = new KeywordsOptions
@@ -52,24 +51,21 @@ namespace Squidex.Infrastructure.Suggestions.Services
                 }
             };
 
-            return Service.Analyze(parameters);
+            var results = Service.Analyze(parameters);
+
+            return new ServiceResults(GetTags(results.Keywords), GetDescription(results.Concepts), null);
         }
 
-        public string[] GetTags(object result)
-        {
-            return ((AnalysisResults)result)?.Keywords?
-                .Where(tag => tag.Relevance >= MinimumTagConfidence)
-                .Select(tag => tag.Text)
-                .ToArray();
-        }
+        private string GetDescription(List<ConceptsResult> results) =>
+            results.Where(c => c.Relevance > MinimumCaptionConfidence)
+                   .OrderBy(c => c.Relevance)
+                   .Select(c => c.Text)
+                   .FirstOrDefault();
 
-        public string GetDescription(object result)
-        {
-            return ((AnalysisResults)result)?.Concepts?
-                .FirstOrDefault(tag => tag.Relevance > MinimumCaptionConfidence)?
-                .Text;
-        }
-
-        public bool IsAdultContent(object result) => false;
+        private List<string> GetTags(List<KeywordsResult> results) =>
+            results.Where(k => k.Relevance > MinimumTagConfidence)
+                   .OrderBy(k => k.Relevance)
+                   .Select(k => k.Text)
+                   .ToList();
     }
 }
