@@ -95,17 +95,11 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                         switch (field)
                         {
                             case TagsField _:
-                                var tags = !string.IsNullOrWhiteSpace(row[col].Trim())
-                                    ? row[col].Trim().Split(',').ToList().Distinct().ToArray()
-                                    : null;
-                                languageDictionary.Add(languageCode, tags);
-                                break;
-
                             case MultiField _:
-                                var multiValues = !string.IsNullOrWhiteSpace(row[col].Trim())
+                                var csvString = !string.IsNullOrWhiteSpace(row[col].Trim())
                                     ? row[col].Trim().Split(',').ToList().Distinct().ToArray()
                                     : null;
-                                languageDictionary.Add(languageCode, multiValues);
+                                languageDictionary.Add(languageCode, csvString);
                                 break;
 
                             case IReferenceField _ when Guid.TryParse(row[col], out var reference):
