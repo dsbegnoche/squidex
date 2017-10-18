@@ -9,30 +9,11 @@
 using System;
 using Autofac;
 using Autofac.Core;
-using IdentityServer4.Stores;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using MongoDB.Driver;
 using Nest;
-using Squidex.Domain.Apps.Read.Apps.Repositories;
-using Squidex.Domain.Apps.Read.Assets.Repositories;
-using Squidex.Domain.Apps.Read.Contents.Repositories;
-using Squidex.Domain.Apps.Read.History.Repositories;
-using Squidex.Domain.Apps.Read.MongoDb.Apps;
-using Squidex.Domain.Apps.Read.MongoDb.Assets;
-using Squidex.Domain.Apps.Read.MongoDb.Contents;
-using Squidex.Domain.Apps.Read.MongoDb.History;
-using Squidex.Domain.Apps.Read.MongoDb.Schemas;
-using Squidex.Domain.Apps.Read.MongoDb.Webhooks;
-using Squidex.Domain.Apps.Read.Schemas.Repositories;
-using Squidex.Domain.Apps.Read.Webhooks.Repositories;
-using Squidex.Domain.Users;
-using Squidex.Domain.Users.MongoDb;
-using Squidex.Domain.Users.MongoDb.Infrastructure;
+using Squidex.Domain.Apps.Read.Elastic;
 using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
-using Squidex.Infrastructure.UsageTracking;
-using Squidex.Shared.Users;
 
 namespace Squidex.Config.Domain
 {
@@ -63,7 +44,7 @@ namespace Squidex.Config.Domain
                     .Named<IElasticClient>(ElasticInstanceName)
                     .SingleInstance();
 
-                builder.RegisterType<ElasticContentRepository>()
+                builder.RegisterType<ElasticRepository>()
                     .WithParameters(new Parameter[] { new TypedParameter(typeof(string), prefix), ResolvedParameter.ForNamed<IElasticClient>(ElasticInstanceName) })
                     .As<IEventConsumer>()
                     .AsSelf()
