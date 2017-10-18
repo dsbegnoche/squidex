@@ -3,6 +3,9 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Squidex.Infrastructure.Suggestions.Services
@@ -13,22 +16,20 @@ namespace Squidex.Infrastructure.Suggestions.Services
 
         string Username { get; set; }
 
-        string Endpoint { get; set; }
-
-        double MinimumTagConfidence { get; }
-
-        double MinimumCaptionConfidence { get; }
-
-        double MaxFileSize { get; }
-
+        // needed so can have values of resource and username
         void InitializeService();
 
-        Task<object> Analyze(object content);
+        string Endpoint { get; set; }
+    }
 
-        string[] GetTags(object result);
+    public interface ITextSuggesionService : ISuggestionService
+    {
+        Task<ServiceResults> Analyze(string content);
+    }
 
-        string GetDescription(object result);
-
-        bool IsAdultContent(object result);
+    public interface IImageSuggestionService : ISuggestionService
+    {
+        double MaxFileSize { get; }
+        Task<ServiceResults> Analyze(Stream content);
     }
 }

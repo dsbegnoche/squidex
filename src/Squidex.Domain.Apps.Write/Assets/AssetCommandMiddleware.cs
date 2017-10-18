@@ -25,8 +25,7 @@ namespace Squidex.Domain.Apps.Write.Assets
         private readonly IAggregateHandler handler;
         private readonly IAssetStore assetStore;
         private readonly IAssetThumbnailGenerator assetThumbnailGenerator;
-        private readonly IAssetSuggestions imageSuggestions;
-        private readonly ITextSuggestions fileSuggestions;
+        private readonly IAssetSuggestions fileSuggestions;
         private readonly IAssetCompressedGenerator assetCompressedGenerator;
 
         public AssetCommandMiddleware(
@@ -34,8 +33,7 @@ namespace Squidex.Domain.Apps.Write.Assets
             IAssetStore assetStore,
             IAssetThumbnailGenerator assetThumbnailGenerator,
             IAssetCompressedGenerator assetCompressedGenerator,
-            IAssetSuggestions imageSuggestions,
-            ITextSuggestions fileSuggestions)
+            IAssetSuggestions fileSuggestions)
         {
             Guard.NotNull(handler, nameof(handler));
             Guard.NotNull(assetStore, nameof(assetStore));
@@ -46,7 +44,6 @@ namespace Squidex.Domain.Apps.Write.Assets
             this.assetStore = assetStore;
             this.assetThumbnailGenerator = assetThumbnailGenerator;
             this.assetCompressedGenerator = assetCompressedGenerator;
-            this.imageSuggestions = imageSuggestions;
             this.fileSuggestions = fileSuggestions;
         }
 
@@ -113,14 +110,7 @@ namespace Squidex.Domain.Apps.Write.Assets
 
             try
             {
-                if (command.ImageInfo != null)
-                {
-                    command.File = await imageSuggestions.SuggestTagsAndDescription(command.File);
-                }
-                else if (command.File.FileExtension == "txt")
-                {
-                    command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, command.File.FileExtension);
-                }
+                command.File = await fileSuggestions.SuggestTagsAndDescription(command.File, command.ImageInfo != null, compressedStream);
 
                 var asset = await handler.CreateAsync<AssetDomainObject>(context, async a =>
                 {
