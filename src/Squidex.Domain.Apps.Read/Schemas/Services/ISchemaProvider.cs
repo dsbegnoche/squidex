@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Squidex.Infrastructure;
 
 namespace Squidex.Domain.Apps.Read.Schemas.Services
 {
@@ -20,7 +19,5 @@ namespace Squidex.Domain.Apps.Read.Schemas.Services
         Task<ISchemaEntity> FindSchemaByIdAsync(Guid id, bool provideDeleted = false);
 
         Task<ISchemaEntity> FindSchemaByNameAsync(Guid appId, string name);
-
-        void Invalidate(NamedId<Guid> appId, NamedId<Guid> schemaId);
     }
 }
