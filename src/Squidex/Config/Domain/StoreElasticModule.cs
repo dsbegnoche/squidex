@@ -43,7 +43,10 @@ namespace Squidex.Config.Domain
                 }
 
                 ConnectionSettings settings = new ConnectionSettings(new Uri(elasticEndpoint));
-                settings.BasicAuthentication(username, password);
+                if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+                {
+                    settings.BasicAuthentication(username, password);
+                }
 
                 builder.Register(c => Singletons<IElasticClient>.GetOrAdd("elastic", s => new ElasticClient(settings)))
                     .Named<IElasticClient>(ElasticInstanceName)
