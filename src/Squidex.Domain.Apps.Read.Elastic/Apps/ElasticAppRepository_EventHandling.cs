@@ -5,6 +5,7 @@ using Nest;
 using Squidex.Domain.Apps.Events.Apps;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
+using Squidex.Infrastructure.Tasks;
 
 namespace Squidex.Domain.Apps.Read.Elastic.Apps
 {
@@ -15,7 +16,7 @@ namespace Squidex.Domain.Apps.Read.Elastic.Apps
 
         public ElasticAppRepository_EventHandling(string prefix, IElasticClient elasticClient)
         {
-            this.prefix = prefix;
+            this.prefix = prefix.ToLower();
             this.elasticClient = elasticClient;
         }
 
