@@ -16,6 +16,7 @@ using Squidex.Infrastructure.Reflection;
 using Squidex.Domain.Apps.Read.Schemas;
 using Squidex.Domain.Apps.Read.Schemas.Services;
 using Status = Squidex.Domain.Apps.Core.Contents.Status;
+using Squidex.Domain.Apps.Read.Contents;
 
 namespace Squidex.Domain.Apps.Read.Elastic
 {
@@ -29,7 +30,7 @@ namespace Squidex.Domain.Apps.Read.Elastic
         {
             this.prefix = prefix.ToLower();
             this.elasticClient = elasticClient;
-            this.scheams = schemas;
+            this.schemas = schemas;
         }
 
         public string Name
@@ -60,7 +61,7 @@ namespace Squidex.Domain.Apps.Read.Elastic
         {
             return elasticClient.CreateIndexAsync(new IndexName()
             {
-                Name = this.prefix + @event.AppId.Id
+                Name = $"{this.prefix}{@event.AppId.Id}"
             });
         }
 
@@ -68,7 +69,7 @@ namespace Squidex.Domain.Apps.Read.Elastic
         {
             return ForSchemaAsync(@event.AppId.Id, @event.SchemaId.Id, (schema) =>
             {
-                return elasticClient.CreateAsync<ElasticContentEntity>(@event, headers, content =>
+                return elasticClient.CreateAsync<ElasticContentEntity>($"{this.prefix}{@event.AppId.Id}", @event, headers, content =>
                 {
                     content.SchemaId = @event.SchemaId.Id;
 
@@ -78,9 +79,32 @@ namespace Squidex.Domain.Apps.Read.Elastic
                     var idData = @event.Data?.ToIdModel(schema.SchemaDef, true);
 
                     content.DataText = idData?.ToFullText();
-                    content.Data = idData;
+                    content.Data = idData.ToData(schema.SchemaDef, content.ReferencedIdsDeleted);
                     content.ReferencedIds = idData?.ToReferencedIds(schema.SchemaDef);
                 });
+            });
+        }
+
+        protected Task On(ContentUpdated @event, EnvelopeHeaders headers)
+        {
+            return ForSchemaAsync(@event.AppId.Id, @event.SchemaId.Id, (schema) =>
+            {
+                return elasticClient.UpdateAsync<ElasticContentEntity>($"{this.prefix}{@event.AppId.Id}", @event, headers,
+                    content =>
+                    {
+                        content.SchemaId = @event.SchemaId.Id;
+
+                        SimpleMapper.Map(@event, content);
+
+                        var idData = @event.Data.ToIdModel(schema.SchemaDef, true);
+
+                        content.DataText = idData?.ToFullText();
+                        content.Data = idData.ToData(schema.SchemaDef, content.ReferencedIdsDeleted);
+                        content.ReferencedIds = idData?.ToReferencedIds(schema.SchemaDef);
+                        content.LastModified = headers.Timestamp();
+                        content.LastModifiedBy = @event.Actor;
+                        content.Version = headers.EventStreamNumber();
+                    });
             });
         }
 

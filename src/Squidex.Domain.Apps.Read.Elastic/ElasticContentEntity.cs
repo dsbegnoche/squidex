@@ -2,7 +2,7 @@
 //  ElasticContentEntity.cs
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
-// 
+
 using System;
 using System.Collections.Generic;
 using Squidex.Domain.Apps.Read.Contents;

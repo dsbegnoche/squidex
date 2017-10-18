@@ -7,7 +7,7 @@ using Squidex.Domain.Apps.Events;
 using Squidex.Domain.Apps.Read.Elastic;
 using Squidex.Infrastructure.CQRS.Events;
 
-namespace Squidex.Domain.Apps.Read.MongoDb.Utils
+namespace Squidex.Domain.Apps.Read.Elastic.Utils
 {
     public static class EntityMapper
     {
