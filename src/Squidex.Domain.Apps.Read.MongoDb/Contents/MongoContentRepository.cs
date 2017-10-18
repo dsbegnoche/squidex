@@ -139,7 +139,7 @@ namespace Squidex.Domain.Apps.Read.MongoDb.Contents
             {
                 var schema = schemaEntities.FirstOrDefault(x => x.Id == entity.SchemaId);
 
-                entity.ParseData(schema.SchemaDef);
+                entity.ParseData(schema.SchemaDef, serializer);
             });
 
             return entities;

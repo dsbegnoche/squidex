@@ -82,9 +82,10 @@ namespace Squidex.Domain.Apps.Read.Schemas.Services.Implementations
             {
                 result = await repository.FindSchemaAsync(appId, name);
 
+                Cache.Set(cacheKey, result, CacheDuration);
+
                 if (result != null)
                 {
-                    Cache.Set(cacheKey, result, CacheDuration);
                     Cache.Set(BuildIdCacheKey(result.Id), result, CacheDuration);
                 }
             }
