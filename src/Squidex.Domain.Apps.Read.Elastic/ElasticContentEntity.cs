@@ -36,6 +36,7 @@ namespace Squidex.Domain.Apps.Read.Elastic
 
         [JsonRequired]
         [JsonProperty("cb")]
+        [JsonConverter(typeof(RefTokenConverter))]
         public RefToken CreatedBy { get; set; }
     }
 }

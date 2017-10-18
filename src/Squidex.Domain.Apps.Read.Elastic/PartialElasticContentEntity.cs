@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Nest;
 using Squidex.Domain.Apps.Core.Contents;
 using Newtonsoft.Json;
 using NodaTime;
@@ -30,6 +31,7 @@ namespace Squidex.Domain.Apps.Read.Elastic
 
         [JsonRequired]
         [JsonProperty("mb")]
+        [JsonConverter(typeof(RefTokenConverter))]
         public RefToken LastModifiedBy { get; set; }
 
         [JsonRequired]

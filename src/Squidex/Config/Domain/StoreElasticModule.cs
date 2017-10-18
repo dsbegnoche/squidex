@@ -37,6 +37,11 @@ namespace Squidex.Config.Domain
 
             if (Configuration.GetValue<bool>("elastic:enabled"))
             {
+                if (!prefix.EndsWith("_", StringComparison.InvariantCulture))
+                {
+                    throw new ArgumentNullException(nameof(prefix), "elastic:indexPrefix must end with a underscore (_).");
+                }
+
                 ConnectionSettings settings = new ConnectionSettings(new Uri(elasticEndpoint));
                 settings.BasicAuthentication(username, password);
 

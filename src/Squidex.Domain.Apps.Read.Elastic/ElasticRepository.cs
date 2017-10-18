@@ -59,18 +59,14 @@ namespace Squidex.Domain.Apps.Read.Elastic
 
         protected Task On(AppCreated @event, EnvelopeHeaders headers)
         {
-            return elasticClient.CreateIndexAsync(new IndexName
-            {
-                Name = GetIndexName(@event.AppId.Id)
-            });
+            var descriptor = new CreateIndexDescriptor(GetIndexName(@event.AppId.Id));
+
+            return elasticClient.CreateIndexAsync(descriptor);
         }
 
         protected Task On(AppDeleted @event, EnvelopeHeaders headers)
         {
-            return elasticClient.DeleteIndexAsync(new IndexName
-            {
-                Name = GetIndexName(@event.AppId.Id)
-            });
+            return elasticClient.DeleteIndexAsync(GetIndexName(@event.AppId.Id));
         }
 
         protected Task On(ContentCreated @event, EnvelopeHeaders headers)
