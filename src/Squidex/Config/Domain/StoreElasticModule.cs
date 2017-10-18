@@ -33,7 +33,6 @@ using Squidex.Infrastructure;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.UsageTracking;
 using Squidex.Shared.Users;
-using Squidex.Domain.Apps.Read.Elastic.Apps;
 
 namespace Squidex.Config.Domain
 {
@@ -64,7 +63,7 @@ namespace Squidex.Config.Domain
                     .Named<IElasticClient>(ElasticInstanceName)
                     .SingleInstance();
 
-                builder.RegisterType<ElasticAppRepository_EventHandling>()
+                builder.RegisterType<ElasticContentRepository>()
                     .WithParameters(new Parameter[] { new TypedParameter(typeof(string), prefix), ResolvedParameter.ForNamed<IElasticClient>(ElasticInstanceName) })
                     .As<IEventConsumer>()
                     .AsSelf()

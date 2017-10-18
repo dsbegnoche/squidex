@@ -7,14 +7,14 @@ using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Tasks;
 
-namespace Squidex.Domain.Apps.Read.Elastic.Apps
+namespace Squidex.Domain.Apps.Read.Elastic
 {
-    public class ElasticAppRepository_EventHandling : IEventConsumer
+    public class ElasticRepository : IEventConsumer
     {
         private readonly string prefix;
         private readonly IElasticClient elasticClient;
 
-        public ElasticAppRepository_EventHandling(string prefix, IElasticClient elasticClient)
+        public ElasticRepository(string prefix, IElasticClient elasticClient)
         {
             this.prefix = prefix.ToLower();
             this.elasticClient = elasticClient;
@@ -27,7 +27,7 @@ namespace Squidex.Domain.Apps.Read.Elastic.Apps
 
         public string EventsFilter
         {
-            get { return "^app-"; }
+            get { return "^(content-)|(app-)|(asset-)"; }
         }
 
         public Task On(Envelope<IEvent> @event)
@@ -37,8 +37,11 @@ namespace Squidex.Domain.Apps.Read.Elastic.Apps
 
         public Task ClearAsync()
         {
-            // Delete Index
-            throw new NotImplementedException();
+            Indices.ManyIndices deleteIndices = Indices.Index($"{prefix}*");
+
+            var response = elasticClient.DeleteIndex(new DeleteIndexRequest(deleteIndices));
+
+            return TaskHelper.Done;
         }
 
         protected Task On(AppCreated @event, EnvelopeHeaders headers)
