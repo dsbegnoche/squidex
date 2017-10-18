@@ -107,7 +107,6 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                                 languageDictionary.Add(languageCode, multiValues);
                                 break;
 
-
                             case IReferenceField _ when Guid.TryParse(row[col], out var reference):
                                 var referenceGuid = new Guid[] { reference };
                                 languageDictionary.Add(languageCode, referenceGuid);
