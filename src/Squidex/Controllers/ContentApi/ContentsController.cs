@@ -407,7 +407,7 @@ namespace Squidex.Controllers.ContentApi
         {
             if (!TryCsvToJson(name, file, out string result))
             {
-                return BadRequest(new { Error = result });
+                return BadRequest(result);
             }
 
             var status = !publish

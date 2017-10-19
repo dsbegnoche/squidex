@@ -73,9 +73,12 @@ namespace Squidex.Domain.Apps.Write.FileConverter
                 csv.Remove(headerRow);
 
                 // Check the header row to ensure the field names align
-                if (schemaFields.Any(f => !headerRow.Contains(f.Key)))
+                foreach (var header in headerRow)
                 {
-                    return null;
+                    if (!schemaFields.Any(field => field.Key == header))
+                    {
+                        return null;
+                    }
                 }
 
                 // Get the json of each row

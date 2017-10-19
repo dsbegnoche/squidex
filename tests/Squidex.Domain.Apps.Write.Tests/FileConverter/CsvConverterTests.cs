@@ -3,13 +3,7 @@
 //  CivicPlus implementation of Squidex Headless CMS
 // ==========================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
-using DataAccess;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Squidex.Domain.Apps.Core;
@@ -23,7 +17,7 @@ using Xunit;
 
 namespace Squidex.Domain.Apps.Write.FileConverter
 {
-    public class CsvConverterTests : HandlerTestBase<AppDomainObject>
+    public class CsvConverterTests
     {
         private const string AssetGuid = "22661bbb-ea42-40f2-8c7f-85fd94154b3f";
         private const string MasterLanguage = "en";

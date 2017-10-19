@@ -263,10 +263,12 @@ export class AssetsService {
                     return null;
                 }
             })
-            .do(() => {
-                this.analytics.trackEvent('Asset', 'Uploaded', appName);
+            .catch(error => {
+                return Observable.throw(error.error);
             })
-            .pretifyError('Failed to upload asset. Please reload.');
+            .do(() => {
+                this.analytics.trackEvent('Import', 'Uploaded', appName);
+            });
     }
 
     public getAsset(appName: string, id: string): Observable<AssetDto> {
