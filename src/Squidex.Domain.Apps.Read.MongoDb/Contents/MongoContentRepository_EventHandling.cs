@@ -19,6 +19,7 @@ using Squidex.Domain.Apps.Read.MongoDb.Utils;
 using Squidex.Infrastructure.CQRS.Events;
 using Squidex.Infrastructure.Dispatching;
 using Squidex.Infrastructure.Reflection;
+using Squidex.Domain.Apps.Read.Contents;
 
 namespace Squidex.Domain.Apps.Read.MongoDb.Contents
 {

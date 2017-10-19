@@ -39,6 +39,8 @@ namespace Squidex.Config.Domain
             {
                 throw new ConfigurationException($"Unsupported value '{storeType}' for 'stores:type', supported: MongoDb.");
             }
+
+            builder.RegisterModule(new StoreElasticModule(Configuration));
         }
     }
 }
