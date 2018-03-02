@@ -5,11 +5,11 @@
 //  All rights reserved. Licensed under the MIT license.
 // ==========================================================================
 
-using Squidex.Infrastructure;
+using Squidex.Infrastructure.EventSourcing;
 
 namespace Squidex.Domain.Apps.Events.Assets
 {
-    [TypeName("AssetUpdated")]
+    [EventType(nameof(AssetUpdated))]
     public sealed class AssetUpdated : AssetEvent
     {
         public string MimeType { get; set; }

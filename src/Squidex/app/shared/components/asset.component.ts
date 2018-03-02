@@ -6,7 +6,6 @@
  */
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
 
 import { AppContext } from './app-context';
 
@@ -16,8 +15,6 @@ import {
     AssetDragged,
     DateTime,
     fadeAnimation,
-    ModalView,
-    UpdateAssetDto,
     Version,
     Versioned,
     MessageBus
@@ -64,20 +61,9 @@ export class AssetComponent implements OnInit {
     @Output()
     public failed = new EventEmitter();
 
-    public renameDialog = new ModalView();
-    public renameFormSubmitted = false;
-    public renameForm =
-        this.formBuilder.group({
-            name: ['',
-                [
-                    Validators.required
-                ]]
-        });
-
     public progress = 0;
 
     constructor(public readonly ctx: AppContext,
-        private readonly formBuilder: FormBuilder,
         private readonly assetsService: AssetsService,
         private readonly messageBus: MessageBus
     ) {
@@ -121,30 +107,6 @@ export class AssetComponent implements OnInit {
         }
     }
 
-    public renameAsset() {
-        this.renameFormSubmitted = true;
-
-        if (this.renameForm.valid) {
-            this.renameForm.disable();
-
-            const requestDto = new UpdateAssetDto(this.renameForm.controls['name'].value);
-
-            this.assetsService.putAsset(this.ctx.appName, this.asset.id, requestDto, this.assetVersion)
-                .subscribe(dto => {
-                    this.updateAsset(this.asset.rename(requestDto.fileName, this.ctx.userToken, dto.version), true);
-                    this.resetRenameForm();
-                }, error => {
-                    this.ctx.notifyError(error);
-
-                    this.enableRenameForm();
-                });
-        }
-    }
-
-    public cancelRenameAsset() {
-        this.resetRenameForm();
-    }
-
     private setProgress(progress = 0) {
         this.progress = progress;
     }
@@ -161,17 +123,6 @@ export class AssetComponent implements OnInit {
         this.updated.emit(asset);
     }
 
-    private enableRenameForm() {
-        this.renameForm.enable();
-    }
-
-    private resetRenameForm() {
-        this.renameForm.enable();
-        this.renameForm.controls['name'].setValue(this.asset.fileName);
-        this.renameFormSubmitted = false;
-        this.renameDialog.hide();
-    }
-
     private updateAsset(asset: AssetDto, emitEvent: boolean) {
         this.asset = asset;
         this.assetVersion = asset.version;
@@ -180,8 +131,6 @@ export class AssetComponent implements OnInit {
         if (emitEvent) {
             this.emitUpdated(asset);
         }
-
-        this.resetRenameForm();
     }
 
     public onAssetDragStart(event: any) {

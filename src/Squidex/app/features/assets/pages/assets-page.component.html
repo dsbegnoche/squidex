@@ -48,6 +48,7 @@
                     (loaded)="onAssetLoaded(file, $event)">
                 </sqx-asset>
                 <sqx-asset class="col-3" *ngFor="let asset of assetsItems" [asset]="asset"
+                    [routerLink]="[asset.id]" routerLinkActive="active"
                     (deleting)="onAssetDeleting($event)"
                     (updated)="onAssetUpdated($event)">
                 </sqx-asset>
@@ -68,3 +69,5 @@
         </div>
     </div>
 </sqx-panel>
+
+<router-outlet></router-outlet>

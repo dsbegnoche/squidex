@@ -9,16 +9,45 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DndModule } from 'ng2-dnd';
 
-import { SqxFrameworkModule, SqxSharedModule } from 'shared';
+import {
+    CanDeactivateGuard,
+    HistoryComponent,
+    ResolveAssetGuard,
+    SqxFrameworkModule,
+    SqxSharedModule
+} from 'shared';
 
 import {
+    AssetPageComponent,
     AssetsPageComponent
 } from './declarations';
 
 const routes: Routes = [
     {
         path: '',
-        component: AssetsPageComponent
+        component: AssetsPageComponent,
+        children: [
+            {
+                path: ''
+            },
+            {
+                path: ':assetId',
+                component: AssetPageComponent,
+                canDeactivate: [CanDeactivateGuard],
+                resolve: {
+                    asset: ResolveAssetGuard
+                },
+                children: [
+                    {
+                       path: 'history',
+                       component: HistoryComponent,
+                       data: {
+                           channel: 'assets.{assetId}'
+                       }
+                   }
+                ]
+            }
+        ]
     }
 ];
 
@@ -30,7 +59,9 @@ const routes: Routes = [
         RouterModule.forChild(routes)
     ],
     declarations: [
+        AssetPageComponent,
         AssetsPageComponent
     ]
 })
+
 export class SqxFeatureAssetsModule { }

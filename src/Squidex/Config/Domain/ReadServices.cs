@@ -16,6 +16,7 @@ using Squidex.Domain.Apps.Entities;
 using Squidex.Domain.Apps.Entities.Apps;
 using Squidex.Domain.Apps.Entities.Apps.Services;
 using Squidex.Domain.Apps.Entities.Apps.Services.Implementations;
+using Squidex.Domain.Apps.Entities.Assets;
 using Squidex.Domain.Apps.Entities.Contents;
 using Squidex.Domain.Apps.Entities.Contents.Edm;
 using Squidex.Domain.Apps.Entities.Contents.GraphQL;
@@ -77,6 +78,9 @@ namespace Squidex.Config.Domain
                 .As<IUserPictureStore>();
 
             services.AddSingletonAs<AppHistoryEventsCreator>()
+                .As<IHistoryEventsCreator>();
+
+            services.AddSingletonAs<AssetHistoryEventsCreator>()
                 .As<IHistoryEventsCreator>();
 
             services.AddSingletonAs<ContentHistoryEventsCreator>()

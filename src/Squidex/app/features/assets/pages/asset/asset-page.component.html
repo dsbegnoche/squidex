@@ -1,0 +1,55 @@
+<sqx-title message="{app} | Assets" parameter1="app" [value1]="ctx.appName"></sqx-title>
+
+<form [formGroup]="assetForm" (ngSubmit)="saveAsset()">
+    <sqx-panel desiredWidth="53rem">
+        <div class="panel-header">
+            <div class="panel-title-row">
+                <div class="float-right">
+                    <span>
+                        <button type="submit" class="btn btn-primary" title="CTRL + S">Save</button>
+                    </span>
+                    <sqx-shortcut keys="ctrl+s" (trigger)="saveAsset()"></sqx-shortcut>
+                </div>
+                <h3 class="panel-title">
+                    Edit Asset
+                </h3>
+            </div>
+            <a class="panel-close" sqxParentLink>
+                <i class="icon-close"></i>
+            </a>
+        </div>
+
+        <div class="panel-main">
+            <div class="panel-content panel-content-scroll">
+                <!-- <div class="panel-alert panel-alert-danger" *ngIf="contentOld">
+                    <div class="float-right">
+                        <a class="force" (click)="showLatest()">View latest</a>
+                    </div>
+                    Viewing <strong>{{content.lastModifiedBy | sqxUserNameRef:null}}'s</strong> changes of {{content.lastModified | sqxShortDate}}.
+                </div> -->
+                <div class="table-items-row" [class.invalid]="assetForm.invalid">
+                    <div class="col col-name">
+                        <label>
+                            <span>
+                                File Name
+                                <span class="fieldRequired"></span>*</span>
+                        </label>
+                        <sqx-control-errors fieldName="File Name" for="name" [submitted]="assetFormSubmitted"></sqx-control-errors>
+                        <input type="text" class="form-control" id="name" maxlength="100" formControlName="name" placeholder="File Name" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel-sidebar">
+                <a class="panel-link" routerLink="history" routerLinkActive="active" #linkHistory>
+                    <i class="icon-time"></i>
+                </a>
+                
+                <sqx-onboarding-tooltip id="history" [for]="linkHistory" position="leftTop" after="120000">
+                    The sidebar navigation contains useful context specific links. Here you can view the history how this asset has changed over time.
+                </sqx-onboarding-tooltip>
+            </div>
+        </div>
+    </sqx-panel>
+</form>
+
+<router-outlet></router-outlet>

@@ -97,7 +97,7 @@ namespace Squidex.Domain.Apps.Entities.MongoDb.Assets
         public async Task<IAssetEntity> FindAssetAsync(Guid id)
         {
             var assetEntity =
-                await Collection.Find(x => x.Id == id)
+                await Collection.Find(x => x.Id == id && x.IsDeleted == false)
                     .FirstOrDefaultAsync();
 
             return assetEntity;
